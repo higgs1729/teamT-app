@@ -1,10 +1,10 @@
 # teamT-app
 
-チーム竹内による最終課題アプリケーションです。
+チームTによる最終課題アプリケーションです。
 
 ## アプリ概要
 
-> 🚧 アプリ名・概要は決定後に記入してください（`docs/specification.md` を参照）
+> 決定後に記入してください（`docs/specification.md` を参照）
 
 ## 仕様書
 
@@ -12,8 +12,7 @@
 
 ## 開発体制
 
-- チームメンバー6人がそれぞれ異なるAIアシスタントを使用して開発します
-- 各AIが仕様を把握できるよう、`docs/specification.md` に仕様をまとめています
+- 各メンバーが仕様を把握できるよう、`docs/specification.md` に仕様をまとめています
 - リーダー（竹内）が全体の統合・レビューを担当します
 
 | 担当 | 役割 | 使用AI |
@@ -55,7 +54,7 @@ src/
 ├── main/
 │   ├── java/com/example/app/
 │   │   ├── controller/     # APIエンドポイント
-│   │   ├── service/        # ビジネスロジック
+│   │   ├── service/        # 処理のロジック
 │   │   ├── model/          # データクラス
 │   │   └── config/         # 設定クラス
 │   └── resources/
@@ -69,6 +68,7 @@ src/
 docs/
 └── specification.md        # 仕様書
 ```
+- 追加でresources/application.propertiesを各自ローカルで作成し管理
 
 ## ブランチ命名規則
 

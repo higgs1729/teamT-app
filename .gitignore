@@ -1,0 +1,24 @@
+# Application properties (APIキー等を含むため除外)
+src/main/resources/application.properties
+*.env
+
+# Build output
+target/
+*.class
+*.jar
+*.war
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.suo
+*.user
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/

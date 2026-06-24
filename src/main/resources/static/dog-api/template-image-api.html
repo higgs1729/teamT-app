@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>API紹介テンプレート</title>
+  <style>
+    /* ===== 全体レイアウト ===== */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #fdf6ec;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 20px 64px;
+    }
+
+    /* ===== ヘッダー ===== */
+    .api-header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    .api-header h1 {
+      font-size: 2rem;
+      color: #5a3e2b;
+      margin-bottom: 6px;
+    }
+    .api-header .tagline {
+      color: #a07850;
+      font-size: 1rem;
+    }
+
+    /* ===== 紹介カード ===== */
+    .info-card {
+      width: 100%;
+      max-width: 560px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      padding: 28px 32px;
+      margin-bottom: 32px;
+    }
+    .info-card h2 {
+      font-size: 1.05rem;
+      color: #5a3e2b;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .info-card h2::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 1em;
+      background: #e2a96f;
+      border-radius: 2px;
+    }
+    .api-description {
+      color: #6b5240;
+      font-size: 0.93rem;
+      line-height: 1.75;
+      margin-bottom: 20px;
+    }
+
+    /* URL リンクセクション */
+    .url-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .url-label {
+      font-size: 0.8rem;
+      color: #a08060;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .url-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #fdf0e0;
+      border: 1px solid #e8c99a;
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: #b5622a;
+      font-family: 'Courier New', monospace;
+      font-size: 0.88rem;
+      text-decoration: none;
+      word-break: break-all;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .url-link:hover {
+      background: #fae4c4;
+      border-color: #d4935a;
+    }
+    .url-link .icon {
+      flex-shrink: 0;
+      font-size: 1rem;
+    }
+
+    /* ===== 画像表示エリア ===== */
+    .viewer {
+      width: 100%;
+      max-width: 560px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+    .viewer-img-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      background: #f0e8dc;
+      overflow: hidden;
+    }
+    .viewer-img-wrap img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: opacity 0.5s ease;
+    }
+    .viewer-img-wrap .overlay-msg {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #b09070;
+      font-size: 0.95rem;
+    }
+
+    /* ===== ボタンエリア ===== */
+    .viewer-footer {
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .status-text {
+      color: #a08060;
+      font-size: 0.88rem;
+      flex: 1;
+    }
+    .btn-fetch {
+      background: #e2a96f;
+      color: #fff;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .btn-fetch:hover { background: #c8873d; }
+    .btn-fetch:active { transform: scale(0.97); }
+    .btn-fetch:disabled { background: #d9c4a8; cursor: default; }
+  </style>
+</head>
+<body>
+
+  <!-- ===== ヘッダー ===== -->
+  <div class="api-header">
+    <!-- ★ API名を変更してください -->
+    <h1>🐶 Dog API</h1>
+    <!-- ★ キャッチコピーを変更してください -->
+    <p class="tagline">ランダムな犬の画像を無料で取得できるAPI</p>
+  </div>
+
+  <!-- ===== API紹介カード ===== -->
+  <div class="info-card">
+    <h2>このAPIについて</h2>
+    <!-- ★ APIの説明文を変更してください -->
+    <p class="api-description">
+      <strong>Dog API</strong> は、世界中の犬の品種の画像を無料で取得できる公開APIです。
+      登録・APIキー不要で誰でも利用でき、ランダム画像の取得や品種一覧の取得など
+      シンプルなエンドポイントが揃っています。
+      フロントエンドの学習・プロトタイプ開発のお試しAPIとして最適です。
+    </p>
+
+    <div class="url-section">
+      <span class="url-label">公式サイト</span>
+      <!-- ★ hrefとテキストをAPIの公式サイトURLに変更してください -->
+      <a class="url-link" href="https://dog.ceo/dog-api/" target="_blank" rel="noopener">
+        <span class="icon">🔗</span>
+        https://dog.ceo/dog-api/
+      </a>
+
+      <span class="url-label" style="margin-top:8px;">使用エンドポイント</span>
+      <!-- ★ hrefとテキストを使用するAPIエンドポイントに変更してください -->
+      <a class="url-link" href="https://dog.ceo/api/breeds/image/random" target="_blank" rel="noopener">
+        <span class="icon">📡</span>
+        https://dog.ceo/api/breeds/image/random
+      </a>
+    </div>
+  </div>
+
+  <!-- ===== 画像ビューア ===== -->
+  <div class="viewer">
+    <div class="viewer-img-wrap">
+      <div class="overlay-msg" id="overlay">ボタンを押して画像を表示</div>
+      <img id="api-img" src="" alt="APIから取得した画像" style="opacity:0;">
+    </div>
+    <div class="viewer-footer">
+      <span class="status-text" id="status">-</span>
+      <button class="btn-fetch" id="fetch-btn" onclick="fetchImage()">画像を表示</button>
+    </div>
+  </div>
+
+  <script>
+    /*
+     * ★ fetchImage() 内の fetch URL と画像取得ロジックを
+     *    使用するAPIに合わせて変更してください。
+     *
+     * 【Dog API の場合】
+     *   URL  : https://dog.ceo/api/breeds/image/random
+     *   画像 : data.message
+     *
+     * 【変更例: Lorem Picsum の場合】
+     *   const imageUrl = `https://picsum.photos/800/600?random=${Date.now()}`;
+     *
+     * 【変更例: The Cat API の場合】
+     *   URL  : https://api.thecatapi.com/v1/images/search
+     *   画像 : data[0].url
+     */
+    async function fetchImage() {
+      const btn    = document.getElementById('fetch-btn');
+      const img    = document.getElementById('api-img');
+      const status = document.getElementById('status');
+      const overlay = document.getElementById('overlay');
+
+      btn.disabled = true;
+      status.textContent = '取得中...';
+      img.style.opacity = '0';
+
+      try {
+        // ★ ここのURLを使用するAPIエンドポイントに変更してください
+        const res  = await fetch('https://dog.ceo/api/breeds/image/random');
+        const data = await res.json();
+
+        // ★ ここの data.message を画像URLが格納されているキーに変更してください
+        const imageUrl = data.message;
+
+        overlay.style.display = 'none';
+        img.onload = () => { img.style.opacity = '1'; };
+        img.src = imageUrl;
+        status.textContent = '取得成功 ✅';
+      } catch (e) {
+        status.textContent = '取得失敗 ❌ — コンソールを確認してください';
+        console.error(e);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+  </script>
+
+</body>
+</html>

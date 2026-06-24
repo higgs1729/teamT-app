@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>🎮 ゲーム図鑑</title>
+
+<style>
+body{
+    font-family:sans-serif;
+    background:#0f172a;
+    color:white;
+    padding:20px;
+}
+
+h1{
+    text-align:center;
+}
+
+.search{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+input{
+    padding:10px;
+    width:250px;
+    border-radius:10px;
+    border:none;
+}
+
+button{
+    padding:10px 15px;
+    border:none;
+    border-radius:10px;
+    background:#22c55e;
+    color:white;
+    cursor:pointer;
+}
+
+#grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+    gap:20px;
+    margin-top:20px;
+}
+
+.card{
+    background:#1e293b;
+    border-radius:12px;
+    overflow:hidden;
+}
+
+.card img{
+    width:100%;
+    height:160px;
+    object-fit:cover;
+}
+
+.card-body{
+    padding:10px;
+}
+
+.tag{
+    color:#22c55e;
+    font-size:14px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎮 ゲーム図鑑</h1>
+
+<div class="search">
+    <input id="keyword" placeholder="ゲーム名を検索">
+    <button onclick="searchGames()">検索</button>
+</div>
+
+<div id="grid">読み込み中...</div>
+
+<script>
+
+let allGames = [];
+
+async function loadGames(){
+
+    const res = await fetch(
+        "https://www.freetogame.com/api/games"
+    );
+
+    allGames = await res.json();
+
+    showGames(allGames.slice(0,12));
+}
+
+function showGames(list){
+
+    const grid = document.getElementById("grid");
+    grid.innerHTML = "";
+
+    list.forEach(game => {
+
+        grid.innerHTML += `
+        <div class="card">
+
+            <img src="${game.thumbnail}">
+
+            <div class="card-body">
+
+                <h3>${game.title}</h3>
+
+                <p class="tag">${game.genre}</p>
+
+                <p>${game.release_date}</p>
+
+            </div>
+
+        </div>
+        `;
+    });
+}
+
+function searchGames(){
+
+    const keyword =
+        document.getElementById("keyword").value.toLowerCase();
+
+    if(!keyword){
+        showGames(allGames.slice(0,12));
+        return;
+    }
+
+    const filtered =
+        allGames.filter(game =>
+            game.title.toLowerCase().includes(keyword)
+        );
+
+    showGames(filtered);
+}
+
+loadGames();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎌 アニメ図鑑</title>
+
+<style>
+body{
+    margin:0;
+    font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",sans-serif;
+    background: linear-gradient(135deg,#1f1c2c,#928dab);
+    padding:20px;
+}
+
+/* タイトル */
+h1{
+    text-align:center;
+    color:white;
+    margin-bottom:20px;
+}
+
+/* 検索 */
+.search-box{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin-bottom:20px;
+    flex-wrap:wrap;
+}
+
+input{
+    width:300px;
+    padding:12px;
+    border:none;
+    border-radius:12px;
+    font-size:16px;
+}
+
+button{
+    padding:12px 18px;
+    border:none;
+    border-radius:12px;
+    background:#ff4b2b;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#ff416c;
+}
+
+/* ステータス */
+#status{
+    text-align:center;
+    color:white;
+    margin-bottom:15px;
+}
+
+/* カード */
+#results{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+    gap:20px;
+}
+
+.card{
+    background:white;
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:0 8px 20px rgba(0,0,0,0.2);
+    transition:0.3s;
+}
+
+.card:hover{
+    transform:scale(1.03);
+}
+
+.card img{
+    width:100%;
+    height:350px;
+    object-fit:cover;
+}
+
+.card-body{
+    padding:15px;
+}
+
+.card h3{
+    font-size:18px;
+    margin-bottom:8px;
+}
+
+.info{
+    font-size:14px;
+    color:#555;
+    margin-top:4px;
+}
+
+.score{
+    color:#ff9800;
+    font-weight:bold;
+}
+
+/* スマホ対応 */
+@media (max-width:600px){
+    input{
+        width:100%;
+    }
+
+    .search-box{
+        flex-direction:column;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎌 アニメ図鑑</h1>
+
+<div class="search-box">
+    <input
+        id="keyword"
+        placeholder="アニメ名を入力..."
+        onkeydown="if(event.key==='Enter') searchAnime()"
+    >
+    <button onclick="searchAnime()">検索</button>
+</div>
+
+<div id="status">人気アニメを読み込み中...</div>
+
+<div id="results"></div>
+
+<script>
+
+function displayAnime(list){
+    const results = document.getElementById("results");
+    results.innerHTML = "";
+
+    list.forEach(anime => {
+
+        const title =
+            anime.title_japanese ||
+            anime.title;
+
+        results.innerHTML += `
+        <div class="card">
+
+            <img src="${anime.images.jpg.image_url}">
+
+            <div class="card-body">
+
+                <h3>${title}</h3>
+
+                <div class="info">
+                    原題: ${anime.title}
+                </div>
+
+                <div class="info">
+                    ⭐ <span class="score">
+                        ${anime.score || "評価なし"}
+                    </span>
+                </div>
+
+                <div class="info">
+                    📺 ${anime.episodes || "不明"}話
+                </div>
+
+                <div class="info">
+                    ${anime.status}
+                </div>
+
+            </div>
+        </div>
+        `;
+    });
+}
+
+async function searchAnime(){
+
+    const keyword =
+        document.getElementById("keyword").value.trim();
+
+    if(!keyword){
+        alert("アニメ名を入力してください");
+        return;
+    }
+
+    document.getElementById("status").textContent =
+        "検索中...";
+
+    const res = await fetch(
+        `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(keyword)}&limit=20`
+    );
+
+    const data = await res.json();
+
+    if(!data.data.length){
+        document.getElementById("status").textContent =
+            "見つかりませんでした";
+        return;
+    }
+
+    displayAnime(data.data);
+
+    document.getElementById("status").textContent =
+        `${data.data.length}件見つかりました`;
+}
+
+async function loadPopular(){
+
+    const res = await fetch(
+        "https://api.jikan.moe/v4/top/anime?limit=12"
+    );
+
+    const data = await res.json();
+
+    displayAnime(data.data);
+
+    document.getElementById("status").textContent =
+        "人気アニメランキング";
+}
+
+loadPopular();
+
+</script>
+
+</body>
+</html>

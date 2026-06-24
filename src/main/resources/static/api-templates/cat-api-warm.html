@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>The Cat API — 暖色系</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #fdf6ec;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 20px 64px;
+    }
+    .api-header { text-align: center; margin-bottom: 36px; }
+    .api-header h1 { font-size: 2rem; color: #5a3e2b; margin-bottom: 6px; }
+    .tagline { font-size: 1rem; color: #a07850; }
+
+    .info-card, .viewer {
+      width: 100%; max-width: 560px;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      margin-bottom: 32px;
+    }
+    .info-card { padding: 28px 32px; }
+    .info-card h2 {
+      font-size: 1.05rem; color: #5a3e2b;
+      margin-bottom: 12px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .info-card h2::before {
+      content: ''; display: inline-block;
+      width: 4px; height: 1em;
+      background: #e2a96f; border-radius: 2px;
+    }
+    .api-description { color: #6b5240; font-size: 0.93rem; line-height: 1.75; margin-bottom: 20px; }
+    .url-section { display: flex; flex-direction: column; gap: 8px; }
+    .url-label { font-size: 0.8rem; color: #a08060; text-transform: uppercase; letter-spacing: 0.08em; }
+    .url-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #fdf0e0; border: 1px solid #e8c99a;
+      border-radius: 8px; padding: 10px 14px;
+      color: #b5622a; font-family: 'Courier New', monospace;
+      font-size: 0.88rem; text-decoration: none;
+      word-break: break-all; transition: background 0.2s, border-color 0.2s;
+    }
+    .url-link:hover { background: #fae4c4; border-color: #d4935a; }
+
+    .viewer-img-wrap {
+      position: relative; width: 100%; aspect-ratio: 4/3;
+      background: #f0e8dc; overflow: hidden;
+    }
+    .viewer-img-wrap img {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; transition: opacity 0.5s ease;
+    }
+    .overlay-msg {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      color: #b09070; font-size: 0.95rem;
+    }
+    .viewer-footer {
+      padding: 20px 24px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .status-text { color: #a08060; font-size: 0.88rem; flex: 1; }
+    .btn-fetch {
+      background: #e2a96f; color: #fff;
+      border: none; padding: 12px 28px;
+      border-radius: 10px; font-size: 1rem; font-weight: bold;
+      cursor: pointer; white-space: nowrap;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .btn-fetch:hover { background: #c8873d; }
+    .btn-fetch:active { transform: scale(0.97); }
+    .btn-fetch:disabled { opacity: 0.5; cursor: default; }
+  </style>
+</head>
+<body>
+  <div class="api-header">
+    <h1>🐱 The Cat API</h1>
+    <p class="tagline">ランダムな猫の画像を無料で取得できるAPI</p>
+  </div>
+
+  <div class="info-card">
+    <h2>このAPIについて</h2>
+    <p class="api-description">
+      <strong>The Cat API</strong> は、世界中の猫の画像をランダムに取得できる公開APIです。
+      無料プランではAPIキー不要でも基本的な画像取得が可能で、
+      猫の品種情報や画像のアップロード機能も備えています。
+      フロントエンドのAPI学習やプロトタイプ制作にうってつけの定番APIです。
+    </p>
+    <div class="url-section">
+      <span class="url-label">公式サイト</span>
+      <a class="url-link" href="https://thecatapi.com/" target="_blank" rel="noopener">
+        <span>🔗</span> https://thecatapi.com/
+      </a>
+      <span class="url-label" style="margin-top:8px;">使用エンドポイント</span>
+      <a class="url-link" href="https://api.thecatapi.com/v1/images/search" target="_blank" rel="noopener">
+        <span>📡</span> https://api.thecatapi.com/v1/images/search
+      </a>
+    </div>
+  </div>
+
+  <div class="viewer">
+    <div class="viewer-img-wrap">
+      <div class="overlay-msg" id="overlay">ボタンを押して画像を表示</div>
+      <img id="api-img" src="" alt="猫の画像" style="opacity:0;">
+    </div>
+    <div class="viewer-footer">
+      <span class="status-text" id="status">-</span>
+      <button class="btn-fetch" id="fetch-btn" onclick="fetchImage()">画像を表示</button>
+    </div>
+  </div>
+
+  <script>
+    async function fetchImage() {
+      const btn = document.getElementById('fetch-btn');
+      const img = document.getElementById('api-img');
+      const status = document.getElementById('status');
+      const overlay = document.getElementById('overlay');
+      btn.disabled = true;
+      status.textContent = '取得中...';
+      img.style.opacity = '0';
+      try {
+        const res = await fetch('https://api.thecatapi.com/v1/images/search');
+        const data = await res.json();
+        const imageUrl = data[0].url;
+        overlay.style.display = 'none';
+        img.onload = () => { img.style.opacity = '1'; };
+        img.src = imageUrl;
+        status.textContent = '取得成功 ✅';
+      } catch (e) {
+        status.textContent = '取得失敗 ❌ — コンソールを確認してください';
+        console.error(e);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>

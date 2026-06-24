@@ -6,7 +6,8 @@
       "Bash(git *)",
       "PowerShell(git *)",
       "Skill(update-config)",
-      "Skill(update-config:*)"
+      "Skill(update-config:*)",
+      "PowerShell(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\253207\\\\Desktop\\\\teamT-app\\\\src\\\\main\\\\resources\\\\static\\\\api-templates\")"
     ]
   }
 }

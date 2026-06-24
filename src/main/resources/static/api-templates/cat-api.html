@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>The Cat API 紹介</title>
+  <style>
+    /* ===== テーマ変数 ===== */
+    :root {
+      --bg: #fdf6ec;        --card-bg: #ffffff;      --heading: #5a3e2b;
+      --subtext: #a07850;   --text: #6b5240;          --accent: #e2a96f;
+      --accent-hover: #c8873d;                        --accent-text: #ffffff;
+      --link-bg: #fdf0e0;   --link-color: #b5622a;    --link-border: #e8c99a;
+      --overlay-text: #b09070;                        --img-bg: #f0e8dc;
+      --url-label: #a08060; --shadow: rgba(0,0,0,0.08); --border-accent: #e2a96f;
+    }
+    [data-theme="cool"] {
+      --bg: #eef4fb;        --card-bg: #ffffff;      --heading: #1e3a5f;
+      --subtext: #5a7fa8;   --text: #334e68;          --accent: #3b82f6;
+      --accent-hover: #2563eb;                        --accent-text: #ffffff;
+      --link-bg: #dbeafe;   --link-color: #1d4ed8;    --link-border: #93c5fd;
+      --overlay-text: #5a7fa8;                        --img-bg: #dbeafe;
+      --url-label: #5a7fa8; --shadow: rgba(0,0,0,0.08); --border-accent: #3b82f6;
+    }
+    [data-theme="dark"] {
+      --bg: #1a1a2e;        --card-bg: #16213e;      --heading: #e2b96f;
+      --subtext: #a0a8c0;   --text: #c0cce0;          --accent: #e2b96f;
+      --accent-hover: #c8973d;                        --accent-text: #1a1a2e;
+      --link-bg: #0f3460;   --link-color: #e2b96f;    --link-border: rgba(226,185,111,.27);
+      --overlay-text: #a0a8c0;                        --img-bg: #0f3460;
+      --url-label: #a0a8c0; --shadow: rgba(0,0,0,.4);  --border-accent: #e2b96f;
+    }
+
+    /* ===== 共通レイアウト ===== */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 48px 20px 64px;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* ===== ヘッダー ===== */
+    .api-header { text-align: center; margin-bottom: 36px; }
+    .header-row {
+      display: flex; align-items: center;
+      justify-content: center; gap: 12px; margin-bottom: 6px;
+    }
+    h1 { font-size: 2rem; color: var(--heading); }
+    .tagline { color: var(--subtext); font-size: 1rem; }
+
+    /* ===== テーマ切替 ===== */
+    .theme-switcher { position: relative; }
+    .theme-btn {
+      background: var(--card-bg); border: 1px solid var(--link-border);
+      color: var(--heading); padding: 6px 14px; border-radius: 8px;
+      cursor: pointer; font-size: 0.85rem; white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .theme-btn:hover { filter: brightness(0.95); }
+    .theme-menu {
+      display: none; position: absolute; top: calc(100% + 6px); right: 0;
+      background: var(--card-bg); border: 1px solid var(--link-border);
+      border-radius: 10px; overflow: hidden;
+      box-shadow: 0 4px 16px var(--shadow); z-index: 100; min-width: 120px;
+    }
+    .theme-menu.open { display: block; }
+    .theme-menu button {
+      display: block; width: 100%; text-align: left;
+      background: none; border: none; padding: 10px 16px;
+      cursor: pointer; color: var(--text); font-size: 0.9rem;
+    }
+    .theme-menu button:hover { background: var(--link-bg); }
+
+    /* ===== カード共通 ===== */
+    .info-card, .viewer, .unique-feature-card {
+      width: 100%; max-width: 560px;
+      background: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 4px 24px var(--shadow);
+      margin-bottom: 32px;
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+    .info-card, .unique-feature-card { padding: 28px 32px; }
+    .info-card h2, .unique-feature-card h2 {
+      font-size: 1.05rem; color: var(--heading);
+      margin-bottom: 12px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .info-card h2::before, .unique-feature-card h2::before {
+      content: ''; display: inline-block; width: 4px; height: 1em;
+      background: var(--border-accent); border-radius: 2px;
+    }
+    .api-description {
+      color: var(--text); font-size: 0.93rem;
+      line-height: 1.75; margin-bottom: 20px;
+    }
+    .url-section { display: flex; flex-direction: column; gap: 8px; }
+    .url-label {
+      font-size: 0.8rem; color: var(--url-label);
+      text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    .url-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--link-bg); border: 1px solid var(--link-border);
+      border-radius: 8px; padding: 10px 14px; color: var(--link-color);
+      font-family: 'Courier New', monospace; font-size: 0.88rem;
+      text-decoration: none; word-break: break-all; transition: filter 0.2s;
+    }
+    .url-link:hover { filter: brightness(0.95); }
+
+    /* ===== ビューア ===== */
+    .viewer-img-wrap {
+      position: relative; width: 100%; aspect-ratio: 4/3;
+      background: var(--img-bg); overflow: hidden;
+    }
+    .viewer-img-wrap img {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; transition: opacity 0.5s ease;
+    }
+    .overlay-msg {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--overlay-text); font-size: 0.95rem;
+    }
+    .viewer-footer {
+      padding: 20px 24px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .status-text { color: var(--subtext); font-size: 0.88rem; flex: 1; }
+
+    /* ===== ボタン共通 ===== */
+    .btn {
+      background: var(--accent); color: var(--accent-text);
+      border: none; padding: 10px 22px; border-radius: 10px;
+      font-size: 0.95rem; font-weight: bold; cursor: pointer;
+      white-space: nowrap; transition: background 0.2s, transform 0.1s;
+    }
+    .btn:hover { background: var(--accent-hover); }
+    .btn:active { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.5; cursor: default; }
+
+    /* ===== ユニーク機能（猫種フィルター）===== */
+    .breed-row {
+      display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    select {
+      background: var(--link-bg); border: 1px solid var(--link-border);
+      color: var(--text); padding: 8px 12px; border-radius: 8px;
+      font-size: 0.9rem; flex: 1; min-width: 0;
+      transition: background 0.3s;
+    }
+    .breed-result {
+      border-radius: 12px; overflow: hidden;
+      aspect-ratio: 4/3; background: var(--img-bg);
+      position: relative;
+    }
+    .breed-result img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: opacity 0.5s;
+      position: absolute; inset: 0;
+    }
+    .breed-placeholder {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--overlay-text); font-size: 0.9rem;
+    }
+    .breed-info {
+      margin-top: 14px; padding: 14px 16px;
+      background: var(--link-bg); border-radius: 10px;
+      border: 1px solid var(--link-border);
+      font-size: 0.88rem; color: var(--text); line-height: 1.7;
+      display: none;
+    }
+    .breed-info strong { color: var(--heading); }
+    .breed-status { margin-top: 10px; font-size: 0.85rem; color: var(--subtext); }
+  </style>
+</head>
+<body data-theme="warm">
+
+  <!-- ヘッダー -->
+  <div class="api-header">
+    <div class="header-row">
+      <h1>🐱 The Cat API</h1>
+      <div class="theme-switcher">
+        <button class="theme-btn" onclick="toggleThemeMenu()">🎨 テーマ ▾</button>
+        <div class="theme-menu" id="theme-menu">
+          <button onclick="setTheme('warm')">🌅 暖色系</button>
+          <button onclick="setTheme('cool')">❄️ 寒色系</button>
+          <button onclick="setTheme('dark')">🌙 ダーク</button>
+        </div>
+      </div>
+    </div>
+    <p class="tagline">ランダムな猫の画像を無料で取得できるAPI</p>
+  </div>
+
+  <!-- API紹介カード -->
+  <div class="info-card">
+    <h2>このAPIについて</h2>
+    <p class="api-description">
+      <strong>The Cat API</strong> は、世界中の猫の画像をランダムに取得できる公開APIです。
+      無料プランではAPIキー不要でも基本的な画像取得が可能で、
+      猫の品種情報・気質・特徴などの詳細データも合わせて取得できます。
+      フロントエンドの学習やプロトタイプ制作にぴったりの定番APIです。
+    </p>
+    <div class="url-section">
+      <span class="url-label">公式サイト</span>
+      <a class="url-link" href="https://thecatapi.com/" target="_blank" rel="noopener">
+        🔗 https://thecatapi.com/
+      </a>
+      <span class="url-label" style="margin-top:8px;">使用エンドポイント</span>
+      <a class="url-link" href="https://api.thecatapi.com/v1/images/search" target="_blank" rel="noopener">
+        📡 https://api.thecatapi.com/v1/images/search
+      </a>
+    </div>
+  </div>
+
+  <!-- ランダム画像ビューア -->
+  <div class="viewer">
+    <div class="viewer-img-wrap">
+      <div class="overlay-msg" id="overlay">ボタンを押して画像を表示</div>
+      <img id="api-img" src="" alt="猫の画像" style="opacity:0;">
+    </div>
+    <div class="viewer-footer">
+      <span class="status-text" id="status">-</span>
+      <button class="btn" id="fetch-btn" onclick="fetchImage()">画像を表示</button>
+    </div>
+  </div>
+
+  <!-- ユニーク機能：猫種フィルター＋品種情報 -->
+  <div class="unique-feature-card">
+    <h2>猫種フィルター＋品種情報</h2>
+    <p style="color:var(--text);font-size:0.9rem;margin-bottom:16px;">
+      猫種を選ぶと、その品種の画像と特徴（性格・原産国・寿命など）を表示します。
+    </p>
+    <div class="breed-row">
+      <select id="breed-select" onchange="onBreedChange()">
+        <option value="">読み込み中...</option>
+      </select>
+      <button class="btn" id="breed-btn" onclick="fetchBreedImage()" disabled>検索</button>
+    </div>
+    <div class="breed-result">
+      <div class="breed-placeholder" id="breed-placeholder">猫種を選んで検索してください</div>
+      <img id="breed-img" src="" alt="猫種別画像" style="opacity:0;">
+    </div>
+    <div class="breed-info" id="breed-info"></div>
+    <p class="breed-status" id="breed-status"></p>
+  </div>
+
+  <script>
+    /* ===== テーマ切替 ===== */
+    function toggleThemeMenu() {
+      document.getElementById('theme-menu').classList.toggle('open');
+    }
+    function setTheme(theme) {
+      document.body.dataset.theme = theme;
+      document.getElementById('theme-menu').classList.remove('open');
+      localStorage.setItem('api-template-theme', theme);
+    }
+    const savedTheme = localStorage.getItem('api-template-theme');
+    if (savedTheme) document.body.dataset.theme = savedTheme;
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.theme-switcher'))
+        document.getElementById('theme-menu').classList.remove('open');
+    });
+
+    /* ===== ランダム画像 ===== */
+    async function fetchImage() {
+      const btn = document.getElementById('fetch-btn');
+      const img = document.getElementById('api-img');
+      const status = document.getElementById('status');
+      const overlay = document.getElementById('overlay');
+      btn.disabled = true;
+      status.textContent = '取得中...';
+      img.style.opacity = '0';
+      try {
+        const res = await fetch('https://api.thecatapi.com/v1/images/search');
+        const data = await res.json();
+        overlay.style.display = 'none';
+        img.onload = () => { img.style.opacity = '1'; };
+        img.src = data[0].url;
+        status.textContent = '取得成功 ✅';
+      } catch (e) {
+        status.textContent = '取得失敗 ❌';
+        console.error(e);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    /* ===== 猫種フィルター ===== */
+    let breedsData = {};
+
+    async function loadBreeds() {
+      const sel = document.getElementById('breed-select');
+      const btn = document.getElementById('breed-btn');
+      try {
+        const res = await fetch('https://api.thecatapi.com/v1/breeds');
+        const data = await res.json();
+        sel.innerHTML = '<option value="">-- 猫種を選択 --</option>';
+        data.forEach(b => {
+          breedsData[b.id] = b;
+          const opt = document.createElement('option');
+          opt.value = b.id;
+          opt.textContent = b.name;
+          sel.appendChild(opt);
+        });
+        btn.disabled = false;
+      } catch (e) {
+        sel.innerHTML = '<option value="">読み込み失敗</option>';
+        console.error(e);
+      }
+    }
+
+    function onBreedChange() {
+      document.getElementById('breed-info').style.display = 'none';
+    }
+
+    async function fetchBreedImage() {
+      const id = document.getElementById('breed-select').value;
+      if (!id) return;
+      const btn = document.getElementById('breed-btn');
+      const img = document.getElementById('breed-img');
+      const placeholder = document.getElementById('breed-placeholder');
+      const info = document.getElementById('breed-info');
+      const breedStatus = document.getElementById('breed-status');
+
+      btn.disabled = true;
+      breedStatus.textContent = '取得中...';
+      img.style.opacity = '0';
+      info.style.display = 'none';
+
+      try {
+        const res = await fetch(`https://api.thecatapi.com/v1/images/search?breed_ids=${id}`);
+        const data = await res.json();
+
+        if (!data.length || !data[0].url) {
+          breedStatus.textContent = 'この猫種の画像は見つかりませんでした';
+          btn.disabled = false;
+          return;
+        }
+
+        placeholder.style.display = 'none';
+        img.onload = () => { img.style.opacity = '1'; };
+        img.src = data[0].url;
+
+        const b = breedsData[id];
+        if (b) {
+          info.innerHTML = `
+            <strong>${b.name}</strong>（${b.origin || '不明'}）<br>
+            🗓 寿命: ${b.life_span || '不明'} 年
+            ⚖️ 体重: ${b.weight?.metric || '不明'} kg<br>
+            😺 性格: ${b.temperament || '情報なし'}<br>
+            📝 ${b.description ? b.description.slice(0, 80) + '...' : ''}
+          `;
+          info.style.display = 'block';
+        }
+
+        breedStatus.textContent = `「${b?.name || id}」の画像を取得しました ✅`;
+      } catch (e) {
+        breedStatus.textContent = '取得失敗 ❌';
+        console.error(e);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    loadBreeds();
+  </script>
+</body>
+</html>

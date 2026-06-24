@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🐶 わんこ図鑑</title>
+
+<style>
+body{
+    margin:0;
+    font-family:"Yu Gothic","Meiryo",sans-serif;
+    background:linear-gradient(135deg,#667eea,#764ba2);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+}
+
+.container{
+    width:90%;
+    max-width:700px;
+    background:white;
+    border-radius:20px;
+    padding:30px;
+    text-align:center;
+    box-shadow:0 10px 30px rgba(0,0,0,.2);
+}
+
+h1{
+    color:#333;
+    margin-bottom:10px;
+}
+
+.subtitle{
+    color:#666;
+    margin-bottom:20px;
+}
+
+.controls{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    flex-wrap:wrap;
+    margin-bottom:20px;
+}
+
+select,
+button{
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    font-size:16px;
+}
+
+select{
+    background:#f2f2f2;
+}
+
+button{
+    background:#667eea;
+    color:white;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#5563d8;
+}
+
+img{
+    width:100%;
+    max-height:450px;
+    object-fit:cover;
+    border-radius:15px;
+}
+
+.status{
+    margin-top:15px;
+    color:#666;
+}
+
+.footer{
+    margin-top:20px;
+    color:#999;
+    font-size:14px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <h1>🐶 わんこ図鑑</h1>
+    <p class="subtitle">
+        お気に入りの犬種を探してみよう！
+    </p>
+
+    <div class="controls">
+        <select id="breedSelect">
+            <option>犬種を選択してください</option>
+        </select>
+
+        <button onclick="loadRandomDog()">
+            ランダム表示
+        </button>
+
+        <button onclick="loadBreedDog()">
+            犬種で表示
+        </button>
+    </div>
+
+    <img id="dogImage" alt="犬の画像">
+
+    <div class="status" id="status">
+        読み込み中...
+    </div>
+
+    <div class="footer">
+        🐾 Dog CEO API 使用
+    </div>
+
+</div>
+
+<script>
+const breedNames = {
+    akita: "秋田犬",
+    beagle: "ビーグル",
+    boxer: "ボクサー",
+    bulldog: "ブルドッグ",
+    chihuahua: "チワワ",
+    corgi: "コーギー",
+    dachshund: "ダックスフンド",
+    dalmatian: "ダルメシアン",
+    doberman: "ドーベルマン",
+    golden: "ゴールデンレトリバー",
+    husky: "シベリアンハスキー",
+    labrador: "ラブラドール",
+    maltese: "マルチーズ",
+    papillon: "パピヨン",
+    pomeranian: "ポメラニアン",
+    poodle: "プードル",
+    pug: "パグ",
+    samoyed: "サモエド",
+    shiba: "柴犬",
+    shihtzu: "シーズー"
+};
+
+const API = "https://dog.ceo/api";
+const breedSelect = document.getElementById("breedSelect");
+const dogImage = document.getElementById("dogImage");
+const status = document.getElementById("status");
+
+async function loadBreeds() {
+    const res = await fetch(`${API}/breeds/list/all`);
+    const data = await res.json();
+
+    Object.keys(data.message).forEach(breed => {
+        const option = document.createElement("option");
+        option.value = breed;
+        option.textContent =
+            breedNames[breed] || breed;
+        breedSelect.appendChild(option);
+    });
+}
+
+async function loadRandomDog() {
+    status.textContent = "🐕 画像を取得中...";
+
+    const res = await fetch(
+        `${API}/breeds/image/random`
+    );
+
+    const data = await res.json();
+
+    dogImage.src = data.message;
+
+    dogImage.onload = () => {
+        status.textContent =
+            "✨ ランダムなわんこを表示中";
+    };
+}
+
+async function loadBreedDog() {
+
+    const breed = breedSelect.value;
+
+    status.textContent =
+        "🐾 犬種画像を取得中...";
+
+    const res = await fetch(
+        `${API}/breed/${breed}/images/random`
+    );
+
+    const data = await res.json();
+
+    dogImage.src = data.message;
+
+    dogImage.onload = () => {
+        const name =
+            breedNames[breed] || breed;
+
+        status.textContent =
+            `🐶 ${name} を表示中`;
+    };
+}
+
+loadBreeds();
+loadRandomDog();
+</script>
+
+</body>
+</html>

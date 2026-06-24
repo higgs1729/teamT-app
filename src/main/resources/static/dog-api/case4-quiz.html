@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Dog API - 犬種当てクイズ</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      background: #fff;
+      border-radius: 20px;
+      padding: 32px;
+      width: 420px;
+      text-align: center;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+    }
+    h1 { font-size: 1.5rem; color: #4a4a6a; margin-bottom: 6px; }
+    .score { color: #888; font-size: 0.9rem; margin-bottom: 20px; }
+    .dog-img {
+      width: 100%;
+      height: 240px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      background: #eee;
+    }
+    .question { color: #4a4a6a; margin-bottom: 16px; font-weight: bold; }
+    .choices {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .choice-btn {
+      padding: 10px;
+      border-radius: 8px;
+      border: 2px solid #d0d0e8;
+      background: #fff;
+      color: #4a4a6a;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .choice-btn:hover:not(:disabled) { background: #667eea; color: #fff; border-color: #667eea; }
+    .choice-btn.correct { background: #48bb78; color: #fff; border-color: #48bb78; }
+    .choice-btn.wrong { background: #fc8181; color: #fff; border-color: #fc8181; }
+    #feedback {
+      min-height: 24px;
+      font-size: 1rem;
+      color: #4a4a6a;
+      margin-bottom: 12px;
+    }
+    #next-btn {
+      display: none;
+      background: #667eea;
+      color: #fff;
+      border: none;
+      padding: 12px 32px;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    #next-btn:hover { background: #5568d0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🐶 犬種当てクイズ</h1>
+    <p class="score" id="score">正解: 0 / 0問</p>
+    <img class="dog-img" id="dog-img" src="" alt="犬">
+    <p class="question">この犬の犬種は？</p>
+    <div class="choices" id="choices"></div>
+    <p id="feedback"></p>
+    <button id="next-btn" onclick="loadQuestion()">次の問題へ</button>
+  </div>
+
+  <script>
+    let correct = 0, total = 0;
+
+    async function getBreeds() {
+      const res = await fetch('https://dog.ceo/api/breeds/list/all');
+      const data = await res.json();
+      return Object.keys(data.message);
+    }
+
+    function shuffle(arr) {
+      return arr.sort(() => Math.random() - 0.5);
+    }
+
+    async function loadQuestion() {
+      document.getElementById('feedback').textContent = '';
+      document.getElementById('next-btn').style.display = 'none';
+      document.getElementById('choices').innerHTML = '';
+      document.getElementById('dog-img').src = '';
+
+      const res = await fetch('https://dog.ceo/api/breeds/image/random');
+      const data = await res.json();
+      const url = data.message;
+      document.getElementById('dog-img').src = url;
+
+      // URLから犬種を抽出（例: breeds/hound-afghan/xxx.jpg → hound-afghan）
+      const match = url.match(/breeds\/([^/]+)\//);
+      const answerBreed = match ? match[1] : 'unknown';
+
+      const allBreeds = await getBreeds();
+      const wrongs = shuffle(allBreeds.filter(b => b !== answerBreed)).slice(0, 3);
+      const options = shuffle([answerBreed, ...wrongs]);
+
+      options.forEach(breed => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.textContent = breed;
+        btn.onclick = () => answer(btn, breed, answerBreed, options);
+        document.getElementById('choices').appendChild(btn);
+      });
+    }
+
+    function answer(btn, selected, correct_breed, options) {
+      total++;
+      const allBtns = document.querySelectorAll('.choice-btn');
+      allBtns.forEach(b => {
+        b.disabled = true;
+        if (b.textContent === correct_breed) b.classList.add('correct');
+      });
+
+      if (selected === correct_breed) {
+        correct++;
+        btn.classList.add('correct');
+        document.getElementById('feedback').textContent = '✅ 正解！';
+      } else {
+        btn.classList.add('wrong');
+        document.getElementById('feedback').textContent = `❌ 不正解！正解は「${correct_breed}」`;
+      }
+      document.getElementById('score').textContent = `正解: ${correct} / ${total}問`;
+      document.getElementById('next-btn').style.display = 'inline-block';
+    }
+
+    loadQuestion();
+  </script>
+</body>
+</html>

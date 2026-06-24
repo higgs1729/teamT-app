@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Dog API - 図鑑スタイル</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f7f7f7;
+      min-height: 100vh;
+      padding: 32px 20px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.8rem;
+      color: #2d3748;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      text-align: center;
+      color: #888;
+      margin-bottom: 28px;
+      font-size: 0.9rem;
+    }
+    .search-bar {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+    select {
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 0.95rem;
+      background: #fff;
+      min-width: 180px;
+    }
+    button {
+      padding: 10px 22px;
+      background: #e53e3e;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover { background: #c53030; }
+    .dex-card {
+      max-width: 440px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+      overflow: hidden;
+      display: none;
+    }
+    .dex-card.visible { display: block; }
+    .dex-header {
+      background: #e53e3e;
+      color: #fff;
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .dex-header .breed-name {
+      font-size: 1.2rem;
+      font-weight: bold;
+      text-transform: capitalize;
+    }
+    .dex-header .dex-no { font-size: 0.85rem; opacity: 0.8; }
+    .dex-img {
+      width: 100%;
+      height: 280px;
+      object-fit: cover;
+      display: block;
+    }
+    .dex-body { padding: 20px; }
+    .dex-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 0.9rem;
+      color: #4a4a4a;
+    }
+    .dex-row:last-child { border-bottom: none; }
+    .dex-row .label { color: #aaa; }
+    .dex-row .value { font-weight: 600; text-transform: capitalize; }
+    #empty-msg {
+      text-align: center;
+      color: #bbb;
+      margin-top: 40px;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>📖 わんこ図鑑</h1>
+  <p class="subtitle">犬種を選んで図鑑を完成させよう</p>
+
+  <div class="search-bar">
+    <select id="breed-select"><option value="">読み込み中...</option></select>
+    <button onclick="lookupBreed()">調べる</button>
+  </div>
+
+  <div class="dex-card" id="dex-card">
+    <div class="dex-header">
+      <span class="breed-name" id="dex-name">-</span>
+      <span class="dex-no" id="dex-no">#000</span>
+    </div>
+    <img class="dex-img" id="dex-img" src="" alt="犬の画像">
+    <div class="dex-body">
+      <div class="dex-row"><span class="label">犬種</span><span class="value" id="info-breed">-</span></div>
+      <div class="dex-row"><span class="label">サブ種</span><span class="value" id="info-sub">-</span></div>
+      <div class="dex-row"><span class="label">画像URL</span><span class="value" id="info-url" style="font-size:0.75rem;word-break:break-all">-</span></div>
+    </div>
+  </div>
+  <p id="empty-msg">↑ 犬種を選んで「調べる」ボタンを押してください</p>
+
+  <script>
+    let breedList = {};
+    let lookupCount = 0;
+
+    async function loadBreeds() {
+      const res = await fetch('https://dog.ceo/api/breeds/list/all');
+      const data = await res.json();
+      breedList = data.message;
+
+      const sel = document.getElementById('breed-select');
+      sel.innerHTML = '<option value="">-- 犬種を選択 --</option>';
+      Object.entries(breedList).forEach(([breed, subs]) => {
+        if (subs.length === 0) {
+          const opt = document.createElement('option');
+          opt.value = breed;
+          opt.textContent = breed;
+          sel.appendChild(opt);
+        } else {
+          subs.forEach(sub => {
+            const opt = document.createElement('option');
+            opt.value = `${breed}/${sub}`;
+            opt.textContent = `${breed} (${sub})`;
+            sel.appendChild(opt);
+          });
+        }
+      });
+    }
+
+    async function lookupBreed() {
+      const sel = document.getElementById('breed-select');
+      const val = sel.value;
+      if (!val) return;
+
+      lookupCount++;
+      const res = await fetch(`https://dog.ceo/api/breed/${val}/images/random`);
+      const data = await res.json();
+      const url = data.message;
+      const parts = val.split('/');
+
+      document.getElementById('dex-name').textContent = parts.join(' ');
+      document.getElementById('dex-no').textContent = `#${String(lookupCount).padStart(3, '0')}`;
+      document.getElementById('dex-img').src = url;
+      document.getElementById('info-breed').textContent = parts[0];
+      document.getElementById('info-sub').textContent = parts[1] || 'なし';
+      document.getElementById('info-url').textContent = url;
+
+      document.getElementById('dex-card').classList.add('visible');
+      document.getElementById('empty-msg').style.display = 'none';
+    }
+
+    loadBreeds();
+  </script>
+</body>
+</html>

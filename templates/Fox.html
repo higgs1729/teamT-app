@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>🦊 キツネガチャ</h1>
+
+<img id="fox" width="300">
+
+<br><br>
+
+<button onclick="loadFox()">
+    次のキツネ
+</button>
+
+<script>
+function loadFox() {
+
+    fetch("https://randomfox.ca/floof/")
+        .then(res => res.json())
+        .then(data => {
+
+            document.getElementById("fox").src =
+                data.image;
+        });
+}
+
+loadFox();
+</script>
+
+</body>
+</html>

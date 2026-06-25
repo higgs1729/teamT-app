@@ -4,7 +4,6 @@ src/main/resources/application.properties*.env
 # Build output
 target/
 *.class
-*.jar
 *.war
 
 # IDE

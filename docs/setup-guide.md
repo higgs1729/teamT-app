@@ -19,6 +19,9 @@
 ```bash
 java -version   # Java 21 以上が必要
 node -version   # Node.js 18 以上が必要
+    - Node.js のインストール手順
+        - https://nodejs.org/ja/ にアクセスLTS版（推奨）をダウンロードしてインストールインストール後、ターミナルを再起動して npm -v で確認
+            - microsoftでmsiファイルがブロックされる場合はwingetを使用する
 npm -version
 ```
 
@@ -26,16 +29,7 @@ Java 21 が入っていない場合 → https://adoptium.net/ からダウンロ
 
 ---
 
-## 手順2：リポジトリのクローン
-
-```bash
-git clone https://github.com/higgs1729/teamT-app.git
-cd teamT-app
-```
-
----
-
-## 手順3：pom.xml の作成
+## 手順2：pom.xml の作成
 
 ```bash
 # Windows (PowerShell)
@@ -49,7 +43,7 @@ cp pom.xml.example pom.xml
 
 ---
 
-## 手順4：application.properties の作成
+## 手順3：application.properties の作成
 
 ```bash
 # Windows (PowerShell)
@@ -64,7 +58,7 @@ cp src/main/resources/application.properties.example src/main/resources/applicat
 
 ---
 
-## 手順5：バックエンドの起動
+## 手順4：バックエンドの起動
 
 ```bash
 # Windows
@@ -78,7 +72,7 @@ cp src/main/resources/application.properties.example src/main/resources/applicat
 
 ---
 
-## 手順6：フロントエンドの起動
+## 手順5：フロントエンドの起動
 
 ```bash
 cd frontend
@@ -88,3 +82,10 @@ npm run dev
 
 起動確認 → http://localhost:5173 にアクセス  
 （バックエンドへの `/api` リクエストは自動的に localhost:8080 へプロキシされます）
+
+パワーシェルの管理者権限
+//インストール
+powershell -ExecutionPolicy Bypass -Command "npm.cmd install"
+
+起動
+powershell -ExecutionPolicy Bypass -Command "npm.cmd run dev"

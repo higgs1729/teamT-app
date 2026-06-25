@@ -1,0 +1,67 @@
+    <!DOCTYPE html>
+    <html lang="ja">
+    <head>
+    <meta charset="UTF-8">
+    <title>為替レートAPI</title>
+
+    <style>
+    body{
+    font-family: sans-serif;
+    background:#0f172a;
+    color:white;
+    padding:20px;
+    }
+
+    input, button{
+    padding:10px;
+    margin:5px;
+    }
+
+    .card{
+    background:#1e293b;
+    padding:15px;
+    margin-top:20px;
+    border-radius:10px;
+    width:300px;
+    }
+    </style>
+    </head>
+
+    <body>
+
+    <h1>💱 為替レート検索</h1>
+
+    <input id="from" placeholder="例: USD" value="USD">
+    <input id="to" placeholder="例: JPY" value="JPY">
+    <button onclick="getRate()">取得</button>
+
+    <div id="result"></div>
+
+    <script>
+    async function getRate() {
+
+    const from = document.getElementById("from").value;
+    const to = document.getElementById("to").value;
+
+    const url = `https://api.exchangerate.host/convert?from=${from}&to=${to}`;
+
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+
+        document.getElementById("result").innerHTML = `
+        <div class="card">
+            <h2>${from} → ${to}</h2>
+            <p>レート: ${data.result}</p>
+        </div>
+        `;
+
+    } catch (err) {
+        document.getElementById("result").innerHTML =
+        "エラー: " + err.message;
+    }
+    }
+    </script>
+
+    </body>
+    </html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Today's Fact - 今日の雑学</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f0f3f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            width: 400px;
+            box-sizing: border-box;
+        }
+        h1 {
+            font-size: 22px;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+        .date {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 25px;
+        }
+        .fact-box {
+            background-color: #f8fafc;
+            border-left: 4px solid #3b82f6;
+            padding: 20px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 25px;
+            min-height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: left;
+            font-size: 16px;
+            color: #334155;
+            line-height: 1.6;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        button:hover {
+            background-color: #2563eb;
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        .loading {
+            color: #94a3b8;
+            font-style: italic;
+        }
+        .error {
+            color: #ef4444;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>今日のファクト 💡</h1>
+    <div class="date" id="current-date">ーー年ーー月ーー日</div>
+    
+    <div class="fact-box">
+        <div id="fact-content" class="loading">データを読み込み中...</div>
+    </div>
+    
+    <button onclick="fetchTodayFact()">最新の情報を取得</button>
+</div>
+
+<script>
+    // 今日の日付を表示する処理
+    const today = new Date();
+    document.getElementById('current-date').textContent = `${today.getFullYear()}年${today.getMonth() + 1}月${today.getDate()}日`;
+
+    // 🌐 APIからデータを取得する関数
+    async function fetchTodayFact() {
+        const factContent = document.getElementById('fact-content');
+        factContent.className = 'loading';
+        factContent.textContent = '読み込み中...';
+
+        // ⚠️ ここを使用するAPIの正しいベースURLに書き換えてください
+        const baseUrl = 'https://api.example.com'; 
+        const apiUrl = `${baseUrl}/api/v2/facts/today`;
+
+        try {
+            const response = await fetch(apiUrl);
+            
+            if (!response.ok) {
+                throw new Error(`HTTPエラー! ステータス: ${response.status}`);
+            }
+
+            const data = await response.json();
+            
+            // 💡 APIのレスポンスの構造に合わせてプロパティ名（.fact や .data など）を調整してください
+            // 例: data.fact や data.text や data.data[0].fact など
+            if (data && data.fact) {
+                factContent.className = '';
+                factContent.textContent = data.fact;
+            } else if (data && data.data) {
+                factContent.className = '';
+                factContent.textContent = data.data;
+            } else {
+                // 構造が不明な場合はJSONをそのまま文字列にして表示（デバッグ用）
+                factContent.className = '';
+                factContent.textContent = JSON.stringify(data);
+            }
+
+        } catch (error) {
+            console.error('エラーが発生しました:', error);
+            factContent.className = 'error';
+            factContent.textContent = 'データの取得に失敗しました。時間をおいて再度お試しください。';
+        }
+    }
+
+    // ページが読み込まれた時に自動でAPIを実行
+    window.onload = fetchTodayFact;
+</script>
+
+</body>
+</html>

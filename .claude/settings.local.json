@@ -23,7 +23,10 @@
       "Bash(cp C:\\\\Users\\\\253207\\\\Desktop\\\\teamT-app\\\\.gitignore /dev/null; echo done)",
       "PowerShell(Copy-Item \"C:\\\\Users\\\\253207\\\\Desktop\\\\teamT-app\\\\pom.xml\" \"C:\\\\Users\\\\253207\\\\Desktop\\\\teamT-app\\\\pom.xml.example\")",
       "Skill(run)",
-      "Skill(run:*)"
+      "Skill(run:*)",
+      "PowerShell(\\(Get-Command npm -ErrorAction SilentlyContinue\\).Source; \\(Get-Command node -ErrorAction SilentlyContinue\\).Source)",
+      "PowerShell(Get-ChildItem \"C:\\\\Program Files\\\\nodejs\" -ErrorAction SilentlyContinue | Select-Object -First 3; Get-ChildItem \"$env:APPDATA\\\\npm\" -ErrorAction SilentlyContinue | Select-Object -First 3; Get-ChildItem \"C:\\\\Program Files \\(x86\\)\\\\nodejs\" -ErrorAction SilentlyContinue | Select-Object -First 3)",
+      "PowerShell($env:PATH = [System.Environment]::GetEnvironmentVariable\\(\"PATH\",\"Machine\"\\) + \";\" + [System.Environment]::GetEnvironmentVariable\\(\"PATH\",\"User\"\\); node -v; npm -v)"
     ]
   }
 }

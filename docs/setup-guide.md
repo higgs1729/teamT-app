@@ -82,3 +82,10 @@ npm run dev
 
 起動確認 → http://localhost:5173 にアクセス  
 （バックエンドへの `/api` リクエストは自動的に localhost:8080 へプロキシされます）
+
+パワーシェルの管理者権限
+//インストール
+powershell -ExecutionPolicy Bypass -Command "npm.cmd install"
+
+起動
+powershell -ExecutionPolicy Bypass -Command "npm.cmd run dev"

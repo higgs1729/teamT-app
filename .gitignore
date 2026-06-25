@@ -1,6 +1,5 @@
 # Application properties (APIキー等を含むため除外)
-src/main/resources/application.properties
-*.env
+src/main/resources/application.properties*.env
 
 # Build output
 target/

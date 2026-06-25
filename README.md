@@ -26,37 +26,7 @@
 
 ## セットアップ手順
 
-### 1. リポジトリをクローン
-
-```bash
-git clone https://github.com/higgs1729/teamT-app.git
-cd teamT-app
-```
-
-### 2. application.properties を作成
-
-```bash
-cp src/main/resources/application.properties.example src/main/resources/application.properties
-```
-
-`application.properties` を開き、必要なAPIキーを記入してください。
-
-### 3. バックエンドを起動
-
-```bash
-./mvnw spring-boot:run
-```
-
-### 4. フロントエンドを起動（開発時）
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-ブラウザで http://localhost:5173 にアクセスしてください。  
-バックエンドAPIは http://localhost:8080 で起動し、`/api` へのリクエストは自動的にプロキシされます。
+`docs/setup-guide.md`を参照
 
 ## ディレクトリ構成
 

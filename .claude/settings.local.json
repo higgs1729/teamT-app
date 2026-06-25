@@ -21,7 +21,9 @@
       "mcp__Claude_in_Chrome__navigate",
       "PowerShell($env:JAVA_HOME = \"C:\\\\Program Files\\\\Java\\\\jdk-21.0.11\"; & \"C:\\\\Program Files\\\\Java\\\\jdk-21.0.11\\\\bin\\\\java.exe\" -version 2>&1)",
       "Bash(cp C:\\\\Users\\\\253207\\\\Desktop\\\\teamT-app\\\\.gitignore /dev/null; echo done)",
-      "PowerShell(Copy-Item \"C:\\\\Users\\\\253207\\\\Desktop\\\\teamT-app\\\\pom.xml\" \"C:\\\\Users\\\\253207\\\\Desktop\\\\teamT-app\\\\pom.xml.example\")"
+      "PowerShell(Copy-Item \"C:\\\\Users\\\\253207\\\\Desktop\\\\teamT-app\\\\pom.xml\" \"C:\\\\Users\\\\253207\\\\Desktop\\\\teamT-app\\\\pom.xml.example\")",
+      "Skill(run)",
+      "Skill(run:*)"
     ]
   }
 }

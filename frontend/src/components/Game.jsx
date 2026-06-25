@@ -504,7 +504,7 @@ export default function Game({ playerName = 'Player1' }) {
   const stateRef  = useRef({ px: 22.5, py: 22.5, keys: {}, tick: 0 })
   const rafRef    = useRef(null)
 
-  const SPEED = 0.14
+  const SPEED = 2.8
 
   const isWalkable = useCallback((col, row) => {
     const c = Math.floor(col), r = Math.floor(row)
@@ -523,10 +523,10 @@ export default function Game({ playerName = 'Player1' }) {
     let { px, py, tick } = stateRef.current
 
     // 入力処理（画面空間方向 → アイソメトリックworld座標）
-    const up    = keys['ArrowUp']    || keys['w'] || keys['W']
-    const down  = keys['ArrowDown']  || keys['s'] || keys['S']
-    const left  = keys['ArrowLeft']  || keys['a'] || keys['A']
-    const right = keys['ArrowRight'] || keys['d'] || keys['D']
+    const up    = keys['ArrowUp']    || keys['w'] || keys['W'] || keys['KeyW']
+    const down  = keys['ArrowDown']  || keys['s'] || keys['S'] || keys['KeyS']
+    const left  = keys['ArrowLeft']  || keys['a'] || keys['A'] || keys['KeyA']
+    const right = keys['ArrowRight'] || keys['d'] || keys['D'] || keys['KeyD']
 
     let mc = 0, mr = 0
     if (up)    { mc -= 1; mr -= 1 }
@@ -637,9 +637,13 @@ export default function Game({ playerName = 'Player1' }) {
   useEffect(() => {
     const down = (e) => {
       stateRef.current.keys[e.key] = true
+      stateRef.current.keys[e.code] = true  // 'KeyW','KeyA','KeyS','KeyD' でも受け取る
       if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault()
     }
-    const up = (e) => { stateRef.current.keys[e.key] = false }
+    const up = (e) => {
+      stateRef.current.keys[e.key] = false
+      stateRef.current.keys[e.code] = false
+    }
     window.addEventListener('keydown', down)
     window.addEventListener('keyup',   up)
     return () => { window.removeEventListener('keydown', down); window.removeEventListener('keyup', up) }

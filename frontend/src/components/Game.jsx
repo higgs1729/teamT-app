@@ -12,11 +12,12 @@
 
 import { useEffect, useRef, useCallback } from 'react'
 
-// ── タイル設定 ──────────────────────────────────────
-const TILE_W = 64
-const TILE_H = 32
+// ── タイル・移動設定 ──────────────────────────────────────
+const TILE_W     = 64
+const TILE_H     = 32
 const TILE_DEPTH = 10   // 側面の高さ
-const MAP_SIZE  = 40
+const MAP_SIZE   = 40
+const SPEED      = 5.6  // プレイヤー移動速度（スクリーン正規化済みタイル/フレーム）
 
 const TILE = { GRASS: 0, WATER: 1, STONE: 2, DIRT: 3, TREE: 4 }
 
@@ -85,11 +86,11 @@ function generateMap() {
 
 const MAP = generateMap()
 
-// 木の位置セット（影の計算に使用）
-const TREE_SET = new Set()
+// 木タイルの座標を事前収集（毎フレームのfilterコストを排除）
+const TREE_POSITIONS = []
 for (let r = 0; r < MAP_SIZE; r++) {
   for (let c = 0; c < MAP_SIZE; c++) {
-    if (MAP[r][c] === TILE.TREE) TREE_SET.add(`${r},${c}`)
+    if (MAP[r][c] === TILE.TREE) TREE_POSITIONS.push({ r, c })
   }
 }
 
@@ -504,8 +505,6 @@ export default function Game({ playerName = 'Player1' }) {
   const stateRef  = useRef({ px: 22.5, py: 22.5, keys: {}, tick: 0 })
   const rafRef    = useRef(null)
 
-  const SPEED = 2.8
-
   const isWalkable = useCallback((col, row) => {
     const c = Math.floor(col), r = Math.floor(row)
     if (c < 0 || r < 0 || c >= MAP_SIZE || r >= MAP_SIZE) return false
@@ -522,7 +521,9 @@ export default function Game({ playerName = 'Player1' }) {
     const { keys } = stateRef.current
     let { px, py, tick } = stateRef.current
 
-    // 入力処理（画面空間方向 → アイソメトリックworld座標）
+    // ── 移動処理 ──────────────────────────────────────
+    // 入力方向をスクリーン空間で正規化してからワールド座標に逆変換することで
+    // 横(TILE_W/2) と縦(TILE_H/2) の比率差による速度差を補正する
     const up    = keys['ArrowUp']    || keys['w'] || keys['W'] || keys['KeyW']
     const down  = keys['ArrowDown']  || keys['s'] || keys['S'] || keys['KeyS']
     const left  = keys['ArrowLeft']  || keys['a'] || keys['A'] || keys['KeyA']
@@ -534,8 +535,6 @@ export default function Game({ playerName = 'Player1' }) {
     if (left)  { mc -= 1; mr += 1 }
     if (right) { mc += 1; mr -= 1 }
 
-    // アイソメトリック変換後のスクリーン空間で正規化することで
-    // 横(TILE_W/2) と縦(TILE_H/2) の比率差による速度差を補正する
     const hw = TILE_W / 2, hh = TILE_H / 2
     const svx = (mc - mr) * hw
     const svy = (mc + mr) * hh
@@ -543,7 +542,6 @@ export default function Game({ playerName = 'Player1' }) {
     if (slen > 0) {
       const snvx = svx / slen
       const snvy = svy / slen
-      // スクリーン正規化ベクトルをワールド座標に逆変換
       const dx = (snvx / hw + snvy / hh) / 2
       const dy = (snvy / hh - snvx / hw) / 2
       const nx = px + dx * SPEED
@@ -551,8 +549,9 @@ export default function Game({ playerName = 'Player1' }) {
       if (isWalkable(nx, py)) px = nx
       if (isWalkable(px, ny)) py = ny
     }
-    stateRef.current.px = px
-    stateRef.current.py = py
+
+    stateRef.current.px   = px
+    stateRef.current.py   = py
     stateRef.current.tick = tick + 1
 
     // ── 描画 ──────────────────────────────────────
@@ -574,45 +573,41 @@ export default function Game({ playerName = 'Player1' }) {
     ctx.save()
     ctx.translate(camX, camY)
 
-    // 表示範囲内タイルを Zオーダー昇順でソート
+    // 表示範囲内タイルをZオーダー昇順でソート
     const tiles = []
     for (let r = 0; r < MAP_SIZE; r++) {
       for (let c = 0; c < MAP_SIZE; c++) {
         const iso = toIso(c, r)
         const sx = iso.x + camX, sy = iso.y + camY
         if (sx < -TILE_W || sx > W + TILE_W || sy < -TILE_H * 4 || sy > H + TILE_DEPTH * 2) continue
-        tiles.push({ r, c, iso, tile: MAP[r][c], zOrder: r + c })
+        tiles.push({ r, c, iso, tile: MAP[r][c] })
       }
     }
-    tiles.sort((a, b) => a.zOrder - b.zOrder)
+    tiles.sort((a, b) => (a.r + a.c) - (b.r + b.c))
 
-    // プレイヤーのZオーダー（float値で滑らかに）
-    const playerZ = px + py
-
-    // タイル・プレイヤー・木をZオーダー順に描画
-    let playerDrawn = false
-    for (const { r, c, iso, tile } of tiles) {
-      const zOrder = r + c
-
-      // プレイヤー挿入
-      if (!playerDrawn && zOrder > playerZ) {
-        const pIso = toIso(px, py)
-        drawPlayer(ctx, pIso.x, pIso.y, playerName)
-        playerDrawn = true
-      }
-
+    // パス1: 地面タイルを全て描画（木タイルも地面部分のみここで描く）
+    // 地面は常に最下層（プレイヤー・木より必ず先に描く）
+    for (const { iso, tile } of tiles) {
       drawTile(ctx, iso.x, iso.y, tile, tick)
+    }
 
-      // 木：影をタイル上面の上に描き、その後スプライトを描く
-      if (tile === TILE.TREE) {
-        drawTreeShadow(ctx, iso.x, iso.y)
-        drawTree(ctx, iso.x, iso.y)
-      }
-    }
-    if (!playerDrawn) {
-      const pIso = toIso(px, py)
-      drawPlayer(ctx, pIso.x, pIso.y, playerName)
-    }
+    // パス2: オブジェクト層（木スプライト＋プレイヤー）をZ値でソートして1パスで描画
+    // 木のZに+1オフセット：枝葉が上方向に視覚的に広がるため、手前判定をずらす
+    const playerZ = px + py
+    const pIso    = toIso(px, py)
+
+    // 可視タイルに絞った木のみを対象にする
+    const visibleTreeSet = new Set(tiles.filter(t => t.tile === TILE.TREE).map(t => `${t.r},${t.c}`))
+    const objects = TREE_POSITIONS
+      .filter(({ r, c }) => visibleTreeSet.has(`${r},${c}`))
+      .map(({ r, c }) => {
+        const iso = toIso(c, r)
+        return { z: r + c + 1, draw: () => { drawTreeShadow(ctx, iso.x, iso.y); drawTree(ctx, iso.x, iso.y) } }
+      })
+    objects.push({ z: playerZ, draw: () => drawPlayer(ctx, pIso.x, pIso.y, playerName) })
+    objects.sort((a, b) => a.z - b.z)
+
+    for (const obj of objects) obj.draw()
 
     ctx.restore()
 
@@ -635,18 +630,21 @@ export default function Game({ playerName = 'Player1' }) {
   }, [playerName, isWalkable])
 
   useEffect(() => {
-    const down = (e) => {
-      stateRef.current.keys[e.key] = true
+    const onKeyDown = (e) => {
+      stateRef.current.keys[e.key]  = true
       stateRef.current.keys[e.code] = true  // 'KeyW','KeyA','KeyS','KeyD' でも受け取る
       if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault()
     }
-    const up = (e) => {
-      stateRef.current.keys[e.key] = false
+    const onKeyUp = (e) => {
+      stateRef.current.keys[e.key]  = false
       stateRef.current.keys[e.code] = false
     }
-    window.addEventListener('keydown', down)
-    window.addEventListener('keyup',   up)
-    return () => { window.removeEventListener('keydown', down); window.removeEventListener('keyup', up) }
+    window.addEventListener('keydown', onKeyDown)
+    window.addEventListener('keyup',   onKeyUp)
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
+      window.removeEventListener('keyup',   onKeyUp)
+    }
   }, [])
 
   useEffect(() => {

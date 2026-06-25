@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>通貨換算アプリ</title>
+</head>
+
+<body>
+
+<h1>通貨換算</h1>
+
+金額:
+<input type="number" id="amount" value="100">
+
+<br><br>
+
+変換前:
+<input type="text" id="from" value="USD">
+
+<br><br>
+
+変換後:
+<input type="text" id="to" value="JPY">
+
+<br><br>
+
+<button onclick="convertCurrency()">
+換算
+</button>
+
+<h2 id="result"></h2>
+
+<script>
+async function convertCurrency() {
+
+    const API_KEY = "62561449e87f856addf49412";
+
+    const amount =
+        Number(document.getElementById("amount").value);
+
+    const from =
+        document.getElementById("from").value.toUpperCase();
+
+    const to =
+        document.getElementById("to").value.toUpperCase();
+
+    try {
+
+        const response = await fetch(
+            `https://v6.exchangerate-api.com/v6/${API_KEY}/latest/${from}`
+        );
+
+        const data = await response.json();
+
+        const rate = data.conversion_rates[to];
+
+        const result = amount * rate;
+
+        document.getElementById("result").textContent =
+            `${amount} ${from} = ${result.toFixed(2)} ${to}`;
+
+    } catch (error) {
+
+        document.getElementById("result").textContent =
+            "エラーが発生しました";
+
+        console.error(error);
+    }
+}
+</script>
+
+</body>
+</html>

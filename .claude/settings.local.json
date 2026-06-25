@@ -18,7 +18,8 @@
       "Bash(npm run *)",
       "PowerShell(Get-ChildItem \"C:\\\\Program Files\\\\nodejs\\\\npm.cmd\" -ErrorAction SilentlyContinue; Get-ChildItem \"$env:APPDATA\\\\npm\\\\npm.cmd\" -ErrorAction SilentlyContinue; Get-ChildItem \"C:\\\\Program Files\\\\nodejs\" -ErrorAction SilentlyContinue | Select-Object -First 5)",
       "PowerShell($env:PATH = \"C:\\\\Program Files\\\\nodejs;\" + $env:PATH; Set-Location \"C:\\\\Users\\\\253207\\\\Desktop\\\\teamT-app\\\\frontend\"; & \"C:\\\\Program Files\\\\nodejs\\\\npm.cmd\" run dev)",
-      "mcp__Claude_in_Chrome__navigate"
+      "mcp__Claude_in_Chrome__navigate",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\Program Files\\\\Java\\\\jdk-21.0.11\"; & \"C:\\\\Program Files\\\\Java\\\\jdk-21.0.11\\\\bin\\\\java.exe\" -version 2>&1)"
     ]
   }
 }

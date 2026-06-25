@@ -1,5 +1,8 @@
 # Application properties (APIキー等を含むため除外)
 src/main/resources/application.properties
+
+# Maven build file (各自ローカルで作成)
+pom.xml
 *.env
 
 # Build output

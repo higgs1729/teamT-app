@@ -41,11 +41,22 @@ cp src/main/resources/application.properties.example src/main/resources/applicat
 
 `application.properties` を開き、必要なAPIキーを記入してください。
 
-### 3. アプリを起動
+### 3. バックエンドを起動
 
 ```bash
 ./mvnw spring-boot:run
 ```
+
+### 4. フロントエンドを起動（開発時）
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+ブラウザで http://localhost:5173 にアクセスしてください。  
+バックエンドAPIは http://localhost:8080 で起動し、`/api` へのリクエストは自動的にプロキシされます。
 
 ## ディレクトリ構成
 

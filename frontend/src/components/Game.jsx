@@ -534,13 +534,23 @@ export default function Game({ playerName = 'Player1' }) {
     if (left)  { mc -= 1; mr += 1 }
     if (right) { mc += 1; mr -= 1 }
 
-    const len = Math.sqrt(mc * mc + mr * mr)
-    const dx = len > 0 ? mc / len : 0
-    const dy = len > 0 ? mr / len : 0
-
-    const nx = px + dx * SPEED, ny = py + dy * SPEED
-    if (isWalkable(nx, py)) px = nx
-    if (isWalkable(px, ny)) py = ny
+    // アイソメトリック変換後のスクリーン空間で正規化することで
+    // 横(TILE_W/2) と縦(TILE_H/2) の比率差による速度差を補正する
+    const hw = TILE_W / 2, hh = TILE_H / 2
+    const svx = (mc - mr) * hw
+    const svy = (mc + mr) * hh
+    const slen = Math.sqrt(svx * svx + svy * svy)
+    if (slen > 0) {
+      const snvx = svx / slen
+      const snvy = svy / slen
+      // スクリーン正規化ベクトルをワールド座標に逆変換
+      const dx = (snvx / hw + snvy / hh) / 2
+      const dy = (snvy / hh - snvx / hw) / 2
+      const nx = px + dx * SPEED
+      const ny = py + dy * SPEED
+      if (isWalkable(nx, py)) px = nx
+      if (isWalkable(px, ny)) py = ny
+    }
     stateRef.current.px = px
     stateRef.current.py = py
     stateRef.current.tick = tick + 1

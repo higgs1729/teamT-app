@@ -33,13 +33,7 @@ git clone https://github.com/higgs1729/teamT-app.git
 cd teamT-app
 ```
 
-### 2. pom.xml を作成
-
-```bash
-cp pom.xml.example pom.xml
-```
-
-### 3. application.properties を作成
+### 2. application.properties を作成
 
 ```bash
 cp src/main/resources/application.properties.example src/main/resources/application.properties
@@ -47,13 +41,13 @@ cp src/main/resources/application.properties.example src/main/resources/applicat
 
 `application.properties` を開き、必要なAPIキーを記入してください。
 
-### 4. バックエンドを起動
+### 3. バックエンドを起動
 
 ```bash
 ./mvnw spring-boot:run
 ```
 
-### 5. フロントエンドを起動（開発時）
+### 4. フロントエンドを起動（開発時）
 
 ```bash
 cd frontend

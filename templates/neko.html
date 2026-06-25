@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTP Cat 検索ツール</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #eef2f3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 450px;
+        }
+        h1 {
+            font-size: 22px;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+        }
+        select, button {
+            width: 100%;
+            padding: 12px;
+            box-sizing: border-box;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        select {
+            border: 2px solid #bdc3c7;
+            background-color: #fff;
+            color: #34495e;
+            cursor: pointer;
+        }
+        select:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        button {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background-color: #27ae60;
+        }
+        .cat-display {
+            margin-top: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 10px;
+            min-height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+ 
+<div class="container">
+    <h1>🐱 HTTP Cat Viewer</h1>
+    <p>ステータスコードを選んで猫を表示しよう</p>
+   
+    <select id="status-code-select">
+        <option value="200">200 OK (成功)</option>
+        <option value="201">201 Created (作成完了)</option>
+        <option value="400">400 Bad Request (不正なリクエスト)</option>
+        <option value="401">401 Unauthorized (未認証)</option>
+        <option value="403">403 Forbidden (閲覧権限なし)</option>
+        <option value="404" selected>404 Not Found (ページが見つかりません)</option>
+        <option value="418">418 I'm a teapot (私はティーポット)</option>
+        <option value="500">500 Internal Server Error (サーバー内部エラー)</option>
+        <option value="503">503 Service Unavailable (サービス利用不可)</option>
+    </select>
+   
+    <button onclick="showCatImage()">猫を呼び出す</button>
+ 
+    <div class="cat-display">
+        <img id="cat-image" src="" alt="HTTP Cat Image" style="display: none;">
+    </div>
+</div>
+ 
+<script>
+    function showCatImage() {
+        const select = document.getElementById('status-code-select');
+        const catImage = document.getElementById('cat-image');
+       
+        // 1. 選択されたステータスコードを取得
+        const statusCode = select.value;
+ 
+        // 2. http.cat のURLを組み立てる
+        const apiUrl = `https://http.cat/${statusCode}`;
+ 
+        // 3. imgタグのsrcに設定して表示
+        catImage.src = apiUrl;
+        catImage.style.display = 'block';
+    }
+ 
+    // ページ読み込み時に初期値（404）の猫を表示しておく
+    window.onload = showCatImage;
+</script>
+ 
+</body>
+</html>

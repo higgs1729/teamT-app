@@ -1,0 +1,116 @@
+QR
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>即席QRコード生成器</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 350px;
+        }
+        h1 {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 15px;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .qr-result {
+            margin-top: 25px;
+            min-height: 150px; /* 事前に枠を確保してガタつきを防ぐ */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        img {
+            border: 1px solid #eee;
+            padding: 5px;
+            background: #fff;
+        }
+    </style>
+</head>
+<body>
+ 
+<div class="container">
+    <h1>QRコード作成ツール</h1>
+   
+    <input type="text" id="text-input" placeholder="URLまたは文字を入力してください" value="https://google.com">
+   
+    <button onclick="generateQRCode()">QRコードを生成</button>
+ 
+    <div class="qr-result">
+        <img id="qr-image" src="" alt="QRコードがここに表示されます" style="display: none;">
+    </div>
+</div>
+ 
+<script>
+    function generateQRCode() {
+        const inputData = document.getElementById('text-input').value;
+        const qrImage = document.getElementById('qr-image');
+ 
+        if (!inputData.trim()) {
+            alert('文字を入力してください！');
+            return;
+        }
+ 
+        // 1. APIに渡すためにURLエンコードを行う
+        const encodedData = encodeURIComponent(inputData);
+       
+        // 2. サイズを指定（今回は使いやすい150x150ピクセルに設定）
+        const size = "150x150";
+ 
+        // 3. APIのURLを組み立てる
+        const apiUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodedData}&size=${size}`;
+ 
+        // 4. imgタグのsrc属性にURLをセットして表示させる
+        qrImage.src = apiUrl;
+        qrImage.style.display = 'block';
+    }
+ 
+    // 最初にページを開いたときにも自動で1回生成する
+    window.onload = generateQRCode;
+</script>
+ 
+</body>
+</html>

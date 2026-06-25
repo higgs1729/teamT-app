@@ -1,10 +1,9 @@
-QR
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>即席QRコード生成器</title>
+    <title>ランダムQRコードおみくじ</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -28,24 +27,18 @@ QR
             color: #333;
             margin-bottom: 20px;
         }
-        input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            box-sizing: border-box;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
+        /* 選ばれた文字を表示するエリアのスタイル */
+        .result-text {
+            font-size: 16px;
+            font-weight: bold;
+            color: #ff4757;
             margin-bottom: 15px;
-            transition: border-color 0.3s;
-        }
-        input[type="text"]:focus {
-            border-color: #007bff;
-            outline: none;
+            min-height: 24px;
         }
         button {
             width: 100%;
             padding: 12px;
-            background-color: #007bff;
+            background-color: #2ed573; /* ボタンを楽しい緑色に */
             color: white;
             border: none;
             border-radius: 6px;
@@ -54,11 +47,11 @@ QR
             font-weight: bold;
         }
         button:hover {
-            background-color: #0056b3;
+            background-color: #26af5f;
         }
         .qr-result {
             margin-top: 25px;
-            min-height: 150px; /* 事前に枠を確保してガタつきを防ぐ */
+            min-height: 150px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -73,11 +66,11 @@ QR
 <body>
  
 <div class="container">
-    <h1>QRコード作成ツール</h1>
-   
-    <input type="text" id="text-input" placeholder="URLまたは文字を入力してください" value="https://google.com">
-   
-    <button onclick="generateQRCode()">QRコードを生成</button>
+    <h1>QRコードおみくじ</h1>
+    
+    <div id="result-label" class="result-text"></div>
+    
+    <button onclick="generateRandomQRCode()">おみくじを引く！</button>
  
     <div class="qr-result">
         <img id="qr-image" src="" alt="QRコードがここに表示されます" style="display: none;">
@@ -85,31 +78,38 @@ QR
 </div>
  
 <script>
-    function generateQRCode() {
-        const inputData = document.getElementById('text-input').value;
+    // 🎲 ランダムに出現させたいデータ（URLや文字）のリスト
+    const randomList = [
+        "大吉：今日は最高の1日になります！ https://google.com",
+        "中吉：ラッキーアイテムはスマホです。 https://youtube.com",
+        "小吉：美味しいものを食べると運気アップ！",
+        "吉：いつも通りの平穏な日。 https://wikipedia.org",
+        "凶：焦らずのんびり過ごしましょう。"
+    ];
+ 
+    function generateRandomQRCode() {
         const qrImage = document.getElementById('qr-image');
+        const resultLabel = document.getElementById('result-label');
  
-        if (!inputData.trim()) {
-            alert('文字を入力してください！');
-            return;
-        }
+        // 1. リストからランダムに1つ選ぶ数学の処理
+        const randomIndex = Math.floor(Math.random() * randomList.length);
+        const selectedData = randomList[randomIndex];
  
-        // 1. APIに渡すためにURLエンコードを行う
-        const encodedData = encodeURIComponent(inputData);
-       
-        // 2. サイズを指定（今回は使いやすい150x150ピクセルに設定）
+        // 2. 画面にテキストを表示
+        resultLabel.textContent = selectedData;
+ 
+        // 3. APIに渡すためにURLエンコードを行う
+        const encodedData = encodeURIComponent(selectedData);
         const size = "150x150";
  
-        // 3. APIのURLを組み立てる
+        // 4. APIのURLを組み立てて画像を表示
         const apiUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodedData}&size=${size}`;
- 
-        // 4. imgタグのsrc属性にURLをセットして表示させる
         qrImage.src = apiUrl;
         qrImage.style.display = 'block';
     }
  
-    // 最初にページを開いたときにも自動で1回生成する
-    window.onload = generateQRCode;
+    // 最初にページを開いたときにも1回ランダム生成する
+    window.onload = generateRandomQRCode;
 </script>
  
 </body>

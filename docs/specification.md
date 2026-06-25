@@ -15,9 +15,8 @@
 | 区分 | 技術 |
 |------|------|
 | バックエンド | Java 21 / Spring Boot |
-| フロントエンド | Thymeleaf / HTML / CSS / JavaScript |
+| フロントエンド | React / Vite |
 | ビルドツール | Maven |
-| 外部API | （未定） |
 | DB | （未定） |
 
 ---

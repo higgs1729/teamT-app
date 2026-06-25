@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>MMORPG Prototype</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
+</head>
+<body>
+
+<script>
+const config = {
+    type: Phaser.AUTO,
+    width: 1280,
+    height: 720,
+    backgroundColor: "#3d8c40",
+    scene: {
+        preload,
+        create,
+        update
+    }
+};
+
+const game = new Phaser.Game(config);
+
+let player;
+let cursors;
+let name;
+
+function preload() {
+}
+
+function create() {
+
+    // プレイヤー
+    player = this.add.rectangle(
+        640,
+        360,
+        32,
+        32,
+        0x0000ff
+    );
+    // player = this.add.circle(
+    //     640,
+    //     360,
+    //     16,
+    //     0x0000ff
+    // );
+
+    name = this.add.text(
+        player.x - 20,
+        player.y - 35,
+        "Player",
+        {
+            fontSize: '14px',
+            color: '#ffffff'
+        }
+    );
+
+    keys = this.input.keyboard.addKeys('W,A,S,D');
+
+    // カメラ追従用に広い世界を作る
+    this.cameras.main.setBounds(0, 0, 3000, 3000);
+
+    cursors = this.input.keyboard.createCursorKeys();
+}
+
+function update() {
+
+    const speed = 4;
+
+    if (cursors.left.isDown) {
+        player.x -= speed;
+    }
+
+    if (cursors.right.isDown) {
+        player.x += speed;
+    }
+
+    if (cursors.up.isDown) {
+        player.y -= speed;
+    }
+
+    if (cursors.down.isDown) {
+        player.y += speed;
+    }
+
+    if (keys.A.isDown) player.x -= speed;
+    if (keys.D.isDown) player.x += speed;
+    if (keys.W.isDown) player.y -= speed;
+    if (keys.S.isDown) player.y += speed;
+
+    name.x = player.x - 20;
+    name.y = player.y - 35;
+}
+</script>
+
+</body>
+</html>

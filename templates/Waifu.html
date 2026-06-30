@@ -1,55 +1,124 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <title>Waifu画像表示</title>
-    <style>
-        body {
-            text-align: center;
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Waifu Gallery</title>
 
-        img {
-            max-width: 500px;
-            border-radius: 10px;
-            margin-top: 20px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.2);
-        }
+<style>
+body{
+    background:#1e1e1e;
+    color:white;
+    font-family:sans-serif;
+    text-align:center;
+    margin:0;
+    padding:20px;
+}
 
-        button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-    </style>
+h1{
+    margin-bottom:20px;
+}
+
+select,button{
+    padding:10px;
+    font-size:16px;
+    border:none;
+    border-radius:8px;
+    margin:5px;
+}
+
+button{
+    cursor:pointer;
+}
+
+img{
+    margin-top:20px;
+    max-width:500px;
+    width:90%;
+    border-radius:15px;
+    box-shadow:0 0 15px rgba(255,255,255,0.2);
+}
+
+.info{
+    margin-top:15px;
+    color:#ccc;
+}
+</style>
 </head>
 <body>
-    <h1>ランダムWaifu画像</h1>
 
-    <button onclick="loadWaifu()">画像を取得</button>
+<h1>🎀 Waifu Random Gallery 🎀</h1>
 
-    <div>
-        <img id="waifuImage" src="" alt="Waifu画像">
-    </div>
+<select id="category">
+    <option value="waifu">通常</option>
+    <option value="maid">メイド</option>
+    <option value="uniform">制服</option>
+    <option value="marin-kitagawa">かわいい系</option>
+    <option value="selfies">アニメ風</option>
+    <option value="nsfw">センシティブ</option>
+    <option value="waifu">通常</option>
+    <option value="selfies">自撮り</option>
+    <option value="oppai">巨乳</option>
+    <option value="ass">お尻</option>
+    <option value="marin-kitagawa">喜多川海夢風</option>
+    <option value="mori-calliope">ホロライブ系</option>
+    <option value="raiden-shogun">原神系</option>
+    <option value="nsfw">センシティブ</option>
+    </select>
 
-    <script>
-        async function loadWaifu() {
-            try {
-                const response = await fetch("https://api.waifu.im/images");
-                const data = await response.json();
+<button onclick="loadImage()">
+    ランダム表示
+</button>
 
-                const imageUrl = data.items[0].url;
-                document.getElementById("waifuImage").src = imageUrl;
-            } catch (error) {
-                console.error("エラー:", error);
-                alert("画像の取得に失敗しました");
-            }
+<div>
+    <img id="waifuImage" src="" alt="画像">
+</div>
+
+<div class="info" id="info"></div>
+
+<script>
+async function loadImage() {
+
+    const category =
+        document.getElementById("category").value;
+
+    let url = "https://api.waifu.im/images";
+
+    if(category === "nsfw"){
+        url += "?is_nsfw=true";
+    } else {
+        url += "?included_tags=" + category;
+    }
+
+    try {
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        console.log(data);
+
+        if(!data.items || data.items.length === 0){
+            alert("画像が見つかりません");
+            return;
         }
 
-        // ページ読み込み時に1枚表示
-        loadWaifu();
-    </script>
+        const image = data.items[0];
+
+        document.getElementById("waifuImage").src = image.url;
+
+        document.getElementById("info").textContent =
+            image.tags
+                ? image.tags.map(tag => tag.name).join(", ")
+                : category;
+
+    } catch(error) {
+        console.error(error);
+        alert("取得失敗");
+    }
+}
+
+loadImage();
+</script>
+
 </body>
 </html>

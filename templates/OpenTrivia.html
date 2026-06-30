@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>アニメ・ゲームクイズ</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:#0d1117;
+    color:white;
+    font-family:"Yu Gothic",sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.container{
+    width:100%;
+    max-width:900px;
+    background:#161b22;
+    border:1px solid #30363d;
+    border-radius:20px;
+    padding:30px;
+    box-shadow:0 0 30px rgba(0,212,255,.15);
+}
+
+h1{
+    text-align:center;
+    color:#58a6ff;
+    margin-bottom:20px;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:25px;
+}
+
+.status{
+    background:#21262d;
+    padding:10px 15px;
+    border-radius:10px;
+}
+
+#category{
+    color:#ffd54f;
+    margin-bottom:20px;
+}
+
+#question{
+    font-size:1.3rem;
+    line-height:1.8;
+    margin-bottom:25px;
+}
+
+.answer{
+    width:100%;
+    padding:15px;
+    margin:8px 0;
+    border:none;
+    border-radius:10px;
+    background:#21262d;
+    color:white;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.answer:hover{
+    background:#58a6ff;
+    color:black;
+}
+
+.correct{
+    background:#2ea043 !important;
+}
+
+.wrong{
+    background:#da3633 !important;
+}
+
+#result{
+    text-align:center;
+    margin-top:20px;
+    font-size:1.2rem;
+}
+
+#nextBtn{
+    margin-top:20px;
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:10px;
+    background:#58a6ff;
+    color:black;
+    font-weight:bold;
+    cursor:pointer;
+    display:none;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>🎮 アニメ・ゲームクイズ 🎮</h1>
+
+<div class="topbar">
+    <div class="status">
+        🏆 スコア :
+        <span id="score">0</span>
+    </div>
+
+    <div class="status">
+        🔥 コンボ :
+        <span id="combo">0</span>
+    </div>
+</div>
+
+<div id="category"></div>
+<div id="question">読み込み中...</div>
+
+<div id="answers"></div>
+
+<div id="result"></div>
+
+<button id="nextBtn">
+次の問題へ ▶
+</button>
+
+</div>
+
+<script>
+
+let correctAnswer = "";
+let score = 0;
+let combo = 0;
+
+function decodeHTML(text){
+    const txt = document.createElement("textarea");
+    txt.innerHTML = text;
+    return txt.value;
+}
+
+async function translateText(text){
+
+    try{
+
+        const res = await fetch(
+            "https://api.mymemory.translated.net/get?q="
+            + encodeURIComponent(text)
+            + "&langpair=en|ja"
+        );
+
+        const data = await res.json();
+
+        return data.responseData.translatedText;
+
+    }catch(error){
+
+        console.error(error);
+        return text;
+    }
+}
+
+async function loadQuiz(){
+
+    document.getElementById("result").innerHTML = "";
+    document.getElementById("nextBtn").style.display = "none";
+
+    const category =
+        Math.random() < 0.5 ? 31 : 15;
+
+    const res = await fetch(
+        `https://opentdb.com/api.php?amount=1&category=${category}&type=multiple`
+    );
+
+    const data = await res.json();
+
+    const q = data.results[0];
+
+    const questionEn =
+        decodeHTML(q.question);
+
+    const correctEn =
+        decodeHTML(q.correct_answer);
+
+    let answersEn = [
+        ...q.incorrect_answers.map(a =>
+            decodeHTML(a)
+        ),
+        correctEn
+    ];
+
+    document.getElementById("question").innerHTML =
+        "翻訳中...";
+
+    const questionJP =
+        await translateText(questionEn);
+
+    document.getElementById("question").innerHTML =
+        questionJP;
+
+    let translatedAnswers = [];
+
+    for(const answer of answersEn){
+
+        translatedAnswers.push(
+            await translateText(answer)
+        );
+    }
+
+    correctAnswer =
+        await translateText(correctEn);
+
+    translatedAnswers.sort(
+        () => Math.random() - 0.5
+    );
+
+    document.getElementById("category").innerHTML =
+        category === 31
+        ? "📺 アニメ・マンガ"
+        : "🎮 ゲーム";
+
+    const answerDiv =
+        document.getElementById("answers");
+
+    answerDiv.innerHTML = "";
+
+    translatedAnswers.forEach(answer => {
+
+        const btn =
+            document.createElement("button");
+
+        btn.className = "answer";
+        btn.textContent = answer;
+
+        btn.onclick = () =>
+            judge(answer, btn);
+
+        answerDiv.appendChild(btn);
+    });
+}
+
+function judge(answer, btn){
+
+    const buttons =
+        document.querySelectorAll(".answer");
+
+    buttons.forEach(b => {
+
+        b.disabled = true;
+
+        if(
+            b.textContent === correctAnswer
+        ){
+            b.classList.add("correct");
+        }
+    });
+
+    if(answer === correctAnswer){
+
+        score++;
+        combo++;
+
+        document.getElementById("result").innerHTML =
+            `⭕ 正解！<br>${combo}連続正解！`;
+
+    }else{
+
+        combo = 0;
+
+        btn.classList.add("wrong");
+
+        document.getElementById("result").innerHTML =
+            `❌ 不正解<br>正解：${correctAnswer}`;
+    }
+
+    document.getElementById("score").textContent =
+        score;
+
+    document.getElementById("combo").textContent =
+        combo;
+
+    document.getElementById("nextBtn").style.display =
+        "block";
+}
+
+document.getElementById("nextBtn")
+.addEventListener("click", loadQuiz);
+
+loadQuiz();
+
+</script>
+
+</body>
+</html>

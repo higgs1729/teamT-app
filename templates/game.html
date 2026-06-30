@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高評価ゲーム一覧（安定版）</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #121212; color: white; padding: 20px; text-align: center; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
+        .game-card { background-color: #1e1e1e; border-radius: 8px; overflow: hidden; padding: 15px; text-align: left; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .game-image { width: 100%; height: 160px; object-fit: cover; border-radius: 4px; }
+        .game-title { font-size: 1.1rem; font-weight: bold; margin: 10px 0; color: #a855f7; }
+        .loading { font-size: 1.5rem; color: #a855f7; margin-top: 50px; }
+    </style>
+</head>
+<body>
+
+    <h1>🏆 歴代人気ゲーム一覧</h1>
+    <p>RAWG APIから直接データを取得しているため、安定して動きます</p>
+
+    <div id="loading" class="loading">データを読み込み中...</div>
+    <div class="grid-container" id="grid"></div>
+
+    <script>
+        // 🔑 1. https://rawg.io/apidocs で無料会員登録して取得したキーをここに入れます
+        const API_KEY = "ここにあなたのRAWG_APIキーを貼り付けてね"; 
+
+        // 直接RAWGのサーバーにアクセス（プロキシ不要！）
+        const url = `https://api.rawg.io/api/games?key=${API_KEY}&ordering=-rating&page_size=12`;
+
+        async function fetchGames() {
+            if (API_KEY.includes("ここにあなたの")) {
+                document.getElementById("loading").innerText = "⚠️ コード内の『ここにあなたのRAWG_APIキーを...』の部分を、取得した実際のキーに書き換えてください。";
+                return;
+            }
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error("APIキーが無効、またはリクエストに失敗しました");
+                
+                const data = await response.json();
+                
+                document.getElementById("loading").style.display = "none";
+                const grid = document.getElementById("grid");
+
+                data.results.forEach(game => {
+                    const card = document.createElement("div");
+                    card.className = "game-card";
+                    const imgUrl = game.background_image ? game.background_image : "https://via.placeholder.com/280x160?text=No+Image";
+
+                    card.innerHTML = `
+                        <img class="game-image" src="${imgUrl}" alt="${game.name}">
+                        <div class="game-info">
+                            <div class="game-title">${game.name}</div>
+                            <div>📅 発売日: ${game.released || '不明'}</div>
+                            <div>★ 評価: ${game.rating} / 5</div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+
+            } catch (error) {
+                console.error(error);
+                document.getElementById("loading").innerText = "データの取得に失敗しました。APIキーが間違っているか、コピーミスがないか確認してください。";
+            }
+        }
+
+        window.onload = fetchGames;
+    </script>
+</body>
+</html>

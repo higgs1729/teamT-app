@@ -48,8 +48,16 @@ src/
     └── java/               # テストコード
 docs/
 └── specification.md        # 仕様書
+templates/                  # 各メンバー作成の外部WebAPI紹介ページ(自己完結型HTML)
+fronted-v2/                 # WebAPI紹介サイト(templatesを選択表示するギャラリー / 素のHTML/CSS/JS)
 ```
 - 追加でresources/application.propertiesを各自ローカルで作成し管理
+
+### fronted-v2（WebAPI紹介サイト）
+
+`templates/`内の各WebAPI紹介ページを一覧から選択して表示できるギャラリーサイト。ビルド不要。
+リポジトリルートで`node fronted-v2/serve.cjs`を実行し、`http://localhost:5500/fronted-v2/index.html`を開く（停止は Ctrl+C）。
+起動・停止の詳細は[`fronted-v2/README.md`](fronted-v2/README.md)を参照。
 
 ## ブランチ命名規則
 

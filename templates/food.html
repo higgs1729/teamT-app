@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>食べ物画像検索</title>
+<style>
+body{
+    font-family: sans-serif;
+    text-align:center;
+    margin-top:50px;
+}
+input{
+    width:250px;
+    padding:10px;
+}
+button{
+    padding:10px 20px;
+}
+img{
+    margin-top:20px;
+    max-width:400px;
+    display:none;
+}
+</style>
+</head>
+<body>
+
+<h1>🍚 食べ物画像検索</h1>
+
+<input type="text" id="food" placeholder="例：ラーメン">
+<button onclick="searchFood()">検索</button>
+
+<br>
+<img id="image">
+
+<script>
+async function searchFood() {
+
+    const food = document.getElementById("food").value;
+
+    const url =
+`https://ja.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(food)}&prop=pageimages&format=json&pithumbsize=600&origin=*`;
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    const pages = data.query.pages;
+    const page = Object.values(pages)[0];
+
+    const img = document.getElementById("image");
+
+    if(page.thumbnail){
+        img.src = page.thumbnail.source;
+        img.style.display = "block";
+    }else{
+        img.style.display = "none";
+        alert("画像が見つかりませんでした");
+    }
+}
+</script>
+
+</body>
+</html>

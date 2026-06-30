@@ -1,0 +1,150 @@
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>惑星情報API（サンプル）</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background:#0b1020;
+    color:#fff;
+    text-align:center;
+    padding:30px;
+}
+.container{
+    max-width:600px;
+    margin:auto;
+    background:#1a2238;
+    padding:20px;
+    border-radius:12px;
+}
+input{
+    width:70%;
+    padding:10px;
+    font-size:16px;
+}
+button{
+    padding:10px 20px;
+    font-size:16px;
+    cursor:pointer;
+}
+#result{
+    margin-top:20px;
+    text-align:left;
+    background:#26324d;
+    padding:15px;
+    border-radius:10px;
+}
+img{
+    width:180px;
+    display:block;
+    margin:20px auto;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+<h1>🪐 惑星情報検索</h1>
+
+<input type="text" id="planet" placeholder="例：地球">
+<button onclick="searchPlanet()">検索</button>
+
+<div id="result"></div>
+</div>
+
+<script>
+// 惑星データベース（サンプルAPI）
+const planets = {
+    "水星":{
+        image:"https://upload.wikimedia.org/wikipedia/commons/4/4a/Mercury_in_true_color.jpg",
+        diameter:"4,879 km",
+        distance:"57,900,000 km",
+        moons:"0個",
+        day:"58.6日",
+        year:"88日"
+    },
+    "金星":{
+        image:"https://upload.wikimedia.org/wikipedia/commons/e/e5/Venus-real_color.jpg",
+        diameter:"12,104 km",
+        distance:"108,200,000 km",
+        moons:"0個",
+        day:"243日",
+        year:"225日"
+    },
+    "地球":{
+        image:"https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg",
+        diameter:"12,742 km",
+        distance:"149,600,000 km",
+        moons:"1個",
+        day:"24時間",
+        year:"365日"
+    },
+    "火星":{
+        image:"https://upload.wikimedia.org/wikipedia/commons/0/02/OSIRIS_Mars_true_color.jpg",
+        diameter:"6,779 km",
+        distance:"227,900,000 km",
+        moons:"2個",
+        day:"24.6時間",
+        year:"687日"
+    },
+    "木星":{
+        image:"https://upload.wikimedia.org/wikipedia/commons/e/e2/Jupiter.jpg",
+        diameter:"139,820 km",
+        distance:"778,500,000 km",
+        moons:"95個以上",
+        day:"9.9時間",
+        year:"11.9年"
+    },
+    "土星":{
+        image:"https://upload.wikimedia.org/wikipedia/commons/c/c7/Saturn_during_Equinox.jpg",
+        diameter:"116,460 km",
+        distance:"1,430,000,000 km",
+        moons:"140個以上",
+        day:"10.7時間",
+        year:"29.5年"
+    },
+    "天王星":{
+        image:"https://upload.wikimedia.org/wikipedia/commons/3/3d/Uranus2.jpg",
+        diameter:"50,724 km",
+        distance:"2,870,000,000 km",
+        moons:"28個",
+        day:"17.2時間",
+        year:"84年"
+    },
+    "海王星":{
+        image:"https://upload.wikimedia.org/wikipedia/commons/5/56/Neptune_Full.jpg",
+        diameter:"49,244 km",
+        distance:"4,500,000,000 km",
+        moons:"16個",
+        day:"16.1時間",
+        year:"165年"
+    }
+};
+
+function searchPlanet(){
+    const name = document.getElementById("planet").value.trim();
+    const result = document.getElementById("result");
+
+    if(planets[name]){
+        const p = planets[name];
+        result.innerHTML = `
+            <h2>${name}</h2>
+            <img src="${p.image}" alt="${name}">
+            <p><strong>直径：</strong>${p.diameter}</p>
+            <p><strong>太陽からの距離：</strong>${p.distance}</p>
+            <p><strong>衛星：</strong>${p.moons}</p>
+            <p><strong>自転周期：</strong>${p.day}</p>
+            <p><strong>公転周期：</strong>${p.year}</p>
+        `;
+    }else{
+        result.innerHTML="<h2>惑星が見つかりません。</h2>";
+    }
+}
+</script>
+
+</body>
+</html>

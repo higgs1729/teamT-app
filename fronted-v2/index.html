@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<!--
+  fronted-v2 / index.html
+  templates/ 内の WebAPI 紹介ページを選択して表示するギャラリーサイト。
+  構成:
+    .app-window
+      ├─ .sidebar  … ブランド / 検索 / カテゴリ別ナビ(JS描画) / テーマ切替
+      └─ .main
+           ├─ .app-header … 選択中ページのタイトル・操作リンク
+           └─ .content    … iframe プレビュー + ウェルカム空状態
+  サイドバーの一覧データは js/catalog.js、描画と操作は js/app.js が担う。
+-->
+<html lang="ja" data-theme="cappuccino">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebAPI Gallery — teamT</title>
+  <!-- Tabler Icons（モックアップと同じアイコンフォント） -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-window">
+
+  <!-- ============================== SIDEBAR ============================== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-icon"><i class="ti ti-api"></i></div>
+      <div>
+        <div class="brand-name">WebAPI Gallery</div>
+        <div class="brand-sub">teamT — API 紹介集</div>
+      </div>
+    </div>
+
+    <!-- 検索（title / API名 / 説明 を部分一致で絞り込み） -->
+    <div class="search-wrap">
+      <i class="ti ti-search"></i>
+      <input type="text" id="search" class="search-input" placeholder="API を検索…" autocomplete="off">
+    </div>
+
+    <!-- カテゴリ別ナビ（app.js が CATALOG から描画） -->
+    <nav class="nav-scroll" id="nav-list"></nav>
+
+    <!-- テーマ切替トリガ -->
+    <div class="sidebar-foot">
+      <button class="theme-trigger" onclick="toggleThemeMenu(event)">
+        <i class="ti ti-palette"></i> <span id="theme-label">表示テーマ: カプチーノ</span>
+      </button>
+    </div>
+  </aside>
+  <div class="sidebar-scrim" id="sidebar-scrim" onclick="toggleSidebar(false)"></div>
+
+  <!-- ============================== MAIN ============================== -->
+  <div class="main">
+
+    <!-- ヘッダー：選択中ページのタイトルと操作 -->
+    <header class="app-header">
+      <div class="header-left">
+        <button class="menu-toggle" onclick="toggleSidebar(true)" aria-label="メニュー"><i class="ti ti-menu-2"></i></button>
+        <div class="header-titles">
+          <div class="page-title" id="page-title">WebAPI Gallery</div>
+          <div class="page-sub" id="page-sub">左の一覧から API を選んでください</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <span class="live-chip" id="live-chip" style="display:none;"><span class="pulse"></span> 表示中</span>
+      </div>
+    </header>
+
+    <!-- コンテンツ：iframe プレビュー + ウェルカム空状態 -->
+    <div class="content">
+      <!-- 選択前に出すウェルカム表示 -->
+      <div class="welcome" id="welcome">
+        <div class="welcome-icon"><i class="ti ti-api-app"></i></div>
+        <h1>WebAPI Gallery</h1>
+        <p>
+          teamT メンバーが作成した <span class="count" id="welcome-count">0</span> 個の
+          外部 WebAPI 紹介ページを、左の一覧から選んで表示できます。
+        </p>
+      </div>
+      <!-- 選択したテンプレートを読み込む iframe -->
+      <iframe class="preview hidden" id="preview" title="WebAPI プレビュー"></iframe>
+    </div>
+  </div>
+
+  <!-- ============================== THEME DROPDOWN ============================== -->
+  <div id="theme-dropdown-float">
+    <div class="dd-head">表示テーマ（サイト自身の配色）</div>
+    <div class="theme-item active" data-theme-name="cappuccino" onclick="setTheme('cappuccino','カプチーノ',this)">
+      <div class="theme-dot" style="background:linear-gradient(135deg,#e4e4e4,#c96a39);"></div>カプチーノ（既定）
+    </div>
+    <div class="theme-item" data-theme-name="light" onclick="setTheme('light','ライト',this)">
+      <div class="theme-dot" style="background:linear-gradient(135deg,#fff,#e5e7eb);border-color:#d1d5db;"></div>ライト
+    </div>
+    <div class="theme-item" data-theme-name="dark" onclick="setTheme('dark','ダーク',this)">
+      <div class="theme-dot" style="background:linear-gradient(135deg,#1a1825,#7c3aed);"></div>ダーク
+    </div>
+  </div>
+
+</div><!-- /app-window -->
+
+<script src="js/catalog.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

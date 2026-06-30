@@ -28,10 +28,13 @@
   const TEMPLATE_DIR = "../templates/";        // iframe が読む相対パス
   const THEME_KEY    = "fronted-v2-theme";     // localStorage キー
   let   currentId    = null;                   // 現在選択中テンプレートの id
+  const openCats     = new Set();              // 開いているカテゴリ名（既定は全て閉じる）
 
   /* ============================================================
-     一覧描画 — CATALOG を category 順にグルーピングして nav に出力。
-     keyword 指定時は title / apiName / description で部分一致フィルタ。
+     一覧描画 — CATALOG を category 単位の折りたたみグループとして出力。
+       - 既定は全カテゴリ閉じた状態。見出しクリックで開閉。
+       - keyword 指定時は title / apiName / description で部分一致フィルタし、
+         検索中はヒットを見せるため該当グループを自動展開する。
      ============================================================ */
   function renderList(keyword) {
     const kw = (keyword || "").trim().toLowerCase();
@@ -46,23 +49,61 @@
       return;
     }
 
-    // カテゴリ見出し → 配下の項目、の順で描画（CATALOG の並び順を尊重）
-    let lastCategory = null;
+    // category 単位にグルーピング（CATALOG の並び順を尊重）
+    const groups = [];                         // [{ category, items: [] }]
+    const index  = new Map();                  // category -> groups内の位置
     items.forEach(t => {
-      if (t.category !== lastCategory) {
-        const label = document.createElement("div");
-        label.className = "nav-label";
-        label.textContent = t.category;
-        navList.appendChild(label);
-        lastCategory = t.category;
-      }
-      const item = document.createElement("div");
-      item.className = "nav-item" + (t.id === currentId ? " active" : "");
-      item.dataset.id = t.id;
-      item.innerHTML = `<i class="ti ${t.icon}"></i><span>${t.title}</span>`;
-      item.addEventListener("click", () => select(t.id, true));
-      navList.appendChild(item);
+      if (!index.has(t.category)) { index.set(t.category, groups.length); groups.push({ category: t.category, items: [] }); }
+      groups[index.get(t.category)].items.push(t);
     });
+
+    groups.forEach(g => {
+      // 検索中(kw あり)は展開、通常時は openCats の状態に従う
+      const isOpen = kw ? true : openCats.has(g.category);
+
+      const group = document.createElement("div");
+      group.className = "nav-group" + (isOpen ? "" : " closed");
+      group.dataset.category = g.category;
+
+      // 見出し（クリックで開閉）。表示名は末尾の「系」を省く + 開閉キャレット
+      const head = document.createElement("div");
+      head.className = "nav-group-head";
+      head.innerHTML =
+        `<i class="ti ti-chevron-down nav-group-caret"></i>` +
+        `<span class="nav-group-title">${g.category.replace(/系$/, "")}</span>`;
+      head.addEventListener("click", () => toggleGroup(g.category, group));
+      group.appendChild(head);
+
+      // 本体（テンプレート項目）
+      const body = document.createElement("div");
+      body.className = "nav-group-body";
+      g.items.forEach(t => {
+        const item = document.createElement("div");
+        item.className = "nav-item" + (t.id === currentId ? " active" : "");
+        item.dataset.id = t.id;
+        item.innerHTML = `<i class="ti ${t.icon}"></i><span>${t.title}</span>`;
+        item.addEventListener("click", () => select(t.id, true));
+        body.appendChild(item);
+      });
+      group.appendChild(body);
+
+      navList.appendChild(group);
+    });
+  }
+
+  // カテゴリの開閉をトグル（openCats に状態を保持し、DOM の closed を切替）
+  function toggleGroup(category, groupEl) {
+    if (openCats.has(category)) { openCats.delete(category); groupEl.classList.add("closed"); }
+    else { openCats.add(category); groupEl.classList.remove("closed"); }
+  }
+
+  // 指定 id を含むカテゴリを開く（選択時に項目が隠れないようにする）
+  function expandCategoryOf(id) {
+    const t = CATALOG.find(x => x.id === id);
+    if (!t) return;
+    openCats.add(t.category);
+    const g = navList.querySelector(`.nav-group[data-category="${t.category}"]`);
+    if (g) g.classList.remove("closed");
   }
 
   /* ============================================================
@@ -84,7 +125,8 @@
     pageSub.textContent   = t.description + "（" + t.apiName + "）";
     liveChip.style.display = "inline-flex";
 
-    // サイドバーの選択ハイライトを付け替え
+    // 選択項目を含むカテゴリを開いてからハイライトを付け替え
+    expandCategoryOf(id);
     navList.querySelectorAll(".nav-item").forEach(el =>
       el.classList.toggle("active", el.dataset.id === id));
 

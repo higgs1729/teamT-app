@@ -92,10 +92,26 @@ a { color: inherit; }
 
 /* カテゴリ別ナビ（app.js が描画） */
 .nav-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: 4px 0 8px; }
-.nav-label {
-  font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; color: var(--text-muted);
-  text-transform: uppercase; padding: 14px 12px 6px;
+
+/* カテゴリ折りたたみグループ */
+.nav-group { margin-bottom: 2px; }
+/* 見出し: カード化せず、各グループを薄い線で区切る。濃い太字で視認性を確保 */
+.nav-group-head {
+  display: flex; align-items: center; gap: 9px;
+  padding: 11px 12px 9px; cursor: pointer; user-select: none;
+  color: var(--text-primary); font-size: 13px; font-weight: 700; letter-spacing: 0.02em;
+  border-top: 1px solid var(--border-subtle);
+  transition: color 0.15s;
 }
+.nav-group:first-child .nav-group-head { border-top: 0; }   /* 先頭は検索欄直下なので線なし */
+.nav-group-head:hover { color: var(--accent); }
+[data-theme="dark"] .nav-group-head:hover { color: var(--accent-mid); }
+.nav-group-caret { font-size: 16px; color: var(--text-muted); transition: transform 0.18s; flex-shrink: 0; }
+.nav-group.closed .nav-group-caret { transform: rotate(-90deg); }
+.nav-group-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nav-group-body { padding: 2px 0 6px 6px; }
+.nav-group.closed .nav-group-body { display: none; }
+
 .nav-item {
   display: flex; align-items: center; gap: 11px; padding: 9px 12px; border-radius: 10px;
   color: var(--text-secondary); font-size: 13px; cursor: pointer;

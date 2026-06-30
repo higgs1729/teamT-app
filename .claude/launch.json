@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "static",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["fronted-v2/serve.cjs"],
+      "port": 5500
+    }
+  ]
+}

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>毎日を乗り切るためのアヒル</title>
+    <style>
+        :root {
+            --bg-color: #f7f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --accent-color: #ffcc00; /* アヒル色 */
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+            color: #222;
+        }
+
+        p.subtitle {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            overflow: hidden;
+            border: 3px solid var(--accent-color);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .duck-image-container {
+            width: 100%;
+            aspect-ratio: 1 / 1; /* 正方形に保つ（画像に応じて調整してください） */
+            background-color: #eee;
+            overflow: hidden;
+        }
+
+        .duck-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 枠線に合わせて綺麗にトリミング */
+            display: block;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .quote {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin: 0 0 15px 0;
+            color: #444;
+        }
+
+        .btn {
+            background-color: var(--accent-color);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(255, 204, 0, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background-color: #e6b800;
+            box-shadow: 0 6px 12px rgba(255, 204, 0, 0.4);
+        }
+
+        footer {
+            margin-top: 25px;
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        footer a {
+            color: #999;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>嫌なことがあったら、アヒルを見よう</h1>
+        <p class="subtitle">プログラムが動かなくても、彼らは気にとめません。</p>
+
+        <div class="card">
+            <div class="duck-image-container">
+                <img src="https://random-d.uk/api/images/51.jpg" alt="ランダムなアヒル" class="duck-image">
+            </div>
+            <div class="card-body">
+                <p class="quote">「クワッ（まあ、何とかなるさ）」</p>
+                <button class="btn" onclick="window.location.reload();">別のアヒルを呼ぶ</button>
+            </div>
+        </div>
+
+        <footer>
+            Powered by <a href="https://random-d.uk/" target="_blank" rel="noopener noreferrer">random-d.uk</a>
+        </footer>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🇺🇸 爆笑！？海外ジョーク・マシーン</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #fef08a; /* ジョークに合わせたポップな黄色背景 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 35px;
+            border-radius: 24px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+            text-align: center;
+            width: 420px;
+            box-sizing: border-box;
+            border: 4px solid #1e293b;
+        }
+        h1 {
+            font-size: 24px;
+            color: #1e293b;
+            margin-bottom: 25px;
+            font-weight: 900;
+        }
+        
+        /* ジョーク表示エリア */
+        .joke-box {
+            background-color: #f8fafc;
+            border: 3px solid #cbd5e1;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 25px;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* フリ（問題）のスタイル */
+        .setup-text {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e293b;
+            line-height: 1.5;
+        }
+
+        /* オチ（解答）のスタイル */
+        .punchline-text {
+            font-size: 20px;
+            font-weight: 900;
+            color: #ef4444; /* 目立つ赤色 */
+            background-color: #fee2e2;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 2px dashed #f87171;
+            width: 90%;
+            box-sizing: border-box;
+            animation: pop 0.3s ease-out;
+        }
+
+        /* 答えを見るボタンの代わり */
+        .reveal-hint {
+            font-size: 14px;
+            color: #64748b;
+            cursor: pointer;
+            text-decoration: underline;
+            font-style: italic;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: #1e293b;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        button:hover {
+            background-color: #334155;
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .loading { color: #94a3b8; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>海外ジョーク API 🃏</h1>
+    
+    <div class="joke-box">
+        <div id="setup-display" class="setup-text">ボタンを押してね！</div>
+        
+        <div id="punchline-display" class="punchline-text" style="display: none;"></div>
+        <div id="reveal-btn" class="reveal-hint" style="display: none;" onclick="showPunchline()">👉 クリックしてオチを見る</div>
+    </div>
+    
+    <button onclick="fetchRandomJoke()">新しいジョークを召喚</button>
+</div>
+
+<script>
+    let currentPunchline = "";
+
+    // 🌐 英語を日本語に自動翻訳する関数
+    async function translateToJapanese(text) {
+        try {
+            const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|ja`);
+            if (!response.ok) return text;
+            const data = await response.json();
+            return data.responseData.translatedText || text;
+        } catch (e) {
+            return text;
+        }
+    }
+
+    // 🌐 実在するOfficial Joke APIからジョークを取得する関数
+    async function fetchRandomJoke() {
+        const setupDisplay = document.getElementById('setup-display');
+        const punchlineDisplay = document.getElementById('punchline-display');
+        const revealBtn = document.getElementById('reveal-btn');
+
+        setupDisplay.className = 'loading';
+        setupDisplay.textContent = '面白いネタを探しています...';
+        punchlineDisplay.style.display = 'none';
+        revealBtn.style.display = 'none';
+
+        // 🟢 実在するジョーク取得API
+        const apiUrl = 'https://official-joke-api.appspot.com/jokes/random';
+
+        try {
+            const response = await fetch(apiUrl);
+            if (!response.ok) throw new Error('通信エラー');
+            const data = await response.json();
+
+            // 🟢 返ってきたJSONデータの「setup」と「punchline」を使用
+            if (data && data.setup && data.punchline) {
+                // 翻訳を実行
+                const jaSetup = await translateToJapanese(data.setup);
+                const jaPunchline = await translateToJapanese(data.punchline);
+
+                setupDisplay.className = 'setup-text';
+                setupDisplay.textContent = jaSetup;
+                
+                // オチは変数に保存しておき、クリックされるまで隠す
+                currentPunchline = jaPunchline;
+                revealBtn.style.display = 'block';
+            }
+        } catch (error) {
+            setupDisplay.className = 'setup-text';
+            setupDisplay.textContent = 'ネタの仕入れに失敗しました。もう一度お試しください。';
+        }
+    }
+
+    // オチを表示する関数
+    function showPunchline() {
+        const punchlineDisplay = document.getElementById('punchline-display');
+        const revealBtn = document.getElementById('reveal-btn');
+        
+        punchlineDisplay.textContent = currentPunchline;
+        punchlineDisplay.style.display = 'block';
+        revealBtn.style.display = 'none';
+    }
+
+    // 最初に1回自動起動
+    window.onload = fetchRandomJoke;
+</script>
+
+</body>
+</html>

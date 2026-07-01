@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>郵便番号検索API</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #0f172a;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #1e293b;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            width: 340px;
+        }
+        h1 {
+            font-size: 20px;
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .search-row {
+            display: flex;
+            gap: 8px;
+        }
+        input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 6px;
+            border: none;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 16px;
+            background-color: #38bdf8;
+            color: #0f172a;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0ea5e9;
+        }
+        .hint {
+            font-size: 12px;
+            color: #94a3b8;
+            margin: 8px 0 0;
+        }
+        .result-area {
+            margin-top: 20px;
+            min-height: 24px;
+        }
+        .result-card {
+            background-color: #0f172a;
+            border-radius: 8px;
+            padding: 14px;
+            margin-bottom: 10px;
+        }
+        .result-card .zip {
+            color: #38bdf8;
+            font-weight: bold;
+            margin: 0 0 6px;
+        }
+        .result-card .address {
+            margin: 0;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        .message {
+            color: #f87171;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📮 郵便番号検索</h1>
+
+    <div class="search-row">
+        <input id="zip-input" type="text" placeholder="例: 1000001" inputmode="numeric" maxlength="8">
+        <button onclick="searchZip()">検索</button>
+    </div>
+    <p class="hint">ハイフンあり・なしどちらでも検索できます</p>
+
+    <div id="result" class="result-area"></div>
+</div>
+
+<script>
+    // zipcloud（日本郵便データ）で郵便番号から住所を検索する
+    // APIキー不要・CORS対応の無料API
+    const API_URL = "https://zipcloud.ibsnet.co.jp/api/search";
+
+    const input  = document.getElementById("zip-input");
+    const result = document.getElementById("result");
+
+    async function searchZip() {
+        const zipcode = input.value.replace(/[^0-9]/g, "");
+
+        if (zipcode.length !== 7) {
+            result.innerHTML = `<p class="message">7桁の郵便番号を入力してください</p>`;
+            return;
+        }
+
+        result.innerHTML = `<p class="message">検索中...</p>`;
+
+        try {
+            const res = await fetch(`${API_URL}?zipcode=${zipcode}`);
+            const data = await res.json();
+
+            if (data.status !== 200 || data.message) {
+                result.innerHTML = `<p class="message">エラー: ${data.message || "検索に失敗しました"}</p>`;
+                return;
+            }
+
+            if (!data.results) {
+                result.innerHTML = `<p class="message">該当する住所が見つかりませんでした</p>`;
+                return;
+            }
+
+            result.innerHTML = data.results.map(r => `
+                <div class="result-card">
+                    <p class="zip">〒${r.zipcode.slice(0, 3)}-${r.zipcode.slice(3)}</p>
+                    <p class="address">${r.address1}${r.address2}${r.address3}</p>
+                </div>
+            `).join("");
+
+        } catch (err) {
+            result.innerHTML = `<p class="message">エラー: ${err.message}</p>`;
+        }
+    }
+
+    input.addEventListener("keydown", e => {
+        if (e.key === "Enter") searchZip();
+    });
+</script>
+
+</body>
+</html>

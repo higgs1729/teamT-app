@@ -72,6 +72,7 @@
 | tools | currency_converter | ExchangeRate-API | 通貨換算 |
 | tools | kawase | exchangerate.host | 為替レート |
 | tools | QR | QR Server (goQR) | QRコード生成 |
+| tools | zipcode | zipcloud | 郵便番号から住所を検索 |
 | fun | joke | Official Joke API | 海外ジョーク |
 | fun | ohuzake | Useless Facts | ランダム雑学 |
 | fun | OpenTrivia | Open Trivia DB | クイズ |

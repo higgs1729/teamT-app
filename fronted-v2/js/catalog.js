@@ -66,6 +66,8 @@ window.CATALOG = [
     description: "通貨ペアの為替レートを取得", apiName: "exchangerate.host", apiUrl: "https://exchangerate.host/", icon: "ti-arrows-exchange" },
   { id: "qr", file: "tools/QR.html", title: "QRコードおみくじ", category: "為替・ツール系",
     description: "ランダムなメッセージ入りQRコードを生成", apiName: "QR Server (goQR)", apiUrl: "https://goqr.me/api/", icon: "ti-qrcode" },
+  { id: "zipcode", file: "tools/zipcode.html", title: "郵便番号検索", category: "為替・ツール系",
+    description: "7桁の郵便番号から住所を検索", apiName: "zipcloud", apiUrl: "https://zipcloud.ibsnet.co.jp/doc/api", icon: "ti-map-pin" },
 
   /* ---------- エンタメ・おもしろ系（ジョーク/雑学/クイズ） ---------- */
   { id: "joke", file: "fun/joke.html", title: "海外ジョーク", category: "エンタメ・おもしろ系",

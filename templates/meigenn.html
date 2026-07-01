@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>名言API</title>
+
+<style>
+body{
+    font-family: Arial;
+    text-align:center;
+    margin:40px;
+    background:#0b1020;
+    color:white;
+}
+
+.container{
+    max-width:600px;
+    margin:auto;
+    background:#1e293b;
+    padding:20px;
+    border-radius:12px;
+}
+
+select, button{
+    padding:10px;
+    font-size:16px;
+    margin:10px;
+    cursor:pointer;
+}
+
+.quote{
+    margin-top:20px;
+    font-size:20px;
+    line-height:1.6;
+}
+
+.author{
+    margin-top:10px;
+    color:#93c5fd;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>💬 名言API</h1>
+
+<select id="category">
+    <option value="all">すべて</option>
+    <option value="life">人生</option>
+    <option value="effort">努力</option>
+    <option value="success">成功</option>
+</select>
+
+<br>
+
+<button onclick="getQuote()">名言を取得</button>
+
+<div class="quote" id="quote">ここに名言が表示されます</div>
+<div class="author" id="author"></div>
+
+</div>
+
+<script>
+
+const quotes = [
+    {text:"失敗は成功のもとである。", author:"ことわざ", category:"success"},
+    {text:"努力は必ず報われる。ただし報われるまで努力し続けた場合のみだ。", author:"不明", category:"effort"},
+    {text:"人生とは自分を見つけることではない。人生とは自分を創ることである。", author:"ジョージ・バーナード・ショー", category:"life"},
+    {text:"成功とは、失敗を重ねても情熱を失わないことである。", author:"ウィンストン・チャーチル", category:"success"},
+    {text:"今日という日は、残りの人生の最初の日である。", author:"不明", category:"life"},
+    {text:"天才とは1%のひらめきと99%の努力である。", author:"エジソン", category:"effort"},
+    {text:"夢を追う勇気があれば、すべての夢は実現できる。", author:"ウォルト・ディズニー", category:"life"},
+];
+
+function getQuote(){
+
+    const category = document.getElementById("category").value;
+
+    let filtered = quotes;
+
+    if(category !== "all"){
+        filtered = quotes.filter(q => q.category === category);
+    }
+
+    const random = filtered[Math.floor(Math.random() * filtered.length)];
+
+    document.getElementById("quote").innerText = random.text;
+    document.getElementById("author").innerText = "— " + random.author;
+}
+
+</script>
+
+</body>
+</html>

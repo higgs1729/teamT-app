@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>アニメ掲示板</title>
+
+<style>
+
+body{
+    margin:0;
+    padding:30px;
+    background:#181818;
+    color:white;
+    font-family:"Yu Gothic";
+}
+
+/* タイトル */
+
+h1{
+    text-align:center;
+    background:#222;
+    padding:20px;
+    border-radius:10px;
+    color:#66ccff;
+    box-shadow:0 0 10px black;
+}
+
+/* ボタン */
+
+.button-area{
+    text-align:center;
+    margin:30px 0;
+}
+
+button{
+    background:#333;
+    color:white;
+    border:none;
+    padding:12px 25px;
+    margin:5px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+    transition:0.3s;
+}
+
+button:hover{
+    background:#66ccff;
+    color:black;
+    transform:scale(1.05);
+}
+
+/* 掲示板 */
+
+.board{
+    max-width:900px;
+    margin:auto;
+    background:#252525;
+    border-radius:15px;
+    padding:25px;
+    box-shadow:0 0 20px rgba(0,0,0,0.7);
+}
+
+/* アニメ情報 */
+
+.info{
+    display:flex;
+    flex-wrap:wrap;
+    gap:25px;
+}
+
+.poster{
+    flex:1;
+    min-width:250px;
+}
+
+.poster img{
+    width:100%;
+    border-radius:10px;
+    border:2px solid #444;
+}
+
+.details{
+    flex:2;
+    min-width:300px;
+}
+
+.details h2{
+    color:#66ccff;
+    margin-top:0;
+}
+
+.data{
+    background:#333;
+    margin:10px 0;
+    padding:10px;
+    border-radius:8px;
+}
+
+.synopsis{
+    background:#2d2d2d;
+    margin-top:15px;
+    padding:15px;
+    border-radius:8px;
+    line-height:1.8;
+}
+
+</style>
+
+</head>
+<body>
+
+<h1>📺 アニメ掲示板</h1>
+
+<div class="button-area">
+    <button onclick="normalAnime()">
+        🎲 一般向けランダム
+    </button>
+
+    <button onclick="sensitiveAnime()">
+        🔞 成人向けランダム
+    </button>
+</div>
+
+<div class="board">
+
+    <div class="info">
+
+        <div class="poster">
+            <img id="image">
+        </div>
+
+        <div class="details">
+
+            <h2 id="title">
+                アニメを選択してください
+            </h2>
+
+            <div class="data">
+                ⭐ スコア :
+                <span id="score">-</span>
+            </div>
+
+            <div class="data">
+                📅 放送年 :
+                <span id="year">-</span>
+            </div>
+
+            <div class="data">
+                🎭 ジャンル :
+                <span id="genre">-</span>
+            </div>
+
+            <div class="data">
+                🔞 レーティング :
+                <span id="rating">-</span>
+            </div>
+
+            <div class="synopsis">
+                <b>あらすじ</b>
+                <p id="synopsis">
+                    ボタンを押してアニメを表示してください。
+                </p>
+                <p id="synopsis"></p>
+
+                <button onclick="translateSynopsis()">
+                    🇯🇵 日本語に翻訳
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+async function normalAnime(){
+
+    const page = Math.floor(Math.random()*50)+1;
+
+    const response =
+    await fetch(
+        `https://api.jikan.moe/v4/anime?page=${page}`
+    );
+
+    const data = await response.json();
+
+    const safeAnime =
+    data.data.filter(anime =>
+        anime.rating &&
+        !anime.rating.includes("Rx") &&
+        !anime.rating.includes("R+")
+    );
+
+    showAnime(
+        safeAnime[
+            Math.floor(
+                Math.random()*safeAnime.length
+            )
+        ]
+    );
+}
+
+async function sensitiveAnime(){
+
+    const page = Math.floor(Math.random()*50)+1;
+
+    const response =
+    await fetch(
+        `https://api.jikan.moe/v4/anime?page=${page}`
+    );
+
+    const data = await response.json();
+
+    const adultAnime =
+    data.data.filter(anime =>
+        anime.rating &&
+        (
+            anime.rating.includes("Rx") ||
+            anime.rating.includes("R+")
+        )
+    );
+
+    if(adultAnime.length === 0){
+        sensitiveAnime();
+        return;
+    }
+
+    showAnime(
+        adultAnime[
+            Math.floor(
+                Math.random()*adultAnime.length
+            )
+        ]
+    );
+}
+
+function showAnime(anime){
+
+    // 日本語タイトル優先
+    document.getElementById("title").textContent =
+        anime.title_japanese ||
+        anime.title ||
+        "不明";
+
+    document.getElementById("image").src =
+        anime.images.jpg.large_image_url;
+
+    document.getElementById("score").textContent =
+        anime.score || "未評価";
+
+    document.getElementById("year").textContent =
+        anime.year || "不明";
+
+    document.getElementById("rating").textContent =
+        anime.rating || "不明";
+
+    const genres =
+        anime.genres
+        .map(g => g.name)
+        .join(" / ");
+
+    document.getElementById("genre").textContent =
+        genres || "不明";
+
+    document.getElementById("synopsis").textContent =
+        anime.synopsis || "あらすじがありません";
+}
+async function translateSynopsis(){
+
+    const text =
+        document.getElementById("synopsis").textContent;
+
+    const url =
+        "https://api.mymemory.translated.net/get?q="
+        + encodeURIComponent(text)
+        + "&langpair=en|ja";
+
+    const response = await fetch(url);
+    const data = await response.json();
+
+    document.getElementById("synopsis").textContent =
+        data.responseData.translatedText;
+}
+
+</script>
+
+</body>
+</html>

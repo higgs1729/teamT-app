@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>毎日を乗り切るためのアヒル</title>
+    <style>
+        :root {
+            --bg-color: #f7f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --accent-color: #ffcc00; /* アヒル色 */
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+            color: #222;
+        }
+
+        p.subtitle {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            overflow: hidden;
+            border: 3px solid var(--accent-color);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .duck-image-container {
+            position: relative; /* ステータス表示を重ねるため */
+            width: 100%;
+            aspect-ratio: 1 / 1; /* 正方形に保つ（画像に応じて調整してください） */
+            background-color: #eee;
+            overflow: hidden;
+        }
+
+        .duck-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 枠線に合わせて綺麗にトリミング */
+            display: block;
+        }
+
+        /* 読み込み中・取得失敗時に画像の上へ重ねるメッセージ */
+        .duck-status {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 16px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #666;
+            background-color: #eee;
+        }
+
+        .duck-status.error {
+            color: #a13b3b;
+            background-color: #fdeaea;
+        }
+
+        .duck-status.hidden {
+            display: none;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .quote {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin: 0 0 15px 0;
+            color: #444;
+        }
+
+        .btn {
+            background-color: var(--accent-color);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(255, 204, 0, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background-color: #e6b800;
+            box-shadow: 0 6px 12px rgba(255, 204, 0, 0.4);
+        }
+
+        footer {
+            margin-top: 25px;
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        footer a {
+            color: #999;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>嫌なことがあったら、アヒルを見よう</h1>
+        <p class="subtitle">プログラムが動かなくても、彼らは気にとめません。</p>
+
+        <div class="card">
+            <div class="duck-image-container">
+                <!-- 画像は取得成功時のみ表示。読み込み中/失敗時は .duck-status を重ねる -->
+                <img alt="ランダムなアヒル" class="duck-image" id="duck-image" style="display:none;">
+                <div class="duck-status" id="duck-status">アヒルを呼んでいます…</div>
+            </div>
+            <div class="card-body">
+                <p class="quote">「クワッ（まあ、何とかなるさ）」</p>
+                <button class="btn" id="reroll-btn">別のアヒルを呼ぶ</button>
+            </div>
+        </div>
+
+        <footer>
+            Powered by <a href="https://random-d.uk/" target="_blank" rel="noopener noreferrer">random-d.uk</a>
+        </footer>
+    </div>
+
+    <script>
+        // random-d.uk からランダムなアヒル画像を取得して表示する。
+        // 直接画像を返すエンドポイントを使い、キャッシュ回避のクエリで毎回別の1羽を呼ぶ。
+        // 取得できない場合は画像の上にメッセージを重ねて知らせる。
+        const IMG_ENDPOINT = "https://random-d.uk/api/randomimg";
+
+        const imgEl = document.getElementById("duck-image");
+        const statusEl = document.getElementById("duck-status");
+        const btnEl = document.getElementById("reroll-btn");
+
+        // ステータス表示の切り替え（error=true で失敗表示）
+        function showStatus(message, isError) {
+            statusEl.textContent = message;
+            statusEl.classList.toggle("error", !!isError);
+            statusEl.classList.remove("hidden");
+            imgEl.style.display = "none";
+        }
+
+        function loadDuck() {
+            btnEl.disabled = true;
+            showStatus("アヒルを呼んでいます…", false);
+
+            // 新しい Image で先読みし、成功/失敗を判定してから表示を切り替える
+            const loader = new Image();
+
+            loader.onload = () => {
+                imgEl.src = loader.src;
+                imgEl.style.display = "block";
+                statusEl.classList.add("hidden"); // 成功時はメッセージを隠す
+                btnEl.disabled = false;
+            };
+
+            loader.onerror = () => {
+                showStatus(
+                    "アヒルの画像を取得できませんでした。ネットワーク接続を確認して、もう一度お試しください。",
+                    true
+                );
+                btnEl.disabled = false;
+            };
+
+            // キャッシュ回避のため毎回異なるクエリを付与（毎回ランダムな画像になる）
+            loader.src = IMG_ENDPOINT + "?_=" + Date.now();
+        }
+
+        btnEl.addEventListener("click", loadDuck);
+        loadDuck(); // 初回表示
+    </script>
+
+</body>
+</html>

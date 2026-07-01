@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>翻訳API</title>
+
+<style>
+body{
+    font-family: Arial;
+    text-align:center;
+    margin:40px;
+    background:#0f172a;
+    color:white;
+}
+
+textarea{
+    width:80%;
+    height:100px;
+    font-size:16px;
+}
+
+button{
+    padding:10px 20px;
+    margin:10px;
+    cursor:pointer;
+}
+
+.box{
+    margin-top:20px;
+    background:#1e293b;
+    padding:15px;
+    border-radius:10px;
+    width:80%;
+    margin-left:auto;
+    margin-right:auto;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🌐 簡易翻訳API</h1>
+
+<textarea id="input" placeholder="翻訳したい言葉を入力（例：こんにちは）"></textarea>
+
+<br>
+
+<button onclick="toEnglish()">日本語 → 英語</button>
+<button onclick="toJapanese()">英語 → 日本語</button>
+
+<div class="box" id="output">結果がここに表示されます</div>
+
+<script>
+
+// 簡易辞書
+const jaToEn = {
+    "こんにちは":"hello",
+    "ありがとう":"thank you",
+    "さようなら":"goodbye",
+    "おはよう":"good morning",
+    "こんばんは":"good evening",
+    "水":"water",
+    "食べ物":"food",
+    "犬":"dog",
+    "猫":"cat"
+};
+
+// 英語→日本語（逆辞書）
+const enToJa = Object.fromEntries(
+    Object.entries(jaToEn).map(([k,v]) => [v,k])
+);
+
+function toEnglish(){
+    const text = document.getElementById("input").value.trim();
+
+    const result = jaToEn[text];
+
+    document.getElementById("output").innerText =
+        result ? result : "翻訳できません（辞書にありません）";
+}
+
+function toJapanese(){
+    const text = document.getElementById("input").value.trim().toLowerCase();
+
+    const result = enToJa[text];
+
+    document.getElementById("output").innerText =
+        result ? result : "翻訳できません（辞書にありません）";
+}
+
+</script>
+
+</body>
+</html>

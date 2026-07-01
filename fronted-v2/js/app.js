@@ -1,0 +1,288 @@
+/* ============================================================
+   fronted-v2 / app.js
+   サイト全体の動作を担うスクリプト。
+     - CATALOG(catalog.js) からサイドバーをカテゴリ別に描画
+     - 検索ボックスによる絞り込み
+     - 一覧クリックで iframe にテンプレートを表示しヘッダーを更新
+     - URLハッシュ連携（共有・リロードで選択を復元）
+     - 表示テーマの切替と localStorage 保存
+     - narrow 幅でのサイドバー開閉
+
+   依存: window.CATALOG（catalog.js で定義）
+   ============================================================ */
+
+(function () {
+  "use strict";
+
+  /* ---- よく使う DOM 参照 ---- */
+  const navList     = document.getElementById("nav-list");
+  const searchInput = document.getElementById("search");
+  const preview     = document.getElementById("preview");
+  const welcome     = document.getElementById("welcome");
+  const appWindow   = document.querySelector(".app-window");
+  const mobileMQ    = window.matchMedia("(max-width: 760px)");
+
+  const TEMPLATE_DIR = "../templates/";        // iframe が読む相対パス
+  const THEME_KEY    = "fronted-v2-theme";     // localStorage キー（テーマ）
+  const ACCENT_KEY   = "fronted-v2-accent";    // localStorage キー（アクセント色）
+  let   currentId    = null;                   // 現在選択中テンプレートの id
+  const openCats     = new Set();              // 開いているカテゴリ名（既定は全て閉じる）
+
+  /* ============================================================
+     一覧描画 — CATALOG を category 単位の折りたたみグループとして出力。
+       - 既定は全カテゴリ閉じた状態。見出しクリックで開閉。
+       - keyword 指定時は title / apiName / description で部分一致フィルタし、
+         検索中はヒットを見せるため該当グループを自動展開する。
+     ============================================================ */
+  function renderList(keyword) {
+    const kw = (keyword || "").trim().toLowerCase();
+    const items = kw
+      ? CATALOG.filter(t =>
+          (t.title + " " + t.apiName + " " + t.description).toLowerCase().includes(kw))
+      : CATALOG;
+
+    navList.innerHTML = "";
+    if (items.length === 0) {
+      navList.innerHTML = '<div class="nav-empty">該当する API がありません</div>';
+      return;
+    }
+
+    // category 単位にグルーピング（CATALOG の並び順を尊重）
+    const groups = [];                         // [{ category, items: [] }]
+    const index  = new Map();                  // category -> groups内の位置
+    items.forEach(t => {
+      if (!index.has(t.category)) { index.set(t.category, groups.length); groups.push({ category: t.category, items: [] }); }
+      groups[index.get(t.category)].items.push(t);
+    });
+
+    groups.forEach(g => {
+      // 検索中(kw あり)は展開、通常時は openCats の状態に従う
+      const isOpen = kw ? true : openCats.has(g.category);
+
+      const group = document.createElement("div");
+      group.className = "nav-group" + (isOpen ? "" : " closed");
+      group.dataset.category = g.category;
+
+      // 見出し（クリックで開閉）。表示名は末尾の「系」を省く + 開閉キャレット
+      const head = document.createElement("div");
+      head.className = "nav-group-head";
+      head.innerHTML =
+        `<i class="ti ti-chevron-down nav-group-caret"></i>` +
+        `<span class="nav-group-title">${g.category.replace(/系$/, "")}</span>`;
+      head.addEventListener("click", () => toggleGroup(g.category, group));
+      group.appendChild(head);
+
+      // 本体（テンプレート項目）
+      const body = document.createElement("div");
+      body.className = "nav-group-body";
+      g.items.forEach(t => {
+        const item = document.createElement("div");
+        item.className = "nav-item" + (t.id === currentId ? " active" : "");
+        item.dataset.id = t.id;
+        item.innerHTML = `<i class="ti ${t.icon}"></i><span>${t.title}</span>`;
+        item.addEventListener("click", () => select(t.id, true));
+        body.appendChild(item);
+      });
+      group.appendChild(body);
+
+      navList.appendChild(group);
+    });
+  }
+
+  // カテゴリの開閉をトグル（openCats に状態を保持し、DOM の closed を切替）
+  function toggleGroup(category, groupEl) {
+    if (openCats.has(category)) { openCats.delete(category); groupEl.classList.add("closed"); }
+    else { openCats.add(category); groupEl.classList.remove("closed"); }
+  }
+
+  // 指定 id を含むカテゴリを開く（選択時に項目が隠れないようにする）
+  function expandCategoryOf(id) {
+    const t = CATALOG.find(x => x.id === id);
+    if (!t) return;
+    openCats.add(t.category);
+    const g = navList.querySelector(`.nav-group[data-category="${t.category}"]`);
+    if (g) g.classList.remove("closed");
+  }
+
+  /* ============================================================
+     選択 — 指定 id のテンプレートを iframe に表示しヘッダーを更新。
+     updateHash=true のときは location.hash も書き換える（共有用）。
+     ============================================================ */
+  function select(id, updateHash) {
+    const t = CATALOG.find(x => x.id === id);
+    if (!t) return;
+    currentId = id;
+
+    // iframe にテンプレートを読み込み、ウェルカムを隠す
+    preview.src = TEMPLATE_DIR + t.file;
+    preview.classList.remove("hidden");
+    welcome.classList.add("hidden");
+
+    // 選択項目を含むカテゴリを開いてからハイライトを付け替え
+    expandCategoryOf(id);
+    navList.querySelectorAll(".nav-item").forEach(el =>
+      el.classList.toggle("active", el.dataset.id === id));
+
+    if (updateHash) location.hash = id;
+    // narrow 幅のときだけ、選択後にドロワーを閉じる（デスクトップは開いたまま）
+    if (mobileMQ.matches) setSidebarCollapsed(true);
+  }
+
+  /* ============================================================
+     表示設定 — テーマ(背景) と アクセント色 を独立して切替。
+       - テーマ(data-theme): light / dark … 背景・文字
+       - アクセント(data-accent): orange / blue … アクセント色のみ
+     どちらも localStorage に保存。setTheme / setAccent / toggleThemeMenu
+     はインライン onclick から呼ぶため window に公開する。
+     ============================================================ */
+  function applyTheme(name) {
+    document.documentElement.setAttribute("data-theme", name);
+    document.querySelectorAll("[data-theme-name]").forEach(i =>
+      i.classList.toggle("active", i.dataset.themeName === name));
+  }
+
+  function applyAccent(name) {
+    document.documentElement.setAttribute("data-accent", name);
+    document.querySelectorAll("[data-accent-name]").forEach(i =>
+      i.classList.toggle("active", i.dataset.accentName === name));
+  }
+
+  // 選択してもモーダルは閉じない（テーマとアクセントを続けて選べる）
+  window.setTheme  = function (name) { applyTheme(name);  localStorage.setItem(THEME_KEY, name); };
+  window.setAccent = function (name) { applyAccent(name); localStorage.setItem(ACCENT_KEY, name); };
+
+  // 起動時：保存済みのテーマ・アクセントを復元
+  function initTheme() {
+    const savedTheme = localStorage.getItem(THEME_KEY);
+    if (savedTheme) applyTheme(savedTheme);
+    const savedAccent = localStorage.getItem(ACCENT_KEY);
+    if (savedAccent) applyAccent(savedAccent);
+  }
+
+  /* ============================================================
+     アカウント — サーバー認証は無く、表示名を localStorage に保持するだけ
+     ============================================================ */
+  const ACCOUNT_KEY   = "fronted-v2-account-name";
+  const DEFAULT_NAME  = "ゲスト";
+
+  function setAccountName(name) {
+    const n = (name && name.trim()) || DEFAULT_NAME;
+    const initial = n.charAt(0).toUpperCase();
+    document.getElementById("account-name").textContent = n;
+    document.getElementById("account-avatar").textContent = initial;
+    document.getElementById("account-avatar-lg").textContent = initial;
+    document.getElementById("account-head-name").textContent = n;
+  }
+
+  function initAccount() {
+    const saved = localStorage.getItem(ACCOUNT_KEY) || DEFAULT_NAME;
+    const input = document.getElementById("account-name-input");
+    input.value = saved === DEFAULT_NAME ? "" : saved;
+    setAccountName(saved);
+    // 入力に応じて即時反映・保存
+    input.addEventListener("input", () => {
+      const v = input.value.trim();
+      setAccountName(v);
+      if (v) localStorage.setItem(ACCOUNT_KEY, v); else localStorage.removeItem(ACCOUNT_KEY);
+    });
+  }
+
+  /* ============================================================
+     設定モーダル — 開閉・パネル切替・ナビ検索・リセット
+     ============================================================ */
+  function switchPanel(panel) {
+    document.querySelectorAll(".settings-nav-item").forEach(i =>
+      i.classList.toggle("active", i.dataset.panel === panel));
+    document.querySelectorAll(".settings-panel").forEach(p =>
+      p.classList.toggle("active", p.dataset.panel === panel));
+  }
+  window.switchSettingsPanel = switchPanel;
+
+  window.openSettings = function (panel) {
+    if (panel) switchPanel(panel);
+    document.getElementById("settings-overlay").classList.add("open");
+  };
+  window.closeSettings = function () {
+    document.getElementById("settings-overlay").classList.remove("open");
+  };
+
+  // ナビ検索: ラベル部分一致で項目を絞り込み
+  function initSettingsSearch() {
+    const input = document.getElementById("settings-search-input");
+    const empty = document.getElementById("settings-nav-empty");
+    input.addEventListener("input", () => {
+      const kw = input.value.trim().toLowerCase();
+      let shown = 0;
+      document.querySelectorAll(".settings-nav-item").forEach(item => {
+        const hit = item.textContent.toLowerCase().includes(kw);
+        item.style.display = hit ? "" : "none";
+        if (hit) shown++;
+      });
+      empty.style.display = shown === 0 ? "block" : "none";
+    });
+  }
+
+  // 保存内容（テーマ/アクセント/表示名）を消して既定に戻す
+  window.resetSettings = function () {
+    localStorage.removeItem(THEME_KEY);
+    localStorage.removeItem(ACCENT_KEY);
+    localStorage.removeItem(ACCOUNT_KEY);
+    applyTheme("light");
+    applyAccent("orange");
+    setAccountName(DEFAULT_NAME);
+    document.getElementById("account-name-input").value = "";
+  };
+
+  /* ============================================================
+     サイドバー表示切替 — .app-window に .sidebar-collapsed を付与。
+       デスクトップ: サイドバーを隠す/表示（メインが全幅に）
+       narrow 幅  : オーバーレイのドロワーを開閉
+     ============================================================ */
+  function setSidebarCollapsed(collapsed) {
+    appWindow.classList.toggle("sidebar-collapsed", collapsed);
+  }
+  // ヘッダーのボタン・スクリムから呼ぶため公開（引数なしでトグル）
+  window.toggleSidebar = function () {
+    appWindow.classList.toggle("sidebar-collapsed");
+  };
+  window.closeSidebar = function () { setSidebarCollapsed(true); };
+
+  /* ============================================================
+     初期化
+     ============================================================ */
+  function init() {
+    // ウェルカムの件数表示
+    const countEl = document.getElementById("welcome-count");
+    if (countEl) countEl.textContent = CATALOG.length;
+
+    initTheme();
+    initAccount();
+    initSettingsSearch();
+    const apiCount = document.getElementById("settings-api-count");
+    if (apiCount) apiCount.textContent = CATALOG.length;
+    renderList("");
+
+    // narrow 幅では初期状態でサイドバー（ドロワー）を閉じておく
+    if (mobileMQ.matches) setSidebarCollapsed(true);
+
+    // 検索入力で再描画
+    searchInput.addEventListener("input", e => renderList(e.target.value));
+
+    // Esc キーで設定モーダルを閉じる
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeSettings();
+    });
+
+    // URLハッシュに id があれば復元、なければウェルカムのまま
+    const hashId = decodeURIComponent(location.hash.replace(/^#/, ""));
+    if (hashId && CATALOG.some(t => t.id === hashId)) select(hashId, false);
+
+    // ブラウザの戻る/進むでハッシュが変わったら追従
+    window.addEventListener("hashchange", () => {
+      const id = decodeURIComponent(location.hash.replace(/^#/, ""));
+      if (id && id !== currentId && CATALOG.some(t => t.id === id)) select(id, false);
+    });
+  }
+
+  init();
+})();

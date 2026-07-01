@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>🚗 Car Explorer</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Segoe UI",sans-serif;
+}
+
+body{
+
+    background:
+    linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),
+    url("https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1600&q=80");
+
+    background-size:cover;
+    background-position:center;
+    background-attachment:fixed;
+
+    color:white;
+
+}
+
+.container{
+
+    max-width:1200px;
+    margin:40px auto;
+    padding:25px;
+
+}
+
+h1{
+
+    text-align:center;
+    font-size:42px;
+    margin-bottom:30px;
+    text-shadow:0 3px 10px black;
+
+}
+
+.panel{
+
+    background:rgba(255,255,255,.12);
+
+    backdrop-filter:blur(15px);
+
+    border-radius:20px;
+
+    padding:25px;
+
+    margin-bottom:25px;
+
+    border:1px solid rgba(255,255,255,.2);
+
+}
+
+select{
+
+    width:100%;
+
+    padding:15px;
+
+    font-size:18px;
+
+    border-radius:12px;
+
+    border:none;
+
+    margin-top:10px;
+
+}
+
+button{
+
+    margin-top:20px;
+
+    width:100%;
+
+    padding:15px;
+
+    font-size:18px;
+
+    background:#1976d2;
+
+    color:white;
+
+    border:none;
+
+    border-radius:12px;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+button:hover{
+
+    background:#0d47a1;
+
+}
+
+#status{
+
+    text-align:center;
+
+    margin:20px;
+
+    font-size:20px;
+
+}
+
+#result{
+
+    display:none;
+
+    margin-top:30px;
+
+}
+
+.imageCard{
+
+    text-align:center;
+
+}
+
+.imageCard img{
+
+    width:100%;
+
+    max-width:700px;
+
+    border-radius:20px;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.4);
+
+}
+
+.info{
+
+    margin-top:25px;
+
+    background:rgba(255,255,255,.12);
+
+    border-radius:20px;
+
+    padding:20px;
+
+}
+
+.info h2{
+
+    color:#90caf9;
+
+    margin-bottom:15px;
+
+}
+
+.info p{
+
+    line-height:1.8;
+
+}
+
+a{
+
+    color:#90caf9;
+
+}
+
+.loading{
+
+    text-align:center;
+
+    font-size:22px;
+
+}
+
+footer{
+
+    text-align:center;
+
+    opacity:.7;
+
+    margin-top:40px;
+
+}
+table{
+
+width:100%;
+
+border-collapse:collapse;
+
+margin-bottom:20px;
+
+}
+
+th,td{
+
+padding:12px;
+
+border-bottom:1px solid rgba(255,255,255,.2);
+
+text-align:left;
+
+}
+
+th{
+
+width:180px;
+
+color:#90caf9;
+
+}
+
+#carImage{
+
+background:white;
+
+min-height:250px;
+
+object-fit:cover;
+
+}
+
+.noImage{
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+height:250px;
+
+background:#333;
+
+border-radius:20px;
+
+font-size:24px;
+
+}
+
+@media(max-width:700px){
+
+h1{
+
+font-size:32px;
+
+}
+
+}
+
+.loading::after{
+
+content:"";
+
+animation:dots 1.2s infinite;
+
+}
+
+@keyframes dots{
+
+0%{content:"";}
+25%{content:".";}
+50%{content:"..";}
+75%{content:"...";}
+100%{content:"";}
+
+}
+
+#result{
+
+animation:fade .5s;
+
+}
+
+@keyframes fade{
+
+from{
+
+opacity:0;
+
+transform:translateY(20px);
+
+}
+
+to{
+
+opacity:1;
+
+transform:translateY(0);
+
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>
+🚗 Car Explorer
+</h1>
+
+<div class="panel">
+
+<h2>メーカーを選択</h2>
+
+<select id="make">
+
+<option value="Toyota">Toyota</option>
+<option value="Honda">Honda</option>
+<option value="Nissan">Nissan</option>
+<option value="Mazda">Mazda</option>
+<option value="Subaru">Subaru</option>
+<option value="Suzuki">Suzuki</option>
+<option value="Mitsubishi">Mitsubishi</option>
+<option value="Lexus">Lexus</option>
+<option value="BMW">BMW</option>
+<option value="Mercedes-Benz">Mercedes-Benz</option>
+<option value="Audi">Audi</option>
+<option value="Volkswagen">Volkswagen</option>
+<option value="Ford">Ford</option>
+<option value="Chevrolet">Chevrolet</option>
+<option value="Tesla">Tesla</option>
+
+</select>
+
+<button onclick="loadModels()">
+🚙 モデル一覧を取得
+</button>
+
+</div>
+
+<div class="panel">
+
+<h2>モデルを選択</h2>
+
+<select id="model">
+
+<option>
+メーカーを選択してください
+</option>
+
+</select>
+
+<button onclick="showCar()">
+📷 車を表示
+</button>
+
+</div>
+
+<div id="status"></div>
+
+<div id="result">
+
+<div class="imageCard">
+
+<img id="carImage" onclick="window.open(this.src)">
+
+</div>
+
+<div class="info">
+
+<h2 id="title"></h2>
+
+<table id="carTable">
+
+<tr>
+<th>🚗 メーカー</th>
+<td id="makeName">-</td>
+</tr>
+
+<tr>
+<th>🚙 モデル</th>
+<td id="modelName">-</td>
+</tr>
+
+<tr>
+<th>📖 Wikipedia記事</th>
+<td id="pageTitle">-</td>
+</tr>
+
+</table>
+
+<br>
+
+<h3>概要</h3>
+
+<p id="description">
+読み込み中...
+</p>
+
+<br>
+
+<a id="wikiLink"
+target="_blank">
+Wikipediaで見る →
+</a>
+
+</div>
+
+</div>
+
+<footer>
+
+Powered by NHTSA Vehicle API & Wikipedia API
+
+</footer>
+
+</div>
+
+<script>
+// 現在選択中のメーカー
+let currentMake = "";
+
+// モデル一覧取得
+async function loadModels(){
+
+    currentMake = document.getElementById("make").value;
+
+    const modelSelect = document.getElementById("model");
+    const status = document.getElementById("status");
+
+    modelSelect.innerHTML = "";
+    status.innerHTML = "<div class='loading'>🚗 モデル一覧を取得しています...</div>";
+
+    try{
+
+        const url =
+        `https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMake/${encodeURIComponent(currentMake)}?format=json`;
+
+        const res = await fetch(url);
+        const data = await res.json();
+
+        const models = [...new Map(
+            data.Results.map(item => [item.Model_Name, item])
+        ).values()];
+
+        models.sort((a,b)=>
+            a.Model_Name.localeCompare(b.Model_Name)
+        );
+
+        models.forEach(model=>{
+
+            const option = document.createElement("option");
+
+            option.value = model.Model_Name;
+            option.textContent = model.Model_Name;
+
+            modelSelect.appendChild(option);
+
+        });
+
+        status.innerHTML =
+        `✅ ${currentMake} のモデルを ${models.length} 件取得しました`;
+
+    }
+    catch(err){
+
+        console.error(err);
+
+        status.innerHTML =
+        "❌ モデル一覧の取得に失敗しました";
+
+    }
+
+}
+
+// 起動時
+window.onload = loadModels;
+
+document.getElementById("model").addEventListener("keypress",function(e){
+
+    if(e.key==="Enter"){
+
+        showCar();
+
+    }
+
+});
+
+document.getElementById("model").addEventListener("change",()=>{
+
+    showCar();
+
+});
+
+document.getElementById("make").addEventListener("change",()=>{
+
+    loadModels();
+
+});
+// -------------------------------
+// 車の画像・概要を取得
+// -------------------------------
+async function showCar(){
+
+    const btn=document.querySelectorAll("button");
+
+    btn.forEach(b=>b.disabled=true);
+
+    const model = document.getElementById("model").value;
+
+    if(!model){
+        alert("モデルを選択してください。");
+        return;
+    }
+
+    const query = `${currentMake} ${model} car`;
+
+    document.getElementById("status").innerHTML =
+    "<div class='loading'>📷 Wikipediaを検索しています...</div>";
+
+    document.getElementById("result").style.display = "none";
+
+    try{
+
+        // Wikipedia検索
+        const searchUrl =
+        `https://en.wikipedia.org/w/api.php?origin=*&action=query&list=search&srsearch=${encodeURIComponent(query)}&utf8=&format=json`;
+
+        const searchRes = await fetch(searchUrl);
+
+        const searchData = await searchRes.json();
+
+        if(searchData.query.search.length===0){
+
+            document.getElementById("status").innerHTML =
+            "❌ Wikipediaの記事が見つかりませんでした。";
+
+            return;
+
+        }
+
+        const pageTitle =
+        searchData.query.search[0].title;
+
+        loadWikipedia(pageTitle);
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+        document.getElementById("status").innerHTML =
+        "❌ Wikipediaとの通信に失敗しました。";
+
+    }
+
+}
+
+// -------------------------------
+// Wikipediaから画像・概要取得
+// -------------------------------
+async function loadWikipedia(title){
+
+    const url =
+    `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
+
+    try{
+
+        const res = await fetch(url);
+
+        const data = await res.json();
+
+        document.getElementById("status").innerHTML = "";
+
+        document.getElementById("result").style.display = "block";
+
+        document.getElementById("title").innerHTML =
+        `🚗 ${currentMake} ${document.getElementById("model").value}`;
+
+        document.getElementById("makeName").textContent =
+        currentMake;
+
+        document.getElementById("modelName").textContent =
+        document.getElementById("model").value;
+
+        document.getElementById("pageTitle").textContent =
+        data.title;
+
+        const description = data.extract || "説明がありません。";
+
+        const translated = await translateText(description);
+
+        document.getElementById("description").textContent =
+        translated;
+
+        document.getElementById("wikiLink").href =
+        data.content_urls.desktop.page;
+
+        const img =
+        document.getElementById("carImage");
+
+        if(data.thumbnail){
+
+            img.src =
+            data.thumbnail.source;
+
+            img.style.display="block";
+
+        }else{
+
+            img.src =
+            "https://placehold.co/700x400/2c3e50/ffffff?text=No+Image";
+
+            img.style.display="block";
+
+        }
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+        document.getElementById("status").innerHTML =
+        "❌ 詳細情報の取得に失敗しました。";
+
+    }
+    document.getElementById("status").innerHTML =
+    "✅ 車両情報を取得しました";
+
+    btn.forEach(b=>b.disabled=false);
+    const now=new Date();
+
+    document.getElementById("status").innerHTML=
+
+    `✅ ${now.toLocaleTimeString()} に取得しました`;
+}
+async function translateText(text){
+
+    try{
+
+        const res = await fetch("https://translate.argosopentech.com/translate",{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify({
+
+                q:text,
+
+                source:"en",
+
+                target:"ja",
+
+                format:"text"
+
+            })
+
+        });
+
+        const data = await res.json();
+
+        return data.translatedText;
+
+    }catch(e){
+
+        console.log(e);
+
+        return text;
+
+    }
+
+}
+
+
+</script>
+
+</body>
+</html>

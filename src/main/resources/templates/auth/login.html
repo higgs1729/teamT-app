@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ログイン - teamT-app</title>
+    <link rel="stylesheet" th:href="@{/css/auth/auth.css}">
+</head>
+<body class="auth-page">
+<main class="auth-shell">
+    <section class="auth-panel" aria-labelledby="login-title">
+        <h1 id="login-title">ログイン</h1>
+        <p class="auth-message success" th:if="${registered}">登録が完了しました。ログインしてください。</p>
+        <p class="auth-message error" th:if="${param.error}">メールアドレスまたはパスワードが違います。</p>
+        <p class="auth-message success" th:if="${param.logout}">ログアウトしました。</p>
+
+        <form th:action="@{/auth/login}" th:object="${loginRequest}" method="post" class="auth-form">
+            <label>
+                メールアドレス
+                <input type="email" th:field="*{email}" autocomplete="email" required>
+            </label>
+            <label>
+                パスワード
+                <input type="password" th:field="*{password}" autocomplete="current-password" required>
+            </label>
+            <button type="submit">ログイン</button>
+        </form>
+
+        <p class="auth-link">アカウントがない場合は <a th:href="@{/auth/register}">新規登録</a></p>
+    </section>
+</main>
+</body>
+</html>

@@ -56,3 +56,31 @@
 - [ ] 使用する外部APIを決める
 - [ ] 画面構成を決める
 - [ ] データモデルを設計する
+
+---
+
+## 8. Account Authentication
+
+- Authentication method: Spring Security form login.
+- Login URL: `/auth/login`
+- Registration URL: `/auth/register`
+- Logout URL: `/auth/logout`
+- Protected pages: all routes except authentication pages, static assets, and the H2 console require login.
+- User data is stored in the `users` table through Spring Data JPA.
+- Passwords are stored as BCrypt hashes. Plain text passwords must never be saved.
+- Email addresses are unique and are used as the login identifier.
+- Default role for newly registered users: `USER`.
+- Development DB: H2 in-memory database. A production DB can replace this by changing `application.properties`.
+
+### Authentication folder responsibilities
+
+- `controller/`: screen routing and registration endpoint.
+- `service/`: registration workflow, password hashing, duplicate email checks.
+- `model/`: JPA entities and role enum.
+- `repository/`: database access for user accounts.
+- `dto/`: form input objects for login and registration.
+- `security/`: Spring Security user loading and authentication support.
+- `config/`: Spring Security configuration.
+- `resources/templates/auth/`: login and registration templates.
+- `resources/static/css/auth/`: authentication page styles.
+- `test/java/com/example/app/auth/`: authentication flow tests.

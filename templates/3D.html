@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多ジャンル3Dモデル召喚API</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #060913; font-family: sans-serif; }
+        
+        /* UIエリア */
+        #ui-container {
+            position: absolute; top: 20px; width: 100%; 
+            display: flex; flex-direction: column; align-items: center; z-index: 10;
+        }
+        button {
+            padding: 14px 28px; font-size: 16px; font-weight: bold; cursor: pointer; border: none; border-radius: 25px;
+            background: linear-gradient(45deg, #a855f7, #00f2fe); color: white;
+            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4); transition: transform 0.1s, box-shadow 0.2s;
+        }
+        button:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6); }
+        button:active { transform: scale(0.95); }
+
+        /* 現在のジャンル表示 */
+        #genre-badge {
+            margin-top: 10px; background-color: rgba(255,255,255,0.1); color: #00f2fe;
+            padding: 6px 16px; border-radius: 15px; font-size: 14px; font-weight: bold;
+            border: 1px solid rgba(0, 242, 254, 0.3);
+        }
+
+        #loading {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            color: #00f2fe; font-size: 24px; font-weight: bold; pointer-events: none; display: none;
+        }
+        #info { position: absolute; bottom: 20px; width: 100%; text-align: center; color: #64748b; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <div id="ui-container">
+        <button onclick="loadRandomModel()">ランダムに3Dモデルを召喚 🎲</button>
+        <div id="genre-badge">ジャンル: 未読み込み</div>
+    </div>
+
+    <div id="loading">3Dデータをダウンロード中...</div>
+    <div id="info">マウスでドラッグすると、全方向から3Dモデルを眺められます</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
+    <script>
+        // 1. 3D空間・カメラ・レンダラーのセットアップ
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 1.5, 4); // カメラの位置
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.outputEncoding = THREE.sRGBEncoding;
+        document.body.appendChild(renderer.domElement);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+
+        // 外部モデルが綺麗に見えるように光をしっかり当てる
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.6); scene.add(ambientLight);
+        const dirLight1 = new THREE.DirectionalLight(0xffffff, 2.0); dirLight1.position.set(5, 10, 5); scene.add(dirLight1);
+        const dirLight2 = new THREE.DirectionalLight(0xffffff, 0.5); dirLight2.position.set(-5, -5, -5); scene.add(dirLight2);
+
+        // 2. 🛠️ 3Dモデル（APIアセット）のデータリスト【ジャンル増量版】
+        const models = [
+            // 【ジャンル：SF・サイバー】
+            { name: "🚀 SF・ヘルメット", url: "https://threejs.org/examples/models/gltf/DamagedHelmet/glTF/DamagedHelmet.gltf", scale: 0.9, yOffset: 0 },
+            // 【ジャンル：ロボット・ゲーム】
+            { name: "🤖 ロボット・ドローン", url: "https://threejs.org/examples/models/gltf/RobotExpressive/RobotExpressive.gltf", scale: 0.3, yOffset: -0.9 },
+            // 【ジャンル：レトロ・オーディオ】
+            { name: "📻 レトロ・ラジカセ", url: "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/BoomBox/glTF/BoomBox.gltf", scale: 45, yOffset: 0 },
+            // 【ジャンル：生き物・かわいい】
+            { name: "🐤 動物・おもちゃのアヒル", url: "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF-Embedded/Duck.gltf", scale: 0.7, yOffset: -0.6 },
+            // 【ジャンル：フード・食べ物】
+            { name: "🥑 フード・アボカド", url: "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Avocado/glTF-Embedded/Avocado.gltf", scale: 12, yOffset: -0.3 },
+            // 【ジャンル：アンティーク・家具】
+            { name: "🏮 アンティーク・ランタン", url: "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Lantern/glTF/Lantern.gltf", scale: 0.04, yOffset: -0.8 },
+            // 【ジャンル：カメラ・ガジェット】
+            { name: "📸 道具・クラシックカメラ", url: "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/AntiqueCamera/glTF/AntiqueCamera.gltf", scale: 0.18, yOffset: -0.4 },
+            // 【ジャンル：メカニカル・機械】
+            { name: "⚙️ 機械・2気筒エンジン", url: "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/2CylinderEngine/glTF/2CylinderEngine.gltf", scale: 0.004, yOffset: -0.6 }
+        ];
+
+        const loader = new THREE.GLTFLoader();
+        let loadedModel = null;
+
+        // 3. ランダム召喚関数
+        function loadRandomModel() {
+            if (loadedModel) { scene.remove(loadedModel); }
+
+            document.getElementById('loading').style.display = 'block';
+
+            // ランダムに1つデータを選択
+            const currentData = models[Math.floor(Math.random() * models.length)];
+            
+            // バッジのテキストを変更
+            document.getElementById('genre-badge').innerText = `ジャンル: ${currentData.name}`;
+
+            // API経由で読み込み開始
+            loader.load(
+                currentData.url,
+                function (gltf) {
+                    loadedModel = gltf.scene;
+                    
+                    // 各モデル固有の調整値を適用
+                    loadedModel.scale.set(currentData.scale, currentData.scale, currentData.scale);
+                    loadedModel.position.set(0, currentData.yOffset, 0);
+                    
+                    scene.add(loadedModel);
+                    document.getElementById('loading').style.display = 'none';
+                },
+                undefined,
+                function (error) {
+                    console.error(error);
+                    document.getElementById('loading').innerText = '読み込みに失敗しました。';
+                }
+            );
+        }
+
+        // 初回読み込み
+        window.onload = loadRandomModel;
+
+        // 4. 回転アニメーション
+        function animate() {
+            requestAnimationFrame(animate);
+            if (loadedModel) {
+                loadedModel.rotation.y += 0.006; // 横回転
+            }
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        animate();
+    </script>
+</body>
+</html>

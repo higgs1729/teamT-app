@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>遊戯王カード図鑑（検索＋フィルター）</title>
+
+<style>
+body{
+    margin:0;
+    background:#0f0f0f;
+    color:white;
+    font-family:sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+}
+
+.container{
+    width:520px;
+    background:#1e1e1e;
+    padding:20px;
+    border-radius:15px;
+    box-shadow:0 0 25px black;
+    text-align:center;
+}
+
+img{
+    width:260px;
+    border-radius:10px;
+    margin:10px 0;
+}
+
+input, select, button{
+    padding:10px;
+    margin:5px;
+    border-radius:8px;
+    border:none;
+    font-size:14px;
+}
+
+button{
+    background:#0077ff;
+    color:white;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#00aaff;
+}
+
+.info{
+    text-align:left;
+    margin-top:10px;
+    line-height:1.7;
+}
+
+.desc{
+    margin-top:15px;
+    background:#2c2c2c;
+    padding:10px;
+    border-radius:10px;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<h1>🃏 遊戯王カード図鑑</h1>
+
+<!-- 🔍 検索 -->
+<input id="searchInput" placeholder="カード名を検索">
+
+<!-- 🌈 属性 -->
+<select id="attributeSelect">
+    <option value="">すべての属性</option>
+    <option value="DARK">闇</option>
+    <option value="LIGHT">光</option>
+    <option value="FIRE">炎</option>
+    <option value="WATER">水</option>
+    <option value="EARTH">地</option>
+    <option value="WIND">風</option>
+    <option value="DIVINE">神</option>
+</select>
+
+<!-- 🧬 種族（JSで自動生成） -->
+<select id="raceSelect">
+    <option value="">すべての種族</option>
+</select>
+
+<br>
+
+<button onclick="loadCard()">カード表示</button>
+
+<br>
+
+<img id="cardImage">
+
+<h2 id="cardName">-</h2>
+<h3 id="jpName" style="color:#00ffcc;">-</h3>
+
+<div class="info">
+<div><b>種類：</b><span id="type"></span></div>
+<div><b>属性：</b><span id="attribute"></span></div>
+<div><b>種族：</b><span id="race"></span></div>
+<div><b>レベル / ランク：</b><span id="level"></span></div>
+<div><b>ATK：</b><span id="atk"></span></div>
+<div><b>DEF：</b><span id="def"></span></div>
+</div>
+
+<div class="desc">
+<b>📖 効果説明</b>
+<p id="desc">-</p>
+</div>
+
+</div>
+
+<script>
+
+let allCards = [];
+
+async function translate(text){
+    if(!text) return "-";
+
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|ja`;
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    return data.responseData.translatedText || text;
+}
+
+const cache = {};
+async function t(text){
+    if(cache[text]) return cache[text];
+    const result = await translate(text);
+    cache[text] = result;
+    return result;
+}
+
+// 🧬 種族リスト生成
+function buildRaceOptions(cards){
+    const raceSet = new Set();
+    cards.forEach(c => {
+        if(c.race) raceSet.add(c.race);
+    });
+
+    const raceSelect = document.getElementById("raceSelect");
+
+    Array.from(raceSet).sort().forEach(race => {
+        const opt = document.createElement("option");
+        opt.value = race;
+        opt.textContent = race;
+        raceSelect.appendChild(opt);
+    });
+}
+
+function filterCards(){
+
+    const search = document.getElementById("searchInput").value.toLowerCase();
+    const attr = document.getElementById("attributeSelect").value;
+    const race = document.getElementById("raceSelect").value;
+
+    return allCards.filter(card => {
+
+        const matchName = card.name.toLowerCase().includes(search);
+        const matchAttr = attr ? card.attribute === attr : true;
+        const matchRace = race ? card.race === race : true;
+
+        return matchName && matchAttr && matchRace;
+    });
+}
+
+async function loadCard(){
+
+    const filtered = filterCards();
+
+    if(filtered.length === 0){
+        alert("該当カードが見つかりません");
+        return;
+    }
+
+    const card = filtered[Math.floor(Math.random() * filtered.length)];
+
+    document.getElementById("cardImage").src = card.card_images[0].image_url;
+    document.getElementById("cardName").textContent = card.name;
+    document.getElementById("jpName").textContent = "🇯🇵 " + await t(card.name);
+
+    document.getElementById("type").textContent = await t(card.type ?? "-");
+    document.getElementById("attribute").textContent = await t(card.attribute ?? "-");
+    document.getElementById("race").textContent = await t(card.race ?? "-");
+
+    document.getElementById("level").textContent =
+        card.level ? await t("レベル " + card.level) :
+        card.rank ? await t("ランク " + card.rank) :
+        "-";
+
+    document.getElementById("atk").textContent = card.atk ?? "-";
+    document.getElementById("def").textContent = card.def ?? "-";
+
+    document.getElementById("desc").textContent = await t(card.desc ?? "-");
+}
+
+// 🚀 初期ロード（1回だけAPI取得）
+async function init(){
+
+    const res = await fetch("https://db.ygoprodeck.com/api/v7/cardinfo.php");
+    const json = await res.json();
+
+    allCards = json.data;
+
+    buildRaceOptions(allCards);
+
+    loadCard();
+}
+
+init();
+
+</script>
+
+</body>
+</html>

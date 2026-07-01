@@ -132,6 +132,26 @@ a { color: inherit; }
 [data-theme="dark"] .nav-item.active { color: var(--accent-mid); }
 .nav-empty { padding: 16px 14px; font-size: 12.5px; color: var(--text-muted); }
 
+/* サイドバー下部: アカウント / 設定ボタン */
+.sidebar-foot { padding-top: 8px; margin-top: 4px; border-top: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 2px; }
+.account-btn, .settings-btn-side {
+  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+  padding: 9px 10px; border-radius: 10px; border: 1px solid transparent;
+  background: transparent; color: var(--text-secondary); cursor: pointer;
+  font-family: inherit; font-size: 13px; transition: background 0.15s, color 0.15s;
+}
+.account-btn:hover, .settings-btn-side:hover { background: var(--bg-card); color: var(--text-primary); }
+.settings-btn-side i { font-size: 18px; width: 20px; text-align: center; flex-shrink: 0; }
+.account-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* アカウントのアバター（頭文字を表示する円） */
+.avatar {
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--accent); color: #fff; font-size: 12px; font-weight: 700;
+}
+[data-theme="dark"] .avatar { color: var(--bg-base); }
+.avatar-lg { width: 52px; height: 52px; font-size: 22px; }
+
 /* ============================================================
    5. HEADER — 最小限のツールバー（高さは従来の約半分）
    ============================================================ */
@@ -183,15 +203,70 @@ a { color: inherit; }
 [data-theme="dark"] .welcome .count { color: var(--accent-mid); }
 
 /* ============================================================
-   7. 表示設定パネル（テーマ / アクセント選択）
-      1設定=1行。左にラベル、右に選択肢を横並び。行間はサイドバー
-      の見出しと同じ --border-subtle の薄い線で区切る。
+   7. 設定モーダル（左ナビ + 右コンテンツ）
    ============================================================ */
-#theme-dropdown-float {
-  display: none; position: absolute; z-index: 1000; background: var(--bg-card);
-  border: 1px solid var(--border-color); border-radius: 12px; padding: 2px 12px; min-width: 300px; box-shadow: var(--shadow-pop);
+.settings-overlay {
+  display: none; position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,0.45); align-items: center; justify-content: center; padding: 24px;
 }
-/* 設定行: ラベル左・選択肢右 */
+.settings-overlay.open { display: flex; }
+.settings-modal {
+  position: relative; display: flex; width: 720px; max-width: 100%; height: 540px; max-height: 88vh;
+  background: var(--bg-win); border: 1px solid var(--border-color); border-radius: 16px;
+  overflow: hidden; box-shadow: var(--shadow-pop);
+}
+.settings-close {
+  position: absolute; top: 12px; right: 12px; z-index: 2;
+  display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px;
+  border-radius: 8px; background: transparent; border: none; color: var(--text-muted);
+  cursor: pointer; font-size: 20px;
+}
+.settings-close:hover { color: var(--text-primary); background: var(--bg-card); }
+
+/* 左ナビ */
+.settings-nav {
+  width: 200px; flex-shrink: 0; background: var(--bg-side);
+  border-right: 1px solid var(--border-subtle); padding: 16px 12px; overflow-y: auto;
+}
+.settings-search { position: relative; margin-bottom: 12px; }
+.settings-search i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 16px; pointer-events: none; }
+.settings-search input {
+  width: 100%; background: var(--bg-win); border: 1px solid var(--border-color); border-radius: 9px;
+  padding: 8px 10px 8px 32px; color: var(--text-primary); font-family: inherit; font-size: 13px; outline: none;
+}
+.settings-search input:focus { border-color: var(--accent); }
+.settings-nav-label { font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; color: var(--text-muted); text-transform: uppercase; padding: 6px 10px; }
+.settings-nav-item {
+  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+  padding: 9px 10px; border-radius: 9px; border: 1px solid transparent;
+  background: transparent; color: var(--text-secondary); cursor: pointer;
+  font-family: inherit; font-size: 13.5px; transition: background 0.15s, color 0.15s;
+}
+.settings-nav-item i { font-size: 18px; width: 20px; text-align: center; flex-shrink: 0; }
+.settings-nav-item:hover { background: var(--bg-card); color: var(--text-primary); }
+.settings-nav-item.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+[data-theme="dark"] .settings-nav-item.active { color: var(--accent-mid); }
+.settings-nav-empty { padding: 12px 10px; font-size: 12.5px; color: var(--text-muted); }
+
+/* 右コンテンツ */
+.settings-content { flex: 1; min-width: 0; overflow-y: auto; padding: 28px 30px; background: var(--bg-win); }
+.settings-panel { display: none; }
+.settings-panel.active { display: block; }
+.settings-title { font-size: 18px; font-weight: 700; color: var(--text-primary); margin-bottom: 20px; }
+.settings-field-label { display: block; font-size: 12px; color: var(--text-secondary); margin: 8px 0 6px; }
+.settings-input {
+  width: 100%; background: var(--bg-base); border: 1px solid var(--border-color); border-radius: 9px;
+  padding: 10px 12px; color: var(--text-primary); font-family: inherit; font-size: 13.5px; outline: none;
+}
+.settings-input:focus { border-color: var(--accent); }
+.settings-note { font-size: 12px; color: var(--text-muted); line-height: 1.7; margin-top: 12px; }
+.settings-value { font-size: 13px; color: var(--text-secondary); }
+/* アカウント見出し（大アバター + 名前） */
+.account-head { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+.account-head-name { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+.account-head-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* 設定行: ラベル左・選択肢右（外観パネル等で使用） */
 .setting-row {
   display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 2px;
 }

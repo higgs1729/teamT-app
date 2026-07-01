@@ -135,72 +135,103 @@
      どちらも localStorage に保存。setTheme / setAccent / toggleThemeMenu
      はインライン onclick から呼ぶため window に公開する。
      ============================================================ */
-  let themeLabel  = "ライト";   // トリガのラベル表示用（現在のテーマ名）
-  let accentLabel = "オレンジ"; // 同上（現在のアクセント名）
-
-  // トリガのラベルを「テーマ名 / アクセント名」で更新
-  function updateSettingLabel() {
-    const lbl = document.getElementById("theme-label");
-    if (lbl) lbl.textContent = themeLabel + " / " + accentLabel;
-  }
-
-  function applyTheme(name, label) {
+  function applyTheme(name) {
     document.documentElement.setAttribute("data-theme", name);
-    themeLabel = label;
-    updateSettingLabel();
-    // アクティブ表示はテーマ選択肢グループ内だけで付け替える
-    document.querySelectorAll("#theme-dropdown-float [data-theme-name]").forEach(i =>
+    document.querySelectorAll("[data-theme-name]").forEach(i =>
       i.classList.toggle("active", i.dataset.themeName === name));
   }
 
-  function applyAccent(name, label) {
+  function applyAccent(name) {
     document.documentElement.setAttribute("data-accent", name);
-    accentLabel = label;
-    updateSettingLabel();
-    // アクティブ表示はアクセント選択肢グループ内だけで付け替える
-    document.querySelectorAll("#theme-dropdown-float [data-accent-name]").forEach(i =>
+    document.querySelectorAll("[data-accent-name]").forEach(i =>
       i.classList.toggle("active", i.dataset.accentName === name));
   }
 
-  // 選択してもメニューは閉じない（テーマとアクセントを続けて選べるように）
-  window.setTheme = function (name, label) {
-    applyTheme(name, label);
-    localStorage.setItem(THEME_KEY, name);
-  };
-  window.setAccent = function (name, label) {
-    applyAccent(name, label);
-    localStorage.setItem(ACCENT_KEY, name);
-  };
+  // 選択してもモーダルは閉じない（テーマとアクセントを続けて選べる）
+  window.setTheme  = function (name) { applyTheme(name);  localStorage.setItem(THEME_KEY, name); };
+  window.setAccent = function (name) { applyAccent(name); localStorage.setItem(ACCENT_KEY, name); };
 
-  // 表示設定メニューをトリガ直上にポップアップ表示
-  window.toggleThemeMenu = function (event) {
-    event.stopPropagation();
-    const dd = document.getElementById("theme-dropdown-float");
-    if (dd.style.display === "block") { dd.style.display = "none"; return; }
-    const rect = event.currentTarget.getBoundingClientRect();
-    // display:block 後は offsetWidth を同期的に取得できるので rAF は使わない
-    // （非アクティブタブでは rAF が発火せず位置がずれるため）
-    dd.style.display = "block";
-    // ヘッダー右のボタン直下・右揃えで表示。左端が画面外に出ないよう調整
-    let left = rect.right + window.scrollX - dd.offsetWidth;
-    if (left < 8) left = 8;
-    dd.style.left = left + "px";
-    dd.style.top  = (rect.bottom + window.scrollY + 6) + "px";
-  };
-
-  // 起動時：保存済みのテーマ・アクセントを復元（ラベルは項目の文言から引く）
+  // 起動時：保存済みのテーマ・アクセントを復元
   function initTheme() {
     const savedTheme = localStorage.getItem(THEME_KEY);
-    if (savedTheme) {
-      const el = document.querySelector(`#theme-dropdown-float [data-theme-name="${savedTheme}"]`);
-      if (el) applyTheme(savedTheme, el.textContent.trim());
-    }
+    if (savedTheme) applyTheme(savedTheme);
     const savedAccent = localStorage.getItem(ACCENT_KEY);
-    if (savedAccent) {
-      const el = document.querySelector(`#theme-dropdown-float [data-accent-name="${savedAccent}"]`);
-      if (el) applyAccent(savedAccent, el.textContent.trim());
-    }
+    if (savedAccent) applyAccent(savedAccent);
   }
+
+  /* ============================================================
+     アカウント — サーバー認証は無く、表示名を localStorage に保持するだけ
+     ============================================================ */
+  const ACCOUNT_KEY   = "fronted-v2-account-name";
+  const DEFAULT_NAME  = "ゲスト";
+
+  function setAccountName(name) {
+    const n = (name && name.trim()) || DEFAULT_NAME;
+    const initial = n.charAt(0).toUpperCase();
+    document.getElementById("account-name").textContent = n;
+    document.getElementById("account-avatar").textContent = initial;
+    document.getElementById("account-avatar-lg").textContent = initial;
+    document.getElementById("account-head-name").textContent = n;
+  }
+
+  function initAccount() {
+    const saved = localStorage.getItem(ACCOUNT_KEY) || DEFAULT_NAME;
+    const input = document.getElementById("account-name-input");
+    input.value = saved === DEFAULT_NAME ? "" : saved;
+    setAccountName(saved);
+    // 入力に応じて即時反映・保存
+    input.addEventListener("input", () => {
+      const v = input.value.trim();
+      setAccountName(v);
+      if (v) localStorage.setItem(ACCOUNT_KEY, v); else localStorage.removeItem(ACCOUNT_KEY);
+    });
+  }
+
+  /* ============================================================
+     設定モーダル — 開閉・パネル切替・ナビ検索・リセット
+     ============================================================ */
+  function switchPanel(panel) {
+    document.querySelectorAll(".settings-nav-item").forEach(i =>
+      i.classList.toggle("active", i.dataset.panel === panel));
+    document.querySelectorAll(".settings-panel").forEach(p =>
+      p.classList.toggle("active", p.dataset.panel === panel));
+  }
+  window.switchSettingsPanel = switchPanel;
+
+  window.openSettings = function (panel) {
+    if (panel) switchPanel(panel);
+    document.getElementById("settings-overlay").classList.add("open");
+  };
+  window.closeSettings = function () {
+    document.getElementById("settings-overlay").classList.remove("open");
+  };
+
+  // ナビ検索: ラベル部分一致で項目を絞り込み
+  function initSettingsSearch() {
+    const input = document.getElementById("settings-search-input");
+    const empty = document.getElementById("settings-nav-empty");
+    input.addEventListener("input", () => {
+      const kw = input.value.trim().toLowerCase();
+      let shown = 0;
+      document.querySelectorAll(".settings-nav-item").forEach(item => {
+        const hit = item.textContent.toLowerCase().includes(kw);
+        item.style.display = hit ? "" : "none";
+        if (hit) shown++;
+      });
+      empty.style.display = shown === 0 ? "block" : "none";
+    });
+  }
+
+  // 保存内容（テーマ/アクセント/表示名）を消して既定に戻す
+  window.resetSettings = function () {
+    localStorage.removeItem(THEME_KEY);
+    localStorage.removeItem(ACCENT_KEY);
+    localStorage.removeItem(ACCOUNT_KEY);
+    applyTheme("light");
+    applyAccent("orange");
+    setAccountName(DEFAULT_NAME);
+    document.getElementById("account-name-input").value = "";
+  };
 
   /* ============================================================
      サイドバー表示切替 — .app-window に .sidebar-collapsed を付与。
@@ -225,6 +256,10 @@
     if (countEl) countEl.textContent = CATALOG.length;
 
     initTheme();
+    initAccount();
+    initSettingsSearch();
+    const apiCount = document.getElementById("settings-api-count");
+    if (apiCount) apiCount.textContent = CATALOG.length;
     renderList("");
 
     // narrow 幅では初期状態でサイドバー（ドロワー）を閉じておく
@@ -233,10 +268,9 @@
     // 検索入力で再描画
     searchInput.addEventListener("input", e => renderList(e.target.value));
 
-    // メニュー外クリックでのみ閉じる（パネル内のテーマ/アクセント選択では閉じない）
-    document.addEventListener("click", (e) => {
-      if (e.target.closest("#theme-dropdown-float")) return;
-      document.getElementById("theme-dropdown-float").style.display = "none";
+    // Esc キーで設定モーダルを閉じる
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeSettings();
     });
 
     // URLハッシュに id があれば復元、なければウェルカムのまま

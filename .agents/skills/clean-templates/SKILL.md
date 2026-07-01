@@ -68,7 +68,7 @@ iframe は `../templates/<file>` を読む（`file` は `templates/` からの�
      - 全アイコンが実在（欠けなし）。
      - コンソールエラーなし。
 
-8. **ドキュメント更新**（CLAUDE.md 準拠）
+8. **ドキュメント更新**（AGENTS.md 準拠）
    - `docs/specification.md` の「templates/ 各ページが利用する外部API」表に新規ページを追記。
    - 追加ジャンルやフォルダが増えた場合は `README.md`・`fronted-v2/README.md` の構成図も更新。
 

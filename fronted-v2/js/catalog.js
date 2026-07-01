@@ -58,6 +58,14 @@ window.CATALOG = [
     description: "地球近傍小惑星(NEO)の観測ダッシュボード", apiName: "NASA NeoWs", apiUrl: "https://api.nasa.gov/", icon: "ti-planet" },
   { id: "wakusei", file: "data/wakusei.html", title: "惑星情報", category: "データ・検索系",
     description: "太陽系の惑星データを選んで表示（サンプル）", apiName: "ローカルデータ", apiUrl: "https://ja.wikipedia.org/wiki/惑星", icon: "ti-globe" },
+  { id: "burogu", file: "data/burogu.html", title: "ランダム記事ローダー", category: "データ・検索系",
+    description: "ダミーの記事データをランダムに読み込んで表示", apiName: "JSONPlaceholder", apiUrl: "https://jsonplaceholder.typicode.com/", icon: "ti-article" },
+  { id: "game", file: "data/game.html", title: "高評価ゲーム一覧", category: "データ・検索系",
+    description: "評価の高いゲームを一覧表示（APIキー必要）", apiName: "RAWG API", apiUrl: "https://rawg.io/apidocs", icon: "ti-trophy" },
+  { id: "hon", file: "data/hon.html", title: "現代漫画検索", category: "データ・検索系",
+    description: "キーワードで書籍・漫画を検索して表紙を表示", apiName: "Open Library", apiUrl: "https://openlibrary.org/developers/api", icon: "ti-book" },
+  { id: "randomuser", file: "data/index.html", title: "ランダムユーザー生成器", category: "データ・検索系",
+    description: "ランダムなプロフィール(氏名/写真/住所)を生成", apiName: "Random User Generator", apiUrl: "https://randomuser.me/", icon: "ti-user" },
 
   /* ---------- 為替・ツール系（実用ツール） ---------- */
   { id: "currency", file: "tools/currency_converter.html", title: "通貨換算", category: "為替・ツール系",
@@ -66,6 +74,8 @@ window.CATALOG = [
     description: "通貨ペアの為替レートを取得", apiName: "exchangerate.host", apiUrl: "https://exchangerate.host/", icon: "ti-arrows-exchange" },
   { id: "qr", file: "tools/QR.html", title: "QRコードおみくじ", category: "為替・ツール系",
     description: "ランダムなメッセージ入りQRコードを生成", apiName: "QR Server (goQR)", apiUrl: "https://goqr.me/api/", icon: "ti-qrcode" },
+  { id: "translate", file: "tools/genngohonnyaku.html", title: "簡易翻訳", category: "為替・ツール系",
+    description: "内蔵辞書で日本語↔英語を簡易翻訳（サンプル）", apiName: "ローカル辞書", apiUrl: "", icon: "ti-language" },
 
   /* ---------- エンタメ・おもしろ系（ジョーク/雑学/クイズ） ---------- */
   { id: "joke", file: "fun/joke.html", title: "海外ジョーク", category: "エンタメ・おもしろ系",
@@ -76,4 +86,6 @@ window.CATALOG = [
     description: "ジャンル別の4択クイズに挑戦", apiName: "Open Trivia DB", apiUrl: "https://opentdb.com/", icon: "ti-help" },
   { id: "yesno", file: "fun/YesNo.html", title: "Yes / No ディサイダー", category: "エンタメ・おもしろ系",
     description: "Yes/No で迷いを決めてくれる意思決定器", apiName: "yesno.wtf", apiUrl: "https://yesno.wtf/", icon: "ti-thumb-up" },
+  { id: "meigenn", file: "fun/meigenn.html", title: "名言メーカー", category: "エンタメ・おもしろ系",
+    description: "カテゴリ別の名言をランダム表示（サンプル）", apiName: "ローカルデータ", apiUrl: "", icon: "ti-quote" },
 ];

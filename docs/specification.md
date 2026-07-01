@@ -28,8 +28,9 @@
 ### WebAPI紹介サイト（fronted-v2）
 
 - WebAPI Gallery : `templates/`内の各WebAPI紹介ページ(自己完結型HTML)を選択して表示するギャラリー画面
-  - 構成: サイドバー（ブランド / 検索 / カテゴリ別一覧 / テーマ切替）＋ メイン（ヘッダー ＋ iframeビューア）
-  - 一覧クリックで該当HTMLをiframe表示。検索・URLハッシュ復元・3テーマ切替(カプチーノ/ライト/ダーク)対応
+  - 構成: サイドバー（ブランド / 検索 / カテゴリ別一覧）＋ メイン（最小限のヘッダー ＋ iframeビューア）
+  - ヘッダーは冗長表示を排し、左=サイドバー表示切替ボタン、右=表示設定（テーマ/アクセント）ボタンのみ
+  - 一覧クリックで該当HTMLをiframe表示。検索・URLハッシュ復元に対応。テーマ(ライト/ダーク)とアクセント色(オレンジ/青)を独立して切替可能（アクセント変更で背景は不変）
   - 設計判断: 素のHTML/CSS/JS（ビルド不要）。テンプレートは改変せず`../templates/`をiframe参照（単一の正）。
     UIは`design-spec-studio`の`ui_mockup.html`のデザインシステムに準拠。一覧データは`fronted-v2/js/catalog.js`に集約。
 
@@ -69,15 +70,21 @@
 | data | nasa | NASA APOD | 今日の天体写真 |
 | data | utyu | NASA NeoWs | 近地天体(NEO)観測データ |
 | data | wakusei | ローカルデータ(サンプル) | 太陽系の惑星情報 |
+| data | burogu | JSONPlaceholder | ダミー記事のランダム表示 |
+| data | game | RAWG API | 高評価ゲーム一覧 |
+| data | hon | Open Library | 書籍・漫画検索 |
+| data | index | Random User Generator | ランダムなプロフィール生成 |
 | tools | currency_converter | ExchangeRate-API | 通貨換算 |
 | tools | kawase | exchangerate.host | 為替レート |
 | tools | QR | QR Server (goQR) | QRコード生成 |
+| tools | genngohonnyaku | ローカル辞書(サンプル) | 日本語↔英語の簡易翻訳 |
 | fun | joke | Official Joke API | 海外ジョーク |
 | fun | ohuzake | Useless Facts | ランダム雑学 |
 | fun | OpenTrivia | Open Trivia DB | クイズ |
 | fun | YesNo | yesno.wtf | Yes/No判定 |
+| fun | meigenn | ローカルデータ(サンプル) | 名言をランダム表示 |
 
-※ 翻訳に MyMemory Translation API を併用するページあり（joke / ohuzake / Jikan / OpenTrivia）。NASA系はAPIキーが必要。wakusei は外部APIを使わないローカルデータのサンプル。
+※ 翻訳に MyMemory Translation API を併用するページあり（joke / ohuzake / Jikan / OpenTrivia）。NASA系・RAWG(game)はAPIキーが必要。wakusei / meigenn / genngohonnyaku は外部APIを使わないローカルデータのサンプル。
 
 ---
 

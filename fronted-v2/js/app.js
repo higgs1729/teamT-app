@@ -19,14 +19,12 @@
   const searchInput = document.getElementById("search");
   const preview     = document.getElementById("preview");
   const welcome     = document.getElementById("welcome");
-  const pageTitle   = document.getElementById("page-title");
-  const pageSub     = document.getElementById("page-sub");
-  const liveChip    = document.getElementById("live-chip");
-  const sidebar     = document.getElementById("sidebar");
-  const sidebarScrim= document.getElementById("sidebar-scrim");
+  const appWindow   = document.querySelector(".app-window");
+  const mobileMQ    = window.matchMedia("(max-width: 760px)");
 
   const TEMPLATE_DIR = "../templates/";        // iframe が読む相対パス
-  const THEME_KEY    = "fronted-v2-theme";     // localStorage キー
+  const THEME_KEY    = "fronted-v2-theme";     // localStorage キー（テーマ）
+  const ACCENT_KEY   = "fronted-v2-accent";    // localStorage キー（アクセント色）
   let   currentId    = null;                   // 現在選択中テンプレートの id
   const openCats     = new Set();              // 開いているカテゴリ名（既定は全て閉じる）
 
@@ -120,69 +118,103 @@
     preview.classList.remove("hidden");
     welcome.classList.add("hidden");
 
-    // ヘッダー更新
-    pageTitle.textContent = t.title;
-    pageSub.textContent   = t.description + "（" + t.apiName + "）";
-    liveChip.style.display = "inline-flex";
-
     // 選択項目を含むカテゴリを開いてからハイライトを付け替え
     expandCategoryOf(id);
     navList.querySelectorAll(".nav-item").forEach(el =>
       el.classList.toggle("active", el.dataset.id === id));
 
     if (updateHash) location.hash = id;
-    // narrow 幅ではドロワーを閉じる
-    toggleSidebar(false);
+    // narrow 幅のときだけ、選択後にドロワーを閉じる（デスクトップは開いたまま）
+    if (mobileMQ.matches) setSidebarCollapsed(true);
   }
 
   /* ============================================================
-     テーマ — data-theme 切替 + localStorage 保存。
-     setTheme / toggleThemeMenu はインライン onclick から呼ぶため
-     window に公開する。
+     表示設定 — テーマ(背景) と アクセント色 を独立して切替。
+       - テーマ(data-theme): light / dark … 背景・文字
+       - アクセント(data-accent): orange / blue … アクセント色のみ
+     どちらも localStorage に保存。setTheme / setAccent / toggleThemeMenu
+     はインライン onclick から呼ぶため window に公開する。
      ============================================================ */
+  let themeLabel  = "ライト";   // トリガのラベル表示用（現在のテーマ名）
+  let accentLabel = "オレンジ"; // 同上（現在のアクセント名）
+
+  // トリガのラベルを「テーマ名 / アクセント名」で更新
+  function updateSettingLabel() {
+    const lbl = document.getElementById("theme-label");
+    if (lbl) lbl.textContent = themeLabel + " / " + accentLabel;
+  }
+
   function applyTheme(name, label) {
     document.documentElement.setAttribute("data-theme", name);
-    const lbl = document.getElementById("theme-label");
-    if (lbl) lbl.textContent = "表示テーマ: " + label;
-    document.querySelectorAll("#theme-dropdown-float .theme-item").forEach(i =>
+    themeLabel = label;
+    updateSettingLabel();
+    // アクティブ表示はテーマ選択肢グループ内だけで付け替える
+    document.querySelectorAll("#theme-dropdown-float [data-theme-name]").forEach(i =>
       i.classList.toggle("active", i.dataset.themeName === name));
   }
 
+  function applyAccent(name, label) {
+    document.documentElement.setAttribute("data-accent", name);
+    accentLabel = label;
+    updateSettingLabel();
+    // アクティブ表示はアクセント選択肢グループ内だけで付け替える
+    document.querySelectorAll("#theme-dropdown-float [data-accent-name]").forEach(i =>
+      i.classList.toggle("active", i.dataset.accentName === name));
+  }
+
+  // 選択してもメニューは閉じない（テーマとアクセントを続けて選べるように）
   window.setTheme = function (name, label) {
     applyTheme(name, label);
     localStorage.setItem(THEME_KEY, name);
-    document.getElementById("theme-dropdown-float").style.display = "none";
+  };
+  window.setAccent = function (name, label) {
+    applyAccent(name, label);
+    localStorage.setItem(ACCENT_KEY, name);
   };
 
-  // テーマメニューをトリガ直上にポップアップ表示
+  // 表示設定メニューをトリガ直上にポップアップ表示
   window.toggleThemeMenu = function (event) {
     event.stopPropagation();
     const dd = document.getElementById("theme-dropdown-float");
     if (dd.style.display === "block") { dd.style.display = "none"; return; }
     const rect = event.currentTarget.getBoundingClientRect();
+    // display:block 後は offsetWidth を同期的に取得できるので rAF は使わない
+    // （非アクティブタブでは rAF が発火せず位置がずれるため）
     dd.style.display = "block";
-    requestAnimationFrame(() => {
-      dd.style.left = (rect.left + window.scrollX) + "px";
-      dd.style.top  = (rect.top + window.scrollY - dd.offsetHeight - 6) + "px";
-    });
+    // ヘッダー右のボタン直下・右揃えで表示。左端が画面外に出ないよう調整
+    let left = rect.right + window.scrollX - dd.offsetWidth;
+    if (left < 8) left = 8;
+    dd.style.left = left + "px";
+    dd.style.top  = (rect.bottom + window.scrollY + 6) + "px";
   };
 
-  // 起動時：保存済みテーマを復元（ラベルは theme-item の文言から引く）
+  // 起動時：保存済みのテーマ・アクセントを復元（ラベルは項目の文言から引く）
   function initTheme() {
-    const saved = localStorage.getItem(THEME_KEY);
-    if (!saved) return;
-    const el = document.querySelector(`#theme-dropdown-float .theme-item[data-theme-name="${saved}"]`);
-    const label = el ? el.textContent.trim().replace("（既定）", "") : saved;
-    applyTheme(saved, label);
+    const savedTheme = localStorage.getItem(THEME_KEY);
+    if (savedTheme) {
+      const el = document.querySelector(`#theme-dropdown-float [data-theme-name="${savedTheme}"]`);
+      if (el) applyTheme(savedTheme, el.textContent.trim());
+    }
+    const savedAccent = localStorage.getItem(ACCENT_KEY);
+    if (savedAccent) {
+      const el = document.querySelector(`#theme-dropdown-float [data-accent-name="${savedAccent}"]`);
+      if (el) applyAccent(savedAccent, el.textContent.trim());
+    }
   }
 
   /* ============================================================
-     サイドバー開閉（narrow 幅のドロワー） — onclick から呼ぶため公開
+     サイドバー表示切替 — .app-window に .sidebar-collapsed を付与。
+       デスクトップ: サイドバーを隠す/表示（メインが全幅に）
+       narrow 幅  : オーバーレイのドロワーを開閉
      ============================================================ */
-  window.toggleSidebar = function (open) {
-    sidebar.classList.toggle("open", open);
-    sidebarScrim.classList.toggle("open", open);
+  function setSidebarCollapsed(collapsed) {
+    appWindow.classList.toggle("sidebar-collapsed", collapsed);
+  }
+  // ヘッダーのボタン・スクリムから呼ぶため公開（引数なしでトグル）
+  window.toggleSidebar = function () {
+    appWindow.classList.toggle("sidebar-collapsed");
   };
+  window.closeSidebar = function () { setSidebarCollapsed(true); };
 
   /* ============================================================
      初期化
@@ -195,11 +227,15 @@
     initTheme();
     renderList("");
 
+    // narrow 幅では初期状態でサイドバー（ドロワー）を閉じておく
+    if (mobileMQ.matches) setSidebarCollapsed(true);
+
     // 検索入力で再描画
     searchInput.addEventListener("input", e => renderList(e.target.value));
 
-    // メニュー外クリックでテーマDDを閉じる
-    document.addEventListener("click", () => {
+    // メニュー外クリックでのみ閉じる（パネル内のテーマ/アクセント選択では閉じない）
+    document.addEventListener("click", (e) => {
+      if (e.target.closest("#theme-dropdown-float")) return;
       document.getElementById("theme-dropdown-float").style.display = "none";
     });
 

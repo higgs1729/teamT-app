@@ -10,7 +10,7 @@
            └─ .content    … iframe プレビュー + ウェルカム空状態
   サイドバーの一覧データは js/catalog.js、描画と操作は js/app.js が担う。
 -->
-<html lang="ja" data-theme="cappuccino">
+<html lang="ja" data-theme="light" data-accent="orange">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -41,30 +41,29 @@
     <!-- カテゴリ別ナビ（app.js が CATALOG から描画） -->
     <nav class="nav-scroll" id="nav-list"></nav>
 
-    <!-- テーマ切替トリガ -->
+    <!-- サイドバー下部: アカウント / 設定 -->
     <div class="sidebar-foot">
-      <button class="theme-trigger" onclick="toggleThemeMenu(event)">
-        <i class="ti ti-palette"></i> <span id="theme-label">表示テーマ: カプチーノ</span>
+      <button class="account-btn" onclick="openSettings('account')" title="アカウント設定">
+        <span class="avatar" id="account-avatar">G</span>
+        <span class="account-name" id="account-name">ゲスト</span>
+      </button>
+      <button class="settings-btn-side" onclick="openSettings('appearance')" title="設定">
+        <i class="ti ti-settings"></i> <span>設定</span>
       </button>
     </div>
   </aside>
-  <div class="sidebar-scrim" id="sidebar-scrim" onclick="toggleSidebar(false)"></div>
+  <div class="sidebar-scrim" id="sidebar-scrim" onclick="closeSidebar()"></div>
 
   <!-- ============================== MAIN ============================== -->
   <div class="main">
 
-    <!-- ヘッダー：選択中ページのタイトルと操作 -->
+    <!-- ヘッダー：最小限の操作のみ（タイトル等の冗長表示は置かない） -->
     <header class="app-header">
-      <div class="header-left">
-        <button class="menu-toggle" onclick="toggleSidebar(true)" aria-label="メニュー"><i class="ti ti-menu-2"></i></button>
-        <div class="header-titles">
-          <div class="page-title" id="page-title">WebAPI Gallery</div>
-          <div class="page-sub" id="page-sub">左の一覧から API を選んでください</div>
-        </div>
-      </div>
-      <div class="header-actions">
-        <span class="live-chip" id="live-chip" style="display:none;"><span class="pulse"></span> 表示中</span>
-      </div>
+      <!-- 左: サイドバーの表示切替（設定・アカウントはサイドバー下部に集約） -->
+      <button class="icon-btn" id="sidebar-toggle" onclick="toggleSidebar()"
+              aria-label="サイドバーの表示切替" title="サイドバーの表示切替">
+        <i class="ti ti-layout-sidebar-left-collapse"></i>
+      </button>
     </header>
 
     <!-- コンテンツ：iframe プレビュー + ウェルカム空状態 -->
@@ -83,17 +82,93 @@
     </div>
   </div>
 
-  <!-- ============================== THEME DROPDOWN ============================== -->
-  <div id="theme-dropdown-float">
-    <div class="dd-head">表示テーマ（サイト自身の配色）</div>
-    <div class="theme-item active" data-theme-name="cappuccino" onclick="setTheme('cappuccino','カプチーノ',this)">
-      <div class="theme-dot" style="background:linear-gradient(135deg,#e4e4e4,#c96a39);"></div>カプチーノ（既定）
-    </div>
-    <div class="theme-item" data-theme-name="light" onclick="setTheme('light','ライト',this)">
-      <div class="theme-dot" style="background:linear-gradient(135deg,#fff,#e5e7eb);border-color:#d1d5db;"></div>ライト
-    </div>
-    <div class="theme-item" data-theme-name="dark" onclick="setTheme('dark','ダーク',this)">
-      <div class="theme-dot" style="background:linear-gradient(135deg,#1a1825,#7c3aed);"></div>ダーク
+  <!-- ============================== 設定モーダル ============================== -->
+  <!-- 左ナビ（検索 + アカウント/外観/その他）＋ 右コンテンツ。オーバーレイ外クリックで閉じる -->
+  <div class="settings-overlay" id="settings-overlay" onclick="if(event.target===this)closeSettings()">
+    <div class="settings-modal">
+      <button class="settings-close" onclick="closeSettings()" aria-label="閉じる"><i class="ti ti-x"></i></button>
+
+      <!-- 左: 検索 + カテゴリナビ -->
+      <aside class="settings-nav">
+        <div class="settings-search">
+          <i class="ti ti-search"></i>
+          <input type="text" id="settings-search-input" placeholder="検索" autocomplete="off">
+        </div>
+        <div class="settings-nav-label">設定</div>
+        <button class="settings-nav-item active" data-panel="account" onclick="switchSettingsPanel('account')">
+          <i class="ti ti-user"></i> アカウント
+        </button>
+        <button class="settings-nav-item" data-panel="appearance" onclick="switchSettingsPanel('appearance')">
+          <i class="ti ti-palette"></i> 外観
+        </button>
+        <button class="settings-nav-item" data-panel="other" onclick="switchSettingsPanel('other')">
+          <i class="ti ti-dots"></i> その他
+        </button>
+        <div class="settings-nav-empty" id="settings-nav-empty" style="display:none;">該当なし</div>
+      </aside>
+
+      <!-- 右: 各パネル -->
+      <div class="settings-content">
+        <!-- アカウント -->
+        <section class="settings-panel active" data-panel="account">
+          <h2 class="settings-title">アカウント</h2>
+          <div class="account-head">
+            <span class="avatar avatar-lg" id="account-avatar-lg">G</span>
+            <div>
+              <div class="account-head-name" id="account-head-name">ゲスト</div>
+              <div class="account-head-sub">ローカルのデモプロフィール</div>
+            </div>
+          </div>
+          <label class="settings-field-label" for="account-name-input">表示名</label>
+          <input type="text" id="account-name-input" class="settings-input" maxlength="24" placeholder="表示名を入力">
+          <p class="settings-note">
+            このサイトはサーバー認証を持たないデモです。表示名はこのブラウザ（localStorage）にのみ保存されます。
+          </p>
+        </section>
+
+        <!-- 外観（テーマ / アクセント） -->
+        <section class="settings-panel" data-panel="appearance">
+          <h2 class="settings-title">外観</h2>
+          <div class="setting-row">
+            <span class="setting-label">背景テーマ</span>
+            <div class="setting-options">
+              <button class="opt-chip active" data-theme-name="light" onclick="setTheme('light','ライト',this)">ライト</button>
+              <button class="opt-chip" data-theme-name="dark" onclick="setTheme('dark','ダーク',this)">ダーク</button>
+            </div>
+          </div>
+          <div class="setting-row">
+            <span class="setting-label">アクセント</span>
+            <div class="setting-options">
+              <button class="opt-chip active" data-accent-name="orange" onclick="setAccent('orange','オレンジ',this)">
+                <span class="opt-dot" style="background:#c96a39;"></span>オレンジ
+              </button>
+              <button class="opt-chip" data-accent-name="blue" onclick="setAccent('blue','青',this)">
+                <span class="opt-dot" style="background:#2f6ef0;"></span>青
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- その他 -->
+        <section class="settings-panel" data-panel="other">
+          <h2 class="settings-title">その他</h2>
+          <div class="setting-row">
+            <span class="setting-label">収録API数</span>
+            <span class="settings-value" id="settings-api-count">0</span>
+          </div>
+          <div class="setting-row">
+            <span class="setting-label">このサイトについて</span>
+            <span class="settings-value">WebAPI Gallery — teamT</span>
+          </div>
+          <div class="setting-row">
+            <span class="setting-label">設定をリセット</span>
+            <button class="opt-chip" onclick="resetSettings()">初期化する</button>
+          </div>
+          <p class="settings-note">
+            「初期化する」でテーマ・アクセント・表示名の保存内容（localStorage）を消去し、既定に戻します。
+          </p>
+        </section>
+      </div>
     </div>
   </div>
 

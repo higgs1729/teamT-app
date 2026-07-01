@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📚 現代漫画検索</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background:#f5f5f5;
+    margin:0;
+    padding:20px;
+}
+
+h1{
+    text-align:center;
+}
+
+.search{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+input{
+    width:300px;
+    padding:10px;
+    font-size:16px;
+}
+
+button{
+    padding:10px 15px;
+    font-size:16px;
+    cursor:pointer;
+}
+
+#books{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:20px;
+}
+
+.card{
+    background:white;
+    border-radius:10px;
+    padding:10px;
+    text-align:center;
+    box-shadow:0 2px 8px rgba(0,0,0,0.15);
+}
+
+.card img{
+    width:150px;
+    height:220px;
+    object-fit:cover;
+    border-radius:5px;
+}
+
+.card h3{
+    font-size:16px;
+}
+
+.card p{
+    color:#666;
+}
+</style>
+</head>
+<body>
+
+<h1>📚 漫画検索</h1>
+
+<div class="search">
+    <input type="text" id="keyword" placeholder="漫画を検索">
+    <button onclick="searchBooks()">検索</button>
+</div>
+
+<div id="books"></div>
+
+<script>
+
+async function searchBooks(word){
+
+  const keyword =
+    word ||
+    document.getElementById("keyword").value ||
+    modernManga[Math.floor(Math.random() * modernManga.length)];
+
+    const books = document.getElementById("books");
+
+    books.innerHTML = "<h2>読み込み中...</h2>";
+
+    try{
+
+        const res = await fetch(
+            `https://openlibrary.org/search.json?q=${encodeURIComponent(keyword)}&limit=20`
+        );
+
+        const data = await res.json();
+
+        books.innerHTML = "";
+
+        const recentBooks = data.docs.filter(book =>
+            !book.first_publish_year ||
+            book.first_publish_year >= 2015
+        );
+
+        if(recentBooks.length === 0){
+            books.innerHTML = "<h2>漫画が見つかりません</h2>";
+            return;
+        }
+
+        recentBooks.forEach(book=>{
+
+            const cover = book.cover_i
+                ? `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`
+                : "hou.png";
+
+            books.innerHTML += `
+                <div class="card">
+                    <img src="${cover}"
+                         onerror="this.src='https://via.placeholder.com/150x220?text=No+Image'">
+                    <h3>${book.title || "タイトル不明"}</h3>
+                    <p>${book.author_name ? book.author_name.join(", ") : "著者不明"}</p>
+                </div>
+            `;
+
+        });
+
+    }catch(err){
+
+        books.innerHTML = "<h2>エラー：" + err.message + "</h2>";
+
+    }
+
+}
+
+document.getElementById("keyword")
+.addEventListener("keydown", e=>{
+    if(e.key==="Enter"){
+        searchBooks();
+    }
+});
+
+// 現代の人気漫画キーワード
+const modernManga = [
+    "SPY×FAMILY",
+    "チェンソーマン",
+    "怪獣8号",
+    "葬送のフリーレン",
+    "薬屋のひとりごと",
+    "ブルーロック",
+    "【推しの子】",
+    "ダンダダン",
+    "SAKAMOTO DAYS",
+    "呪術廻戦",
+    "東京卍リベンジャーズ"
+];
+
+// ランダムに1作品を選ぶ
+const randomKeyword =
+    modernManga[Math.floor(Math.random() * modernManga.length)];
+
+// APIで検索
+searchBooks(randomKeyword);
+
+</script>
+
+</body>
+</html>

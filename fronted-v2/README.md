@@ -66,20 +66,22 @@ node fronted-v2/serve.cjs
    node fronted-v2/serve.cjs
    ```
 
-2. 起動時に表示される **「同じLAN内のチームメンバー」のURL** を共有します。例:
-
-   ```
-   http://10.15.121.30:5500/fronted-v2/index.html
-   ```
-
-   （`10.15.121.30` の部分は起動した端末のIPに置き換わります）
+2. 起動時に表示される **「同じLAN内のチームメンバー」のURL** を共有
 
 3. 同じネットワークにつないだ各メンバーが、ブラウザでそのURLを開きます。
 
 ## テンプレートを追加するには
 
-1. `../templates/` に自己完結型の HTML を追加する
+テンプレートはジャンル別のサブフォルダに整理されています。
+
+```
+templates/...
+```
+
+1. 該当ジャンルの `../templates/<ジャンル>/` に自己完結型の HTML を追加する
 2. `js/catalog.js` の `window.CATALOG` に1要素追加する（`id` / `file` / `title` / `category` / `description` / `apiName` / `apiUrl` / `icon`）
-   - `icon` は [Tabler Icons](https://tabler.io/icons) のクラス名（例 `ti-dog`）
+   - `file` は `templates/` からの相対パス（例 `image/dog-api.html`）
+   - `icon` は [Tabler Icons](https://tabler.io/icons) のクラス名（例 `ti-dog`）。※フォントに存在しないクラスを指定すると空白表示になるため注意
+   - `category` は上記4ジャンルのいずれか（末尾の「系」は見出しでは省略表示）
 
 サイドバーは `CATALOG` の並び順・`category` 単位で自動グルーピングされます。

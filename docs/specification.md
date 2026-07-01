@@ -50,30 +50,34 @@
 
 ### templates/ 各ページが利用する外部API（fronted-v2で紹介）
 
-| ページ | 外部API | 用途 |
-|--------|---------|------|
-| dog-api | Dog API (dog.ceo) | 犬の画像・犬種一覧 |
-| cat-api | The Cat API | 猫の画像・猫種データ |
-| Fox | RandomFox | キツネ画像 |
-| neko | HTTP Cat | HTTPステータスを猫画像で表示 |
-| Necos | Nekos.best | ネコミミ画像 |
-| Waifu | Waifu.im | アニメキャラ画像 |
-| kamo | Random-d.uk | アヒル画像 |
-| anime / Jikan | Jikan API | アニメ検索・一覧 |
-| Poke | PokeAPI | ポケモン情報 |
-| akusyonn | FreeToGame | 無料ゲーム一覧 |
-| applemusic | iTunes Search API | 楽曲検索 |
-| nasa | NASA APOD | 今日の天体写真 |
-| utyu | NASA NeoWs | 近地天体(NEO)観測データ |
-| currency_converter | ExchangeRate-API | 通貨換算 |
-| kawase | exchangerate.host | 為替レート |
-| QR | QR Server (goQR) | QRコード生成 |
-| joke | Official Joke API | 海外ジョーク |
-| ohuzake | Useless Facts | ランダム雑学 |
-| OpenTrivia | Open Trivia DB | クイズ |
-| YesNo | yesno.wtf | Yes/No判定 |
+`templates/` はジャンル別フォルダ（`image/` 画像・ビジュアル系、`data/` データ・検索系、`tools/` 為替・ツール系、`fun/` エンタメ・おもしろ系）に整理。
 
-※ 翻訳に MyMemory Translation API を併用するページあり（joke / ohuzake / Jikan / OpenTrivia）。NASA系はAPIキーが必要。
+| ジャンル | ページ | 外部API | 用途 |
+|----------|--------|---------|------|
+| image | dog-api | Dog API (dog.ceo) | 犬の画像・犬種一覧 |
+| image | cat-api | The Cat API | 猫の画像・猫種データ |
+| image | Fox | RandomFox | キツネ画像 |
+| image | neko | HTTP Cat | HTTPステータスを猫画像で表示 |
+| image | Necos | Nekos.best | ネコミミ画像 |
+| image | Waifu | Waifu.im | アニメキャラ画像 |
+| image | kamo | Random-d.uk | アヒル画像 |
+| image | food | Wikipedia API | 料理名で画像検索 |
+| data | anime / Jikan | Jikan API | アニメ検索・一覧 |
+| data | Poke | PokeAPI | ポケモン情報 |
+| data | akusyonn | FreeToGame | 無料ゲーム一覧 |
+| data | applemusic | iTunes Search API | 楽曲検索 |
+| data | nasa | NASA APOD | 今日の天体写真 |
+| data | utyu | NASA NeoWs | 近地天体(NEO)観測データ |
+| data | wakusei | ローカルデータ(サンプル) | 太陽系の惑星情報 |
+| tools | currency_converter | ExchangeRate-API | 通貨換算 |
+| tools | kawase | exchangerate.host | 為替レート |
+| tools | QR | QR Server (goQR) | QRコード生成 |
+| fun | joke | Official Joke API | 海外ジョーク |
+| fun | ohuzake | Useless Facts | ランダム雑学 |
+| fun | OpenTrivia | Open Trivia DB | クイズ |
+| fun | YesNo | yesno.wtf | Yes/No判定 |
+
+※ 翻訳に MyMemory Translation API を併用するページあり（joke / ohuzake / Jikan / OpenTrivia）。NASA系はAPIキーが必要。wakusei は外部APIを使わないローカルデータのサンプル。
 
 ---
 

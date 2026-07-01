@@ -59,6 +59,7 @@
 | ジャンル | ページ | 外部API | 用途 |
 |----------|--------|---------|------|
 | image | dog-api | Dog API (dog.ceo) | 犬の画像・犬種一覧 |
+| image | 3D | Three.js GLTF サンプル | ランダムな3Dモデルを読み込み・閲覧 |
 | image | cat-api | The Cat API | 猫の画像・猫種データ |
 | image | Fox | RandomFox | キツネ画像 |
 | image | neko | HTTP Cat | HTTPステータスを猫画像で表示 |
@@ -78,6 +79,8 @@
 | data | hon | Open Library | 書籍・漫画検索 |
 | data | index | Random User Generator | ランダムなプロフィール生成 |
 | tools | currency_converter | ExchangeRate-API | 通貨換算 |
+| tools | calendar | Public Holidays API | 祝日付きカレンダー表示 |
+| tools | time | ローカル時刻 | 現在時刻の表示 |
 | tools | kawase | exchangerate.host | 為替レート |
 | tools | QR | QR Server (goQR) | QRコード生成 |
 | tools | genngohonnyaku | ローカル辞書(サンプル) | 日本語↔英語の簡易翻訳 |

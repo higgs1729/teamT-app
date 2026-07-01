@@ -24,6 +24,8 @@
 
 window.CATALOG = [
   /* ---------- 画像・ビジュアル系（動物・キャラ・画像を取得） ---------- */
+  { id: "3d", file: "image/3D.html", title: "多ジャンル3Dモデル召喚API", category: "画像・ビジュアル系",
+    description: "ランダムな3Dモデルを読み込み、回転操作しながら閲覧できる", apiName: "Three.js GLTF サンプル", apiUrl: "https://threejs.org/", icon: "ti-cube" },
   { id: "dog-api", file: "image/dog-api.html", title: "Dog API", category: "画像・ビジュアル系",
     description: "ランダムな犬の画像を取得。犬種フィルターも搭載", apiName: "Dog API", apiUrl: "https://dog.ceo/dog-api/", icon: "ti-dog" },
   { id: "cat-api", file: "image/cat-api.html", title: "The Cat API", category: "画像・ビジュアル系",
@@ -68,6 +70,10 @@ window.CATALOG = [
     description: "ランダムなプロフィール(氏名/写真/住所)を生成", apiName: "Random User Generator", apiUrl: "https://randomuser.me/", icon: "ti-user" },
 
   /* ---------- 為替・ツール系（実用ツール） ---------- */
+  { id: "calendar", file: "tools/calendar.html", title: "カレンダー（祝日API付き）", category: "為替・ツール系",
+    description: "祝日APIを参照して月間カレンダーを表示する", apiName: "Public Holidays API", apiUrl: "https://date.nager.at/", icon: "ti-calendar" },
+  { id: "time", file: "tools/time.html", title: "時計", category: "為替・ツール系",
+    description: "現在時刻を大きく表示するシンプルな時計", apiName: "ローカル時刻", apiUrl: "", icon: "ti-clock" },
   { id: "currency", file: "tools/currency_converter.html", title: "通貨換算", category: "為替・ツール系",
     description: "指定した通貨間で金額を換算", apiName: "ExchangeRate-API", apiUrl: "https://www.exchangerate-api.com/", icon: "ti-currency-yen" },
   { id: "kawase", file: "tools/kawase.html", title: "為替レート", category: "為替・ツール系",

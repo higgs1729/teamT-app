@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>カレンダー（祝日API付き）</title>
+
+<style>
+body{
+    font-family:sans-serif;
+    background:#0f172a;
+    color:white;
+    text-align:center;
+    padding:20px;
+}
+
+input,button{
+    padding:10px;
+    font-size:18px;
+    margin:10px;
+}
+
+table{
+    margin:20px auto;
+    border-collapse:collapse;
+    width:700px;
+    background:white;
+    color:black;
+}
+
+th,td{
+    border:1px solid #999;
+    width:14.2%;
+    height:90px;
+    vertical-align:top;
+    padding:5px;
+}
+
+th{
+    background:#334155;
+    color:white;
+}
+
+.sun{
+    color:red;
+}
+
+.sat{
+    color:blue;
+}
+
+.holiday{
+    color:red;
+    font-size:12px;
+    font-weight:bold;
+}
+
+.today{
+    background:yellow;
+}
+</style>
+</head>
+<body>
+
+<h1>カレンダー</h1>
+
+<p>表示したい月を入力してください（1～12）</p>
+
+<input type="number" id="month" min="1" max="12">
+
+<button onclick="createCalendar()">
+表示
+</button>
+
+<div id="calendar"></div>
+
+<script>
+
+async function createCalendar(){
+
+const month=parseInt(document.getElementById("month").value);
+
+if(month<1 || month>12){
+    alert("1～12を入力してください");
+    return;
+}
+
+const year=new Date().getFullYear();
+
+const response=await fetch(
+`https://date.nager.at/api/v3/PublicHolidays/${year}/JP`
+);
+
+const holidayData=await response.json();
+
+const holidays={};
+
+holidayData.forEach(h=>{
+    holidays[h.date]=h.localName;
+});
+
+const firstDay=new Date(year,month-1,1).getDay();
+const lastDate=new Date(year,month,0).getDate();
+
+const today=new Date();
+
+let html="<h2>"+year+"年 "+month+"月</h2>";
+
+html+="<table>";
+
+html+="<tr>";
+html+="<th class='sun'>日</th>";
+html+="<th>月</th>";
+html+="<th>火</th>";
+html+="<th>水</th>";
+html+="<th>木</th>";
+html+="<th>金</th>";
+html+="<th class='sat'>土</th>";
+html+="</tr>";
+
+let day=1;
+
+for(let row=0;row<6;row++){
+
+    html+="<tr>";
+
+    for(let col=0;col<7;col++){
+
+        if(row===0 && col<firstDay){
+            html+="<td></td>";
+        }
+        else if(day>lastDate){
+            html+="<td></td>";
+        }
+        else{
+
+            const date=
+`${year}-${String(month).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+
+            let cls="";
+
+            if(
+                today.getFullYear()==year &&
+                today.getMonth()+1==month &&
+                today.getDate()==day
+            ){
+                cls="today";
+            }
+
+            html+=`<td class="${cls}">`;
+
+            if(col==0){
+                html+=`<span class="sun">${day}</span>`;
+            }
+            else if(col==6){
+                html+=`<span class="sat">${day}</span>`;
+            }
+            else{
+                html+=day;
+            }
+
+            if(holidays[date]){
+                html+=`<br><div class="holiday">${holidays[date]}</div>`;
+            }
+
+            html+="</td>";
+
+            day++;
+        }
+
+    }
+
+    html+="</tr>";
+
+    if(day>lastDate){
+        break;
+    }
+
+}
+
+html+="</table>";
+
+document.getElementById("calendar").innerHTML=html;
+
+}
+
+</script>
+
+</body>
+</html>

@@ -118,6 +118,9 @@
     preview.classList.remove("hidden");
     welcome.classList.add("hidden");
 
+    // ゲーム(game.js)へ「API紹介ページを表示した」通知（疎結合フック）
+    document.dispatchEvent(new CustomEvent("apipage:shown", { detail: { id } }));
+
     // 選択項目を含むカテゴリを開いてからハイライトを付け替え
     expandCategoryOf(id);
     navList.querySelectorAll(".nav-item").forEach(el =>

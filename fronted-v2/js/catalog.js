@@ -68,6 +68,10 @@ window.CATALOG = [
     description: "キーワードで書籍・漫画を検索して表紙を表示", apiName: "Open Library", apiUrl: "https://openlibrary.org/developers/api", icon: "ti-book" },
   { id: "randomuser", file: "data/index.html", title: "ランダムユーザー生成器", category: "データ・検索系",
     description: "ランダムなプロフィール(氏名/写真/住所)を生成", apiName: "Random User Generator", apiUrl: "https://randomuser.me/", icon: "ti-user" },
+  { id: "cars", file: "data/Cars.html", title: "Car Explorer", category: "データ・検索系",
+    description: "メーカーとモデルを選んで車両情報と画像を検索", apiName: "NHTSA Vehicle API / Wikipedia API", apiUrl: "https://vpic.nhtsa.dot.gov/api/", icon: "ti-car" },
+  { id: "yugio", file: "data/Yugio.html", title: "遊戯王カード図鑑", category: "データ・検索系",
+    description: "カード名・属性・種族で検索してランダム表示", apiName: "YGOPRODeck API / MyMemory Translation API", apiUrl: "https://db.ygoprodeck.com/api-guide/", icon: "ti-cards" },
 
   /* ---------- 為替・ツール系（実用ツール） ---------- */
   { id: "calendar", file: "tools/calendar.html", title: "カレンダー（祝日API付き）", category: "為替・ツール系",
@@ -94,4 +98,6 @@ window.CATALOG = [
     description: "Yes/No で迷いを決めてくれる意思決定器", apiName: "yesno.wtf", apiUrl: "https://yesno.wtf/", icon: "ti-thumb-up" },
   { id: "meigenn", file: "fun/meigenn.html", title: "名言メーカー", category: "エンタメ・おもしろ系",
     description: "カテゴリ別の名言をランダム表示（サンプル）", apiName: "ローカルデータ", apiUrl: "", icon: "ti-quote" },
+  { id: "useless", file: "fun/Useless.html", title: "ランダム雑学", category: "エンタメ・おもしろ系",
+    description: "雑学を取得して翻訳付きで表示", apiName: "Useless Facts / MyMemory Translation API / Unsplash Source", apiUrl: "https://uselessfacts.jsph.pl/", icon: "ti-bulb" },
 ];

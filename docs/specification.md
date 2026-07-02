@@ -34,6 +34,13 @@
     - 外観: テーマ(ライト/ダーク)とアクセント色(オレンジ/青)を独立して切替（アクセント変更で背景は不変）
     - その他: 収録API数・サイト情報・設定リセット
   - 一覧クリックで該当HTMLをiframe表示。検索・URLハッシュ復元に対応
+  - ゲーム要素（`fronted-v2/js/game.js` / `css/game.css`。状態は localStorage 保存、app.jsとは疎結合）
+    - 進捗バー: API紹介ページ表示中にヘッダーへ出現。ページ(iframe)内のボタン等をクリックするたびに20%ずつ上昇（専用の操作ボタンは無く、閲覧中の操作を自動検知）、100%で経験値100獲得
+    - レベル: 必要経験値100（一律）。獲得時にポップアップで経験値バーが伸び、レベルアップを表示
+    - キャラクター画面（サイドバーのキャラボタン→アカウントボタンの上。ボタンには現在のキャラ名とレベルを表示）: キャラ名（アカウント名とは別・自由変更）、ステータス（体力/攻撃力/防御力）、ルーン4枠を表示
+    - ステージ: 「旅に出る」で全10ステージ（5・10がボス）に順次挑戦。※戦闘内容は未実装
+    - ルーン: ステージクリアごとに1つ獲得。効果は体力/攻撃力/防御力のいずれか +5〜50%（ランダム）。装備枠は4
+    - 成長: レベルアップで基礎ステータス上昇＋ルーンの%補正を加算して最終値を算出（数値は game.js の CONFIG に集約）
   - 設計判断: 素のHTML/CSS/JS（ビルド不要）。テンプレートは改変せず`../templates/`をiframe参照（単一の正）。
     UIは`design-spec-studio`の`ui_mockup.html`のデザインシステムに準拠。一覧データは`fronted-v2/js/catalog.js`に集約。
 
@@ -78,6 +85,8 @@
 | data | game | RAWG API | 高評価ゲーム一覧 |
 | data | hon | Open Library | 書籍・漫画検索 |
 | data | index | Random User Generator | ランダムなプロフィール生成 |
+| data | Cars | NHTSA Vehicle API / Wikipedia API / Argos Translate | メーカーとモデルを選んで車両情報と画像を検索 |
+| data | Yugio | YGOPRODeck API / MyMemory Translation API | 遊戯王カードを検索して詳細表示 |
 | tools | currency_converter | ExchangeRate-API | 通貨換算 |
 | tools | calendar | Public Holidays API | 祝日付きカレンダー表示 |
 | tools | time | ローカル時刻 | 現在時刻の表示 |
@@ -89,8 +98,9 @@
 | fun | OpenTrivia | Open Trivia DB | クイズ |
 | fun | YesNo | yesno.wtf | Yes/No判定 |
 | fun | meigenn | ローカルデータ(サンプル) | 名言をランダム表示 |
+| fun | Useless | Useless Facts / MyMemory Translation API / Unsplash Source | ランダム雑学を翻訳付きで表示 |
 
-※ 翻訳に MyMemory Translation API を併用するページあり（joke / ohuzake / Jikan / OpenTrivia）。NASA系・RAWG(game)はAPIキーが必要。wakusei / meigenn / genngohonnyaku は外部APIを使わないローカルデータのサンプル。
+※ 翻訳に MyMemory Translation API を併用するページあり（joke / ohuzake / Jikan / OpenTrivia / Yugio）。Cars は Argos Translate を併用。Useless は MyMemory Translation API と Unsplash Source を併用。NASA系・RAWG(game)はAPIキーが必要。wakusei / meigenn / genngohonnyaku は外部APIを使わないローカルデータのサンプル。
 
 ---
 

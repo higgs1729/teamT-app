@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>株価アプリ</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+margin:0;
+font-family:sans-serif;
+color:white;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background-size:cover;
+background-position:center;
+transition:1s;
+}
+
+/* 暗くするオーバーレイ */
+body::before{
+content:"";
+position:absolute;
+inset:0;
+background:rgba(0,0,0,0.4);
+z-index:-1;
+}
+
+.container{
+text-align:center;
+width:90%;
+max-width:400px;
+}
+
+/* ガラスカード */
+.card{
+backdrop-filter:blur(15px);
+background:rgba(255,255,255,0.1);
+border-radius:20px;
+padding:20px;
+box-shadow:0 8px 30px rgba(0,0,0,0.3);
+}
+
+/* 入力 */
+input{
+width:70%;
+padding:10px;
+border:none;
+border-radius:10px;
+}
+
+/* ボタン */
+button{
+padding:10px;
+border:none;
+border-radius:10px;
+background:rgba(255,255,255,0.3);
+color:white;
+cursor:pointer;
+}
+
+button:hover{
+background:rgba(255,255,255,0.6);
+}
+
+/* 結果 */
+.result{
+margin-top:15px;
+}
+
+/* エラー */
+.error{
+color:#ffb3b3;
+margin-top:10px;
+}
+
+/* 時間 */
+.datetime{
+margin-bottom:10px;
+}
+
+@media(max-width:500px){
+input{width:100%;}
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+<div class="datetime" id="datetime"></div>
+
+<div class="card">
+    <h2>📈 株価検索</h2>
+
+    <input id="symbol" placeholder="例：AAPL">
+    <br><br>
+
+    <button onclick="getStock()">検索</button>
+
+    <div id="result" class="result"></div>
+    <div id="error" class="error"></div>
+</div>
+</div>
+
+<script>
+
+// ===== 背景（株価用）=====
+function setBg(change){
+    let url;
+
+    if(change.includes("-")){
+        // 下がり（紫・赤系）
+        url = "https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?q=80&w=1600&auto=format&fit=crop";
+    }else{
+        // 上がり（青系）
+        url = "https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=1600&auto=format&fit=crop";
+    }
+
+    document.body.style.backgroundImage = `url(${url})`;
+}
+
+// ===== 株価取得 =====
+async function getStock(){
+    const symbol = document.getElementById("symbol").value;
+    const result = document.getElementById("result");
+    const error = document.getElementById("error");
+
+    result.innerHTML="";
+    error.textContent="";
+
+    if(!symbol){
+        error.textContent="入力してください";
+        return;
+    }
+
+    const apiKey = "RKCNK0Q28ABIU9JN";
+
+    try{
+        const res = await fetch(
+            `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${apiKey}`
+        );
+        const data = await res.json();
+
+        const quote = data["Global Quote"];
+
+        if(!quote || !quote["05. price"]){
+            error.textContent="銘柄が見つかりません";
+            return;
+        }
+
+        const price = quote["05. price"];
+        const change = quote["10. change percent"];
+
+        setBg(change);
+
+        result.innerHTML = `
+        <h3>${symbol.toUpperCase()}</h3>
+        <div style="font-size:40px">💹</div>
+        <p>💰 ${price} USD</p>
+        <p>📊 ${change}</p>
+        `;
+    }catch(e){
+        error.textContent="通信エラー";
+    }
+}
+
+// ===== 時計 =====
+function updateTime(){
+    const now=new Date();
+    document.getElementById("datetime").innerHTML=
+        now.toLocaleDateString("ja-JP",{year:"numeric",month:"long",day:"numeric",weekday:"short"})
+        +"<br>"+now.toLocaleTimeString();
+}
+setInterval(updateTime,1000);
+updateTime();
+
+</script>
+
+</body>
+</html>

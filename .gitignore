@@ -1,5 +1,7 @@
 # Application properties (APIキー等を含むため除外)
-src/main/resources/application.properties*.env
+# dev プロファイル用 application-dev.properties は秘密情報を含まないため追跡対象
+src/main/resources/application.properties
+*.env
 
 # Build output
 target/

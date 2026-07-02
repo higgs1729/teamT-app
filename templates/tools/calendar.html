@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<!-- tools -->
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>カレンダー（祝日API付き）</title>
+
+<style>
+body{
+    font-family:"Yu Gothic",sans-serif;
+    background:#f3f6fb;
+    margin:0;
+    padding:30px;
+    text-align:center;
+}
+
+h1{
+    color:#1a73e8;
+}
+
+p{
+    color:#666;
+}
+
+input{
+    width:120px;
+    padding:10px;
+    font-size:18px;
+    border:1px solid #ccc;
+    border-radius:8px;
+}
+
+button{
+    padding:10px 20px;
+    font-size:18px;
+    background:#1a73e8;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#1557b0;
+}
+
+table{
+    margin:30px auto;
+    border-collapse:collapse;
+    background:white;
+    box-shadow:0 5px 20px rgba(0,0,0,.15);
+}
+
+th{
+    background:#1a73e8;
+    color:white;
+    padding:12px;
+}
+
+td{
+    width:100px;
+    height:90px;
+    border:1px solid #ddd;
+    vertical-align:top;
+    text-align:left;
+    padding:5px;
+}
+
+td:hover{
+    background:#eef6ff;
+}
+
+.sun{
+    color:red;
+}
+
+.sat{
+    color:blue;
+}
+
+.holiday{
+    color:red;
+    font-size:12px;
+    font-weight:bold;
+}
+
+.today{
+    background:#fff8d6;
+}
+
+.date{
+    display:inline-block;
+    width:28px;
+    height:28px;
+    line-height:28px;
+    text-align:center;
+    border-radius:50%;
+}
+
+.today .date{
+    background:#1a73e8;
+    color:white;
+}
+</style>
+
+</head>
+<body>
+
+<h1>カレンダー</h1>
+
+<p>表示したい月を入力してください（1～12）</p>
+
+<input type="number" id="month" min="1" max="12" placeholder="例：7">
+
+<button onclick="createCalendar()">表示</button>
+
+<div id="calendar"></div>
+
+<script>
+
+async function createCalendar(){
+
+    const value = document.getElementById("month").value.trim();
+
+    if(value === ""){
+        alert("月を入力してください");
+        return;
+    }
+
+    const month = Number(value);
+
+    if(Number.isNaN(month) || month < 1 || month > 12){
+        alert("1～12の数字を入力してください");
+        return;
+    }
+
+    const year = new Date().getFullYear();
+
+    const response = await fetch(
+        `https://date.nager.at/api/v3/PublicHolidays/${year}/JP`
+    );
+
+    const holidayData = await response.json();
+
+    const holidays = {};
+
+    holidayData.forEach(h=>{
+        holidays[h.date] = h.localName;
+    });
+
+    const firstDay = new Date(year, month-1, 1).getDay();
+    const lastDate = new Date(year, month, 0).getDate();
+
+    const today = new Date();
+
+    let html = `<h2>${year}年 ${month}月</h2>`;
+
+    html += `
+    <table>
+    <tr>
+        <th class="sun">日</th>
+        <th>月</th>
+        <th>火</th>
+        <th>水</th>
+        <th>木</th>
+        <th>金</th>
+        <th class="sat">土</th>
+    </tr>
+    `;
+
+    let day = 1;
+
+    for(let row=0; row<6; row++){
+
+        html += "<tr>";
+
+        for(let col=0; col<7; col++){
+
+            if(row===0 && col<firstDay){
+
+                html += "<td></td>";
+
+            }else if(day>lastDate){
+
+                html += "<td></td>";
+
+            }else{
+
+                const date =
+                `${year}-${String(month).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+
+                let cellClass="";
+
+                if(
+                    today.getFullYear()===year &&
+                    today.getMonth()+1===month &&
+                    today.getDate()===day
+                ){
+                    cellClass="today";
+                }
+
+                let dayClass="date";
+
+                if(col===0){
+                    dayClass+=" sun";
+                }else if(col===6){
+                    dayClass+=" sat";
+                }
+
+                html += `<td class="${cellClass}">`;
+                html += `<span class="${dayClass}">${day}</span>`;
+
+                if(holidays[date]){
+                    html += `<br><div class="holiday">${holidays[date]}</div>`;
+                }
+
+                html += "</td>";
+
+                day++;
+            }
+
+        }
+
+        html += "</tr>";
+
+        if(day>lastDate){
+            break;
+        }
+
+    }
+
+    html += "</table>";
+
+    document.getElementById("calendar").innerHTML = html;
+
+}
+
+</script>
+
+</body>
+</html>

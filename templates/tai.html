@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Dynamic Typing Game</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .phrase-container {
+            font-size: 22px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            min-height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .typed-correct {
+            color: #28a745;
+        }
+        .typed-wrong {
+            color: #dc3545;
+            background-color: #ffe6e6;
+        }
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            font-size: 18px;
+            border: 2px solid #ced4da;
+            border-radius: 6px;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        .input-field:focus {
+            border-color: #007bff;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #28a745;
+            font-weight: bold;
+            display: none;
+        }
+        .btn-next {
+            margin-top: 15px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
+        }
+        .btn-next:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Dynamic Typing Challenge</h1>
+    
+    <!-- お題の表示エリア -->
+    <div class="phrase-container" id="phraseDisplay">読み込み中...</div>
+    
+    <!-- 入力フォーム -->
+    <input type="text" id="typeInput" class="input-field" placeholder="読み込みをお待ちください..." disabled autofocus autocomplete="off">
+    
+    <!-- クリア判定と次の問題ボタン -->
+    <div class="result" id="resultMessage">🎉 Clear! Perfect Typing!</div>
+    <button class="btn-next" id="nextBtn">次の問題へ</button>
+</div>
+
+<script>
+    // 無料の名言API（ランダムで英語の一言を返すパブリックAPI）
+    const API_URL = "https://api.quotable.io/random?minLength=30&maxLength=60";
+    
+    // APIが万が一落ちていた時のフォールバック（予備）用ワードリスト
+    const fallbackPhrases = [
+        "Assertively Cloudify Accurate Functionalities",
+        "Practice makes perfect running code every day",
+        "Open source software powers the modern web world"
+    ];
+
+    const phraseDisplay = document.getElementById('phraseDisplay');
+    const typeInput = document.getElementById('typeInput');
+    const resultMessage = document.getElementById('resultMessage');
+    const nextBtn = document.getElementById('nextBtn');
+
+    let currentPhrase = "";
+
+    // 1. APIからランダムな文章を取得する関数
+    async function getRandomPhrase() {
+        phraseDisplay.innerText = "新しいお題を読み込んでいます...";
+        typeInput.value = "";
+        typeInput.disabled = true;
+        resultMessage.style.display = 'none';
+        nextBtn.style.display = 'none';
+
+        try {
+            const response = await fetch(API_URL);
+            if (!response.ok) throw new Error('APIエラー');
+            const data = await response.json();
+            // 取得した名言から記号（”や’など）を少し打ちやすくトリミング
+            currentPhrase = data.content.replace(/[’'”“"".,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+        } catch (error) {
+            console.log("API取得失敗のため、ローカル配列からランダム抽出します", error);
+            // APIが動かない場合は、予備のリストからランダムで選ぶ
+            const randomIndex = Math.floor(Math.random() * fallbackPhrases.length);
+            currentPhrase = fallbackPhrases[randomIndex];
+        }
+
+        renderPhrase(currentPhrase);
+    }
+
+    // 2. 取得した文章を画面に1文字ずつスパン要素として展開する関数
+    function renderPhrase(phrase) {
+        phraseDisplay.innerHTML = "";
+        phrase.split('').forEach(char => {
+            const charSpan = document.createElement('span');
+            charSpan.innerText = char;
+            phraseDisplay.appendChild(charSpan);
+        });
+        
+        typeInput.disabled = false;
+        typeInput.placeholder = "ここにタイピングしてください...";
+        typeInput.focus();
+    }
+
+    // 3. 入力時のリアルタイム判定処理
+    typeInput.addEventListener('input', () => {
+        const arrayQuote = phraseDisplay.querySelectorAll('span');
+        const arrayValue = typeInput.value.split('');
+        
+        let isCorrect = true;
+
+        arrayQuote.forEach((characterSpan, index) => {
+            const character = arrayValue[index];
+            
+            if (character == null) {
+                characterSpan.className = '';
+                isCorrect = false;
+            } else if (character === characterSpan.innerText) {
+                characterSpan.className = 'typed-correct';
+            } else {
+                characterSpan.className = 'typed-wrong';
+                isCorrect = false;
+            }
+        });
+
+        // クリア時の処理
+        if (isCorrect && arrayValue.length === currentPhrase.length) {
+            resultMessage.style.display = 'block';
+            nextBtn.style.display = 'inline-block';
+            typeInput.disabled = true; 
+            nextBtn.focus(); // ボタンにフォーカスを当ててEnterで次に行けるようにする
+        }
+    });
+
+    // 「次の問題へ」ボタンを押した時の挙動
+    nextBtn.addEventListener('click', getRandomPhrase);
+
+    // 最初の一問目を読み込む
+    getRandomPhrase();
+</script>
+
+</body>
+</html>

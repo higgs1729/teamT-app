@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎮 ポケモンガチャ</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Yu Gothic","Meiryo",sans-serif;
+}
+
+body{
+    background:
+        radial-gradient(circle at top,#29405a,#111827 55%,#05070c);
+    color:white;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.container{
+
+    width:420px;
+    text-align:center;
+
+    background:rgba(20,20,35,.88);
+
+    border:3px solid #00e5ff;
+
+    border-radius:20px;
+
+    box-shadow:
+        0 0 20px #00e5ff,
+        0 0 60px #008cff;
+
+    padding:30px;
+}
+
+h1{
+    color:#ffe600;
+    margin-bottom:15px;
+    text-shadow:
+        0 0 10px gold,
+        0 0 20px orange;
+}
+
+.subtitle{
+    color:#8affff;
+    margin-bottom:20px;
+}
+
+.card{
+
+    background:#1d2636;
+
+    border-radius:15px;
+
+    padding:20px;
+
+    border:2px solid #4fd7ff;
+
+    min-height:360px;
+
+}
+
+#pokemon{
+
+    width:220px;
+
+    image-rendering:pixelated;
+
+    transition:.4s;
+}
+
+#pokemon:hover{
+
+    transform:scale(1.15) rotate(-5deg);
+
+}
+
+#name{
+
+    margin:15px;
+
+    color:#00ff99;
+
+    text-transform:capitalize;
+
+    font-size:30px;
+
+}
+
+#message{
+
+    margin-top:15px;
+
+    color:#ffd95c;
+
+    font-weight:bold;
+
+    min-height:45px;
+
+}
+
+button{
+
+    margin-top:25px;
+
+    font-size:22px;
+
+    padding:15px 35px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:linear-gradient(45deg,#ff0048,#ff8c00);
+
+    color:white;
+
+    cursor:pointer;
+
+    transition:.2s;
+
+    box-shadow:0 0 20px #ff6600;
+
+}
+
+button:hover{
+
+    transform:scale(1.08);
+
+    box-shadow:0 0 30px #ffbf00;
+
+}
+
+button:active{
+
+    transform:scale(.95);
+
+}
+
+.loading{
+
+    animation:spin .5s linear infinite;
+
+}
+
+@keyframes spin{
+
+0%{transform:rotate(0);}
+100%{transform:rotate(360deg);}
+
+}
+
+footer{
+
+    margin-top:20px;
+
+    color:#888;
+
+    font-size:13px;
+
+}
+
+.info{
+    margin-top:20px;
+    background:#202b3c;
+    border:2px solid #00e5ff;
+    border-radius:12px;
+    padding:15px;
+    text-align:left;
+    line-height:1.8;
+    color:white;
+    box-shadow:0 0 10px rgba(0,229,255,.3);
+}
+
+.info h3{
+    color:#ffe600;
+    text-align:center;
+    margin-bottom:10px;
+    font-size:24px;
+}
+
+.info hr{
+    border:none;
+    border-top:1px solid #555;
+    margin:10px 0;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🎮 ポケモンガチャ</h1>
+
+<p class="subtitle">
+今日はどんなポケモンと出会えるかな？
+</p>
+
+<div class="card">
+
+<h2 id="name">？？？</h2>
+
+<img id="pokemon">
+
+<div id="info" class="info"></div>
+
+<p id="message">
+モンスターボールを投げよう！
+</p>
+
+</div>
+
+<button onclick="loadPokemon()">
+🎲 ガチャを回す！
+</button>
+
+<footer>
+★ レアが出るかは運しだい！？ ★
+</footer>
+
+</div>
+
+<script>
+
+const messages=[
+"✨ 伝説の予感がする…！",
+"🍀 今日の運勢は最高かも！",
+"😎 博士も驚いている！",
+"🔥 バトルしたそうに見ている！",
+"⚡ モンスターボールを構えろ！",
+"🎉 新しい仲間が増えた！",
+"👀 何かすごい気配がする…",
+"💥 強そう！育ててみよう！",
+"😂 ちょっと眠そう…",
+"🌟 キミに会うために来たのかも！"
+];
+
+function loadPokemon(){
+
+    const img=document.getElementById("pokemon");
+    const name=document.getElementById("name");
+    const info=document.getElementById("info");
+    const message=document.getElementById("message");
+
+    img.classList.add("loading");
+
+    name.textContent="ガチャを回しています...";
+    info.innerHTML="";
+    message.textContent="モンスターボールが揺れている…";
+
+    const id=Math.floor(Math.random()*1025)+1;
+
+    fetch(`https://pokeapi.co/api/v2/pokemon/${id}`)
+    .then(res=>res.json())
+    .then(data=>{
+
+        img.classList.remove("loading");
+
+        img.src=data.sprites.other["official-artwork"].front_default
+            || data.sprites.front_default;
+
+        fetch(`https://pokeapi.co/api/v2/pokemon-species/${id}`)
+        .then(res=>res.json())
+        .then(species=>{
+
+            // 日本語名
+            const jpName=species.names.find(
+                n=>n.language.name==="ja"
+            ).name;
+
+            name.textContent=jpName;
+
+            // 日本語説明
+            const flavor=species.flavor_text_entries.find(
+                e=>e.language.name==="ja"
+            );
+
+            const description=flavor
+                ? flavor.flavor_text.replace(/\n|\f/g," ")
+                : "説明はありません。";
+
+            // タイプ
+            const typeMap={
+                normal:"ノーマル",
+                fire:"ほのお",
+                water:"みず",
+                electric:"でんき",
+                grass:"くさ",
+                ice:"こおり",
+                fighting:"かくとう",
+                poison:"どく",
+                ground:"じめん",
+                flying:"ひこう",
+                psychic:"エスパー",
+                bug:"むし",
+                rock:"いわ",
+                ghost:"ゴースト",
+                dragon:"ドラゴン",
+                dark:"あく",
+                steel:"はがね",
+                fairy:"フェアリー"
+            };
+
+            const types=data.types
+                .map(t=>"🌱 "+(typeMap[t.type.name]||t.type.name))
+                .join(" / ");
+
+            // 特性
+            const abilities=data.abilities
+                .map(a=>"・"+a.ability.name)
+                .join("<br>");
+
+            // 高さ・重さ
+            const height=data.height/10;
+            const weight=data.weight/10;
+
+            // レア度
+            let stars="★☆☆☆☆";
+
+            if(species.is_legendary){
+                stars="★★★★★";
+            }else if(species.is_mythical){
+                stars="★★★★★";
+            }else if(species.is_baby){
+                stars="★★☆☆☆";
+            }else if(data.base_experience>250){
+                stars="★★★★☆";
+            }else if(data.base_experience>150){
+                stars="★★★☆☆";
+            }else{
+                stars="★★☆☆☆";
+            }
+
+            info.innerHTML=`
+                <h3>${jpName}</h3>
+
+                <hr>
+
+                🌱 <b>タイプ</b><br>
+                ${types}
+
+                <br><br>
+
+                ⭐ <b>高さ</b>：${height}m<br>
+
+                ⚖️ <b>重さ</b>：${weight}kg
+
+                <br><br>
+
+                😊 <b>特性</b><br>
+                ${abilities}
+
+                <br><br>
+
+                🔥 <b>レア度</b><br>
+                <span style="color:gold;font-size:22px;">
+                ${stars}
+                </span>
+
+                <br><br>
+
+                📖 <b>図鑑説明</b><br>
+                ${description}
+            `;
+
+        });
+
+        message.textContent=
+            messages[Math.floor(Math.random()*messages.length)];
+
+    });
+
+}
+
+loadPokemon();
+
+</script>
+
+</body>
+</html>

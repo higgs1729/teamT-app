@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NASA NEO (近地天体) 観測ダッシュボード</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root{
+            --bg:#030312;
+            --card:rgba(255,255,255,0.03);
+            --glass:rgba(255,255,255,0.06);
+            --muted:rgba(255,255,255,0.6);
+            --accent:#7fd1ff;
+            --accent-2:#8a6cff;
+            --danger:#ff6b6b;
+            --success:#33d69f;
+        }
+
+        html,body{height:100%;}
+        body{
+            margin:0;
+            font-family:'Inter',system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial;
+            background: radial-gradient(ellipse at bottom, #051025 0%, var(--bg) 60%);
+            color:#eaf3ff;
+            -webkit-font-smoothing:antialiased;
+            -moz-osx-font-smoothing:grayscale;
+            overflow-y:auto;
+            position:relative;
+        }
+
+        /* canvas 星層はページ全体の背景 */
+        #starfield{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+        .wrap{position:relative;z-index:2;max-width:1100px;margin:36px auto;padding:28px}
+
+        header{display:flex;align-items:center;gap:18px;margin-bottom:22px}
+        .logo{
+            width:72px;height:72px;border-radius:14px;background:linear-gradient(135deg,var(--accent-2),var(--accent));display:flex;align-items:center;justify-content:center;box-shadow:0 6px 30px rgba(68,90,204,0.16);
+            font-family:'Orbitron';font-weight:700;font-size:20px;color:#02122a;
+        }
+        h1{font-family:'Orbitron';font-weight:700;font-size:28px;margin:0}
+        .subtitle{color:var(--muted);font-size:13px}
+
+        .search-panel{margin-top:12px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);border-radius:14px;padding:18px;backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.04);box-shadow:0 8px 40px rgba(2,6,23,0.6)}
+
+        .form-row{display:flex;gap:12px;flex-wrap:wrap}
+        .form-group{flex:1;min-width:180px}
+        label{display:block;color:var(--muted);font-size:11px;margin-bottom:6px;font-weight:600;letter-spacing:1px}
+        input[type="text"], input[type="date"]{width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;font-size:14px}
+
+        .actions{display:flex;align-items:center;gap:12px}
+        button{padding:10px 18px;border-radius:10px;border:none;cursor:pointer;font-weight:700;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#041031;box-shadow:0 8px 22px rgba(74,131,255,0.18);transform:translateZ(0)}
+
+        #statusMessage{text-align:center;padding:18px;color:var(--muted);margin-top:18px}
+
+        .date-section{margin:28px 0}
+        .date-header{display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px;background:linear-gradient(90deg,rgba(127,209,255,0.06),rgba(138,108,255,0.04));border:1px solid rgba(255,255,255,0.03);font-weight:700}
+
+        .neo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;margin-top:14px}
+
+        .neo-card{position:relative;padding:16px;border-radius:12px;background:linear-gradient(180deg,rgba(8,12,30,0.6),rgba(6,8,18,0.6));border:1px solid rgba(255,255,255,0.03);box-shadow:0 10px 30px rgba(2,6,23,0.6);transition:transform .22s cubic-bezier(.2,.9,.3,1),box-shadow .2s}
+        .neo-card:hover{transform:translateY(-8px) scale(1.01);box-shadow:0 18px 60px rgba(35,60,120,0.28)}
+
+        .neo-top{display:flex;align-items:center;gap:12px}
+        .neo-icon{width:54px;height:54px;border-radius:10px;background:linear-gradient(135deg,#fff2,rgba(255,255,255,0.02));display:flex;align-items:center;justify-content:center;font-size:20px}
+        .neo-name{font-weight:800;font-size:16px;color:#f7fbff}
+        .neo-meta{color:var(--muted);font-size:13px;margin-top:8px}
+
+        .badge{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:800;font-size:12px;background:rgba(255,255,255,0.03);color:var(--muted)}
+        .badge.danger{background:linear-gradient(90deg, rgba(255,107,107,0.12), rgba(255,107,107,0.06));color:var(--danger)}
+        .badge.success{background:linear-gradient(90deg, rgba(51,214,159,0.07), rgba(51,214,159,0.03));color:var(--success)}
+
+        .link-button{display:inline-block;margin-top:12px;padding:8px 12px;border-radius:10px;background:rgba(255,255,255,0.02);color:var(--muted);text-decoration:none;font-weight:700;border:1px solid rgba(255,255,255,0.02)}
+
+        /* small responsive tweaks */
+        @media(max-width:700px){.wrap{padding:16px}.logo{width:56px;height:56px}.neo-grid{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+<canvas id="starfield"></canvas>
+<div class="wrap">
+    <header>
+        <div class="logo">UT</div>
+        <div>
+            <h1>🚀 NASA NEO Tracker</h1>
+            <div class="subtitle">地球へ接近する近地天体のリアルタイム監視ダッシュボード</div>
+        </div>
+    </header>
+
+    <div class="search-panel">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="apiKey">NASA API KEY</label>
+                <input type="text" id="apiKey" value="DEMO_KEY">
+            </div>
+            <div class="form-group">
+                <label for="startDate">開始日</label>
+                <input type="date" id="startDate">
+            </div>
+            <div class="form-group">
+                <label for="endDate">終了日</label>
+                <input type="date" id="endDate">
+            </div>
+            <div class="actions">
+                <button id="fetchBtn">データ取得</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="statusMessage">日付を選択して「データ取得」ボタンを押してください。</div>
+    <div id="neoContainer"></div>
+</div>
+ 
+<script>
+    // --- 星のアニメーション (canvas starfield) ---
+    const canvas = document.getElementById('starfield');
+    const ctx = canvas.getContext('2d');
+    function resize(){canvas.width = innerWidth; canvas.height = innerHeight}
+    addEventListener('resize', resize); resize();
+
+    const stars = Array.from({length: 180},()=>({
+        x: Math.random()*canvas.width,
+        y: Math.random()*canvas.height,
+        r: Math.random()*1.4+0.2,
+        vx: (Math.random()-0.5)*0.05,
+        vy: (Math.random()-0.5)*0.05,
+        alpha: Math.random()*0.8+0.2
+    }));
+
+    function drawStars(){
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        stars.forEach(s=>{
+            s.x += s.vx; s.y += s.vy;
+            if(s.x<0)s.x=canvas.width; if(s.x>canvas.width)s.x=0;
+            if(s.y<0)s.y=canvas.height; if(s.y>canvas.height)s.y=0;
+            ctx.beginPath(); ctx.fillStyle = `rgba(255,255,255,${s.alpha})`; ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill();
+        });
+        requestAnimationFrame(drawStars);
+    }
+    requestAnimationFrame(drawStars);
+
+    // --- 日付自動セット ---
+    (function setToday(){
+        const t=new Date(); const yyyy=t.getFullYear(); const mm=String(t.getMonth()+1).padStart(2,'0'); const dd=String(t.getDate()).padStart(2,'0');
+        const dateStr=`${yyyy}-${mm}-${dd}`; document.getElementById('startDate').value=dateStr; document.getElementById('endDate').value=dateStr;
+    })();
+
+    // --- API 呼び出し ---
+    document.getElementById('fetchBtn').addEventListener('click', fetchNeoData);
+    async function fetchNeoData(){
+        const apiKey=document.getElementById('apiKey').value.trim()||'DEMO_KEY';
+        const startDate=document.getElementById('startDate').value; const endDate=document.getElementById('endDate').value;
+        const statusMessage=document.getElementById('statusMessage'); const neoContainer=document.getElementById('neoContainer');
+        if(!startDate||!endDate){alert('日付を正しく設定してください。'); return}
+
+        statusMessage.innerHTML = '🔭 データ取得中...'; neoContainer.innerHTML='';
+        const url = `https://api.nasa.gov/neo/rest/v1/feed?start_date=${startDate}&end_date=${endDate}&api_key=${apiKey}`;
+        try{
+            const res = await fetch(url); if(!res.ok) throw new Error('通信エラー:'+res.status);
+            const data = await res.json(); statusMessage.innerHTML=''; renderNeoData(data.near_earth_objects);
+        }catch(e){statusMessage.innerHTML=`❌ 取得失敗: ${e.message}`; console.error(e)}
+    }
+
+    // --- 描画 ---
+    function renderNeoData(neoData){
+        const neoContainer=document.getElementById('neoContainer'); const sortedDates=Object.keys(neoData).sort();
+        sortedDates.forEach(date=>{
+            const dateSection=document.createElement('div'); dateSection.className='date-section';
+            const dateHeader=document.createElement('div'); dateHeader.className='date-header'; dateHeader.textContent=`${date} — ${neoData[date].length} objects`;
+            dateSection.appendChild(dateHeader);
+
+            const neoGrid=document.createElement('div'); neoGrid.className='neo-grid';
+            neoData[date].forEach(neo=>{
+                const isHaz = neo.is_potentially_hazardous_asteroid;
+                const card=document.createElement('div'); card.className='neo-card';
+
+                const dMin=Math.round(neo.estimated_diameter.meters.estimated_diameter_min);
+                const dMax=Math.round(neo.estimated_diameter.meters.estimated_diameter_max);
+                const approach = neo.close_approach_data[0];
+                const missDistance = approach ? parseFloat(approach.miss_distance.kilometers).toLocaleString()+' km' : '不明';
+                const velocity = approach ? parseFloat(approach.relative_velocity.kilometers_per_hour).toLocaleString()+' km/h' : '不明';
+
+                card.innerHTML = `
+                    <div class="neo-top">
+                        <div class="neo-icon">${isHaz? '☄️':'🪨'}</div>
+                        <div>
+                            <div class="neo-name" title="${neo.name}">${neo.name}</div>
+                            <div class="neo-meta">推定直径 <strong>${dMin}〜${dMax} m</strong> ・ 最接近 ${missDistance}</div>
+                        </div>
+                        <div style="margin-left:auto"><span class="badge ${isHaz? 'danger':'success'}">${isHaz? '危険':'低リスク'}</span></div>
+                    </div>
+                    <div class="neo-meta">速度: <strong>${velocity}</strong></div>
+                    <a class="link-button" href="${neo.nasa_jpl_url}" target="_blank">JPLで詳細を見る</a>
+                `;
+
+                neoGrid.appendChild(card);
+            });
+
+            dateSection.appendChild(neoGrid); neoContainer.appendChild(dateSection);
+        });
+    }
+</script>
+</body>
+</html>

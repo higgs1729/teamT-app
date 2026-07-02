@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>雑学ジェネレーター</title>
+
+<style>
+body{
+    margin:0;
+    font-family:"Yu Gothic",sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    background-attachment:fixed;
+
+    transition:1s;
+}
+
+.container{
+    width:720px;
+    max-width:90%;
+
+    background:rgba(255,255,255,.82);
+
+    backdrop-filter:blur(12px);
+
+    border-radius:20px;
+
+    padding:35px;
+
+    text-align:center;
+
+    box-shadow:0 10px 30px rgba(0,0,0,.4);
+}
+
+h1{
+    color:#2196F3;
+    margin-bottom:25px;
+}
+
+#fact{
+    font-size:20px;
+    color:#333;
+    line-height:1.8;
+    min-height:130px;
+    background:#F7FBFF;
+    padding:20px;
+    border-radius:15px;
+    border:2px solid #B3E5FC;
+}
+
+button{
+    margin-top:25px;
+    background:#2196F3;
+    color:white;
+    border:none;
+    padding:14px 28px;
+    font-size:18px;
+    border-radius:10px;
+    cursor:pointer;
+    transition:.3s;
+}
+
+button:hover{
+    background:#1976D2;
+    transform:scale(1.05);
+}
+
+#fact{
+    margin-top:30px;
+    line-height:1.8;
+    font-size:20px;
+    min-height:100px;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<h1>🎲 ランダム雑学</h1>
+
+<div id="fact">
+ボタンを押してください。
+</div>
+
+<button onclick="loadFact()">
+新しい雑学を見る
+</button>
+
+</div>
+
+<script>
+
+    function setBackground(text){
+
+    let keyword = "nature";
+
+    const words = {
+
+        cat:"cat",
+        dog:"dog",
+        bird:"bird",
+        fish:"ocean",
+        lion:"lion",
+        tiger:"tiger",
+        elephant:"elephant",
+        snake:"snake",
+        spider:"spider",
+        shark:"shark",
+
+        space:"space",
+        moon:"moon",
+        sun:"sun",
+        earth:"earth",
+
+        tree:"forest",
+        flower:"flower",
+        ocean:"ocean",
+        sea:"sea",
+        mountain:"mountain",
+
+        food:"food",
+        pizza:"pizza",
+        coffee:"coffee",
+
+        car:"car",
+        train:"train",
+        plane:"airplane"
+
+    };
+
+    text = text.toLowerCase();
+
+    for(const key in words){
+
+        if(text.includes(key)){
+
+            keyword = words[key];
+
+            break;
+
+        }
+
+    }
+
+    document.body.style.backgroundImage =
+        `url("https://source.unsplash.com/1920x1080/?${keyword}")`;
+
+}
+
+async function loadFact(){
+
+    const fact = document.getElementById("fact");
+
+    fact.innerHTML = "📡 雑学を取得中...";
+
+    try{
+
+        // 雑学取得
+        const response = await fetch(
+            "https://uselessfacts.jsph.pl/api/v2/facts/random?language=en"
+        );
+
+        const data = await response.json();
+
+        setBackground(data.text);
+
+        fact.innerHTML = "🌏 日本語へ翻訳中...";
+
+        // 翻訳
+        const translate = await fetch(
+            `https://api.mymemory.translated.net/get?q=${encodeURIComponent(data.text)}&langpair=en|ja`
+        );
+
+        const result = await translate.json();
+
+        fact.innerHTML = `
+        <h3>🇯🇵 日本語</h3>
+        ${result.responseData.translatedText}
+
+        <hr>
+
+        <details>
+            <summary>原文を見る</summary>
+            <p>${data.text}</p>
+        </details>
+        `;
+
+    }catch(e){
+
+        fact.innerHTML="❌ データの取得に失敗しました。";
+
+    }
+    document.body.style.backgroundImage =
+    'url("https://source.unsplash.com/1920x1080/?nature")';
+
+}
+</script>
+
+</body>
+</html>

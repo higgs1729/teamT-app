@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>地図アプリ</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        body{
+            margin:0;
+            font-family:sans-serif;
+        }
+
+        #map{
+            width:100vw;
+            height:100vh;
+        }
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+    // 地図を作成（東京駅）
+    const map = L.map('map').setView([35.681236, 139.767125], 14);
+
+    // OpenStreetMapを表示
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // マーカーを追加
+    L.marker([35.681236, 139.767125])
+        .addTo(map)
+        .bindPopup("東京駅")
+        .openPopup();
+
+    // 地図をクリックするとマーカーを追加
+    map.on('click', function(e){
+        L.marker(e.latlng)
+            .addTo(map)
+            .bindPopup(
+                `緯度: ${e.latlng.lat.toFixed(5)}<br>経度: ${e.latlng.lng.toFixed(5)}`
+            )
+            .openPopup();
+    });
+</script>
+
+</body>
+</html>

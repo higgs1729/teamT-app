@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dance Prototype — GLTF Animation</title>
+  <style>
+    html,body{height:100%;margin:0;background:#0b0f1a;color:#fff;font-family:Inter,Arial}
+    #wrap{display:flex;height:100%}
+    #left{width:300px;padding:20px;box-sizing:border-box;background:rgba(255,255,255,0.03)}
+    #canvas-container{flex:1}
+    .avatar-item{padding:8px;margin-bottom:8px;background:#131827;border-radius:6px;cursor:pointer;display:flex;align-items:center}
+    .avatar-item.active{background:linear-gradient(90deg,#6be0ff22,#8a6cff22)}
+    #loading{display:none;padding:10px;background:#0008;border-radius:8px;margin-top:8px}
+    button{padding:8px 10px;border-radius:8px;border:none;cursor:pointer;background:linear-gradient(90deg,#6be0ff,#8a6cff);color:#031224}
+  </style>
+</head>
+<body>
+  <div id="wrap">
+    <div id="left">
+      <h3>Avatars</h3>
+      <div id="avatarList"></div>
+      <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+        <button id="reloadBtn">Reload (try API)</button>
+        <button id="randomBtn">Random Dance</button>
+      </div>
+      <div style="margin-top:12px;">
+        <label style="font-size:13px;display:block;margin-bottom:6px">Animation</label>
+        <select id="animSelect" style="width:100%;padding:8px;border-radius:6px;background:#081224;border:none;color:#fff"></select>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button id="prevAnim">Prev</button>
+          <button id="playPauseBtn">Pause</button>
+          <button id="nextAnim">Next</button>
+        </div>
+        <div style="margin-top:8px">
+          <label style="font-size:13px">Speed <span id="speedVal">1.0</span>x</label>
+          <input id="speed" type="range" min="0" max="2" step="0.05" value="1" style="width:100%">
+        </div>
+      </div>
+      <div id="loading">Loading...</div>
+      <p style="margin-top:12px;font-size:13px;color:#9fb2c9">This is a prototype: sample GLB models will be loaded and their animations playable. Use the controls to change clips and speed.</p>
+    </div>
+    <div id="canvas-container"></div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script>
+    const API_URL = 'https://www.yourawesomegame.com/api/avatars'; // optional
+    const SAMPLE = [
+      { name: 'Robot', url: 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/models/gltf/RobotExpressive/RobotExpressive.glb' },
+      { name: 'Fox', url: 'https://rawcdn.githack.com/KhronosGroup/glTF-Sample-Models/master/2.0/Fox/glTF-Binary/Fox.glb' },
+      { name: 'CesiumMan', url: 'https://rawcdn.githack.com/KhronosGroup/glTF-Sample-Models/master/2.0/CesiumMan/glTF-Binary/CesiumMan.glb' }
+    ];
+
+    const avatarListEl = document.getElementById('avatarList');
+    const loadingEl = document.getElementById('loading');
+    const reloadBtn = document.getElementById('reloadBtn');
+
+    let scene, camera, renderer, controls, clock, mixer, currentModel;
+    let animations = [];
+    let currentClipIndex = 0;
+    let isPlaying = true;
+
+    function showLoading(on, text){ loadingEl.style.display = on ? 'block' : 'none'; loadingEl.textContent = text || 'Loading...'; }
+
+    function init(){
+      const container = document.getElementById('canvas-container');
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x071225);
+      camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+      camera.position.set(0,1.5,3);
+
+      renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      container.appendChild(renderer.domElement);
+
+      const hemi = new THREE.HemisphereLight(0xffffff,0x444444,0.6); scene.add(hemi);
+      const dir = new THREE.DirectionalLight(0xffffff,0.8); dir.position.set(5,10,7); scene.add(dir);
+
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.target.set(0,1,0);
+
+      clock = new THREE.Clock();
+      window.addEventListener('resize', ()=>{
+        camera.aspect = container.clientWidth / container.clientHeight; camera.updateProjectionMatrix(); renderer.setSize(container.clientWidth, container.clientHeight);
+      });
+
+      animate();
+    }
+
+    function disposeModel(){ if(currentModel){ scene.remove(currentModel); currentModel.traverse(c=>{ if(c.isMesh){ c.geometry && c.geometry.dispose(); if(c.material){ if(Array.isArray(c.material)) c.material.forEach(m=>m.dispose&&m.dispose()); else c.material.dispose&&c.material.dispose(); } } }); currentModel=null; } mixer=null; }
+
+    function loadModel(url){
+      showLoading(true,'Loading model...');
+      const loader = new THREE.GLTFLoader();
+      loader.load(url,
+        gltf=>{
+          disposeModel();
+          currentModel = gltf.scene;
+          currentModel.position.set(0,0,0);
+          currentModel.rotation.y = Math.PI;
+          scene.add(currentModel);
+
+          animations = Array.isArray(gltf.animations) ? gltf.animations : [];
+          if(animations.length){
+            mixer = new THREE.AnimationMixer(currentModel);
+            populateAnimSelect(animations);
+            playAnimation(0);
+          } else {
+            mixer = null;
+            populateAnimSelect([]);
+          }
+
+          showLoading(false);
+        },
+        xhr=>{},
+        err=>{ console.error(err); showLoading(false,'Failed to load'); }
+      );
+    }
+
+    function populateAnimSelect(list){
+      const sel = document.getElementById('animSelect'); sel.innerHTML='';
+      list.forEach((clip, i)=>{ const opt = document.createElement('option'); opt.value=i; opt.textContent = clip.name || `clip ${i+1}`; sel.appendChild(opt); });
+      sel.disabled = list.length === 0;
+      document.getElementById('prevAnim').disabled = list.length === 0;
+      document.getElementById('nextAnim').disabled = list.length === 0;
+      document.getElementById('playPauseBtn').disabled = list.length === 0;
+      if(list.length===0) sel.innerHTML = '<option value="-1">(no animations)</option>';
+    }
+
+    function playAnimation(index){
+      if(!animations || animations.length===0) return;
+      index = (index + animations.length) % animations.length;
+      currentClipIndex = index;
+      const clip = animations[index];
+      const prevActions = mixer._actions ? [...mixer._actions] : [];
+      const action = mixer.clipAction(clip);
+      prevActions.forEach(a=>{ a.fadeOut(0.2); });
+      action.reset(); action.setLoop(THREE.LoopRepeat); action.fadeIn(0.2); action.play();
+      // apply current speed
+      const sp = parseFloat(document.getElementById('speed').value) || 1;
+      mixer.timeScale = isPlaying ? sp : 0;
+      document.getElementById('animSelect').value = index;
+      isPlaying = true; document.getElementById('playPauseBtn').textContent = 'Pause';
+    }
+
+    function togglePlayPause(){
+      if(!mixer) return;
+      const speedControl = parseFloat(document.getElementById('speed').value) || 1;
+      if(isPlaying){ mixer.timeScale = 0; isPlaying = false; document.getElementById('playPauseBtn').textContent = 'Play'; }
+      else { mixer.timeScale = speedControl; isPlaying = true; document.getElementById('playPauseBtn').textContent = 'Pause'; }
+    }
+
+    function animate(){ requestAnimationFrame(animate); const dt = clock.getDelta(); if(mixer) mixer.update(dt); renderer && renderer.render(scene,camera); }
+
+    function populate(list){ avatarListEl.innerHTML=''; list.forEach((a,idx)=>{ const div=document.createElement('div'); div.className='avatar-item'; div.textContent = a.name; div.addEventListener('click', ()=>{ Array.from(avatarListEl.children).forEach(c=>c.classList.remove('active')); div.classList.add('active'); loadModel(a.url); }); avatarListEl.appendChild(div); }); }
+
+    // try API then fallback
+    function loadAvatars(){ showLoading(true,'Loading list...'); fetch(API_URL).then(r=>r.json()).then(data=>{ if(Array.isArray(data) && data.length){ populate(data.map(d=>({name:d.name||d.id,url:d.url||d.model_url}))); } else populate(SAMPLE); }).catch(err=>{ console.warn('API failed, fallback',err); populate(SAMPLE); }).finally(()=>{ showLoading(false); const first = avatarListEl.firstChild; if(first) first.click(); }); }
+
+    reloadBtn.addEventListener('click', loadAvatars);
+    document.getElementById('animSelect').addEventListener('change', (e)=>{ playAnimation(parseInt(e.target.value,10)); });
+    document.getElementById('prevAnim').addEventListener('click', ()=>{ playAnimation(currentClipIndex-1); });
+    document.getElementById('nextAnim').addEventListener('click', ()=>{ playAnimation(currentClipIndex+1); });
+    document.getElementById('playPauseBtn').addEventListener('click', togglePlayPause);
+    document.getElementById('speed').addEventListener('input', (e)=>{
+      const v = parseFloat(e.target.value); document.getElementById('speedVal').textContent = v.toFixed(2);
+      if(mixer && isPlaying) mixer.timeScale = v;
+    });
+    document.getElementById('randomBtn').addEventListener('click', ()=>{ if(animations.length) playAnimation(Math.floor(Math.random()*animations.length)); });
+
+    // keyboard shortcuts
+    window.addEventListener('keydown', (e)=>{
+      if(e.code === 'Space'){ e.preventDefault(); togglePlayPause(); }
+      if(e.code === 'ArrowLeft'){ playAnimation(currentClipIndex-1); }
+      if(e.code === 'ArrowRight'){ playAnimation(currentClipIndex+1); }
+    });
+
+    // start
+    init(); loadAvatars();
+  </script>
+</body>
+</html>

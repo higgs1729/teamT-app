@@ -11,8 +11,10 @@ spring.datasource.username=sa
 spring.datasource.password=
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.open-in-view=false
-spring.h2.console.enabled=true
-spring.h2.console.path=/h2-console
+
+# H2 コンソールは dev プロファイル限定（application-dev.properties で有効化）。
+# 本番では無効のままにし、絶対に公開しないこと。
+#   ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 
 # Weather API
 weather.api.key=YOUR_KEY_HERE

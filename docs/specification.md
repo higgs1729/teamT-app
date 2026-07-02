@@ -115,12 +115,23 @@
 - Login URL: `/auth/login`
 - Registration URL: `/auth/register`
 - Logout URL: `/auth/logout`
-- Protected pages: all routes except authentication pages, static assets, and the H2 console require login.
+- Protected pages: all routes except authentication pages and static assets require login.
 - User data is stored in the `users` table through Spring Data JPA.
 - Passwords are stored as BCrypt hashes. Plain text passwords must never be saved.
 - Email addresses are unique and are used as the login identifier.
 - Default role for newly registered users: `USER`.
 - Development DB: H2 in-memory database. A production DB can replace this by changing `application.properties`.
+
+### Security configuration (profile-based)
+
+- `SecurityConfig` は2本のセキュリティチェーンに分離:
+  - `appSecurityFilterChain` (常時有効): 認証ページ・静的アセットのみ許可、他は認証必須。CSRF 有効、フレームは既定の DENY。
+  - `h2ConsoleSecurityFilterChain` (`dev` プロファイル限定): `/h2-console/**` のみ無認証・CSRF無効・同一オリジンフレーム許可。
+- H2 コンソールの有効化 (`spring.h2.console.*`) は `application-dev.properties` に分離。`dev` プロファイル起動時のみ利用可能:
+  `./mvnw spring-boot:run -Dspring-boot.run.profiles=dev`
+- 本番(dev無し)では H2 コンソールの緩和は一切適用されない。**公開環境で H2 コンソールを有効化しないこと。**
+- `application.properties` は APIキー等の秘密情報を含むため Git 追跡対象外（各自 `application.properties.example` からローカル作成）。秘密情報を含まない `application-dev.properties` のみ追跡対象。
+- 起動クラスは `TeamTAppApplication` に一本化（`@SpringBootApplication` の重複を解消）。
 
 ### Authentication folder responsibilities
 

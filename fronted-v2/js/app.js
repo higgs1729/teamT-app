@@ -163,28 +163,71 @@
      アカウント — サーバー認証は無く、表示名を localStorage に保持するだけ
      ============================================================ */
   const ACCOUNT_KEY   = "fronted-v2-account-name";
+  const EMAIL_KEY     = "fronted-v2-account-email";
+  const LOGIN_KEY     = "fronted-v2-logged-in";
   const DEFAULT_NAME  = "ゲスト";
+  // 認証は将来的に外部のSSOサーバーへ切り出す予定。今はこのURLを差し替えるだけで移行できるようにしておく
+  const AUTH_LOGIN_URL = "/auth/login";
+
+  function isLoggedIn() { return localStorage.getItem(LOGIN_KEY) === "1"; }
 
   function setAccountName(name) {
     const n = (name && name.trim()) || DEFAULT_NAME;
     const initial = n.charAt(0).toUpperCase();
-    document.getElementById("account-name").textContent = n;
     document.getElementById("account-avatar").textContent = initial;
     document.getElementById("account-avatar-lg").textContent = initial;
     document.getElementById("account-head-name").textContent = n;
   }
 
+  // サイドバー下部のボタン表示・設定パネルのログイン/ログアウト導線を切り替える
+  function applyLoginState() {
+    const loggedIn = isLoggedIn();
+    const name = localStorage.getItem(ACCOUNT_KEY) || DEFAULT_NAME;
+    document.getElementById("account-name").textContent = loggedIn ? name : DEFAULT_NAME;
+    document.getElementById("login-hint").style.display = loggedIn ? "none" : "flex";
+    document.getElementById("account-login-btn").style.display = loggedIn ? "none" : "flex";
+    document.getElementById("account-logout-btn").style.display = loggedIn ? "flex" : "none";
+    document.getElementById("account-head-sub").textContent = loggedIn
+      ? (localStorage.getItem(EMAIL_KEY) || "")
+      : "ログインするとアカウント機能が使えます";
+  }
+
+  window.goToLogin = function () { window.location.href = AUTH_LOGIN_URL; };
+
+  window.logout = function () {
+    localStorage.removeItem(LOGIN_KEY);
+    localStorage.removeItem(ACCOUNT_KEY);
+    localStorage.removeItem(EMAIL_KEY);
+    setAccountName(DEFAULT_NAME);
+    applyLoginState();
+  };
+
+  // サイドバーのアカウントボタン: ログイン状態に関わらず設定のアカウントパネルを開く
+  // （ログイン画面への遷移は設定内の「ログイン」項目から行う）
+  window.handleAccountClick = function () {
+    openSettings("account");
+  };
+
+  // ログイン画面からの戻り（?login=表示名&email=メールアドレス）を検知し、ログイン済み状態として保存する
+  function consumeLoginCallback() {
+    const params = new URLSearchParams(location.search);
+    const loginName = params.get("login");
+    if (!loginName) return;
+    localStorage.setItem(LOGIN_KEY, "1");
+    localStorage.setItem(ACCOUNT_KEY, loginName);
+    const email = params.get("email");
+    if (email) localStorage.setItem(EMAIL_KEY, email);
+    params.delete("login");
+    params.delete("email");
+    const rest = params.toString();
+    history.replaceState(null, "", location.pathname + (rest ? "?" + rest : "") + location.hash);
+  }
+
   function initAccount() {
+    consumeLoginCallback();
     const saved = localStorage.getItem(ACCOUNT_KEY) || DEFAULT_NAME;
-    const input = document.getElementById("account-name-input");
-    input.value = saved === DEFAULT_NAME ? "" : saved;
     setAccountName(saved);
-    // 入力に応じて即時反映・保存
-    input.addEventListener("input", () => {
-      const v = input.value.trim();
-      setAccountName(v);
-      if (v) localStorage.setItem(ACCOUNT_KEY, v); else localStorage.removeItem(ACCOUNT_KEY);
-    });
+    applyLoginState();
   }
 
   /* ============================================================
@@ -227,10 +270,12 @@
     localStorage.removeItem(THEME_KEY);
     localStorage.removeItem(ACCENT_KEY);
     localStorage.removeItem(ACCOUNT_KEY);
+    localStorage.removeItem(LOGIN_KEY);
+    localStorage.removeItem(EMAIL_KEY);
     applyTheme("light");
     applyAccent("orange");
     setAccountName(DEFAULT_NAME);
-    document.getElementById("account-name-input").value = "";
+    applyLoginState();
   };
 
   /* ============================================================

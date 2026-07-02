@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
@@ -44,7 +45,7 @@ class AuthFlowTest {
                         .param("email", "register@example.com")
                         .param("password", "password123"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrlPattern("**/auth/login"));
+                .andExpect(redirectedUrl("/auth/login"));
 
         var user = userRepository.findByEmail("register@example.com").orElseThrow();
         assertThat(user.getPassword()).isNotEqualTo("password123");
@@ -83,7 +84,7 @@ class AuthFlowTest {
                         .param("email", "login@example.com")
                         .param("password", "password123"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrlPattern("**/"));
+                .andExpect(redirectedUrl("/"));
     }
 
     @Test
@@ -93,6 +94,6 @@ class AuthFlowTest {
                         .param("email", "missing@example.com")
                         .param("password", "wrong-password"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrlPattern("**/auth/login?error"));
+                .andExpect(redirectedUrl("/auth/login?error"));
     }
 }

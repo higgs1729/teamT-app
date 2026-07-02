@@ -1,3 +1,5 @@
+// teamT-app エントリーポイント
+// Spring Boot アプリケーションの起動クラス
 package com.example.app;
 
 import org.springframework.boot.SpringApplication;

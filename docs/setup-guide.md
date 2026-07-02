@@ -70,6 +70,20 @@ cp src/main/resources/application.properties.example src/main/resources/applicat
 
 起動確認 → http://localhost:8080 にアクセス
 
+### H2 コンソールを使う場合（開発時のみ）
+
+H2 コンソールは `dev` プロファイルでのみ有効（無認証で DB を触れるため本番では絶対に有効化しない）。
+
+```bash
+# Windows
+./mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=dev"
+
+# Mac/Linux
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+```
+
+コンソール → http://localhost:8080/h2-console
+
 ---
 
 ## 手順5：フロントエンドの起動

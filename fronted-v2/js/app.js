@@ -166,8 +166,9 @@
   const EMAIL_KEY     = "fronted-v2-account-email";
   const LOGIN_KEY     = "fronted-v2-logged-in";
   const DEFAULT_NAME  = "ゲスト";
+  // fronted-v2(5500)とSpring Boot(8080)は別オリジンのため相対パスでは繋がらない。
   // 認証は将来的に外部のSSOサーバーへ切り出す予定。今はこのURLを差し替えるだけで移行できるようにしておく
-  const AUTH_LOGIN_URL = "/auth/login";
+  const AUTH_LOGIN_URL = "http://localhost:8080/auth/login";
 
   function isLoggedIn() { return localStorage.getItem(LOGIN_KEY) === "1"; }
 

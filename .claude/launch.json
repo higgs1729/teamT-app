@@ -6,6 +6,12 @@
       "runtimeExecutable": "node",
       "runtimeArgs": ["fronted-v2/serve.cjs"],
       "port": 5500
+    },
+    {
+      "name": "springboot",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "C:\\Users\\tomoy\\Desktop\\teamT-app\\mvnw.cmd", "spring-boot:run"],
+      "port": 8080
     }
   ]
 }

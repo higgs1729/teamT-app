@@ -4,6 +4,18 @@
 
 spring.application.name=teamT-app
 
+# Account authentication
+spring.datasource.url=jdbc:h2:mem:teamtapp;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+spring.datasource.driver-class-name=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.open-in-view=false
+
+# H2 コンソールは dev プロファイル限定（application-dev.properties で有効化）。
+# 本番では無効のままにし、絶対に公開しないこと。
+#   ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+
 # Weather API
 weather.api.key=YOUR_KEY_HERE
 

@@ -1,0 +1,52 @@
+    <!DOCTYPE html>
+    <!-- tools -->
+    <html lang="ja">
+    <head>
+    <meta charset="UTF-8">
+    <title>時計</title>
+
+    <style>
+    body{
+    margin:0;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#111;
+    color:#fff;
+    font-family:sans-serif;
+    }
+
+    .clock{
+    font-size:60px;
+    letter-spacing:2px;
+    }
+    </style>
+    </head>
+
+    <body>
+
+    <div class="clock" id="clock"></div>
+
+    <script>
+    function updateClock(){
+    const now = new Date();
+
+    const time = now.toLocaleTimeString("ja-JP", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit"
+    });
+
+    document.getElementById("clock").textContent = time;
+    }
+
+    // 1秒ごと更新
+    setInterval(updateClock, 1000);
+
+    // 初回実行
+    updateClock();
+    </script>
+
+    </body>
+    </html>

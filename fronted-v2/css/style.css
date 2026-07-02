@@ -17,28 +17,36 @@
    ============================================================ */
 
 /* ============================================================
-   1. THEME VARIABLES（既定 = カプチーノ）
+   1. THEME VARIABLES
+      - テーマ(data-theme): 背景・文字色。ライト(既定)/ダークの2種。
+      - アクセント(data-accent): アクセント色のみ。オレンジ(既定)/青。
+      両者は別の変数群なので、アクセントを変えても背景色は変わらない。
    ============================================================ */
-:root, [data-theme="cappuccino"] {
-  --bg-base:#f4f4f4; --bg-win:#f4f4f4; --bg-side:#e4e4e4; --bg-card:#ffffff; --bg-header:#ffffff;
+
+/* --- テーマ: 背景・文字（ライト = 旧カプチーノの配色） --- */
+/* ヘッダーはサイドバーと同色(--bg-side)にして、白すぎず落ち着いた見た目に
+   （ダークと同様、ヘッダーとサイドバーの色差を出さない） */
+:root, [data-theme="light"] {
+  --bg-base:#f4f4f4; --bg-win:#f4f4f4; --bg-side:#e4e4e4; --bg-card:#ffffff; --bg-header:#e4e4e4;
   --border-color:#dcdcdc; --border-subtle:rgba(0,0,0,0.07);
   --text-primary:#2a2a2a; --text-secondary:#6f6f6f; --text-muted:#757575; --text-hint:#b3b3b3;
-  --accent:#c96a39; --accent-mid:#ffb290; --accent-soft:#ffe4d6; --sub:#3d8a96;
-  --glow:rgba(201,106,57,0.16); --shadow:0 10px 30px rgba(0,0,0,0.10); --shadow-pop:0 10px 26px rgba(0,0,0,0.16);
+  --shadow:0 10px 30px rgba(0,0,0,0.10); --shadow-pop:0 10px 26px rgba(0,0,0,0.16);
 }
-[data-theme="light"] {
-  --bg-base:#eef0f5; --bg-win:#ffffff; --bg-side:#e6e9f0; --bg-card:#ffffff; --bg-header:#ffffff;
-  --border-color:#e5e7eb; --border-subtle:rgba(0,0,0,0.06);
-  --text-primary:#111827; --text-secondary:#5b6573; --text-muted:#6b7280; --text-hint:#cbd2da;
-  --accent:#7c3aed; --accent-mid:#a78bfa; --accent-soft:rgba(124,58,237,0.12); --sub:#0e7490;
-  --glow:rgba(124,58,237,0.12); --shadow:0 10px 30px rgba(0,0,0,0.10); --shadow-pop:0 10px 26px rgba(0,0,0,0.14);
-}
+/* ダーク: 以前より明るめのソフトダーク（背景が濃すぎない） */
 [data-theme="dark"] {
-  --bg-base:#0f0e17; --bg-win:#1a1825; --bg-side:#161422; --bg-card:#221f30; --bg-header:#1a1825;
-  --border-color:rgba(255,255,255,0.10); --border-subtle:rgba(255,255,255,0.06);
-  --text-primary:#f0eeff; --text-secondary:#a89ec9; --text-muted:#8b80a8; --text-hint:#3d3555;
-  --accent:#7c3aed; --accent-mid:#a78bfa; --accent-soft:rgba(124,58,237,0.18); --sub:#22d3ee;
-  --glow:rgba(124,58,237,0.15); --shadow:0 12px 34px rgba(0,0,0,0.5); --shadow-pop:0 12px 30px rgba(0,0,0,0.55);
+  --bg-base:#23232e; --bg-win:#2a2a37; --bg-side:#2a2a37; --bg-card:#31313f; --bg-header:#2a2a37;
+  --border-color:rgba(255,255,255,0.12); --border-subtle:rgba(255,255,255,0.07);
+  --text-primary:#f0eff5; --text-secondary:#b6b3c4; --text-muted:#928fa2; --text-hint:#55536a;
+  --shadow:0 12px 34px rgba(0,0,0,0.40); --shadow-pop:0 12px 30px rgba(0,0,0,0.45);
+}
+
+/* --- アクセント: アクセント色のみ（背景トークンは含めない） --- */
+/* accent-soft は半透明にして、ライト/ダークどちらの背景でも自然に馴染ませる */
+:root, [data-accent="orange"] {
+  --accent:#c96a39; --accent-mid:#ffb290; --accent-soft:rgba(201,106,57,0.15); --glow:rgba(201,106,57,0.16);
+}
+[data-accent="blue"] {
+  --accent:#2f6ef0; --accent-mid:#8bb6fb; --accent-soft:rgba(47,110,240,0.15); --glow:rgba(47,110,240,0.16);
 }
 
 /* ============================================================
@@ -124,57 +132,63 @@ a { color: inherit; }
 [data-theme="dark"] .nav-item.active { color: var(--accent-mid); }
 .nav-empty { padding: 16px 14px; font-size: 12.5px; color: var(--text-muted); }
 
-.sidebar-foot { padding-top: 12px; border-top: 1px solid var(--border-subtle); margin-top: 4px; }
-
-/* 共通ボタン（テーマ切替トリガ等） */
-.theme-trigger {
-  display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%;
-  background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px;
-  color: var(--text-secondary); cursor: pointer; font-size: 12.5px; padding: 9px 12px; font-family: inherit;
+/* サイドバー下部: アカウント / 設定ボタン */
+.sidebar-foot { padding-top: 8px; margin-top: 4px; border-top: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 2px; }
+.account-btn, .settings-btn-side {
+  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+  padding: 9px 10px; border-radius: 10px; border: 1px solid transparent;
+  background: transparent; color: var(--text-secondary); cursor: pointer;
+  font-family: inherit; font-size: 13px; transition: background 0.15s, color 0.15s;
 }
-.theme-trigger:hover { color: var(--text-primary); }
+.account-btn:hover, .settings-btn-side:hover { background: var(--bg-card); color: var(--text-primary); }
+.settings-btn-side i { font-size: 18px; width: 20px; text-align: center; flex-shrink: 0; }
+.account-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; color: var(--text-primary); font-weight: 600; }
+.account-chevron { margin-left: auto; font-size: 16px; flex-shrink: 0; color: var(--text-muted); }
+/* 未ログイン時にアカウントボタンの上へ出す赤字の案内 */
+.login-hint {
+  display: flex; align-items: center; gap: 6px;
+  margin: 0 0 4px; padding: 6px 10px;
+  font-size: 11.5px; font-weight: 600; line-height: 1.3;
+  color: #d64545; background: rgba(214, 69, 69, 0.08); border-radius: 8px;
+}
+.login-hint i { font-size: 14px; flex-shrink: 0; }
+[data-theme="dark"] .login-hint { color: #ff8686; background: rgba(255, 134, 134, 0.12); }
+/* 設定パネル内のログイン/ログアウト導線 */
+.account-actions { margin: 12px 0; }
+.account-actions .settings-btn-side { border: 1px solid var(--border-subtle); }
+/* アカウントのアバター（頭文字を表示する円） */
+.avatar {
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--accent); color: #fff; font-size: 12px; font-weight: 700;
+}
+[data-theme="dark"] .avatar { color: var(--bg-base); }
+.avatar-lg { width: 52px; height: 52px; font-size: 22px; }
 
 /* ============================================================
-   5. HEADER
+   5. HEADER — 最小限のツールバー（高さは従来の約半分）
    ============================================================ */
 .app-header {
   background: var(--bg-header); border-bottom: 1px solid var(--border-subtle);
-  padding: 13px 22px; display: flex; align-items: center; justify-content: space-between;
-  position: relative; flex-shrink: 0; gap: 16px;
+  padding: 5px 14px; display: flex; align-items: center; justify-content: space-between;
+  position: relative; flex-shrink: 0; gap: 12px;
 }
 .app-header::before {
   content: ''; position: absolute; inset: 0;
-  background: radial-gradient(ellipse at 85% 130%, var(--glow) 0%, transparent 70%); pointer-events: none;
+  background: radial-gradient(ellipse at 90% 160%, var(--glow) 0%, transparent 70%); pointer-events: none;
 }
-.header-left { display: flex; align-items: center; gap: 12px; min-width: 0; position: relative; }
-/* narrow 幅で出すサイドバー開閉ボタン（既定は非表示） */
-.menu-toggle {
-  display: none; align-items: center; justify-content: center; width: 38px; height: 38px;
-  border-radius: 10px; background: var(--bg-card); border: 1px solid var(--border-color);
-  color: var(--text-secondary); cursor: pointer; font-size: 19px; flex-shrink: 0;
-}
-.header-titles { min-width: 0; }
-.page-title { font-size: 17px; font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.page-sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.header-actions { display: flex; align-items: center; gap: 8px; position: relative; flex-shrink: 0; }
+.header-actions { display: flex; align-items: center; gap: 8px; position: relative; }
 
-.live-chip {
-  display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600;
-  color: var(--accent); background: var(--accent-soft); padding: 4px 10px; border-radius: 999px;
+/* ヘッダーのアイコンボタン（サイドバー切替 / 表示設定） */
+.icon-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+  background: transparent; border: 1px solid transparent; color: var(--text-secondary);
+  cursor: pointer; font-size: 20px; position: relative;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
 }
-[data-theme="dark"] .live-chip { color: var(--accent-mid); }
-.pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: pulse 1.4s infinite; }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
-
-/* ヘッダー操作リンク（新しいタブで開く / 公式サイト） */
-.action-link {
-  display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
-  background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px;
-  color: var(--text-secondary); font-size: 12.5px; padding: 7px 12px; transition: color 0.15s, border-color 0.15s;
-}
-.action-link:hover { color: var(--accent); border-color: var(--accent); }
-.action-link i { font-size: 16px; }
-.action-link.disabled { opacity: 0.4; pointer-events: none; }
+.icon-btn:hover { color: var(--accent); background: var(--bg-card); border-color: var(--border-color); }
+[data-theme="dark"] .icon-btn:hover { color: var(--accent-mid); }
 
 /* ============================================================
    6. VIEWER — iframe プレビュー + ウェルカム空状態
@@ -202,32 +216,105 @@ a { color: inherit; }
 [data-theme="dark"] .welcome .count { color: var(--accent-mid); }
 
 /* ============================================================
-   7. THEME DROPDOWN（表示テーマ選択）
+   7. 設定モーダル（左ナビ + 右コンテンツ）
    ============================================================ */
-#theme-dropdown-float {
-  display: none; position: absolute; z-index: 1000; background: var(--bg-card);
-  border: 1px solid var(--border-color); border-radius: 12px; padding: 8px; min-width: 200px; box-shadow: var(--shadow-pop);
+.settings-overlay {
+  display: none; position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,0.45); align-items: center; justify-content: center; padding: 24px;
 }
-.dd-head { font-size: 10.5px; color: var(--text-muted); padding: 4px 10px 6px; letter-spacing: 0.05em; }
-.theme-item {
-  display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px;
-  cursor: pointer; font-size: 13px; color: var(--text-secondary);
+.settings-overlay.open { display: flex; }
+.settings-modal {
+  position: relative; display: flex; width: 720px; max-width: 100%; height: 540px; max-height: 88vh;
+  background: var(--bg-win); border: 1px solid var(--border-color); border-radius: 16px;
+  overflow: hidden; box-shadow: var(--shadow-pop);
 }
-.theme-item:hover, .theme-item.active { background: var(--bg-base); color: var(--text-primary); }
-.theme-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; border: 1px solid rgba(125,125,125,0.3); }
+.settings-close {
+  position: absolute; top: 12px; right: 12px; z-index: 2;
+  display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px;
+  border-radius: 8px; background: transparent; border: none; color: var(--text-muted);
+  cursor: pointer; font-size: 20px;
+}
+.settings-close:hover { color: var(--text-primary); background: var(--bg-card); }
+
+/* 左ナビ */
+.settings-nav {
+  width: 200px; flex-shrink: 0; background: var(--bg-side);
+  border-right: 1px solid var(--border-subtle); padding: 16px 12px; overflow-y: auto;
+}
+.settings-search { position: relative; margin-bottom: 12px; }
+.settings-search i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 16px; pointer-events: none; }
+.settings-search input {
+  width: 100%; background: var(--bg-win); border: 1px solid var(--border-color); border-radius: 9px;
+  padding: 8px 10px 8px 32px; color: var(--text-primary); font-family: inherit; font-size: 13px; outline: none;
+}
+.settings-search input:focus { border-color: var(--accent); }
+.settings-nav-label { font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; color: var(--text-muted); text-transform: uppercase; padding: 6px 10px; }
+.settings-nav-item {
+  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+  padding: 9px 10px; border-radius: 9px; border: 1px solid transparent;
+  background: transparent; color: var(--text-secondary); cursor: pointer;
+  font-family: inherit; font-size: 13.5px; transition: background 0.15s, color 0.15s;
+}
+.settings-nav-item i { font-size: 18px; width: 20px; text-align: center; flex-shrink: 0; }
+.settings-nav-item:hover { background: var(--bg-card); color: var(--text-primary); }
+.settings-nav-item.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+[data-theme="dark"] .settings-nav-item.active { color: var(--accent-mid); }
+.settings-nav-empty { padding: 12px 10px; font-size: 12.5px; color: var(--text-muted); }
+
+/* 右コンテンツ */
+.settings-content { flex: 1; min-width: 0; overflow-y: auto; padding: 28px 30px; background: var(--bg-win); }
+.settings-panel { display: none; }
+.settings-panel.active { display: block; }
+.settings-title { font-size: 18px; font-weight: 700; color: var(--text-primary); margin-bottom: 20px; }
+.settings-note { font-size: 12px; color: var(--text-muted); line-height: 1.7; margin-top: 12px; }
+.settings-value { font-size: 13px; color: var(--text-secondary); }
+/* アカウント見出し（大アバター + 名前） */
+.account-head { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+.account-head-name { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+.account-head-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* 設定行: ラベル左・選択肢右（外観パネル等で使用） */
+.setting-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 2px;
+}
+.setting-row + .setting-row { border-top: 1px solid var(--border-subtle); } /* 薄い区切り線 */
+/* ラベル: 濃い太字で視認性を確保 */
+.setting-label { font-size: 13.5px; font-weight: 700; color: var(--text-primary); white-space: nowrap; }
+.setting-options { display: flex; gap: 6px; }
+/* 選択肢チップ（横並び） */
+.opt-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: 9px; cursor: pointer;
+  font-family: inherit; font-size: 12.5px; font-weight: 500;
+  color: var(--text-secondary); background: var(--bg-base); border: 1px solid var(--border-color);
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+}
+.opt-chip:hover { color: var(--text-primary); border-color: var(--text-muted); }
+.opt-chip.active { color: var(--accent); background: var(--accent-soft); border-color: var(--accent); font-weight: 700; }
+[data-theme="dark"] .opt-chip.active { color: var(--accent-mid); border-color: var(--accent-mid); }
+/* アクセント識別用の色ドット（色はインライン style で指定） */
+.opt-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; border: 1px solid rgba(125,125,125,0.35); }
 
 /* ============================================================
-   8. RESPONSIVE — narrow 幅でサイドバーをドロワー化
+   8. サイドバー表示切替 / レスポンシブ
+      ヘッダーの切替ボタンで .app-window に .sidebar-collapsed を付与する。
    ============================================================ */
+/* デスクトップ: 折りたたみ時はサイドバーを隠してメインを全幅に */
+.app-window.sidebar-collapsed .sidebar { display: none; }
+
 .sidebar-scrim {
   display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 80;
 }
+
+/* narrow 幅: サイドバーをオーバーレイのドロワーにする */
 @media (max-width: 760px) {
-  .menu-toggle { display: inline-flex; }
   .sidebar {
     position: fixed; top: 0; left: 0; height: 100%; z-index: 90;
-    transform: translateX(-100%); transition: transform 0.22s ease; box-shadow: var(--shadow-pop);
+    transition: transform 0.22s ease; box-shadow: var(--shadow-pop);
   }
-  .sidebar.open { transform: translateX(0); }
-  .sidebar-scrim.open { display: block; }
+  /* 開いている（collapsed でない）: スライドイン + スクリム表示 */
+  .app-window:not(.sidebar-collapsed) .sidebar { transform: translateX(0); }
+  .app-window:not(.sidebar-collapsed) .sidebar-scrim { display: block; }
+  /* 閉じている: display:none ではなく画面外へスライド */
+  .app-window.sidebar-collapsed .sidebar { display: flex; transform: translateX(-100%); }
 }

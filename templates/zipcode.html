@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>郵便番号検索</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:"Yu Gothic",sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#0f172a,#1e3a8a,#0ea5e9);
+}
+
+.container{
+
+    width:420px;
+    padding:35px;
+
+    background:rgba(255,255,255,.1);
+
+    backdrop-filter:blur(18px);
+
+    border-radius:20px;
+
+    box-shadow:0 15px 35px rgba(0,0,0,.35);
+
+    color:white;
+
+}
+
+h1{
+
+    text-align:center;
+
+    font-size:32px;
+
+    margin-bottom:25px;
+
+}
+
+.search{
+
+    display:flex;
+
+    gap:10px;
+
+}
+
+input{
+
+    flex:1;
+
+    padding:14px;
+
+    font-size:17px;
+
+    border:none;
+
+    border-radius:10px;
+
+    outline:none;
+
+}
+
+input:focus{
+
+    box-shadow:0 0 10px #38bdf8;
+
+}
+
+button{
+
+    padding:14px 22px;
+
+    background:linear-gradient(135deg,#38bdf8,#2563eb);
+
+    color:white;
+
+    border:none;
+
+    border-radius:10px;
+
+    font-size:16px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+}
+
+button:hover{
+
+    transform:translateY(-2px);
+
+    box-shadow:0 8px 18px rgba(56,189,248,.5);
+
+}
+
+.hint{
+
+    margin-top:12px;
+
+    color:#dbeafe;
+
+    font-size:13px;
+
+}
+
+#result{
+
+    margin-top:25px;
+
+}
+
+.result-card{
+
+    background:white;
+
+    color:#1e293b;
+
+    border-radius:15px;
+
+    padding:18px;
+
+    margin-bottom:15px;
+
+    animation:fade .4s;
+
+    box-shadow:0 8px 20px rgba(0,0,0,.15);
+
+}
+
+.zip{
+
+    color:#2563eb;
+
+    font-size:20px;
+
+    font-weight:bold;
+
+    margin-bottom:8px;
+
+}
+
+.address{
+
+    font-size:17px;
+
+    line-height:1.7;
+
+}
+
+.message{
+
+    text-align:center;
+
+    color:#fee2e2;
+
+    font-weight:bold;
+
+}
+
+@keyframes fade{
+
+from{
+
+opacity:0;
+
+transform:translateY(15px);
+
+}
+
+to{
+
+opacity:1;
+
+transform:translateY(0);
+
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>📮 郵便番号検索</h1>
+
+<div class="search">
+
+<input
+id="zip-input"
+type="text"
+placeholder="例：1000001"
+maxlength="8"
+inputmode="numeric">
+
+<button onclick="searchZip()">
+
+検索
+
+</button>
+
+</div>
+
+<p class="hint">
+
+ハイフンあり・なしどちらでも検索できます
+
+</p>
+
+<div id="result"></div>
+
+</div>
+
+<script>
+
+const API_URL="https://zipcloud.ibsnet.co.jp/api/search";
+
+const input=document.getElementById("zip-input");
+
+const result=document.getElementById("result");
+
+async function searchZip(){
+
+const zipcode=input.value.replace(/[^0-9]/g,"");
+
+if(zipcode.length!==7){
+
+result.innerHTML=
+'<p class="message">7桁の郵便番号を入力してください</p>';
+
+return;
+
+}
+
+result.innerHTML=
+'<p class="message">検索中...</p>';
+
+try{
+
+const response=
+await fetch(`${API_URL}?zipcode=${zipcode}`);
+
+const data=
+await response.json();
+
+if(data.status!==200||data.message){
+
+result.innerHTML=
+`<p class="message">${data.message}</p>`;
+
+return;
+
+}
+
+if(!data.results){
+
+result.innerHTML=
+'<p class="message">住所が見つかりませんでした</p>';
+
+return;
+
+}
+
+result.innerHTML=data.results.map(r=>`
+
+<div class="result-card">
+
+<div class="zip">
+
+〒${r.zipcode.slice(0,3)}-${r.zipcode.slice(3)}
+
+</div>
+
+<div class="address">
+
+🏠 ${r.address1}${r.address2}${r.address3}
+
+</div>
+
+</div>
+
+`).join("");
+
+}catch(error){
+
+result.innerHTML=
+`<p class="message">${error.message}</p>`;
+
+}
+
+}
+
+input.addEventListener("keydown",function(e){
+
+if(e.key==="Enter"){
+
+searchZip();
+
+}
+
+});
+
+</script>
+
+</body>
+</html>

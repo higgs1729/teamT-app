@@ -19,14 +19,12 @@
   const searchInput = document.getElementById("search");
   const preview     = document.getElementById("preview");
   const welcome     = document.getElementById("welcome");
-  const pageTitle   = document.getElementById("page-title");
-  const pageSub     = document.getElementById("page-sub");
-  const liveChip    = document.getElementById("live-chip");
-  const sidebar     = document.getElementById("sidebar");
-  const sidebarScrim= document.getElementById("sidebar-scrim");
+  const appWindow   = document.querySelector(".app-window");
+  const mobileMQ    = window.matchMedia("(max-width: 760px)");
 
   const TEMPLATE_DIR = "../templates/";        // iframe が読む相対パス
-  const THEME_KEY    = "fronted-v2-theme";     // localStorage キー
+  const THEME_KEY    = "fronted-v2-theme";     // localStorage キー（テーマ）
+  const ACCENT_KEY   = "fronted-v2-accent";    // localStorage キー（アクセント色）
   let   currentId    = null;                   // 現在選択中テンプレートの id
   const openCats     = new Set();              // 開いているカテゴリ名（既定は全て閉じる）
 
@@ -120,69 +118,179 @@
     preview.classList.remove("hidden");
     welcome.classList.add("hidden");
 
-    // ヘッダー更新
-    pageTitle.textContent = t.title;
-    pageSub.textContent   = t.description + "（" + t.apiName + "）";
-    liveChip.style.display = "inline-flex";
-
     // 選択項目を含むカテゴリを開いてからハイライトを付け替え
     expandCategoryOf(id);
     navList.querySelectorAll(".nav-item").forEach(el =>
       el.classList.toggle("active", el.dataset.id === id));
 
     if (updateHash) location.hash = id;
-    // narrow 幅ではドロワーを閉じる
-    toggleSidebar(false);
+    // narrow 幅のときだけ、選択後にドロワーを閉じる（デスクトップは開いたまま）
+    if (mobileMQ.matches) setSidebarCollapsed(true);
   }
 
   /* ============================================================
-     テーマ — data-theme 切替 + localStorage 保存。
-     setTheme / toggleThemeMenu はインライン onclick から呼ぶため
-     window に公開する。
+     表示設定 — テーマ(背景) と アクセント色 を独立して切替。
+       - テーマ(data-theme): light / dark … 背景・文字
+       - アクセント(data-accent): orange / blue … アクセント色のみ
+     どちらも localStorage に保存。setTheme / setAccent / toggleThemeMenu
+     はインライン onclick から呼ぶため window に公開する。
      ============================================================ */
-  function applyTheme(name, label) {
+  function applyTheme(name) {
     document.documentElement.setAttribute("data-theme", name);
-    const lbl = document.getElementById("theme-label");
-    if (lbl) lbl.textContent = "表示テーマ: " + label;
-    document.querySelectorAll("#theme-dropdown-float .theme-item").forEach(i =>
+    document.querySelectorAll("[data-theme-name]").forEach(i =>
       i.classList.toggle("active", i.dataset.themeName === name));
   }
 
-  window.setTheme = function (name, label) {
-    applyTheme(name, label);
-    localStorage.setItem(THEME_KEY, name);
-    document.getElementById("theme-dropdown-float").style.display = "none";
-  };
+  function applyAccent(name) {
+    document.documentElement.setAttribute("data-accent", name);
+    document.querySelectorAll("[data-accent-name]").forEach(i =>
+      i.classList.toggle("active", i.dataset.accentName === name));
+  }
 
-  // テーマメニューをトリガ直上にポップアップ表示
-  window.toggleThemeMenu = function (event) {
-    event.stopPropagation();
-    const dd = document.getElementById("theme-dropdown-float");
-    if (dd.style.display === "block") { dd.style.display = "none"; return; }
-    const rect = event.currentTarget.getBoundingClientRect();
-    dd.style.display = "block";
-    requestAnimationFrame(() => {
-      dd.style.left = (rect.left + window.scrollX) + "px";
-      dd.style.top  = (rect.top + window.scrollY - dd.offsetHeight - 6) + "px";
-    });
-  };
+  // 選択してもモーダルは閉じない（テーマとアクセントを続けて選べる）
+  window.setTheme  = function (name) { applyTheme(name);  localStorage.setItem(THEME_KEY, name); };
+  window.setAccent = function (name) { applyAccent(name); localStorage.setItem(ACCENT_KEY, name); };
 
-  // 起動時：保存済みテーマを復元（ラベルは theme-item の文言から引く）
+  // 起動時：保存済みのテーマ・アクセントを復元
   function initTheme() {
-    const saved = localStorage.getItem(THEME_KEY);
-    if (!saved) return;
-    const el = document.querySelector(`#theme-dropdown-float .theme-item[data-theme-name="${saved}"]`);
-    const label = el ? el.textContent.trim().replace("（既定）", "") : saved;
-    applyTheme(saved, label);
+    const savedTheme = localStorage.getItem(THEME_KEY);
+    if (savedTheme) applyTheme(savedTheme);
+    const savedAccent = localStorage.getItem(ACCENT_KEY);
+    if (savedAccent) applyAccent(savedAccent);
   }
 
   /* ============================================================
-     サイドバー開閉（narrow 幅のドロワー） — onclick から呼ぶため公開
+     アカウント — サーバー認証は無く、表示名を localStorage に保持するだけ
      ============================================================ */
-  window.toggleSidebar = function (open) {
-    sidebar.classList.toggle("open", open);
-    sidebarScrim.classList.toggle("open", open);
+  const ACCOUNT_KEY   = "fronted-v2-account-name";
+  const EMAIL_KEY     = "fronted-v2-account-email";
+  const LOGIN_KEY     = "fronted-v2-logged-in";
+  const DEFAULT_NAME  = "ゲスト";
+  // 認証は将来的に外部のSSOサーバーへ切り出す予定。今はこのURLを差し替えるだけで移行できるようにしておく
+  const AUTH_LOGIN_URL = "/auth/login";
+
+  function isLoggedIn() { return localStorage.getItem(LOGIN_KEY) === "1"; }
+
+  function setAccountName(name) {
+    const n = (name && name.trim()) || DEFAULT_NAME;
+    const initial = n.charAt(0).toUpperCase();
+    document.getElementById("account-avatar").textContent = initial;
+    document.getElementById("account-avatar-lg").textContent = initial;
+    document.getElementById("account-head-name").textContent = n;
+  }
+
+  // サイドバー下部のボタン表示・設定パネルのログイン/ログアウト導線を切り替える
+  function applyLoginState() {
+    const loggedIn = isLoggedIn();
+    const name = localStorage.getItem(ACCOUNT_KEY) || DEFAULT_NAME;
+    document.getElementById("account-name").textContent = loggedIn ? name : DEFAULT_NAME;
+    document.getElementById("login-hint").style.display = loggedIn ? "none" : "flex";
+    document.getElementById("account-login-btn").style.display = loggedIn ? "none" : "flex";
+    document.getElementById("account-logout-btn").style.display = loggedIn ? "flex" : "none";
+    document.getElementById("account-head-sub").textContent = loggedIn
+      ? (localStorage.getItem(EMAIL_KEY) || "")
+      : "ログインするとアカウント機能が使えます";
+  }
+
+  window.goToLogin = function () { window.location.href = AUTH_LOGIN_URL; };
+
+  window.logout = function () {
+    localStorage.removeItem(LOGIN_KEY);
+    localStorage.removeItem(ACCOUNT_KEY);
+    localStorage.removeItem(EMAIL_KEY);
+    setAccountName(DEFAULT_NAME);
+    applyLoginState();
   };
+
+  // サイドバーのアカウントボタン: ログイン状態に関わらず設定のアカウントパネルを開く
+  // （ログイン画面への遷移は設定内の「ログイン」項目から行う）
+  window.handleAccountClick = function () {
+    openSettings("account");
+  };
+
+  // ログイン画面からの戻り（?login=表示名&email=メールアドレス）を検知し、ログイン済み状態として保存する
+  function consumeLoginCallback() {
+    const params = new URLSearchParams(location.search);
+    const loginName = params.get("login");
+    if (!loginName) return;
+    localStorage.setItem(LOGIN_KEY, "1");
+    localStorage.setItem(ACCOUNT_KEY, loginName);
+    const email = params.get("email");
+    if (email) localStorage.setItem(EMAIL_KEY, email);
+    params.delete("login");
+    params.delete("email");
+    const rest = params.toString();
+    history.replaceState(null, "", location.pathname + (rest ? "?" + rest : "") + location.hash);
+  }
+
+  function initAccount() {
+    consumeLoginCallback();
+    const saved = localStorage.getItem(ACCOUNT_KEY) || DEFAULT_NAME;
+    setAccountName(saved);
+    applyLoginState();
+  }
+
+  /* ============================================================
+     設定モーダル — 開閉・パネル切替・ナビ検索・リセット
+     ============================================================ */
+  function switchPanel(panel) {
+    document.querySelectorAll(".settings-nav-item").forEach(i =>
+      i.classList.toggle("active", i.dataset.panel === panel));
+    document.querySelectorAll(".settings-panel").forEach(p =>
+      p.classList.toggle("active", p.dataset.panel === panel));
+  }
+  window.switchSettingsPanel = switchPanel;
+
+  window.openSettings = function (panel) {
+    if (panel) switchPanel(panel);
+    document.getElementById("settings-overlay").classList.add("open");
+  };
+  window.closeSettings = function () {
+    document.getElementById("settings-overlay").classList.remove("open");
+  };
+
+  // ナビ検索: ラベル部分一致で項目を絞り込み
+  function initSettingsSearch() {
+    const input = document.getElementById("settings-search-input");
+    const empty = document.getElementById("settings-nav-empty");
+    input.addEventListener("input", () => {
+      const kw = input.value.trim().toLowerCase();
+      let shown = 0;
+      document.querySelectorAll(".settings-nav-item").forEach(item => {
+        const hit = item.textContent.toLowerCase().includes(kw);
+        item.style.display = hit ? "" : "none";
+        if (hit) shown++;
+      });
+      empty.style.display = shown === 0 ? "block" : "none";
+    });
+  }
+
+  // 保存内容（テーマ/アクセント/表示名）を消して既定に戻す
+  window.resetSettings = function () {
+    localStorage.removeItem(THEME_KEY);
+    localStorage.removeItem(ACCENT_KEY);
+    localStorage.removeItem(ACCOUNT_KEY);
+    localStorage.removeItem(LOGIN_KEY);
+    localStorage.removeItem(EMAIL_KEY);
+    applyTheme("light");
+    applyAccent("orange");
+    setAccountName(DEFAULT_NAME);
+    applyLoginState();
+  };
+
+  /* ============================================================
+     サイドバー表示切替 — .app-window に .sidebar-collapsed を付与。
+       デスクトップ: サイドバーを隠す/表示（メインが全幅に）
+       narrow 幅  : オーバーレイのドロワーを開閉
+     ============================================================ */
+  function setSidebarCollapsed(collapsed) {
+    appWindow.classList.toggle("sidebar-collapsed", collapsed);
+  }
+  // ヘッダーのボタン・スクリムから呼ぶため公開（引数なしでトグル）
+  window.toggleSidebar = function () {
+    appWindow.classList.toggle("sidebar-collapsed");
+  };
+  window.closeSidebar = function () { setSidebarCollapsed(true); };
 
   /* ============================================================
      初期化
@@ -193,14 +301,21 @@
     if (countEl) countEl.textContent = CATALOG.length;
 
     initTheme();
+    initAccount();
+    initSettingsSearch();
+    const apiCount = document.getElementById("settings-api-count");
+    if (apiCount) apiCount.textContent = CATALOG.length;
     renderList("");
+
+    // narrow 幅では初期状態でサイドバー（ドロワー）を閉じておく
+    if (mobileMQ.matches) setSidebarCollapsed(true);
 
     // 検索入力で再描画
     searchInput.addEventListener("input", e => renderList(e.target.value));
 
-    // メニュー外クリックでテーマDDを閉じる
-    document.addEventListener("click", () => {
-      document.getElementById("theme-dropdown-float").style.display = "none";
+    // Esc キーで設定モーダルを閉じる
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeSettings();
     });
 
     // URLハッシュに id があれば復元、なければウェルカムのまま

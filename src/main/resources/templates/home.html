@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ホーム - teamT-app</title>
+</head>
+<body>
+<main>
+    <h1>teamT-app</h1>
+    <p>ログイン中: <span sec:authentication="name"></span></p>
+    <form th:action="@{/auth/logout}" method="post">
+        <button type="submit">ログアウト</button>
+    </form>
+</main>
+</body>
+</html>

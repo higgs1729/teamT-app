@@ -6,6 +6,10 @@
 
 > 決定後に記入してください（`docs/specification.md` を参照）
 
+## コマンドについて
+/<コマンド名> のプロンプトがあった場合以下のファイルを参照して処理を実行
+(.claude/skills/<コマンド名>)
+
 ## 仕様書
 
 詳細な仕様は [`docs/specification.md`](docs/specification.md) を参照してください。

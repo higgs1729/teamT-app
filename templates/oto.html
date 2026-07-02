@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avatar Studio (TTS Enabled)</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #fff;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        .ui-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        h1 {
+            margin: 0 0 10px 0;
+            font-size: 24px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .panel {
+            background: rgba(0, 0, 0, 0.85);
+            padding: 15px;
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+            border: 1px solid #333;
+            width: 250px;
+            pointer-events: auto;
+            margin-bottom: 15px;
+        }
+
+        .audio-btn {
+            width: 100%;
+            padding: 12px;
+            background: #ff007f;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-bottom: 10px;
+        }
+
+        .audio-btn:hover {
+            background: #e60072;
+        }
+
+        .audio-btn.playing {
+            background: #444;
+        }
+
+        .volume-ctrl {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #ccc;
+        }
+
+        .volume-ctrl input {
+            flex: 1;
+            margin-left: 10px;
+        }
+
+        .avatar-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 40vh;
+            overflow-y: auto;
+        }
+
+        .avatar-item {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #2a2a2a;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .avatar-item:hover {
+            background: #3a3a3a;
+        }
+
+        .avatar-item.active {
+            border-left: 4px solid #ff007f;
+            background: #333;
+            font-weight: bold;
+        }
+
+        .avatar-thumb {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            background: #555;
+            object-fit: cover;
+        }
+
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            font-size: 18px;
+            background: rgba(0,0,0,0.8);
+            padding: 15px 30px;
+            border-radius: 20px;
+            display: none;
+        }
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+
+    <div id="canvas-container"></div>
+    <div id="loading">Loading...</div>
+
+    <div class="ui-container">
+        <h1>Dance Studio AI</h1>
+        
+        <div class="panel">
+            <button id="play-btn" class="audio-btn">🎶 ダンス＆音楽 スタート</button>
+            <div class="volume-ctrl">
+                <span>VOLUME</span>
+                <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.5">
+            </div>
+        </div>
+
+        <div class="panel">
+            <h3>Select Avatar</h3>
+            <ul id="avatar-list" class="avatar-list">
+                <li class="avatar-item active" onclick="selectAvatar('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/models/gltf/RobotExpressive/RobotExpressive.glb', this)" data-speech="ハロー！私はロボットダンサーです。一緒に踊りましょう！">
+                    <img class="avatar-thumb" src="https://via.placeholder.com/40/ff007f/fff?text=R" alt="Robot">
+                    <span>Robot Dancer</span>
+                </li>
+                <li class="avatar-item" onclick="selectAvatar('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/models/gltf/Soldier.glb', this)" data-speech="ソルジャーダンサー、参上。私のキレのあるステップを見てくれ！">
+                    <img class="avatar-thumb" src="https://via.placeholder.com/40/00ffff/000?text=S" alt="Soldier">
+                    <span>Soldier Dancer</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const BGM_URL = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'; 
+        const DANCE_MOTION_URL = 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/models/gltf/RobotExpressive/RobotExpressive.glb'; 
+
+        let scene, camera, renderer, controls;
+        let currentModel, mixer, clock;
+        let danceAnimation;
+        
+        // BGMの初期化
+        const bgm = new Audio(BGM_URL);
+        bgm.loop = true;
+        bgm.volume = 0.5;
+
+        let isPlaying = false;
+
+        // --- 初期化 ---
+        initThree();
+        initDanceMotion();
+        setupAudioUI();
+        
+        // 最初の起動時（最初は自動音声なし、クリックをトリガーにするため）
+        loadAvatar('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/models/gltf/RobotExpressive/RobotExpressive.glb');
+
+        function initThree() {
+            const container = document.getElementById('canvas-container');
+            clock = new THREE.Clock();
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x111116);
+
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera.position.set(0, 2, 5);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer.domElement);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.target.set(0, 1, 0);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xff007f, 0.8);
+            dirLight.position.set(5, 10, 7);
+            scene.add(dirLight);
+
+            const grid = new THREE.GridHelper(20, 20, 0xff007f, 0x444444);
+            scene.add(grid);
+
+            animate();
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function initDanceMotion() {
+            const loader = new THREE.GLTFLoader();
+            loader.load(DANCE_MOTION_URL, (gltf) => {
+                if (gltf.animations && gltf.animations.length > 0) {
+                    danceAnimation = gltf.animations.find(anim => anim.name.toLowerCase().includes('dance')) || gltf.animations[0];
+                }
+            });
+        }
+
+        function setupAudioUI() {
+            const playBtn = document.getElementById('play-btn');
+            const volumeSlider = document.getElementById('volume-slider');
+
+            playBtn.addEventListener('click', () => {
+                if (!isPlaying) {
+                    bgm.play().catch(error => console.error(error));
+                    if (mixer) mixer.timeScale = 1;
+                    playBtn.textContent = '⏸ ダンス＆音楽 一時停止';
+                    playBtn.classList.add('playing');
+                    isPlaying = true;
+
+                    // スタート時に現在アクティブなアバターのセリフを喋らせる
+                    const activeAvatar = document.querySelector('.avatar-item.active');
+                    if (activeAvatar) {
+                        speakText(activeAvatar.getAttribute('data-speech'));
+                    }
+                } else {
+                    bgm.pause();
+                    if (mixer) mixer.timeScale = 0;
+                    playBtn.textContent = '🎶 ダンス＆音楽 スタート';
+                    playBtn.classList.remove('playing');
+                    isPlaying = false;
+                }
+            });
+
+            volumeSlider.addEventListener('input', (e) => {
+                bgm.volume = e.target.value;
+            });
+        }
+
+        // 🗣 音声合成（しゃべる）関数
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                // 再生中の音声を一旦クリア
+                window.speechSynthesis.cancel();
+
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'ja-JP'; // 日本語
+                utterance.rate = 1.1;     // 少し早めにしゃべる
+                utterance.pitch = 1.1;    // 少し高めの声
+
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // リストクリック時の処理
+        function selectAvatar(modelUrl, element) {
+            document.querySelectorAll('.avatar-item').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+            
+            // アバター変更時に、設定されたセリフを喋らせる
+            const speechText = element.getAttribute('data-speech');
+            speakText(speechText);
+
+            loadAvatar(modelUrl);
+        }
+
+        function loadAvatar(modelUrl) {
+            document.getElementById('loading').style.display = 'block';
+
+            if (currentModel) {
+                scene.remove(currentModel);
+                if (mixer) mixer.stopAllAction();
+            }
+
+            const loader = new THREE.GLTFLoader();
+            loader.load(modelUrl, (gltf) => {
+                currentModel = gltf.scene;
+                scene.add(currentModel);
+                currentModel.position.set(0, 0, 0);
+
+                const animations = gltf.animations.length > 0 ? gltf.animations : (danceAnimation ? [danceAnimation] : []);
+                
+                if (animations.length > 0) {
+                    mixer = new THREE.AnimationMixer(currentModel);
+                    const danceClip = animations.find(anim => anim.name.toLowerCase().includes('dance')) || animations[0];
+                    const action = mixer.clipAction(danceClip);
+                    action.play();
+                    
+                    if (!isPlaying) mixer.timeScale = 0;
+                }
+
+                document.getElementById('loading').style.display = 'none';
+            }, undefined, (error) => {
+                document.getElementById('loading').style.display = 'none';
+            });
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const delta = clock.getDelta();
+            if (mixer) mixer.update(delta);
+            if (controls) controls.update();
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+    </script>
+</body>
+</html>

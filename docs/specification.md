@@ -67,11 +67,11 @@
 
 ### 無料WebAPI候補台帳
 
-`docs/apis/free-webapis-not-implemented.md` に、Public APIs の公開一覧から `Auth = No` のAPIを抽出し、既存 `fronted-v2/js/catalog.js` に未収録の候補を整理する。HTML化時は公式URLで現在の無料利用条件・CORS・エンドポイント仕様を再確認する。
+`docs/apis/free-webapis-not-implemented.md` を未実装無料WebAPI候補のインデックスとし、Public APIs の公開一覧から `Auth = No` のAPIを抽出した候補を `docs/apis/free-webapis-not-implemented-1.md` 〜 `docs/apis/free-webapis-not-implemented-5.md` に分割して整理する。`docs/specification.md` の実装済み外部API表にある項目、および実装済み印のある項目は候補台帳から除外する。HTML化時は公式URLで現在の無料利用条件・CORS・エンドポイント仕様を再確認する。
 
 ### WebAPI紹介ページ作成スキル
 
-`.agents/skills/webapi-page-maker/` は、複数のAPIドキュメントURLから `templates/` の自己完結HTML、`fronted-v2/js/catalog.js`、仕様書の外部API表を整合させて追加するためのプロジェクト専用スキル。新規API紹介ページをURLから作る場合は `$webapi-page-maker <URL...>` を使う。
+`.agents/skills/webapi-page-maker/` は、5分割した未実装無料WebAPI候補台帳から候補を選び、`templates/` の自己完結HTML、`fronted-v2/js/catalog.js`、仕様書の外部API表を整合させて追加するためのプロジェクト専用スキル。呼び出しは `$webapi-page-maker (<fileNumber>,<topDown>)` とし、`fileNumber` は `docs/apis/free-webapis-not-implemented-<fileNumber>.md` の末尾番号、`topDown` は `true` のとき上から順、`false` のとき下から順に候補を実装する。各分割台帳の先頭には `control: continue` を置き、ユーザーが `control: stop` に変更した場合、スキルは1件の実装完了ごとのチェックポイントで次の候補へ進まず終了する。実装完了後は該当候補行を分割台帳から削除する。このスキル使用時は `no-test` を必ず適用し、テスト・ビルド・lint・プレビュー起動・ブラウザ確認などの検証は一切行わない。
 
 ### templates/ 各ページが利用する外部API（fronted-v2で紹介）
 

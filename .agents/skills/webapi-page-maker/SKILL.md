@@ -1,18 +1,20 @@
 ---
 name: webapi-page-maker
-description: Create WebAPI introduction pages for this teamT-app project from one or more API documentation URLs. Use when the user invokes $webapi-page-maker, asks to create templates from API URLs, or wants templates/, fronted-v2/js/catalog.js, README/specification docs kept consistent for new WebAPI pages.
+description: Create WebAPI introduction pages for this teamT-app project from the split free WebAPI candidate ledger. Use when the user invokes $webapi-page-maker with a file number and direction flag, or wants templates/, fronted-v2/js/catalog.js, README/specification docs kept consistent for new WebAPI pages.
 ---
 
 # webapi-page-maker
 
-Create one self-contained HTML page per supplied WebAPI URL, place it under the correct `templates/` category folder, and update the gallery metadata and docs in the same change.
+Create self-contained HTML pages from the split free WebAPI candidate ledger, place them under the correct `templates/` category folder, update gallery metadata and docs in the same change, then remove completed candidate rows from the ledger.
 
 ## Inputs
 
-- One or more API documentation URLs.
-- Optional user hints: desired Japanese title, category, sample endpoint, whether API keys are allowed.
+- Required invocation format: `$webapi-page-maker (<fileNumber>,<topDown>)`
+  - `fileNumber`: the final digit of `docs/apis/free-webapis-not-implemented-<fileNumber>.md`. Valid values are `1` through `5`.
+  - `topDown`: boolean direction flag. `true` means implement from the top candidate row downward. `false` means implement from the bottom candidate row upward.
+- Optional user hints: number of candidates to implement, desired Japanese title/category, sample endpoint, whether API keys are allowed.
 
-If the user supplies multiple URLs, process all of them in one pass and keep names, ids, categories, and documentation consistent.
+If the user does not specify a count, implement the first practical candidate in the selected direction. If a selected candidate cannot be implemented after reasonable research, leave its row in the ledger and continue to the next candidate only when the user requested multiple implementations.
 
 ## Required Preflight
 
@@ -20,11 +22,36 @@ If the user supplies multiple URLs, process all of them in one pass and keep nam
 2. Read `docs/specification.md`.
 3. Read `fronted-v2/README.md`.
 4. Read `fronted-v2/js/catalog.js` and inspect existing ids, category names, `categoryPath` examples, and style of descriptions.
-5. Check `docs/apis/free-webapis-not-implemented.md` when choosing or validating candidate APIs.
+5. Read `.agents/skills/no-test/SKILL.md` and follow it for this run.
+6. Open `docs/apis/free-webapis-not-implemented.md` to confirm the split-file index, then open `docs/apis/free-webapis-not-implemented-<fileNumber>.md`.
+7. Read the control line near the top of the chosen split file before selecting work. If it is `control: stop`, do not implement anything; finish immediately and report that the stop control was detected.
+8. Select candidate rows from the chosen split file according to `topDown`.
+
+## Stop Control
+
+Each split ledger file must keep a control line near the top:
+
+```md
+control: continue
+```
+
+To stop an in-progress batch at the next safe checkpoint, the user may edit that line to:
+
+```md
+control: stop
+```
+
+Rules:
+
+- Check the chosen split file's control line before starting work and again after each single API page is fully implemented, documented, and removed from the ledger.
+- If the control line is `control: stop`, stop before selecting or starting the next API.
+- Report that `control: stop` was detected and which file contained it.
+- Do not change `control: stop` back to `control: continue` unless the user explicitly asks.
+- Treat a missing control line as `control: continue`, but add the line when editing that ledger file.
 
 ## Research Rules
 
-- Browse each supplied URL. Prefer the official API docs for endpoints, auth, rate limits, CORS notes, and response examples.
+- Browse each selected candidate URL. Prefer the official API docs for endpoints, auth, rate limits, CORS notes, and response examples.
 - Use only APIs that can be demonstrated for free. Prefer no-auth endpoints for static HTML demos.
 - If an API needs a key, do not hardcode secrets. Add a visible input field or a clear placeholder in the page.
 - If CORS is blocked, still create a useful introduction page only when it can demonstrate via image URLs, static sample data, or graceful fallback. Clearly show the fallback state in the UI.
@@ -82,28 +109,16 @@ Update all applicable docs:
 - `docs/specification.md`: add each new page to the external API table. If a new subcategory or design rule is introduced, document it near the WebAPI Gallery spec.
 - `README.md`: update only if the project-level description, folder structure, or operating instructions changed.
 - `fronted-v2/README.md`: update if add-flow fields or category rules changed.
-- `docs/apis/free-webapis-not-implemented.md`: mark APIs that have just been implemented when practical.
+- `docs/apis/free-webapis-not-implemented-<fileNumber>.md`: after a candidate is fully implemented and documented, delete that candidate row from the split ledger. Do not merely mark it as implemented.
+- `docs/apis/free-webapis-not-implemented.md`: update counts or split-file summaries when the row deletion changes them.
 
 ## Verification
 
-Run:
+Because this skill always uses the `no-test` workflow, do not run tests, builds, lint, `node -c`, preview servers, browser checks, or any other verification commands after making changes.
 
-```bash
-node -c fronted-v2/js/catalog.js
-```
+Before finishing, report:
 
-Then start or reuse the local server:
-
-```bash
-node fronted-v2/serve.cjs
-```
-
-Verify:
-
-- `http://localhost:5500/fronted-v2/index.html` returns 200.
-- Each new `http://localhost:5500/templates/<folder>/<file>.html` returns 200.
-- `catalog.js` count matches the gallery count.
-- New pages appear under the expected parent and child category.
-- Each page has graceful behavior if the live API fails.
-
-Report any API that could not be made fully live and why.
+- Which split file and direction were used.
+- Which candidate row(s) were implemented and removed.
+- That verification was intentionally skipped because `no-test` is mandatory for this skill.
+- Any API that could not be made fully live and why.

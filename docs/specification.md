@@ -89,8 +89,10 @@
 | fun | OpenTrivia | Open Trivia DB | クイズ |
 | fun | YesNo | yesno.wtf | Yes/No判定 |
 | fun | meigenn | ローカルデータ(サンプル) | 名言をランダム表示 |
+| fun | sindan | ローカルデータ(サンプル) | ブラック企業適性の診断 |
+| fun | zyouku | Official Joke API / Google Translate | ジョーク問題の出題と日本語訳 |
 
-※ 翻訳に MyMemory Translation API を併用するページあり（joke / ohuzake / Jikan / OpenTrivia）。NASA系・RAWG(game)はAPIキーが必要。wakusei / meigenn / genngohonnyaku は外部APIを使わないローカルデータのサンプル。
+※ 翻訳に MyMemory Translation API を併用するページあり（joke / ohuzake / Jikan / OpenTrivia）。`zyouku` は Google Translate を利用する。NASA系・RAWG(game)はAPIキーが必要。wakusei / meigenn / genngohonnyaku / sindan は外部APIを使わないローカルデータのサンプル。
 
 ---
 

@@ -94,4 +94,8 @@ window.CATALOG = [
     description: "Yes/No で迷いを決めてくれる意思決定器", apiName: "yesno.wtf", apiUrl: "https://yesno.wtf/", icon: "ti-thumb-up" },
   { id: "meigenn", file: "fun/meigenn.html", title: "名言メーカー", category: "エンタメ・おもしろ系",
     description: "カテゴリ別の名言をランダム表示（サンプル）", apiName: "ローカルデータ", apiUrl: "", icon: "ti-quote" },
+  { id: "sindan", file: "fun/sindan.html", title: "ブラック企業診断", category: "エンタメ・おもしろ系",
+    description: "質問に答えてブラック企業適性を診断する", apiName: "ローカルデータ", apiUrl: "", icon: "ti-help" },
+  { id: "zyouku", file: "fun/zyouku.html", title: "ランダムジョーク問題", category: "エンタメ・おもしろ系",
+    description: "海外ジョークを日本語訳付きで出題するクイズ", apiName: "Official Joke API + Google Translate", apiUrl: "https://official-joke-api.appspot.com/", icon: "ti-mood-crazy-happy" },
 ];

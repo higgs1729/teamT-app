@@ -274,6 +274,7 @@
 | tools | beeceptor-echo | Beeceptor HTTP Echo | HTTPリクエストを送信しエコー内容を確認 |
 | tools | brewpage | BrewPage API | HTML投稿で共有URLを取得（失敗時はcurl手順を表示） |
 | tools | ciprand | Ciprand | セキュアなランダム文字列を生成 |
+| tools | passwordinator | Passwordinator | 条件を指定してランダムパスワードを生成 |
 | tools | codex-compiler | CodeX | オンラインコンパイラAPIへのリクエスト形状を確認 |
 | tools | cors-proxy | CORS Proxy | CORS回避用プロキシURLを生成し取得を試行 |
 | tools | countapi | CountAPI | 名前空間とキーでシンプルなカウンターを操作 |

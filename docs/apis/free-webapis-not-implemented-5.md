@@ -22,7 +22,6 @@ control: continue
 | [Mozilla http scanner](https://github.com/mozilla/http-observatory/blob/master/httpobs/docs/api.md) | Mozilla observatory http scanner | Yes | Unknown | ? |
 | [Mozilla tls scanner](https://github.com/mozilla/tls-observatory#api-endpoints) | Mozilla observatory tls scanner | Yes | Unknown | ? |
 | [National Vulnerability Database](https://nvd.nist.gov/vuln/Data-Feeds/JSON-feed-changelog) | U.S. National Vulnerability Database | Yes | Unknown | ? |
-| [Passwordinator](https://github.com/fawazsullia/password-generator/) | Generate random passwords of varying complexities | Yes | Yes | ? |
 | [PhishStats](https://phishstats.info/) | Phishing database | Yes | Unknown | ? |
 | [UK Police](https://data.police.uk/docs/) | UK Police data | Yes | Unknown | ? |
 | [Virushee](https://api.virushee.com/) | Virushee file/data scanning | Yes | Yes | ? |

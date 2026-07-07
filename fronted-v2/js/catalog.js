@@ -394,6 +394,8 @@ window.CATALOG = [
     description: "HTMLを投稿して共有URLを取得（CORS時はcurlフォールバック）", apiName: "BrewPage API", apiUrl: "https://brewpage.app/api", icon: "ti-article" },
   { id: "ciprand", file: "tools/ciprand.html", title: "Ciprand Random String", category: "為替・ツール系", categoryPath: ["為替・ツール系", "生成・変換"],
     description: "セキュアなランダム文字列をAPIまたはWeb Cryptoで生成", apiName: "Ciprand", apiUrl: "https://github.com/polarspetroll/ciprand", icon: "ti-qrcode" },
+  { id: "passwordinator", file: "tools/passwordinator.html", title: "Passwordinator Generator", category: "為替・ツール系", categoryPath: ["為替・ツール系", "生成・変換"],
+    description: "条件を指定してランダムパスワードを生成し、API不可時はローカル生成へ切り替える", apiName: "Passwordinator", apiUrl: "https://github.com/fawazsullia/password-generator/", icon: "ti-key" },
   { id: "codex-compiler", file: "tools/codex-compiler.html", title: "CodeX Compiler Request Builder", category: "為替・ツール系", categoryPath: ["為替・ツール系", "開発・検証"],
     description: "オンラインコンパイラAPIへのリクエスト形状を確認", apiName: "CodeX", apiUrl: "https://github.com/Jaagrav/CodeX", icon: "ti-article" },
   { id: "cors-proxy", file: "tools/cors-proxy.html", title: "CORS Proxy URL Builder", category: "為替・ツール系", categoryPath: ["為替・ツール系", "開発・検証"],

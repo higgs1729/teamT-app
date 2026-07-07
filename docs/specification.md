@@ -67,6 +67,8 @@
 |----------|--------|---------|------|
 | image | dog-api | Dog API (dog.ceo) | 犬の画像・犬種一覧 |
 | image | 3D | Three.js GLTF サンプル | ランダムな3Dモデルを読み込み・閲覧 |
+| image | dance-proto | Three.js GLTF サンプル | 3Dモデルのダンスアニメーション再生・切替 |
+| image | oto | Three.js / Web Speech API | 3Dアバターのダンス再生と音声読み上げ |
 | image | cat-api | The Cat API | 猫の画像・猫種データ |
 | image | Fox | RandomFox | キツネ画像 |
 | image | neko | HTTP Cat | HTTPステータスを猫画像で表示 |
@@ -78,7 +80,14 @@
 | data | Poke | PokeAPI | ポケモン情報 |
 | data | akusyonn | FreeToGame | 無料ゲーム一覧 |
 | data | applemusic | iTunes Search API | 楽曲検索 |
+| data | countrySearch | CountriesNow API | 国名から人口・首都を検索 |
+| data | ip | ローカルサンプルデータ | IPジオロケーション情報の表示サンプル |
+| data | kabu | Alpha Vantage | 銘柄コードで株価・騰落率を検索 |
 | data | nasa | NASA APOD | 今日の天体写真 |
+| data | radar | OpenSky Network API | 上空の航空機データを地図に表示 |
+| data | saiba- | Shodan API | IPの公開アセット情報・ポート調査 |
+| data | seibetu | Genderize.io | 名前から性別と確率を推定 |
+| data | weather | 気象庁 予報JSON | 都道府県ごとの天気予報を取得 |
 | data | utyu | NASA NeoWs | 近地天体(NEO)観測データ |
 | data | wakusei | ローカルデータ(サンプル) | 太陽系の惑星情報 |
 | data | burogu | JSONPlaceholder | ダミー記事のランダム表示 |
@@ -93,9 +102,12 @@
 | tools | kawase | exchangerate.host | 為替レート |
 | tools | QR | QR Server (goQR) | QRコード生成 |
 | tools | genngohonnyaku | ローカル辞書(サンプル) | 日本語↔英語の簡易翻訳 |
+| tools | tizu | Leaflet / OpenStreetMap | 地図表示とクリック位置マーカー追加 |
+| tools | zipcode | ZipCloud API | 郵便番号から住所検索 |
 | fun | joke | Official Joke API | 海外ジョーク |
 | fun | ohuzake | Useless Facts | ランダム雑学 |
 | fun | OpenTrivia | Open Trivia DB | クイズ |
+| fun | tai | Quotable API | 英文お題を使ったタイピングゲーム |
 | fun | YesNo | yesno.wtf | Yes/No判定 |
 | fun | meigenn | ローカルデータ(サンプル) | 名言をランダム表示 |
 | fun | Useless | Useless Facts / MyMemory Translation API / Unsplash Source | ランダム雑学を翻訳付きで表示 |

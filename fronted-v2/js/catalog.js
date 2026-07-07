@@ -42,6 +42,10 @@ window.CATALOG = [
     description: "ランダムなアヒルの画像で気分転換", apiName: "Random-d.uk", apiUrl: "https://random-d.uk/", icon: "ti-feather" },
   { id: "food", file: "image/food.html", title: "食べ物画像検索", category: "画像・ビジュアル系",
     description: "料理名でWikipediaの画像を検索して表示", apiName: "Wikipedia API", apiUrl: "https://www.mediawiki.org/wiki/API:Main_page", icon: "ti-tools-kitchen-2" },
+  { id: "dance-proto", file: "image/dance-proto.html", title: "Dance Prototype", category: "画像・ビジュアル系",
+    description: "GLTFモデルを読み込み、アニメーションを切り替えて再生", apiName: "Three.js GLTF サンプル", apiUrl: "https://threejs.org/", icon: "ti-cube" },
+  { id: "oto", file: "image/oto.html", title: "Avatar Studio", category: "画像・ビジュアル系",
+    description: "3DアバターにBGMとTTSを組み合わせたダンスビューア", apiName: "Three.js / Web Speech API", apiUrl: "https://threejs.org/", icon: "ti-sparkles" },
 
   /* ---------- データ・検索系（一覧/検索/詳細データを扱う） ---------- */
   { id: "anime", file: "data/anime.html", title: "アニメ図鑑", category: "データ・検索系",
@@ -72,6 +76,20 @@ window.CATALOG = [
     description: "メーカーとモデルを選んで車両情報と画像を検索", apiName: "NHTSA Vehicle API / Wikipedia API", apiUrl: "https://vpic.nhtsa.dot.gov/api/", icon: "ti-car" },
   { id: "yugio", file: "data/Yugio.html", title: "遊戯王カード図鑑", category: "データ・検索系",
     description: "カード名・属性・種族で検索してランダム表示", apiName: "YGOPRODeck API / MyMemory Translation API", apiUrl: "https://db.ygoprodeck.com/api-guide/", icon: "ti-cards" },
+  { id: "countrysearch", file: "data/countrySearch.html", title: "国情報検索", category: "データ・検索系",
+    description: "国名から人口と首都情報を検索して表示", apiName: "CountriesNow API", apiUrl: "https://countriesnow.space/", icon: "ti-globe" },
+  { id: "ip", file: "data/ip.html", title: "IP Geolocation Dashboard", category: "データ・検索系",
+    description: "IP位置情報データをダッシュボード形式で表示（サンプル）", apiName: "ローカルサンプルデータ", apiUrl: "", icon: "ti-user" },
+  { id: "kabu", file: "data/kabu.html", title: "株価検索", category: "データ・検索系",
+    description: "銘柄コードを入力して株価と騰落率を取得", apiName: "Alpha Vantage", apiUrl: "https://www.alphavantage.co/documentation/", icon: "ti-currency-yen" },
+  { id: "radar", file: "data/radar.html", title: "ADS-B Flight Radar", category: "データ・検索系",
+    description: "地図範囲内の航空機データを取得して可視化", apiName: "OpenSky Network API", apiUrl: "https://opensky-network.org/apidoc/rest.html", icon: "ti-rocket" },
+  { id: "saiba", file: "data/saiba-.html", title: "Shodan Intelligence Terminal", category: "データ・検索系",
+    description: "IPアドレスの公開情報と開放ポートを調査", apiName: "Shodan API", apiUrl: "https://developer.shodan.io/api", icon: "ti-browser" },
+  { id: "seibetu", file: "data/seibetu.html", title: "名前から性別を自動判別", category: "データ・検索系",
+    description: "ローマ字名から性別と確率を推定して表示", apiName: "Genderize.io", apiUrl: "https://genderize.io/", icon: "ti-user" },
+  { id: "weather", file: "data/weather.html", title: "天気アプリ（気象庁版）", category: "データ・検索系",
+    description: "都道府県名から最新の天気予報を取得", apiName: "気象庁 予報JSON", apiUrl: "https://www.jma.go.jp/bosai/forecast/", icon: "ti-planet" },
 
   /* ---------- 為替・ツール系（実用ツール） ---------- */
   { id: "calendar", file: "tools/calendar.html", title: "カレンダー（祝日API付き）", category: "為替・ツール系",
@@ -86,6 +104,10 @@ window.CATALOG = [
     description: "ランダムなメッセージ入りQRコードを生成", apiName: "QR Server (goQR)", apiUrl: "https://goqr.me/api/", icon: "ti-qrcode" },
   { id: "translate", file: "tools/genngohonnyaku.html", title: "簡易翻訳", category: "為替・ツール系",
     description: "内蔵辞書で日本語↔英語を簡易翻訳（サンプル）", apiName: "ローカル辞書", apiUrl: "", icon: "ti-language" },
+  { id: "tizu", file: "tools/tizu.html", title: "地図アプリ", category: "為替・ツール系",
+    description: "地図を表示し、クリック地点にマーカーを追加", apiName: "Leaflet / OpenStreetMap", apiUrl: "https://leafletjs.com/", icon: "ti-globe" },
+  { id: "zipcode", file: "tools/zipcode.html", title: "郵便番号検索", category: "為替・ツール系",
+    description: "郵便番号から住所を検索して表示", apiName: "ZipCloud API", apiUrl: "https://zipcloud.ibsnet.co.jp/doc/api", icon: "ti-qrcode" },
 
   /* ---------- エンタメ・おもしろ系（ジョーク/雑学/クイズ） ---------- */
   { id: "joke", file: "fun/joke.html", title: "海外ジョーク", category: "エンタメ・おもしろ系",
@@ -100,4 +122,6 @@ window.CATALOG = [
     description: "カテゴリ別の名言をランダム表示（サンプル）", apiName: "ローカルデータ", apiUrl: "", icon: "ti-quote" },
   { id: "useless", file: "fun/Useless.html", title: "ランダム雑学", category: "エンタメ・おもしろ系",
     description: "雑学を取得して翻訳付きで表示", apiName: "Useless Facts / MyMemory Translation API / Unsplash Source", apiUrl: "https://uselessfacts.jsph.pl/", icon: "ti-bulb" },
+  { id: "tai", file: "fun/tai.html", title: "Dynamic Typing Challenge", category: "エンタメ・おもしろ系",
+    description: "ランダムな英文お題でタイピングに挑戦", apiName: "Quotable API", apiUrl: "https://api.quotable.io/", icon: "ti-device-gamepad-2" },
 ];

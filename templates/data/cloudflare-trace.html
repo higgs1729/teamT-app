@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<!--
+  Cloudflare Trace API紹介ページ
+  目的: Cloudflareのtrace/metaエンドポイントからIP・国・HTTP/TLS情報を取得する。
+  構成: エンドポイント選択 / key=valueパース / メタデータカード。
+-->
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cloudflare Trace Viewer</title>
+  <style>
+    :root{--bg:#f6f7fb;--panel:#fff;--ink:#202536;--muted:#657187;--line:#dde5ef;--accent:#f48120;--soft:#fff2e8;--danger:#c43d3d}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:"BIZ UDPGothic","Meiryo UI",sans-serif;background:linear-gradient(135deg,#f6f7fb,#fff4e8);color:var(--ink)}
+    main{width:min(1000px,100%);margin:auto;padding:32px 18px}h1{margin:0 0 8px;font-size:clamp(24px,4vw,38px);letter-spacing:0}p{margin:0;color:var(--muted);line-height:1.7}a{color:var(--accent)}
+    .toolbar{display:flex;gap:10px;margin:18px 0;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 14px 30px rgba(70,55,35,.08)}select,button{font:inherit;border-radius:10px;padding:11px 12px}select{flex:1;border:1px solid var(--line)}button{border:0;background:var(--accent);color:#fff;font-weight:700;cursor:pointer}
+    .status{font-weight:700;color:var(--muted);margin-bottom:12px}.status.error{color:var(--danger)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}.card{background:#fff;border:1px solid var(--line);border-radius:13px;padding:14px}.card span{display:block;color:var(--muted);font-size:12px}.card b{display:block;margin-top:8px;font-size:18px;word-break:break-all}.raw{margin-top:14px;padding:14px;border-radius:12px;background:#172033;color:#dbe8ff;white-space:pre-wrap;overflow:auto}
+    @media(max-width:720px){.toolbar{display:grid}}
+  </style>
+</head>
+<body>
+<main>
+  <h1>Cloudflare Trace Viewer</h1>
+  <p>Cloudflareの公開traceエンドポイントから、IP・国コード・HTTPバージョン・TLS情報などを取得します。</p>
+  <section class="toolbar"><select id="endpoint"><option value="https://one.one.one.one/cdn-cgi/trace">1.1.1.1 trace</option><option value="https://speed.cloudflare.com/meta">speed.cloudflare.com meta</option></select><button id="load">取得</button></section>
+  <p class="status" id="status">未取得です。</p><section class="grid" id="grid"></section><pre class="raw" id="raw">結果がここに表示されます。</pre>
+  <p style="margin-top:14px;font-size:12px;">Docs: <a href="https://github.com/fawazahmed0/cloudflare-trace-api" target="_blank" rel="noreferrer">cloudflare-trace-api</a></p>
+</main>
+<script>
+const grid=document.getElementById("grid"),raw=document.getElementById("raw"),statusEl=document.getElementById("status");
+function kv(text){return Object.fromEntries(text.trim().split(/\n/).map(l=>l.split("=").map(x=>x.trim())).filter(x=>x.length===2))}
+function render(obj){grid.innerHTML=Object.entries(obj).slice(0,12).map(([k,v])=>`<article class="card"><span>${k}</span><b>${v}</b></article>`).join("")}
+document.getElementById("load").addEventListener("click",async()=>{const url=document.getElementById("endpoint").value;statusEl.className="status";statusEl.textContent="取得中...";try{const r=await fetch(url);if(!r.ok)throw new Error(`HTTP ${r.status}`);const text=await r.text();let obj;try{obj=JSON.parse(text)}catch{obj=kv(text)}statusEl.textContent="成功: Trace情報を取得しました。";render(obj);raw.textContent=JSON.stringify(obj,null,2);}catch(err){statusEl.className="status error";statusEl.textContent="取得に失敗しました。";const fb={ip:"unknown",loc:"unknown",http:"unknown",fallback:true,message:err.message};render(fb);raw.textContent=JSON.stringify(fb,null,2);}});
+</script>
+</body>
+</html>

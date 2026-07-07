@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Quiz API Demo</title>
+
+<style>
+body{
+    background:#202124;
+    color:white;
+    font-family:sans-serif;
+    text-align:center;
+    padding:30px;
+}
+
+button{
+    padding:12px 25px;
+    font-size:18px;
+    background:#2196F3;
+    color:white;
+    border:0;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.card{
+    background:#2b2b2b;
+    max-width:600px;
+    margin:30px auto;
+    padding:20px;
+    border-radius:15px;
+}
+
+.answer{
+    margin:10px;
+    padding:12px;
+    background:#444;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.answer:hover{
+    background:#666;
+}
+
+pre{
+    background:#111;
+    color:#00ff88;
+    text-align:left;
+    padding:15px;
+    border-radius:10px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🧠 Quiz API</h1>
+
+<button onclick="getQuiz()">問題を取得</button>
+
+<div id="quiz"></div>
+
+<script>
+
+const quizzes = [
+
+{
+question:"日本の首都はどこ？",
+answers:["大阪","東京","京都","北海道"],
+correct:"東京",
+category:"地理"
+},
+
+{
+question:"太陽系で一番大きい惑星は？",
+answers:["地球","火星","木星","金星"],
+correct:"木星",
+category:"科学"
+},
+
+{
+question:"1+1の答えは？",
+answers:["1","2","3","4"],
+correct:"2",
+category:"数学"
+},
+
+{
+question:"日本の国花として有名な花は？",
+answers:["桜","バラ","チューリップ","ひまわり"],
+correct:"桜",
+category:"文化"
+}
+
+];
+
+
+function getQuiz(){
+
+const q = quizzes[Math.floor(Math.random()*quizzes.length)];
+
+let html=`
+<div class="card">
+
+<h2>${q.question}</h2>
+
+`;
+
+q.answers.forEach(a=>{
+
+html+=`
+<div class="answer" onclick="check('${a}','${q.correct}')">
+${a}
+</div>
+`;
+
+});
+
+
+html+=`
+
+<p>📚カテゴリ:${q.category}</p>
+
+<pre>
+${JSON.stringify(q,null,2)}
+</pre>
+
+</div>
+`;
+
+document.getElementById("quiz").innerHTML=html;
+
+}
+
+
+function check(answer,correct){
+
+if(answer===correct){
+alert("🎉 正解！");
+}else{
+alert("❌ 不正解！ 正解は "+correct);
+}
+
+}
+
+</script>
+
+</body>
+</html>

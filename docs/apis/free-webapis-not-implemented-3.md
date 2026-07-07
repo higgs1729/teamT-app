@@ -11,7 +11,6 @@ control: continue
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
 | [BCLaws](https://www.bclaws.gov.bc.ca/civix/template/complete/api/index.html) | Access to the laws of British Columbia | No | Unknown | ? |
-| [Brazil](https://brasilapi.com.br/) | Community driven API for Brazil Public Data | Yes | Yes | ? |
 | [Brazil Central Bank Open Data](https://dadosabertos.bcb.gov.br/) | Brazil Central Bank Open Data | Yes | Unknown | ? |
 | [Brazil Receita WS](https://www.receitaws.com.br/) | Consult companies by CNPJ for Brazilian companies | Yes | Unknown | ? |
 | [Brazilian Chamber of Deputies Open Data](https://dadosabertos.camara.leg.br/swagger/api.html) | Provides legislative information in Apis XML and JSON, as well as files in various formats | Yes | No | ? |

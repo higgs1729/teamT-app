@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ブラジル公共データ検索</title>
+
+<!--
+  brasilapi.html — BrasilAPI (https://brasilapi.com.br/) 紹介ページ
+  概要: ブラジル政府・公共機関のデータを集約する無料API。認証不要・CORS対応・JSON応答。
+  構成:
+    1. CEP(郵便番号)検索  … /api/cep/v1/{cep} で住所を取得
+    2. DDD(市外局番)検索  … /api/ddd/v1/{ddd} で州名と都市一覧を取得
+  どちらもフォーム送信→fetch→カード表示のシンプルな1画面構成。
+-->
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:"Yu Gothic",sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#064e3b,#065f46,#facc15);
+    padding:30px 12px;
+}
+
+.container{
+    width:460px;
+    max-width:100%;
+    padding:32px;
+    background:rgba(255,255,255,.1);
+    backdrop-filter:blur(18px);
+    border-radius:20px;
+    box-shadow:0 15px 35px rgba(0,0,0,.35);
+    color:white;
+}
+
+h1{
+    text-align:center;
+    font-size:26px;
+    margin-bottom:6px;
+}
+
+.subtitle{
+    text-align:center;
+    font-size:13px;
+    color:#d1fae5;
+    margin-bottom:22px;
+}
+
+.tabs{
+    display:flex;
+    gap:8px;
+    margin-bottom:18px;
+}
+
+.tab-btn{
+    flex:1;
+    padding:10px;
+    border:none;
+    border-radius:10px;
+    background:rgba(255,255,255,.15);
+    color:white;
+    font-size:14px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.tab-btn.active{
+    background:linear-gradient(135deg,#facc15,#f59e0b);
+    color:#1f2937;
+}
+
+.panel{
+    display:none;
+}
+
+.panel.active{
+    display:block;
+}
+
+.search{
+    display:flex;
+    gap:10px;
+}
+
+input{
+    flex:1;
+    padding:14px;
+    font-size:16px;
+    border:none;
+    border-radius:10px;
+    outline:none;
+}
+
+input:focus{
+    box-shadow:0 0 10px #facc15;
+}
+
+button.search-btn{
+    padding:14px 20px;
+    background:linear-gradient(135deg,#34d399,#059669);
+    color:white;
+    border:none;
+    border-radius:10px;
+    font-size:15px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:.3s;
+}
+
+button.search-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 18px rgba(52,211,153,.5);
+}
+
+.hint{
+    margin-top:10px;
+    color:#d1fae5;
+    font-size:12px;
+}
+
+#cep-result,#ddd-result{
+    margin-top:20px;
+}
+
+.result-card{
+    background:white;
+    color:#1e293b;
+    border-radius:15px;
+    padding:16px;
+    margin-bottom:12px;
+    animation:fade .4s;
+    box-shadow:0 8px 20px rgba(0,0,0,.15);
+}
+
+.code{
+    color:#059669;
+    font-size:18px;
+    font-weight:bold;
+    margin-bottom:6px;
+}
+
+.detail{
+    font-size:15px;
+    line-height:1.7;
+}
+
+.message{
+    text-align:center;
+    color:#fef9c3;
+    font-weight:bold;
+}
+
+.city-list{
+    margin-top:6px;
+    font-size:13px;
+    color:#475569;
+    max-height:120px;
+    overflow-y:auto;
+}
+
+.api-link{
+    display:block;
+    text-align:center;
+    margin-top:20px;
+    font-size:12px;
+    color:#d1fae5;
+}
+
+.api-link a{
+    color:#fde68a;
+}
+
+@keyframes fade{
+from{
+opacity:0;
+transform:translateY(15px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🇧🇷 ブラジル公共データ検索</h1>
+<p class="subtitle">BrasilAPI で郵便番号・市外局番から住所情報を取得</p>
+
+<div class="tabs">
+<button class="tab-btn active" data-tab="cep">CEP(郵便番号)</button>
+<button class="tab-btn" data-tab="ddd">DDD(市外局番)</button>
+</div>
+
+<div class="panel active" id="panel-cep">
+<div class="search">
+<input id="cep-input" type="text" placeholder="例：01310930" maxlength="9" inputmode="numeric">
+<button class="search-btn" onclick="searchCep()">検索</button>
+</div>
+<p class="hint">8桁のCEP(ハイフンあり・なし可)を入力してください</p>
+<div id="cep-result"></div>
+</div>
+
+<div class="panel" id="panel-ddd">
+<div class="search">
+<input id="ddd-input" type="text" placeholder="例：11" maxlength="2" inputmode="numeric">
+<button class="search-btn" onclick="searchDdd()">検索</button>
+</div>
+<p class="hint">2桁のDDD(市外局番)を入力してください</p>
+<div id="ddd-result"></div>
+</div>
+
+<p class="api-link">
+API: <a href="https://brasilapi.com.br/docs" target="_blank" rel="noopener">BrasilAPI ドキュメント</a>
+</p>
+
+</div>
+
+<script>
+
+const BASE_URL="https://brasilapi.com.br/api";
+
+document.querySelectorAll(".tab-btn").forEach(btn=>{
+btn.addEventListener("click",()=>{
+document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+btn.classList.add("active");
+document.getElementById(`panel-${btn.dataset.tab}`).classList.add("active");
+});
+});
+
+const cepInput=document.getElementById("cep-input");
+const cepResult=document.getElementById("cep-result");
+
+async function searchCep(){
+const cep=cepInput.value.replace(/[^0-9]/g,"");
+
+if(cep.length!==8){
+cepResult.innerHTML='<p class="message">8桁のCEPを入力してください</p>';
+return;
+}
+
+cepResult.innerHTML='<p class="message">検索中...</p>';
+
+try{
+const response=await fetch(`${BASE_URL}/cep/v1/${cep}`);
+
+if(!response.ok){
+cepResult.innerHTML='<p class="message">該当するCEPが見つかりませんでした</p>';
+return;
+}
+
+const data=await response.json();
+
+cepResult.innerHTML=`
+<div class="result-card">
+<div class="code">📮 ${data.cep}</div>
+<div class="detail">
+🏠 ${data.street||"(街路情報なし)"}<br>
+${data.neighborhood||""} ${data.city} / ${data.state}
+</div>
+</div>
+`;
+}catch(error){
+cepResult.innerHTML=`<p class="message">${error.message}</p>`;
+}
+}
+
+const dddInput=document.getElementById("ddd-input");
+const dddResult=document.getElementById("ddd-result");
+
+async function searchDdd(){
+const ddd=dddInput.value.replace(/[^0-9]/g,"");
+
+if(ddd.length!==2){
+dddResult.innerHTML='<p class="message">2桁のDDDを入力してください</p>';
+return;
+}
+
+dddResult.innerHTML='<p class="message">検索中...</p>';
+
+try{
+const response=await fetch(`${BASE_URL}/ddd/v1/${ddd}`);
+
+if(!response.ok){
+dddResult.innerHTML='<p class="message">該当するDDDが見つかりませんでした</p>';
+return;
+}
+
+const data=await response.json();
+const cities=Array.isArray(data.cities)?data.cities.join("、"):"";
+
+dddResult.innerHTML=`
+<div class="result-card">
+<div class="code">☎️ DDD ${ddd}</div>
+<div class="detail">州: ${data.state}</div>
+<div class="city-list">対象都市: ${cities}</div>
+</div>
+`;
+}catch(error){
+dddResult.innerHTML=`<p class="message">${error.message}</p>`;
+}
+}
+
+cepInput.addEventListener("keydown",e=>{
+if(e.key==="Enter"){
+searchCep();
+}
+});
+
+dddInput.addEventListener("keydown",e=>{
+if(e.key==="Enter"){
+searchDdd();
+}
+});
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>URLhaus Intelligence Dashboard</title>
+  <style>
+    /* URLhaus の公開インテリジェンスを、安全に閲覧するためのダッシュボード */
+    :root{--bg:#071018;--panel:#0f1b2a;--border:rgba(168,196,255,.16);--text:#eef4ff;--muted:#a6b9d6;--accent:#84c9ff;--accent2:#dff2ff;--warning:#ffb56f;--danger:#ff8f8f;--shadow:0 24px 70px rgba(0,0,0,.38)}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:"Segoe UI",Meiryo,sans-serif;color:var(--text);background:radial-gradient(circle at top left,rgba(132,201,255,.2),transparent 24%),radial-gradient(circle at 85% 20%,rgba(255,181,111,.12),transparent 20%),linear-gradient(160deg,#06101b,#0c1727 50%,#05070b)}
+    .wrap{width:min(1160px,calc(100% - 32px));margin:0 auto;padding:28px 0 44px}.hero,.panel{background:rgba(11,19,30,.84);border:1px solid var(--border);border-radius:24px;box-shadow:var(--shadow);backdrop-filter:blur(14px)}
+    .hero{padding:28px;margin-bottom:18px;display:grid;gap:18px;grid-template-columns:1.2fr .9fr}.eyebrow{display:inline-flex;gap:8px;align-items:center;padding:7px 12px;border-radius:999px;background:rgba(132,201,255,.12);color:var(--accent2);font-size:12px;letter-spacing:.12em;text-transform:uppercase}.dot{width:8px;height:8px;border-radius:50%;background:#66f0b5}
+    h1{margin:16px 0 10px;font-size:clamp(30px,4vw,50px);line-height:1.06}.lead{margin:0;color:var(--muted);line-height:1.8}.meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.pill{padding:9px 12px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:13px;color:#d8e6ff}
+    .panel{padding:24px;display:grid;gap:16px}.controls{display:grid;grid-template-columns:1.4fr .7fr .9fr auto;gap:10px}.controls input,.controls select,.controls button,.controls a{min-height:44px;border-radius:14px;font:inherit}.controls input,.controls select{background:#09111f;color:var(--text);border:1px solid rgba(255,255,255,.12);padding:0 12px}.controls button,.controls a{appearance:none;border:none;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;padding:0 15px;font-weight:700}.primary{background:linear-gradient(135deg,var(--accent2),var(--accent));color:#07101e}.secondary{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:var(--text)}.status{display:flex;justify-content:space-between;gap:12px;align-items:center;color:var(--muted);font-size:13px;flex-wrap:wrap}.status b{color:var(--text)}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.item{padding:16px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}.item small{display:block;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}.item strong{font-size:16px;line-height:1.65}.item a{color:var(--accent2);text-decoration:none}.item a:hover{text-decoration:underline}.note,.footer{color:var(--muted);font-size:13px;line-height:1.7}.footer{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.footer a{color:var(--accent2);text-decoration:none}.footer a:hover{text-decoration:underline}.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.metric{padding:16px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}.metric span{display:block;color:var(--muted);font-size:12px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}.metric strong{font-size:18px}.auth-box{display:grid;gap:8px;padding:16px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}.auth-box label{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}.auth-box input{min-height:44px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:#09111f;color:var(--text);padding:0 12px}.auth-box p{margin:0;color:var(--muted);font-size:13px;line-height:1.6}
+    @media (max-width: 900px){.hero,.controls,.summary,.grid{grid-template-columns:1fr}.footer{flex-direction:column;align-items:flex-start}}
+  </style>
+</head>
+<body>
+  <!-- 構成: Auth-Key 入力 / recent URLs と payloads の切替 / 一覧カード / 集計情報 / エラー時のサンプル。 -->
+  <main class="wrap">
+    <section class="hero">
+      <div>
+        <div class="eyebrow"><span class="dot"></span> urlhaus api</div>
+        <h1>公開マルウェア指標を、閲覧用ダッシュボードで。</h1>
+        <p class="lead">URLhaus の recent URLs / recent payloads を一覧表示します。Auth-Key が必要な API なので、キーは入力欄から一時的に使い、保存しません。</p>
+        <div class="meta"><div class="pill">Recent URLs: /v1/urls/recent/</div><div class="pill">Recent payloads: /v1/payloads/recent/</div><div class="pill">Auth-Key required</div></div>
+      </div>
+      <div class="auth-box">
+        <label for="authKey">Auth-Key</label>
+        <input id="authKey" type="password" placeholder="abuse.ch で取得したキーを入力">
+        <p>キーは localStorage に保存しません。必要なときだけ入力して使います。</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="controls">
+        <select id="mode"><option value="urls">recent URLs</option><option value="payloads">recent payloads</option></select>
+        <input id="limit" type="number" min="1" max="1000" value="10" placeholder="limit">
+        <button id="loadBtn" class="primary" type="button">取得する</button>
+        <a class="secondary" href="https://urlhaus-api.abuse.ch/" target="_blank" rel="noreferrer">Docs を開く</a>
+      </div>
+
+      <div class="status"><span id="statusText">Auth-Key を入力して取得してください。</span><b id="countText"></b></div>
+
+      <div class="summary">
+        <div class="metric"><span>query status</span><strong id="queryStatus">-</strong></div>
+        <div class="metric"><span>items</span><strong id="itemCount">-</strong></div>
+        <div class="metric"><span>mode</span><strong id="modeLabel">recent URLs</strong></div>
+        <div class="metric"><span>api</span><strong>URLhaus</strong></div>
+      </div>
+
+      <div id="list" class="grid"></div>
+      <div class="footer"><span id="note">最近の検知データを俯瞰するためのページです。サンプルは安全な閲覧用に整形しています。</span><span>API: <a href="https://urlhaus-api.abuse.ch/" target="_blank" rel="noreferrer">urlhaus-api.abuse.ch</a></span></div>
+    </section>
+  </main>
+
+  <script>
+    const API_ROOT = 'https://urlhaus-api.abuse.ch/v1';
+    const FALLBACK = {
+      urls: [
+        { id:'105821', url:'http://example.com/update.exe', url_status:'offline', host:'example.com', date_added:'2019-01-19 01:33:26 UTC', threat:'malware_download', tags:['demo','sample'], urlhaus_reference:'https://urlhaus.abuse.ch/url/105821/' },
+        { id:'121319', url:'http://example.org/source/file.exe', url_status:'online', host:'example.org', date_added:'2019-02-11 07:45:05 UTC', threat:'malware_download', tags:['demo'], urlhaus_reference:'https://urlhaus.abuse.ch/url/121319/' }
+      ],
+      payloads: [
+        { sha256_hash:'35e304d10d53834e3e41035d12122773c9a4d183a24e03f980ad3e6b2ecde7fa', file_type:'exe', file_size:'241664', signature:'Heodo', firstseen:'2019-01-19 13:59:06', urlhaus_download:'https://urlhaus-api.abuse.ch/v1/download/35e3.../', tags:['demo'], payloads:[], urlhaus_reference:'https://urlhaus.abuse.ch/url/105243/' }
+      ]
+    };
+    const $ = (id) => document.getElementById(id);
+
+    function render(items, kind, fallback = false, queryStatus = 'ok') {
+      $('modeLabel').textContent = kind === 'urls' ? 'recent URLs' : 'recent payloads';
+      $('queryStatus').textContent = queryStatus;
+      $('itemCount').textContent = `${items.length}`;
+      $('countText').textContent = `${items.length}件`;
+      $('statusText').textContent = fallback ? 'フォールバックを表示しています。' : '取得完了。';
+      $('note').textContent = fallback ? 'Auth-Key なし、CORS 制限、または API エラー時のローカルサンプルです。' : 'ライブデータを取得しました。';
+      $('list').innerHTML = items.map((item) => {
+        if (kind === 'urls') {
+          const tags = (item.tags || []).join(', ') || '-';
+          return `<div class="item"><small>${item.url_status || '-'}</small><strong>${item.url}</strong><div class="note" style="margin-top:8px;">host: ${item.host || '-'}<br>added: ${item.date_added || '-'}<br>threat: ${item.threat || '-'}<br>tags: ${tags}</div><div style="margin-top:8px;"><a href="${item.urlhaus_reference || '#'}" target="_blank" rel="noreferrer">URLhaus entry</a></div></div>`;
+        }
+        return `<div class="item"><small>${item.file_type || item.magika || 'payload'}</small><strong>sha256: ${item.sha256_hash || '-'}</strong><div class="note" style="margin-top:8px;">size: ${item.file_size || '-'}<br>signature: ${item.signature || '-'}<br>firstseen: ${item.firstseen || '-'}<br>tags: ${(item.tags || []).join(', ') || '-'}</div><div style="margin-top:8px;"><a href="${item.urlhaus_download || '#'}" target="_blank" rel="noreferrer">download</a> · <a href="${item.urlhaus_reference || '#'}" target="_blank" rel="noreferrer">URLhaus entry</a></div></div>`;
+      }).join('');
+    }
+
+    async function loadData() {
+      const key = $('authKey').value.trim();
+      const kind = $('mode').value;
+      const limit = Math.max(1, Math.min(1000, Number($('limit').value || 10)));
+      const endpoint = kind === 'urls' ? `/urls/recent/limit/${limit}/` : `/payloads/recent/limit/${limit}/`;
+      $('loadBtn').disabled = true;
+      $('statusText').textContent = 'loading...';
+      try {
+        if (!key) throw new Error('missing auth key');
+        const res = await fetch(API_ROOT + endpoint, {
+          method: 'GET',
+          headers: { 'Auth-Key': key },
+          cache: 'no-store'
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        const items = kind === 'urls' ? (json.urls || []) : (json.payloads || []);
+        if (!items.length) throw new Error('no results');
+        render(items, kind, false, json.query_status || 'ok');
+      } catch (error) {
+        console.error(error);
+        const items = kind === 'urls' ? FALLBACK.urls : FALLBACK.payloads;
+        render(items, kind, true, 'fallback');
+      } finally {
+        $('loadBtn').disabled = false;
+      }
+    }
+
+    $('loadBtn').addEventListener('click', loadData);
+    $('mode').addEventListener('change', () => { $('modeLabel').textContent = $('mode').value === 'urls' ? 'recent URLs' : 'recent payloads'; });
+  </script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-# ??????Web API??
+﻿# ??????Web API??
 
 ???: 2026-07-07
 
@@ -23,68 +23,53 @@
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [Axolotl](https://theaxolotlapi.netlify.app/) | Collection of axolotl pictures and facts | Yes | No | ? |
-| [Cat Facts](https://alexwohlbruck.github.io/cat-facts/) | Daily cat facts | Yes | No | ? |
-| [Cat Facts](https://catfact.ninja/) | Random cat facts | Yes | Yes | ? |
-| [Cataas](https://cataas.com/) | Cat as a service (cats pictures and gifs) | Yes | No | ? |
-| [Dog Facts](https://dukengn.github.io/Dog-facts-API/) | Random dog facts | Yes | Yes | ? |
-| [Dog Facts](https://kinduff.github.io/dog-api/) | Random facts of Dogs | Yes | Yes | ? |
-| [FishWatch](https://www.fishwatch.gov/developers) | Information and pictures about individual fish species | Yes | Yes | ? |
-| [HTTP Dog](https://http.dog/) | Dogs for every HTTP response status code | Yes | Yes | ? |
-| [MeowFacts](https://github.com/wh-iterabb-it/meowfacts) | Get random cat facts | Yes | No | ? |
-| [Movebank](https://github.com/movebank/movebank-api-doc) | Movement and Migration data of animals | Yes | Yes | ? |
-| [PlaceBear](https://placebear.com/) | Placeholder bear pictures | Yes | Yes | ? |
-| [PlaceDog](https://place.dog) | Placeholder Dog pictures | Yes | Yes | ? |
-| [RandomDog](https://random.dog/woof.json) | Random pictures of dogs | Yes | Yes | ? |
-| [RescueGroups](https://userguide.rescuegroups.org/display/APIDG/API+Developers+Guide+Home) | Adoption | Yes | Unknown | ? |
-| [Shibe.Online](http://shibe.online/) | Random pictures of Shiba Inu, cats or birds | Yes | Yes | ? |
-| [xeno-canto](https://xeno-canto.org/explore/api) | Bird recordings | Yes | Unknown | ? |
+| [Axolotl](https://theaxolotlapi.netlify.app/) | Collection of axolotl pictures and facts | Yes | No | 実装済み |
+| [Cat Facts](https://alexwohlbruck.github.io/cat-facts/) | Daily cat facts | Yes | No | 実装済み |
+| [Cat Facts](https://catfact.ninja/) | Random cat facts | Yes | Yes | 実装済み |
+| [Cataas](https://cataas.com/) | Cat as a service (cats pictures and gifs) | Yes | No | 実装済み |
+| [Dog Facts](https://dukengn.github.io/Dog-facts-API/) | Random dog facts | Yes | Yes | 実装済み |
+| [Dog Facts](https://kinduff.github.io/dog-api/) | Random facts of Dogs | Yes | Yes | 実装済み |
+| [FishWatch](https://www.fishwatch.gov/developers) | Information and pictures about individual fish species | Yes | Yes | 実装済み |
+| [HTTP Dog](https://http.dog/) | Dogs for every HTTP response status code | Yes | Yes | 実装済み |
+| [MeowFacts](https://github.com/wh-iterabb-it/meowfacts) | Get random cat facts | Yes | No | 実装済み |
+| [Movebank](https://github.com/movebank/movebank-api-doc) | Movement and Migration data of animals | Yes | Yes | 実装済み |
+| [PlaceBear](https://placebear.com/) | Placeholder bear pictures | Yes | Yes | 実装済み |
+| [PlaceDog](https://place.dog) | Placeholder Dog pictures | Yes | Yes | 実装済み |
+| [RandomDog](https://random.dog/woof.json) | Random pictures of dogs | Yes | Yes | 実装済み |
+| [RescueGroups](https://userguide.rescuegroups.org/display/APIDG/API+Developers+Guide+Home) | Adoption | Yes | Unknown | 実装済み |
+| [Shibe.Online](http://shibe.online/) | Random pictures of Shiba Inu, cats or birds | Yes | Yes | 実装済み |
+| [xeno-canto](https://xeno-canto.org/explore/api) | Bird recordings | Yes | Unknown | 実装済み |
 
 ### Anime
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [AnimeChan](https://github.com/RocktimSaikia/anime-chan) | Anime quotes (over 10k+) | Yes | No | ? |
-| [AnimeFacts](https://chandan-02.github.io/anime-facts-rest-api/) | Anime Facts (over 100+) | Yes | Yes | ? |
-| [AnimeNewsNetwork](https://www.animenewsnetwork.com/encyclopedia/api.php) | Anime industry news | Yes | Yes | ? |
-| [Catboy](https://catboys.com/api) | Neko images, funny GIFs & more | Yes | Yes | ? |
-| [Studio Ghibli](https://ghibliapi.herokuapp.com) | Resources from Studio Ghibli films | Yes | Yes | ? |
-| [Trace Moe](https://soruly.github.io/trace.moe-api/#/) | A useful tool to get the exact scene of an anime from a screenshot | Yes | Yes | ? |
-| [Waifu.pics](https://waifu.pics/docs) | Image sharing platform for anime images | Yes | No | ? |
-
 ### Anti-Malware
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [URLhaus](https://urlhaus-api.abuse.ch/) | Bulk queries and Download Malware Samples | Yes | Yes | ? |
 
 ### Art & Design
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [Art Institute of Chicago](https://api.artic.edu/docs/) | Art | Yes | Yes | ? |
-| [Colormind](http://colormind.io/api-access/) | Color scheme generator | No | Unknown | ? |
-| [ColourLovers](http://www.colourlovers.com/api) | Get various patterns, palettes and images | No | Unknown | ? |
-| [DummyImage](https://dummyimage.com/) | Generate placeholder images with custom size, colors and text | Yes | Unknown | ? |
-| [EmojiHub](https://github.com/cheatsnake/emojihub) | Get emojis by categories and groups | Yes | Yes | ? |
-| [Icon Horse](https://icon.horse) | Favicons for any website, with fallbacks | Yes | Yes | ? |
-| [Icons8](https://img.icons8.com/) | Icons (find "search icon" hyperlink in page) | Yes | Unknown | ? |
-| [Lordicon](https://lordicon.com/) | Icons with predone Animations | Yes | Yes | ? |
-| [Metropolitan Museum of Art](https://metmuseum.github.io/) | Met Museum of Art | Yes | No | ? |
-| [PHP-Noise](https://php-noise.com/) | Noise Background Image Generator | Yes | Yes | ? |
-| [Pixel Encounter](https://pixelencounter.com/api) | SVG Icon Generator | Yes | No | ? |
-| [xColors](https://x-colors.herokuapp.com/) | Generate & convert colors | Yes | Yes | ? |
+| [Art Institute of Chicago](https://api.artic.edu/docs/) | Art | Yes | Yes | 実装済み |
+| [Colormind](http://colormind.io/api-access/) | Color scheme generator | No | Unknown | 実装済み |
+| [ColourLovers](http://www.colourlovers.com/api) | Get various patterns, palettes and images | No | Unknown | 実装済み |
+| [DummyImage](https://dummyimage.com/) | Generate placeholder images with custom size, colors and text | Yes | Unknown | 実装済み |
+| [EmojiHub](https://github.com/cheatsnake/emojihub) | Get emojis by categories and groups | Yes | Yes | 実装済み |
+| [Icon Horse](https://icon.horse) | Favicons for any website, with fallbacks | Yes | Yes | 実装済み |
+| [Icons8](https://img.icons8.com/) | Icons (find "search icon" hyperlink in page) | Yes | Unknown | 実装済み |
+| [Lordicon](https://lordicon.com/) | Icons with predone Animations | Yes | Yes | 実装済み |
+| [Metropolitan Museum of Art](https://metmuseum.github.io/) | Met Museum of Art | Yes | No | 実装済み |
+| [PHP-Noise](https://php-noise.com/) | Noise Background Image Generator | Yes | Yes | 実装済み |
+| [Pixel Encounter](https://pixelencounter.com/api) | SVG Icon Generator | Yes | No | 実装済み |
+| [xColors](https://x-colors.herokuapp.com/) | Generate & convert colors | Yes | Yes | 実装済み |
 
 ### Blockchain
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [Chainlink](https://chain.link/developer-resources) | Build hybrid smart contracts with Chainlink | Yes | Unknown | ? |
-| [Chainpoint](https://tierion.com/chainpoint/) | Chainpoint is a global network for anchoring data to the Bitcoin blockchain | Yes | Unknown | ? |
-| [Helium](https://docs.helium.com/api/blockchain/introduction/) | Helium is a global, distributed network of Hotspots that create public, long-range wireless coverage | Yes | Unknown | ? |
-| [Steem](https://developers.steem.io/) | Blockchain-based blogging and social media website | No | No | ? |
-| [TWZRD Agent Intel](https://intel.twzrd.xyz) | Solana on-chain agent trust scoring via MCP; 4 free tools to score, resolve and verify AI agent wallets | Yes | Yes | ? |
-| [Walltime](https://walltime.info/api.html) | To retrieve Walltime's market info | Yes | Unknown | ? |
 
 ### Books
 
@@ -114,15 +99,7 @@
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [Domainsdb.info](https://domainsdb.info/) | Registered Domain Names Search | Yes | No | ? |
-| [markerapi](https://markerapi.com) | Trademark Search | No | Unknown | ? |
-| [Pick an Agency](https://www.pickanagency.com/developers) | Search 47,000+ marketing agencies by service, location and rating | Yes | Yes | ? |
-| [Tenders in Hungary](https://tenders.guru/hu/api) | Get data for procurements in Hungary in JSON format | Yes | Unknown | ? |
-| [Tenders in Poland](https://tenders.guru/pl/api) | Get data for procurements in Poland in JSON format | Yes | Unknown | ? |
-| [Tenders in Romania](https://tenders.guru/ro/api) | Get data for procurements in Romania in JSON format | Yes | Unknown | ? |
-| [Tenders in Spain](https://tenders.guru/es/api) | Get data for procurements in Spain in JSON format | Yes | Unknown | ? |
-| [Tenders in Ukraine](https://tenders.guru/ua/api) | Get data for procurements in Ukraine in JSON format | Yes | Unknown | ? |
-
+//いったん私ここまで
 ### Calendar
 
 | API | ?? | HTTPS | CORS | HTML??? |
@@ -781,7 +758,6 @@
 | [Passwordinator](https://github.com/fawazsullia/password-generator/) | Generate random passwords of varying complexities | Yes | Yes | ? |
 | [PhishStats](https://phishstats.info/) | Phishing database | Yes | Unknown | ? |
 | [UK Police](https://data.police.uk/docs/) | UK Police data | Yes | Unknown | ? |
-| [URLhaus](https://urlhaus.abuse.ch/api/) | Database of malicious URLs used for malware distribution | Yes | Unknown | ? |
 | [Virushee](https://api.virushee.com/) | Virushee file/data scanning | Yes | Yes | ? |
 
 ### Social
@@ -977,3 +953,5 @@
 1. `docs/apis` ???URL??????API????
 2. `$webapi-page-maker <URL1> <URL2> ...` ??????????????? `templates/` ?HTML??????
 3. `fronted-v2/js/catalog.js` ? `docs/specification.md` ?????????
+
+

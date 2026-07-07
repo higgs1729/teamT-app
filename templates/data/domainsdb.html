@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<!--
+  DomainsDB Search
+  目的: 登録済みドメイン名を検索するDomainsDB APIの紹介ページ。
+  構成: キーワード検索 / 取得結果一覧 / CORS失敗時のサンプル表示。
+-->
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DomainsDB Search</title>
+  <style>
+    :root{--ink:#172033;--muted:#667085;--panel:#fff;--line:#d7e3ef;--accent:#0f766e;--soft:#eefaf7}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:"Segoe UI",Meiryo,sans-serif;color:var(--ink);background:linear-gradient(135deg,#eefaf7,#f7fbff)}
+    main{width:min(1080px,calc(100% - 28px));margin:auto;padding:28px 0 42px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:22px;box-shadow:0 14px 34px rgba(18,77,73,.08)}.layout{display:grid;grid-template-columns:.9fr 1.1fr;gap:16px}.tag{font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--accent)}h1{font-size:clamp(28px,4vw,44px);line-height:1.08;margin:10px 0}.lead,.status{color:var(--muted);line-height:1.75}.form{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:16px}input,button{min-height:44px;border-radius:8px;font:inherit}input{border:1px solid var(--line);padding:0 12px}button{border:0;background:var(--accent);color:#fff;font-weight:700;cursor:pointer}.grid{display:grid;gap:10px}.card{border:1px solid var(--line);border-radius:8px;background:var(--soft);padding:14px}.card small{display:block;color:var(--muted);margin-bottom:6px}.card strong{font-size:18px}.link{color:var(--accent);font-weight:700;text-decoration:none}@media(max-width:840px){.layout,.form{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="layout">
+    <section class="panel">
+      <div class="tag">domainsdb.info</div>
+      <h1>登録済みドメイン名をキーワード検索</h1>
+      <p class="lead">DomainsDB は登録済みドメイン名を検索できるAPIです。キーワードを入力して公開APIへの取得を試し、失敗時はサンプル結果を表示します。</p>
+      <div class="form">
+        <input id="query" value="openai" aria-label="domain keyword">
+        <button id="loadBtn" type="button">検索</button>
+      </div>
+      <p id="status" class="status">検索語を入れて取得してください。</p>
+      <a class="link" href="https://domainsdb.info/" target="_blank" rel="noreferrer">公式ページ</a>
+    </section>
+    <section class="panel"><div id="results" class="grid"></div></section>
+  </main>
+  <script>
+    const sample = [{domain:"openai.com", create_date:"2007-01-19", update_date:"2025-03-01", country:"US"}, {domain:"openai.org", create_date:"2015-06-25", update_date:"2025-02-14", country:"US"}];
+    function render(items, fallback){
+      document.getElementById("status").textContent = fallback ? "ライブ取得できなかったためサンプルを表示しています。" : `${items.length}件を表示しています。`;
+      document.getElementById("results").innerHTML = items.map((item)=>`<article class="card"><small>${item.country || "domain"}</small><strong>${item.domain || item.name || "-"}</strong><p class="status">created: ${item.create_date || "-"} / updated: ${item.update_date || "-"}</p></article>`).join("");
+    }
+    async function searchDomains(){
+      const query = document.getElementById("query").value.trim() || "openai";
+      document.getElementById("status").textContent = "loading...";
+      try{
+        const res = await fetch(`https://api.domainsdb.info/v1/domains/search?domain=${encodeURIComponent(query)}`, {cache:"no-store"});
+        if(!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        const items = (json.domains || []).slice(0, 12);
+        if(!items.length) throw new Error("empty");
+        render(items, false);
+      }catch(error){
+        console.warn(error);
+        render(sample, true);
+      }
+    }
+    document.getElementById("loadBtn").addEventListener("click", searchDomains);
+    render(sample, false);
+  </script>
+</body>
+</html>

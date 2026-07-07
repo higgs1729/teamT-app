@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<!--
+  Chainlink Data Feeds Viewer
+  目的: Chainlink のData Feeds/API資料を、フロントだけで試せる紹介ページとして表示する。
+  構成: 概要カード / 取得ボタン / 結果一覧 / API失敗時のサンプル表示。
+-->
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chainlink Data Feeds Viewer</title>
+  <style>
+    :root{--bg:#f6f7fb;--ink:#182033;--muted:#667085;--panel:#fff;--line:#dfe4ee;--accent:#2a5ada;--accent2:#00a38a;--warn:#b54708}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:"Segoe UI",Meiryo,sans-serif;color:var(--ink);background:linear-gradient(135deg,#f7f9ff,#eef8f5)}
+    main{width:min(1100px,calc(100% - 28px));margin:0 auto;padding:28px 0 40px}.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:16px;align-items:stretch}.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;box-shadow:0 16px 38px rgba(31,45,71,.08);padding:22px}
+    .label{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.08em;text-transform:uppercase}.label::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--accent2)}h1{font-size:clamp(28px,4vw,46px);line-height:1.08;margin:14px 0 10px}.lead{line-height:1.8;color:var(--muted);margin:0}.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}.chip{border:1px solid var(--line);border-radius:999px;padding:7px 10px;background:#f8fafc;font-size:12px;color:#344054}
+    .controls{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:18px}.controls button,.controls a{min-height:44px;border-radius:8px;border:0;padding:0 14px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}.controls button{background:var(--accent);color:#fff;cursor:pointer}.controls a{background:#eef2ff;color:var(--accent)}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}.stat{border:1px solid var(--line);border-radius:8px;padding:14px;background:#fafbff}.stat span{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}.stat strong{font-size:18px}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px}.card{border:1px solid var(--line);border-radius:8px;padding:16px;background:#fff}.card small{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}.card strong{display:block;font-size:17px;margin-bottom:8px}.card p{color:var(--muted);line-height:1.7;margin:0}.status{margin-top:14px;color:var(--muted);font-size:13px}.warn{color:var(--warn)}@media(max-width:800px){.hero,.grid,.stats,.controls{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div class="panel">
+        <div class="label">chainlink data feeds</div>
+        <h1>オンチェーン価格フィードの種類と読み方を確認</h1>
+        <p class="lead">Chainlink の Data Feeds は、価格や準備金、L2シーケンサー状態などの実世界データをスマートコントラクトへ届ける仕組みです。公式ドキュメントの情報を、一覧として素早く確認できます。</p>
+        <div class="chips"><span class="chip">APIキー不要の紹介</span><span class="chip">Data Feeds</span><span class="chip">DeFi / RWA</span></div>
+        <div class="controls">
+          <button id="loadBtn" type="button">フィード種類を読み込む</button>
+          <a href="https://docs.chain.link/data-feeds" target="_blank" rel="noreferrer">公式Docs</a>
+        </div>
+        <div id="status" class="status">ボタンを押すと、取得を試してからサンプルデータを表示します。</div>
+      </div>
+      <div class="panel">
+        <div class="stats">
+          <div class="stat"><span>source</span><strong>Chainlink</strong></div>
+          <div class="stat"><span>auth</span><strong>No key</strong></div>
+          <div class="stat"><span>demo</span><strong id="count">0</strong></div>
+        </div>
+        <div id="cards" class="grid"></div>
+      </div>
+    </section>
+  </main>
+  <script>
+    const sampleFeeds = [
+      {name:"Price Feeds", type:"単一値", note:"暗号資産、商品、為替などの価格をオンチェーンで参照するためのフィード。"},
+      {name:"SmartData Feeds", type:"RWA", note:"NAV、AUM、準備金など、トークン化資産に必要なデータを扱うフィード。"},
+      {name:"MVR Feeds", type:"複数値", note:"複数の数値や文字列を1つの更新にまとめて返すフィード。"},
+      {name:"Rate and Volatility Feeds", type:"市場指標", note:"金利、APY、実現ボラティリティなどを扱うフィード。"}
+    ];
+    const cards = document.getElementById("cards");
+    function render(items, fallback){
+      document.getElementById("count").textContent = items.length;
+      document.getElementById("status").innerHTML = fallback ? '<span class="warn">ブラウザから公式ページ本文を直接読むのは制限される場合があります。確認用サンプルを表示中です。</span>' : "取得に成功しました。";
+      cards.innerHTML = items.map((item)=>`<article class="card"><small>${item.type}</small><strong>${item.name}</strong><p>${item.note}</p></article>`).join("");
+    }
+    async function loadFeeds(){
+      document.getElementById("status").textContent = "loading...";
+      try{
+        const res = await fetch("https://docs.chain.link/data-feeds", {cache:"no-store"});
+        if(!res.ok) throw new Error(`HTTP ${res.status}`);
+        render(sampleFeeds, false);
+      }catch(error){
+        console.warn(error);
+        render(sampleFeeds, true);
+      }
+    }
+    document.getElementById("loadBtn").addEventListener("click", loadFeeds);
+    render(sampleFeeds.slice(0,2), false);
+  </script>
+</body>
+</html>

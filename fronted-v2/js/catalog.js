@@ -203,6 +203,8 @@ window.CATALOG = [
     description: "INEI のテーマ別統計リンクを検索・参照", apiName: "INEI 統計ポータル", apiUrl: "https://www.inei.gob.pe/estadisticas-indice-tematico/", icon: "ti-article" },
   { id: "bank-negara-malaysia-open-data", file: "data/bank-negara-malaysia-open-data.html", title: "BNM Open Data", category: "データ・検索系", categoryPath: ["データ・検索系", "統計・公的データ"],
     description: "マレーシア中央銀行の公開データポータルを用途別に探索", apiName: "Bank Negara Malaysia Open Data", apiUrl: "https://apikijangportal.bnm.gov.my/", icon: "ti-currency-yen" },
+  { id: "world-bank", file: "data/world-bank.html", title: "World Bank 統計データ", category: "データ・検索系", categoryPath: ["データ・検索系", "統計・公的データ"],
+    description: "国と指標を選んで人口・GDP・平均寿命などの年次推移を取得", apiName: "World Bank Indicators API", apiUrl: "https://datahelpdesk.worldbank.org/knowledgebase/topics/125589", icon: "ti-globe" },
   { id: "interpol-red-notices", file: "data/interpol-red-notices.html", title: "Interpol 指名手配検索", category: "データ・検索系", categoryPath: ["データ・検索系", "事件・捜査"],
     description: "Interpol赤手配の人物を条件検索して表示", apiName: "Interpol Notices API", apiUrl: "https://interpol.api.bund.dev/", icon: "ti-search" },
   { id: "ibb-open-data", file: "data/ibb-open-data.html", title: "İBB オープンデータ", category: "データ・検索系", categoryPath: ["データ・検索系", "都市・オープンデータ"],

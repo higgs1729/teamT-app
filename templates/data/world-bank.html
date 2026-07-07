@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>World Bank 統計データ</title>
+<!--
+  World Bank Indicators API 紹介ページ
+  概要: 国コード×指標コードで https://api.worldbank.org/v2/country/{国}/indicator/{指標}?format=json を叩き、
+        直近の年次データを棒グラフ風の一覧で表示する。認証不要・CORS許可済み。
+  構成: 国/指標セレクト → 取得ボタン → 最新値カード + 年次推移リスト（読込中/該当データなし/エラー状態あり）
+-->
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:"Yu Gothic",sans-serif;
+background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+min-height:100vh;
+padding:30px 16px;
+display:flex;
+justify-content:center;
+}
+
+.container{
+width:100%;
+max-width:640px;
+background:rgba(255,255,255,.1);
+backdrop-filter:blur(14px);
+border-radius:20px;
+padding:28px;
+color:#fff;
+box-shadow:0 10px 30px rgba(0,0,0,.35);
+}
+
+h1{
+font-size:26px;
+text-align:center;
+margin-bottom:6px;
+}
+
+.sub{
+text-align:center;
+font-size:13px;
+color:#cbd5e1;
+margin-bottom:22px;
+}
+
+.controls{
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+margin-bottom:20px;
+}
+
+select{
+flex:1;
+min-width:140px;
+padding:10px;
+border-radius:10px;
+border:none;
+font-size:15px;
+outline:none;
+}
+
+button{
+padding:10px 22px;
+background:#38bdf8;
+color:#fff;
+border:none;
+border-radius:10px;
+font-size:15px;
+cursor:pointer;
+transition:.2s;
+}
+
+button:hover{
+background:#0ea5e9;
+transform:translateY(-2px);
+}
+
+button:disabled{
+background:#64748b;
+cursor:not-allowed;
+transform:none;
+}
+
+.state{
+text-align:center;
+padding:20px;
+color:#e2e8f0;
+font-size:15px;
+}
+
+.state.error{
+color:#fecaca;
+}
+
+.latest{
+background:#fff;
+color:#111827;
+border-radius:14px;
+padding:18px;
+margin-bottom:16px;
+text-align:center;
+animation:fade .4s;
+}
+
+.latest .value{
+font-size:30px;
+font-weight:bold;
+margin:6px 0;
+}
+
+.latest .year{
+color:#64748b;
+font-size:13px;
+}
+
+.history{
+display:flex;
+flex-direction:column;
+gap:6px;
+}
+
+.bar-row{
+display:flex;
+align-items:center;
+gap:10px;
+font-size:13px;
+animation:fade .4s;
+}
+
+.bar-row .yr{
+width:44px;
+text-align:right;
+color:#e2e8f0;
+}
+
+.bar-track{
+flex:1;
+background:rgba(255,255,255,.15);
+border-radius:6px;
+overflow:hidden;
+height:18px;
+}
+
+.bar-fill{
+height:100%;
+background:linear-gradient(90deg,#38bdf8,#818cf8);
+border-radius:6px;
+}
+
+.bar-row .num{
+width:110px;
+text-align:right;
+color:#f1f5f9;
+white-space:nowrap;
+}
+
+.doc-link{
+display:block;
+text-align:center;
+margin-top:20px;
+font-size:12px;
+color:#93c5fd;
+text-decoration:none;
+}
+
+.doc-link:hover{
+text-decoration:underline;
+}
+
+@keyframes fade{
+from{opacity:0; transform:translateY(10px);}
+to{opacity:1; transform:translateY(0);}
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>🌐 World Bank 統計データ</h1>
+<div class="sub">国と指標を選んで、直近の年次データを取得します</div>
+
+<div class="controls">
+<select id="country">
+<option value="JP">日本</option>
+<option value="US">アメリカ合衆国</option>
+<option value="CN">中国</option>
+<option value="IN">インド</option>
+<option value="DE">ドイツ</option>
+<option value="FR">フランス</option>
+<option value="GB">イギリス</option>
+<option value="BR">ブラジル</option>
+<option value="ZA">南アフリカ</option>
+<option value="AU">オーストラリア</option>
+</select>
+
+<select id="indicator">
+<option value="SP.POP.TOTL">総人口</option>
+<option value="NY.GDP.MKTP.CD">GDP（名目・米ドル）</option>
+<option value="NY.GDP.PCAP.CD">1人あたりGDP（米ドル）</option>
+<option value="SP.DYN.LE00.IN">平均寿命（年）</option>
+<option value="SL.UEM.TOTL.ZS">失業率（％）</option>
+<option value="EN.ATM.CO2E.PC">CO2排出量（1人あたりトン）</option>
+</select>
+
+<button id="fetchBtn" onclick="loadIndicator()">取得</button>
+</div>
+
+<div id="result"></div>
+
+<a class="doc-link" href="https://datahelpdesk.worldbank.org/knowledgebase/topics/125589" target="_blank" rel="noopener">
+World Bank API ドキュメントを見る
+</a>
+
+</div>
+
+<script>
+
+const countrySelect = document.getElementById("country");
+const indicatorSelect = document.getElementById("indicator");
+const fetchBtn = document.getElementById("fetchBtn");
+const result = document.getElementById("result");
+
+async function loadIndicator(){
+
+    const country = countrySelect.value;
+    const indicator = indicatorSelect.value;
+    const indicatorLabel = indicatorSelect.options[indicatorSelect.selectedIndex].text;
+
+    fetchBtn.disabled = true;
+    result.innerHTML = '<div class="state">読み込み中...</div>';
+
+    try{
+
+        const url = `https://api.worldbank.org/v2/country/${country}/indicator/${indicator}?format=json&per_page=20&mrnev=15`;
+        const res = await fetch(url);
+
+        if(!res.ok){
+            throw new Error(`APIエラー（HTTP ${res.status}）`);
+        }
+
+        const json = await res.json();
+        const rows = (json && json[1]) ? json[1] : null;
+
+        if(!rows || rows.length === 0){
+            result.innerHTML = '<div class="state">該当するデータが見つかりませんでした。</div>';
+            return;
+        }
+
+        // 値がある年だけを新しい順に抽出
+        const valid = rows.filter(r => r.value !== null);
+
+        if(valid.length === 0){
+            result.innerHTML = '<div class="state">この国・指標の組み合わせでは数値が公開されていません。</div>';
+            return;
+        }
+
+        const latest = valid[0];
+        const maxValue = Math.max(...valid.map(r => r.value));
+
+        const historyHtml = valid.map(r => {
+            const ratio = maxValue > 0 ? (r.value / maxValue) * 100 : 0;
+            return `
+            <div class="bar-row">
+                <span class="yr">${r.date}</span>
+                <div class="bar-track"><div class="bar-fill" style="width:${ratio}%;"></div></div>
+                <span class="num">${formatValue(r.value)}</span>
+            </div>`;
+        }).join("");
+
+        result.innerHTML = `
+        <div class="latest">
+            <div>${latest.country.value} / ${indicatorLabel}</div>
+            <div class="value">${formatValue(latest.value)}</div>
+            <div class="year">${latest.date}年時点（最新値）</div>
+        </div>
+        <div class="history">${historyHtml}</div>
+        `;
+
+    }catch(error){
+        result.innerHTML = `<div class="state error">取得に失敗しました：${error.message}</div>`;
+    }finally{
+        fetchBtn.disabled = false;
+    }
+}
+
+function formatValue(value){
+    if(Math.abs(value) >= 1e9){
+        return (value / 1e9).toFixed(2) + "B";
+    }
+    if(Math.abs(value) >= 1e6){
+        return (value / 1e6).toFixed(2) + "M";
+    }
+    return Number(value.toFixed(2)).toLocaleString();
+}
+
+loadIndicator();
+
+</script>
+</body>
+</html>

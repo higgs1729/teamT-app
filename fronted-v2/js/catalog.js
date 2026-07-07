@@ -182,6 +182,8 @@ window.CATALOG = [
     description: "IP位置情報データをダッシュボード形式で表示（サンプル）", apiName: "ローカルサンプルデータ", apiUrl: "", icon: "ti-user" },
   { id: "food-hygiene-ratings", file: "data/food-hygiene-ratings.html", title: "食品衛生レーティング", category: "データ・検索系", categoryPath: ["データ・検索系", "食品・生活"],
     description: "食品衛生評価の公開データを地域別に探索", apiName: "Food Hygiene Ratings API", apiUrl: "https://ratings.food.gov.uk/open-data", icon: "ti-tools-kitchen-2" },
+  { id: "open-food-facts", file: "data/open-food-facts.html", title: "Open Food Facts 商品検索", category: "データ・検索系", categoryPath: ["データ・検索系", "食品・生活"],
+    description: "商品名で世界の食品データベースを検索しNutri-Score等を表示", apiName: "Open Food Facts", apiUrl: "https://world.openfoodfacts.org/data", icon: "ti-tools-kitchen-2" },
   { id: "inei-portal", file: "data/inei-portal.html", title: "INEI 統計ポータル", category: "データ・検索系", categoryPath: ["データ・検索系", "統計・公的データ"],
     description: "INEI のテーマ別統計リンクを検索・参照", apiName: "INEI 統計ポータル", apiUrl: "https://www.inei.gob.pe/estadisticas-indice-tematico/", icon: "ti-article" },
   { id: "bank-negara-malaysia-open-data", file: "data/bank-negara-malaysia-open-data.html", title: "BNM Open Data", category: "データ・検索系", categoryPath: ["データ・検索系", "統計・公的データ"],

@@ -137,6 +137,7 @@
 | data | tenders-guru-ua | Tenders Guru API | ウクライナの公共調達データを取得 |
 | data | ip | ローカルサンプルデータ | IPジオロケーション情報の表示サンプル |
 | data | food-hygiene-ratings | Food Hygiene Ratings API | 食品衛生評価の公開データを地域別に探索 |
+| data | open-food-facts | Open Food Facts | 商品名で世界の食品データベースを検索してNutri-Score等を表示 |
 | data | inei-portal | INEI 統計ポータル | INEI のテーマ別統計リンクを検索・参照 |
 | data | bank-negara-malaysia-open-data | Bank Negara Malaysia Open Data | マレーシア中央銀行の公開データポータルを用途別に探索 |
 | data | interpol-red-notices | Interpol Notices API | Interpol赤手配の人物を条件検索して表示 |

@@ -93,6 +93,8 @@
 | data | applemusic | iTunes Search API | 楽曲検索 |
 | data | countrySearch | CountriesNow API | 国名から人口・首都を検索 |
 | data | ip | ローカルサンプルデータ | IPジオロケーション情報の表示サンプル |
+| data | simeitehai | FBI Wanted | FBI公開指名手配データのカテゴリ別一覧表示 |
+| data | scp_viewer | scp-data.tedivm.com | SCP番号から収容記録を検索・閲覧 |
 | data | kabu | Alpha Vantage | 銘柄コードで株価・騰落率を検索 |
 | data | nasa | NASA APOD | 今日の天体写真 |
 | data | radar | OpenSky Network API | 上空の航空機データを地図に表示 |

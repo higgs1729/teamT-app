@@ -17,7 +17,6 @@ control: continue
 | [Escape](https://github.com/polarspetroll/EscapeAPI) | An API for escaping different kind of queries | Yes | No | ? |
 | [FilterLists](https://filterlists.com) | Lists of filters for adblockers and firewalls | Yes | Unknown | ? |
 | [Hashable](https://hashable.space/pages/api/) | A REST API to access high level cryptographic functions and methods | Yes | Yes | ? |
-| [IPLogs](https://iplogs.com/docs) | Free VPN, proxy, Tor and datacenter IP detection. 13 sources, active probing | Yes | Yes | ? |
 | [Microsoft Security Response Center (MSRC)](https://msrc.microsoft.com/report/developer) | Programmatic interfaces to engage with the Microsoft Security Response Center (MSRC) | Yes | Unknown | ? |
 | [Mozilla http scanner](https://github.com/mozilla/http-observatory/blob/master/httpobs/docs/api.md) | Mozilla observatory http scanner | Yes | Unknown | ? |
 | [Mozilla tls scanner](https://github.com/mozilla/tls-observatory#api-endpoints) | Mozilla observatory tls scanner | Yes | Unknown | ? |

@@ -175,6 +175,7 @@
 | data | ip-fast | ip-fast.com | IPアドレス・国・都市情報を取得 |
 | data | ipify | IPify | 現在のグローバルIPアドレスをJSONで取得 |
 | data | ipinfo | IPinfo | IPの地域・組織情報を取得 |
+| data | iplogs | IPLogs | IPアドレスのVPN・プロキシ・Tor判定をスコア付きで表示 |
 | data | my-ip | MY IP | IPアドレス情報を取得 |
 | data | isitdownstatus | isitdownstatus | Webサイトやサービスのダウン状態確認API候補 |
 | data | jsdelivr | jsDelivr Data API | npmパッケージのCDNファイル情報を取得 |

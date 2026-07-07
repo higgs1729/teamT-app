@@ -136,6 +136,7 @@
 | data | tenders-guru-es | Tenders Guru API | スペインの公共調達データを取得 |
 | data | tenders-guru-ua | Tenders Guru API | ウクライナの公共調達データを取得 |
 | data | ip | ローカルサンプルデータ | IPジオロケーション情報の表示サンプル |
+| data | brasilapi | BrasilAPI | CEP(郵便番号)とDDD(市外局番)からブラジルの住所・地域情報を検索 |
 | data | food-hygiene-ratings | Food Hygiene Ratings API | 食品衛生評価の公開データを地域別に探索 |
 | data | inei-portal | INEI 統計ポータル | INEI のテーマ別統計リンクを検索・参照 |
 | data | bank-negara-malaysia-open-data | Bank Negara Malaysia Open Data | マレーシア中央銀行の公開データポータルを用途別に探索 |

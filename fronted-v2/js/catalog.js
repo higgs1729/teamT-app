@@ -180,6 +180,8 @@ window.CATALOG = [
     description: "ウクライナの公共調達データをページ単位で取得", apiName: "Tenders Guru API", apiUrl: "https://tenders.guru/ua/api", icon: "ti-article" },
   { id: "ip", file: "data/ip.html", title: "IP Geolocation Dashboard", category: "データ・検索系", categoryPath: ["データ・検索系", "ネットワーク・セキュリティ"],
     description: "IP位置情報データをダッシュボード形式で表示（サンプル）", apiName: "ローカルサンプルデータ", apiUrl: "", icon: "ti-user" },
+  { id: "brasilapi", file: "data/brasilapi.html", title: "ブラジル公共データ検索", category: "データ・検索系", categoryPath: ["データ・検索系", "統計・公的データ"],
+    description: "CEP(郵便番号)とDDD(市外局番)からブラジルの住所・地域情報を検索", apiName: "BrasilAPI", apiUrl: "https://brasilapi.com.br/docs", icon: "ti-map" },
   { id: "food-hygiene-ratings", file: "data/food-hygiene-ratings.html", title: "食品衛生レーティング", category: "データ・検索系", categoryPath: ["データ・検索系", "食品・生活"],
     description: "食品衛生評価の公開データを地域別に探索", apiName: "Food Hygiene Ratings API", apiUrl: "https://ratings.food.gov.uk/open-data", icon: "ti-tools-kitchen-2" },
   { id: "inei-portal", file: "data/inei-portal.html", title: "INEI 統計ポータル", category: "データ・検索系", categoryPath: ["データ・検索系", "統計・公的データ"],

@@ -154,6 +154,8 @@ window.CATALOG = [
     description: "Minecraft / Steam / Xbox / Hytale のアカウントを検索", apiName: "PlayerDB", apiUrl: "https://playerdb.co/", icon: "ti-user" },
   { id: "hon", file: "data/hon.html", title: "現代漫画検索", category: "データ・検索系", categoryPath: ["データ・検索系", "音楽・書籍"],
     description: "キーワードで書籍・漫画を検索して表紙を表示", apiName: "Open Library", apiUrl: "https://openlibrary.org/developers/api", icon: "ti-book" },
+  { id: "bhagavad-gita", file: "data/bhagavad-gita.html", title: "バガヴァッド・ギーター 詩節ビューア", category: "データ・検索系", categoryPath: ["データ・検索系", "音楽・書籍"],
+    description: "テルグ語・オディア語でギーターの詩節をランダム表示・章節検索", apiName: "Bhagavad Gita telugu API", apiUrl: "https://gita-api.vercel.app", icon: "ti-book" },
   { id: "randomuser", file: "data/index.html", title: "ランダムユーザー生成器", category: "データ・検索系", categoryPath: ["データ・検索系", "記事・プロフィール"],
     description: "ランダムなプロフィール(氏名/写真/住所)を生成", apiName: "Random User Generator", apiUrl: "https://randomuser.me/", icon: "ti-user" },
   { id: "cars", file: "data/Cars.html", title: "Car Explorer", category: "データ・検索系", categoryPath: ["データ・検索系", "乗り物・交通"],

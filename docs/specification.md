@@ -198,6 +198,7 @@
 | data | monster-hunter-world | MHW DB API | モンハンワールドのモンスター図鑑 |
 | data | playerdb | PlayerDB | Minecraft / Steam / Xbox / Hytale のプロフィール検索 |
 | data | hon | Open Library | 書籍・漫画検索 |
+| data | bhagavad-gita | Bhagavad Gita telugu API | バガヴァッド・ギーターの詩節をテルグ語・オディア語で検索表示 |
 | data | index | Random User Generator | ランダムなプロフィール生成 |
 | data | Cars | NHTSA Vehicle API / Wikipedia API / Argos Translate | メーカーとモデルを選んで車両情報と画像を検索 |
 | data | Yugio | YGOPRODeck API / MyMemory Translation API | 遊戯王カードを検索して詳細表示 |

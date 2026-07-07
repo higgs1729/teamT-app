@@ -1,0 +1,444 @@
+<!--
+  目的: İBB オープンデータポータルをキーワードとカテゴリで探索する。
+  構成: ヒーロー / 検索フォーム / グループチップ / 概要 / データセット一覧。
+-->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>İBB オープンデータ</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg1: #07111d;
+      --bg2: #17304a;
+      --card: rgba(8, 15, 28, 0.84);
+      --line: rgba(255, 255, 255, 0.12);
+      --text: #f4f8ff;
+      --muted: #b5c0d5;
+      --accent: #22c55e;
+      --accent2: #38bdf8;
+      --shadow: 0 24px 72px rgba(0, 0, 0, 0.36);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 15%, rgba(34, 197, 94, 0.15), transparent 28%),
+        radial-gradient(circle at 85% 0%, rgba(56, 189, 248, 0.12), transparent 22%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+    }
+    .wrap {
+      width: min(1240px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    .hero,
+    .panel,
+    .footer {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+    .hero { padding: 28px; }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 13px;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, 0.12);
+      color: #d3ffe3;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 16px 0 10px;
+      font-size: clamp(30px, 4vw, 54px);
+      line-height: 1.05;
+    }
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 840px;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .pill {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      color: #e7efff;
+      font-size: 13px;
+    }
+    .panel {
+      margin-top: 18px;
+      padding: 18px;
+    }
+    .controls {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) auto auto;
+      gap: 12px;
+      align-items: center;
+    }
+    .input,
+    .button {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(8, 15, 26, 0.92);
+      color: var(--text);
+      font: inherit;
+    }
+    .input::placeholder { color: #92a3bd; }
+    .button {
+      cursor: pointer;
+      font-weight: 700;
+      background: linear-gradient(135deg, #22c55e, #38bdf8);
+      box-shadow: 0 12px 28px rgba(34, 197, 94, 0.18);
+      transition: transform 0.18s ease;
+    }
+    .button:hover { transform: translateY(-1px); }
+    .button.ghost {
+      background: rgba(255, 255, 255, 0.06);
+      box-shadow: none;
+      font-weight: 600;
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .chip {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.05);
+      color: #dbe8ff;
+      padding: 8px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+    .chip.active,
+    .chip:hover {
+      background: rgba(34, 197, 94, 0.16);
+      border-color: rgba(34, 197, 94, 0.38);
+      color: #ddffe9;
+    }
+    .status {
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #dfe8f5;
+      line-height: 1.65;
+    }
+    .status.error {
+      background: rgba(248, 113, 113, 0.12);
+      color: #ffd3d3;
+    }
+    .stats {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .stat {
+      padding: 18px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .stat-label { color: var(--muted); font-size: 13px; }
+    .stat-value { font-size: 26px; font-weight: 800; margin-top: 8px; }
+    .grid {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .card {
+      padding: 18px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .name { font-size: 18px; font-weight: 800; line-height: 1.35; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, 0.14);
+      color: #d4ffe3;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .desc { color: var(--muted); line-height: 1.65; font-size: 14px; }
+    .meta-row {
+      margin-top: auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: #dce6f8;
+      font-size: 13px;
+    }
+    .footer {
+      margin-top: 18px;
+      padding: 18px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+    a { color: #d4ffe3; }
+    @media (max-width: 1040px) {
+      .controls,
+      .stats,
+      .grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (max-width: 720px) {
+      .controls,
+      .stats,
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="eyebrow">İBB Open Data Portal</div>
+      <h1>İBB オープンデータ</h1>
+      <p class="lead">İstanbul Büyükşehir Belediyesi の公開データポータルをキーワードとカテゴリで探索します。CKAN API でテーマ別のデータセットを検索し、交通・経済・環境などの公開資産を素早く見つけられます。</p>
+      <div class="meta">
+        <span class="pill">CKAN API</span>
+        <span class="pill">group / package search</span>
+        <span class="pill">都市オープンデータ</span>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="controls">
+        <input id="query" class="input" type="search" placeholder="キーワードを入力 (trafik / ekonomi / sağlık など)">
+        <button id="reload" class="button">検索</button>
+        <button id="clear" class="button ghost">クリア</button>
+      </div>
+      <div class="chips" id="chips"></div>
+      <div class="status" id="status">データセットを読み込み中...</div>
+    </section>
+
+    <section class="stats" id="stats"></section>
+    <section class="grid" id="results"></section>
+
+    <section class="footer">
+      <div>ポータル: <a href="https://data.ibb.gov.tr/" target="_blank" rel="noreferrer">data.ibb.gov.tr</a></div>
+      <div>API: <a href="https://data.ibb.gov.tr/api/3/action/package_search" target="_blank" rel="noreferrer">package_search</a></div>
+    </section>
+  </div>
+
+  <script>
+    const API_BASE = "https://data.ibb.gov.tr/api/3/action";
+    const queryInput = document.getElementById("query");
+    const reloadButton = document.getElementById("reload");
+    const clearButton = document.getElementById("clear");
+    const chipsNode = document.getElementById("chips");
+    const statusNode = document.getElementById("status");
+    const statsNode = document.getElementById("stats");
+    const resultsNode = document.getElementById("results");
+
+    let groups = [];
+    let datasets = [];
+    let activeGroup = "all";
+    let sourceMode = "live";
+    const formatCount = new Intl.NumberFormat("ja-JP");
+
+    function setStatus(message, isError = false) {
+      statusNode.textContent = message;
+      statusNode.className = isError ? "status error" : "status";
+    }
+
+    function buildGroupUrl() {
+      return `${API_BASE}/group_list`;
+    }
+
+    function buildSearchUrl(term) {
+      const url = new URL(`${API_BASE}/package_search`);
+      url.searchParams.set("rows", "12");
+      url.searchParams.set("q", term || "");
+      if (activeGroup !== "all") {
+        url.searchParams.set("fq", `groups:${activeGroup}`);
+      }
+      return url.toString();
+    }
+
+    function renderChips() {
+      const visible = ["all", ...groups.slice(0, 8)].map((value) => ({
+        value,
+        label: value === "all" ? "All" : value
+      }));
+      chipsNode.innerHTML = visible.map((item) => `
+        <button class="chip ${activeGroup === item.value ? "active" : ""}" data-group="${item.value}" type="button">${item.label}</button>
+      `).join("");
+      chipsNode.querySelectorAll("[data-group]").forEach((button) => {
+        button.addEventListener("click", () => {
+          activeGroup = button.dataset.group;
+          search();
+        });
+      });
+    }
+
+    function renderStats() {
+      const top = datasets[0];
+      statsNode.innerHTML = [
+        ["表示件数", formatCount.format(datasets.length)],
+        ["総件数", formatCount.format(datasets.total || datasets.length)],
+        ["データ源", sourceMode],
+        ["先頭", top ? top.title : "-"]
+      ].map(([label, value]) => `
+        <div class="stat">
+          <div class="stat-label">${label}</div>
+          <div class="stat-value">${value}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderResults() {
+      if (!datasets.length) {
+        resultsNode.innerHTML = `
+          <div class="card" style="grid-column: 1 / -1;">
+            <div class="name">該当なし</div>
+            <div class="desc">キーワードかカテゴリを変えて再検索してください。</div>
+          </div>
+        `;
+        renderStats();
+        return;
+      }
+      resultsNode.innerHTML = datasets.map((item) => {
+        const groupsText = (item.groups || []).map((group) => group.title).join(", ") || "-";
+        const note = (item.notes || "").slice(0, 180) || "公開データセット";
+        const datasetUrl = `https://data.ibb.gov.tr/dataset/${item.name}`;
+        return `
+          <article class="card">
+            <div class="top">
+              <div>
+                <div class="name">${item.title}</div>
+                <div class="desc">${item.organization?.title || item.author || "-"}</div>
+              </div>
+              <div class="badge">${(item.resources || []).length} res.</div>
+            </div>
+            <div class="desc">${note}</div>
+            <div class="meta-row">
+              <span>Groups: ${groupsText}</span>
+              <span>Modified: ${item.metadata_modified?.slice(0, 10) || "-"}</span>
+            </div>
+            <div class="meta-row">
+              <span><a href="${datasetUrl}" target="_blank" rel="noreferrer">dataset page</a></span>
+              <span><a href="${item.resources?.[0]?.url || datasetUrl}" target="_blank" rel="noreferrer">resource</a></span>
+            </div>
+          </article>
+        `;
+      }).join("");
+      renderStats();
+    }
+
+    function applyFilter(result) {
+      const term = queryInput.value.trim().toLowerCase();
+      const list = result.filter((item) => {
+        const text = [item.title, item.notes, item.organization?.title, (item.tags || []).map((tag) => tag.name).join(" "), (item.groups || []).map((group) => group.title).join(" ")].join(" ").toLowerCase();
+        return !term || text.includes(term);
+      });
+      datasets = list;
+    }
+
+    async function loadGroups() {
+      try {
+        const response = await fetch(buildGroupUrl());
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        const json = await response.json();
+        groups = json.result || [];
+        sourceMode = "live";
+      } catch (error) {
+        groups = ["bilgi-hizmetleri", "cevre-hizmetleri", "ekonomi", "enerji-hizmetleri", "guvenlik", "sosyal-hizmetler", "ulasim-hizmetleri", "yasam", "yonetisim"];
+        sourceMode = "sample";
+      }
+      renderChips();
+    }
+
+    async function search() {
+      setStatus("データセットを検索しています...");
+      try {
+        const response = await fetch(buildSearchUrl(queryInput.value.trim()));
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        const json = await response.json();
+        datasets = json.result?.results || [];
+        datasets.total = json.result?.count || datasets.length;
+        sourceMode = "live";
+        setStatus(`İBB の公開データセットを ${formatCount.format(datasets.total)} 件から ${formatCount.format(datasets.length)} 件表示しています。`);
+      } catch (error) {
+        datasets = [];
+        datasets.total = 0;
+        sourceMode = "fallback";
+        setStatus(`検索に失敗しました: ${error.message}`, true);
+      }
+      applyFilter(datasets);
+      renderResults();
+    }
+
+    reloadButton.addEventListener("click", search);
+    clearButton.addEventListener("click", () => {
+      queryInput.value = "";
+      activeGroup = "all";
+      renderChips();
+      search();
+    });
+    queryInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        search();
+      }
+    });
+    queryInput.addEventListener("input", () => {
+      if (datasets.length) {
+        applyFilter(datasets);
+        renderResults();
+      }
+    });
+
+    (async () => {
+      await loadGroups();
+      await search();
+    })();
+  </script>
+</body>
+</html>

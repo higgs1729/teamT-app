@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bored Activity Roulette</title>
+  <style>
+    :root { --bg:#1a1028; --panel:#28153d; --line:#56307b; --text:#f4ecff; --sub:#d1bce8; --accent:#f9a8d4; --ok:#34d399; --warn:#fbbf24; }
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at top,#3f1f5a,#1a1028);font-family:"Segoe UI",sans-serif;color:var(--text)}
+    .card{width:min(720px,92vw);background:linear-gradient(180deg,#311b49,#25163a);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 14px 26px rgba(0,0,0,.35)}
+    h1{margin:0 0 10px}
+    p{color:var(--sub)}
+    .controls{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 14px}
+    button,select,a{padding:10px 12px;border-radius:10px;border:none}
+    select{background:#1b0f2b;border:1px solid #5a3781;color:var(--text)}
+    button{cursor:pointer;font-weight:700;background:linear-gradient(90deg,#f472b6,#fb7185);color:#2b0f22}
+    .pill{display:inline-block;padding:4px 9px;border-radius:999px;font-size:.8rem;background:#4b236d}
+    .status{margin-top:10px;color:var(--sub)}
+    .activity{margin-top:12px;background:#1b0f2b;border:1px solid #553079;border-radius:12px;padding:14px}
+    .title{font-size:1.2rem;font-weight:700;margin-bottom:8px}
+    ul{margin:0;padding-left:18px;color:#e7d8f7}
+  </style>
+</head>
+<body>
+  <!--
+    概要: Bored API でランダムアクティビティを提案するページ。
+    構成: 種別選択 / API呼び出し / 応答不可時のローカル候補フォールバック。
+  -->
+  <div class="card">
+    <h1>Bored Activity Roulette</h1>
+    <p>気分転換用のアクティビティを1件提案します。APIが利用できない場合はローカル候補に自動切替します。</p>
+    <div class="controls">
+      <select id="type">
+        <option value="">すべて</option>
+        <option value="education">学習</option>
+        <option value="recreational">娯楽</option>
+        <option value="social">交流</option>
+        <option value="diy">DIY</option>
+        <option value="charity">チャリティ</option>
+      </select>
+      <button id="rollBtn">提案をもらう</button>
+      <a href="https://www.boredapi.com/" target="_blank" rel="noreferrer" style="background:#40275f;color:#e9d5ff;text-decoration:none;">公式サイト</a>
+    </div>
+    <div id="status" class="status">ボタンを押して開始してください。</div>
+    <div class="activity">
+      <div id="activityTitle" class="title">まだ提案はありません</div>
+      <ul>
+        <li>タイプ: <span id="typeOut">-</span></li>
+        <li>参加人数: <span id="participantsOut">-</span></li>
+        <li>価格指標: <span id="priceOut">-</span></li>
+        <li>データ元: <span id="sourceOut" class="pill">-</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const fallbackItems = [
+      { activity: '近所を15分散歩して、気になった店を1つメモする', type: 'recreational', participants: 1, price: 0 },
+      { activity: '英単語を5つ覚えて例文を作る', type: 'education', participants: 1, price: 0 },
+      { activity: '友人に最近のおすすめを1つ聞くメッセージを送る', type: 'social', participants: 2, price: 0 },
+      { activity: '机周りを10分だけ片付ける', type: 'diy', participants: 1, price: 0 },
+      { activity: '不要な本を寄付候補として3冊選ぶ', type: 'charity', participants: 1, price: 0 }
+    ];
+
+    function render(item, source) {
+      document.getElementById('activityTitle').textContent = item.activity || '提案なし';
+      document.getElementById('typeOut').textContent = item.type || '-';
+      document.getElementById('participantsOut').textContent = item.participants ?? '-';
+      document.getElementById('priceOut').textContent = item.price ?? '-';
+      document.getElementById('sourceOut').textContent = source;
+    }
+
+    async function loadActivity() {
+      const type = document.getElementById('type').value;
+      const status = document.getElementById('status');
+      status.textContent = '取得中...';
+      const url = `https://www.boredapi.com/api/activity${type ? `?type=${encodeURIComponent(type)}` : ''}`;
+
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        render(data, 'boredapi.com');
+        status.textContent = 'ライブAPIから取得しました。';
+      } catch (e) {
+        const pool = type ? fallbackItems.filter(x => x.type === type) : fallbackItems;
+        const pick = pool[Math.floor(Math.random() * pool.length)] || fallbackItems[0];
+        render(pick, 'local-fallback');
+        status.textContent = `API応答が取得できないためローカル候補を表示中 (${e.message})`;
+      }
+    }
+
+    document.getElementById('rollBtn').addEventListener('click', loadActivity);
+  </script>
+</body>
+</html>

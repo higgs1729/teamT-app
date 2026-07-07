@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<!--
+  MarkerAPI Trademark Search
+  目的: USPTO商標検索を行うMarkerAPIの紹介ページ。
+  構成: 検索語/認証情報入力 / API取得 / サンプル結果表示。
+-->
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MarkerAPI Trademark Search</title>
+  <style>
+    :root{--ink:#182033;--muted:#667085;--panel:#fff;--line:#e3d8ee;--accent:#7c3aed;--soft:#fbf7ff}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:"Segoe UI",Meiryo,sans-serif;color:var(--ink);background:linear-gradient(135deg,#fbf7ff,#f8fafc)}
+    main{width:min(1100px,calc(100% - 28px));margin:auto;padding:28px 0 42px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:22px;box-shadow:0 14px 34px rgba(60,36,86,.08)}.layout{display:grid;grid-template-columns:.95fr 1.05fr;gap:16px}.tag{font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--accent)}h1{font-size:clamp(28px,4vw,44px);line-height:1.08;margin:10px 0}.lead,.status{color:var(--muted);line-height:1.75}.form{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}input,select,button{min-height:44px;border-radius:8px;font:inherit}input,select{border:1px solid var(--line);padding:0 12px}button{border:0;background:var(--accent);color:#fff;font-weight:700;cursor:pointer;grid-column:1/-1}.grid{display:grid;gap:10px}.card{border:1px solid var(--line);border-radius:8px;background:var(--soft);padding:14px}.card small{display:block;color:var(--muted);margin-bottom:6px}.card strong{font-size:18px}.link{color:var(--accent);font-weight:700;text-decoration:none}@media(max-width:840px){.layout,.form{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="layout">
+    <section class="panel">
+      <div class="tag">markerapi</div>
+      <h1>米国商標データベースをワードマーク検索</h1>
+      <p class="lead">MarkerAPI はUSPTOの商標情報を検索するREST APIです。無料枠がありますがユーザー名とパスワードが必要なため、入力欄からのみ使います。</p>
+      <div class="form">
+        <input id="term" value="starbucks" aria-label="search term">
+        <select id="status"><option value="active">active</option><option value="all">all</option></select>
+        <input id="username" placeholder="API username" aria-label="API username">
+        <input id="password" type="password" placeholder="API password" aria-label="API password">
+        <button id="loadBtn" type="button">商標を検索</button>
+      </div>
+      <p id="statusText" class="status">認証情報は保存しません。</p>
+      <a class="link" href="https://markerapi.com" target="_blank" rel="noreferrer">公式ページ</a>
+    </section>
+    <section class="panel"><div id="results" class="grid"></div></section>
+  </main>
+  <script>
+    const sample = [{wordmark:"STARBUCKS", serialnumber:"73600000", status:"Registered", description:"Coffee and cafe services", registrationdate:"1986-01-01"}];
+    function render(items, fallback){
+      document.getElementById("statusText").textContent = fallback ? "認証未入力または取得失敗のためサンプルを表示しています。" : `${items.length}件を表示しています。`;
+      document.getElementById("results").innerHTML = items.map((item)=>`<article class="card"><small>${item.serialnumber || "-"}</small><strong>${item.wordmark || item.trademark || "-"}</strong><p class="status">${item.status || "-"} / ${item.registrationdate || item.regdate || "-"}<br>${item.description || "-"}</p></article>`).join("");
+    }
+    async function loadMarks(){
+      const term = encodeURIComponent(document.getElementById("term").value.trim() || "starbucks");
+      const status = document.getElementById("status").value;
+      const username = encodeURIComponent(document.getElementById("username").value.trim());
+      const password = encodeURIComponent(document.getElementById("password").value.trim());
+      document.getElementById("statusText").textContent = "loading...";
+      try{
+        if(!username || !password) throw new Error("missing credentials");
+        const url = `https://dev.markerapi.com/api/v2/trademarks/trademark/${term}/status/${status}/start/1/username/${username}/password/${password}`;
+        const res = await fetch(url, {cache:"no-store"});
+        if(!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        const items = (json.trademarks || []).slice(0, 10);
+        if(!items.length) throw new Error("empty");
+        render(items, false);
+      }catch(error){
+        console.warn(error);
+        render(sample, true);
+      }
+    }
+    document.getElementById("loadBtn").addEventListener("click", loadMarks);
+    render(sample, false);
+  </script>
+</body>
+</html>

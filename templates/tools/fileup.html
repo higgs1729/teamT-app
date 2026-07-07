@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<!--
+  FileUp の共有アップローダー紹介ページ。
+  期限と閲覧回数を指定してファイルを送信し、返却URLとメタデータを表示する。
+-->
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FileUp 共有アップローダー</title>
+  <style>
+    :root {
+      --bg: #081019;
+      --line: rgba(255, 255, 255, 0.09);
+      --text: #eff6ff;
+      --muted: #afbdd3;
+      --accent: #8ce99a;
+      --accent-2: #58c7ff;
+      --shadow: 0 30px 80px rgba(0, 0, 0, 0.38);
+      --radius: 24px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: "Segoe UI", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+      background:
+        radial-gradient(circle at 15% 15%, rgba(88, 199, 255, 0.2), transparent 30%),
+        radial-gradient(circle at 80% 20%, rgba(140, 233, 154, 0.17), transparent 24%),
+        linear-gradient(160deg, #050912 0%, var(--bg) 50%, #0b1624 100%);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 54px 54px;
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+    }
+
+    a { color: inherit; }
+    .shell { width: min(1220px, calc(100% - 28px)); margin: 0 auto; padding: 24px 0 40px; }
+    .hero, .panel { background: linear-gradient(180deg, rgba(19, 28, 43, 0.94), rgba(11, 18, 29, 0.94)); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); backdrop-filter: blur(14px); }
+    .hero { padding: 24px; display: grid; gap: 18px; grid-template-columns: minmax(0, 1.36fr) minmax(280px, 0.64fr); align-items: end; animation: rise .5s ease both; }
+    .eyebrow { display:inline-flex; align-items:center; gap:10px; padding:7px 12px; border-radius:999px; background:rgba(140,233,154,.12); color:#dfffe3; font-size:12px; letter-spacing:.08em; text-transform:uppercase; }
+    h1 { margin: 12px 0 10px; font-size: clamp(30px, 4vw, 52px); line-height: 1.04; letter-spacing: -0.03em; }
+    .lead { margin: 0; color: var(--muted); line-height: 1.8; max-width: 68ch; }
+    .hero aside { display: grid; gap: 12px; }
+    .metric { padding: 16px 18px; border-radius: 18px; border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.03); }
+    .metric strong { display:block; font-size:18px; margin-bottom:6px; }
+    .metric span { color: var(--muted); line-height: 1.6; font-size: 14px; }
+    .layout { display:grid; grid-template-columns:minmax(0,1.02fr) minmax(0,0.98fr); gap:18px; margin-top:18px; }
+    .panel { padding: 20px; }
+    .panel-head { display:flex; justify-content:space-between; align-items:start; gap:12px; margin-bottom:16px; }
+    .panel-head h2 { margin:0; font-size:20px; }
+    .panel-head p { margin:6px 0 0; color:var(--muted); line-height:1.7; font-size:14px; }
+    .badge-row { display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-end; }
+    .badge { padding:8px 10px; border-radius:999px; background:rgba(255,255,255,.05); color:#d7e6ff; border:1px solid rgba(255,255,255,.08); font-size:12px; }
+    .field-grid { display:grid; gap:14px; }
+    label { display:grid; gap:8px; font-size:13px; color:#dce7ff; }
+    .hint { color:var(--muted); font-size:12px; line-height:1.5; }
+    input[type="file"], input[type="number"] { width:100%; border:1px solid rgba(255,255,255,.10); border-radius:16px; background:rgba(4,10,20,.68); color:var(--text); padding:13px 14px; font:inherit; outline:none; }
+    input[type="file"] { padding: 10px 12px; }
+    input:focus { border-color: rgba(88, 199, 255, 0.72); box-shadow: 0 0 0 4px rgba(88, 199, 255, 0.12); }
+    .row { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:14px; }
+    .actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; }
+    button { border:0; border-radius:14px; padding:12px 16px; font:inherit; font-weight:700; cursor:pointer; transition:transform .18s ease, opacity .18s ease; }
+    button:hover { transform:translateY(-1px); }
+    button:disabled { cursor:progress; opacity:.65; transform:none; }
+    .primary { color:#06111b; background:linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow:0 12px 30px rgba(88, 199, 255, .2); }
+    .ghost { color:var(--text); background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.09); }
+    .status { margin-top:14px; padding:14px 16px; border-radius:16px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); line-height:1.7; color:var(--muted); min-height:58px; white-space:pre-wrap; }
+    .status.is-ok { color:#e6fff0; border-color: rgba(140,233,154,.22); }
+    .status.is-error { color:#ffe0e8; border-color: rgba(255,139,161,.22); }
+    .result-grid { display:grid; gap:14px; }
+    .result-card { padding:16px; border-radius:18px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); }
+    .result-card h3 { margin:0 0 8px; font-size:15px; }
+    .result-card p, .result-card li { color:var(--muted); line-height:1.7; margin:0; }
+    .result-card ul { margin:0; padding-left:18px; display:grid; gap:8px; }
+    .codebox { margin-top:10px; padding:14px; border-radius:16px; background:rgba(2,7,15,.75); border:1px solid rgba(255,255,255,.08); color:#d9e8ff; overflow:auto; font:13px/1.7 Consolas, "SFMono-Regular", Monaco, monospace; white-space:pre-wrap; word-break:break-word; }
+    .footer { margin-top:18px; padding:14px 16px 0; color:var(--muted); display:flex; flex-wrap:wrap; gap:12px; justify-content:space-between; font-size:13px; }
+    .footer a { color:#bde9ff; text-decoration:none; }
+    .footer a:hover { text-decoration:underline; }
+    @media (max-width: 960px) { .hero, .layout, .row { grid-template-columns:1fr; } .badge-row { justify-content:flex-start; } }
+    @keyframes rise { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <!-- 概要 -->
+    <section class="hero">
+      <div>
+        <div class="eyebrow">Public upload API / FileUp</div>
+        <h1>期限と閲覧回数を決めて、<br>一時ファイルを配る。</h1>
+        <p class="lead">FileUp は公開アップロード API を持つ軽量なファイル共有サービスです。アップロード時に有効期限と最大閲覧回数を指定でき、受け取ったURLをそのまま共有できます。</p>
+      </div>
+      <aside>
+        <div class="metric"><strong>公開アップロード</strong><span>ログイン不要で REST API から送信できます。</span></div>
+        <div class="metric"><strong>制御しやすい共有</strong><span>期限分数と閲覧回数を数値で渡せます。</span></div>
+      </aside>
+    </section>
+
+    <section class="layout">
+      <!-- 操作 -->
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>ファイルをアップロードする</h2>
+            <p>ファイルを選んで、期限と閲覧回数を指定して送信します。</p>
+          </div>
+          <div class="badge-row">
+            <span class="badge">no login</span>
+            <span class="badge">expire control</span>
+            <span class="badge">view limit</span>
+          </div>
+        </div>
+
+        <div class="field-grid">
+          <label>
+            1. ファイルを選ぶ
+            <input id="fileInput" type="file">
+          </label>
+
+          <div class="row">
+            <label>
+              2. 期限（分）
+              <input id="expireInput" type="number" min="1" step="1" value="30">
+              <span class="hint">`expireMinutes` として送ります。</span>
+            </label>
+            <label>
+              3. 閲覧回数
+              <input id="viewsInput" type="number" min="1" step="1" value="5">
+              <span class="hint">`maxViews` として送ります。</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="uploadButton" class="primary">アップロード</button>
+          <button id="sampleButton" class="ghost" type="button">おすすめ値に戻す</button>
+          <button id="copyButton" class="ghost" type="button">リンクをコピー</button>
+        </div>
+
+        <div id="status" class="status">ファイルを選んでアップロードすると、返却URLがここに表示されます。</div>
+      </section>
+
+      <!-- 結果 -->
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>返却情報</h2>
+            <p>成功時はファイル名、共有URL、期限、閲覧回数を表示します。</p>
+          </div>
+        </div>
+
+        <div class="result-grid">
+          <div class="result-card">
+            <h3>見どころ</h3>
+            <ul>
+              <li>公開 API でそのまま送れる</li>
+              <li>期限と閲覧回数を細かく調整できる</li>
+              <li>返却 JSON をその場で確認できる</li>
+            </ul>
+          </div>
+
+          <div class="result-card">
+            <h3>APIドキュメント</h3>
+            <p><a href="https://github.com/RealSinaSnp/FileUp" target="_blank" rel="noreferrer">https://github.com/RealSinaSnp/FileUp</a></p>
+            <div class="codebox" id="responseBox">ここに API 応答の要点が表示されます。</div>
+          </div>
+
+          <div class="result-card">
+            <h3>参考コマンド</h3>
+            <div class="codebox">curl -F "file=@image.jpg" -F "expireMinutes=30" -F "maxViews=5" \
+  https://upload.sinasnp.com/api/public/upload</div>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <div class="footer">
+      <span>ブラウザから送る場合は CORS が有効である必要があります。</span>
+      <span><a href="https://github.com/RealSinaSnp/FileUp" target="_blank" rel="noreferrer">official repo</a></span>
+    </div>
+  </main>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const expireInput = document.getElementById('expireInput');
+    const viewsInput = document.getElementById('viewsInput');
+    const uploadButton = document.getElementById('uploadButton');
+    const sampleButton = document.getElementById('sampleButton');
+    const copyButton = document.getElementById('copyButton');
+    const status = document.getElementById('status');
+    const responseBox = document.getElementById('responseBox');
+
+    let lastLink = '';
+
+    function setStatus(kind, message) {
+      status.className = `status ${kind ? `is-${kind}` : ''}`.trim();
+      status.textContent = message;
+    }
+
+    function renderResponse(data) {
+      if (!data || typeof data !== 'object') return String(data ?? '');
+      const parts = [];
+      for (const key of ['fileName', 'url', 'expireAt', 'maxViews', 'message', 'error']) {
+        if (Object.prototype.hasOwnProperty.call(data, key)) {
+          parts.push(`${key}: ${typeof data[key] === 'object' ? JSON.stringify(data[key]) : data[key]}`);
+        }
+      }
+      return parts.length ? parts.join('\n') : JSON.stringify(data, null, 2);
+    }
+
+    async function copyLink() {
+      if (!lastLink) {
+        setStatus('error', 'コピーするリンクがまだありません。');
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(lastLink);
+        setStatus('ok', `リンクをコピーしました。\n${lastLink}`);
+      } catch {
+        window.prompt('コピーしてください', lastLink);
+      }
+    }
+
+    async function upload() {
+      const file = fileInput.files && fileInput.files[0];
+      if (!file) {
+        setStatus('error', '先にファイルを選んでください。');
+        return;
+      }
+
+      uploadButton.disabled = true;
+      uploadButton.textContent = '送信中...';
+      setStatus('', 'FileUp に送信中です…');
+
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('expireMinutes', String(Math.max(1, Number(expireInput.value || 30))));
+        formData.append('maxViews', String(Math.max(1, Number(viewsInput.value || 5))));
+
+        const response = await fetch('https://upload.sinasnp.com/api/public/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const data = await response.json();
+        responseBox.textContent = renderResponse(data);
+
+        if (!response.ok) {
+          lastLink = '';
+          throw new Error(data.error || data.message || `HTTP ${response.status}`);
+        }
+
+        lastLink = data.url || '';
+        setStatus('ok', `アップロード完了。\n${data.url || 'url not returned'}`);
+      } catch (error) {
+        lastLink = '';
+        responseBox.textContent = String(error?.message || error);
+        setStatus('error', `送信に失敗しました。\n${String(error?.message || error)}`);
+      } finally {
+        uploadButton.disabled = false;
+        uploadButton.textContent = 'アップロード';
+      }
+    }
+
+    sampleButton.addEventListener('click', () => {
+      expireInput.value = '30';
+      viewsInput.value = '5';
+      setStatus('', '推奨値に戻しました。');
+    });
+
+    uploadButton.addEventListener('click', upload);
+    copyButton.addEventListener('click', copyLink);
+  </script>
+</body>
+</html>

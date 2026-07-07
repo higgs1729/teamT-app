@@ -8,7 +8,7 @@ http://10.15.121.30:5500/fronted-v2/index.html
 ## 特徴
 
 - **サイドバー ＋ ビューア構成**：左の一覧から API を選ぶと、右の `<iframe>` に該当ページを表示
-- **カテゴリ別一覧 ＋ 検索**：画像系／データ系／為替・ツール系／おもしろ系に分類、キーワード絞り込み対応
+- **階層カテゴリ別一覧 ＋ 検索**：画像系／データ系／為替・ツール系／おもしろ系を大分類にし、動物画像・宇宙/天気・通貨/為替・ファイル共有/保存・開発/検証などの小分類まで折りたたみ表示。公開データ系は必要に応じて 食品・生活 / 統計・公的データ / 都市・オープンデータ も追加する。キーワード絞り込み対応
 - **設定モーダル**：サイドバー下部の「設定」「アカウント」から開く。左ナビ（検索＋アカウント／外観／その他）構成
   - 外観：テーマ（ライト／ダーク）とアクセント色（オレンジ／青）を独立して選択（アクセントを変えても背景は不変）
   - アカウント：表示名を `localStorage` に保存（サーバー認証なしのデモ）
@@ -85,15 +85,17 @@ node fronted-v2/serve.cjs
 ## テンプレートを追加するには
 
 テンプレートはジャンル別のサブフォルダに整理されています。
+APIドキュメントURLから追加する場合は、プロジェクトスキル `.agents/skills/webapi-page-maker/`（`$webapi-page-maker <URL...>`）を使うと、HTML・カタログ・仕様書更新をまとめて進められます。
 
 ```
 templates/...
 ```
 
 1. 該当ジャンルの `../templates/<ジャンル>/` に自己完結型の HTML を追加する
-2. `js/catalog.js` の `window.CATALOG` に1要素追加する（`id` / `file` / `title` / `category` / `description` / `apiName` / `apiUrl` / `icon`）
+2. `js/catalog.js` の `window.CATALOG` に1要素追加する（`id` / `file` / `title` / `category` / `categoryPath` / `description` / `apiName` / `apiUrl` / `icon`）
    - `file` は `templates/` からの相対パス（例 `image/dog-api.html`）
    - `icon` は [Tabler Icons](https://tabler.io/icons) のクラス名（例 `ti-dog`）。※フォントに存在しないクラスを指定すると空白表示になるため注意
-   - `category` は上記4ジャンルのいずれか（末尾の「系」は見出しでは省略表示）
+   - `category` は後方互換用の大分類名。既存の大分類（画像・ビジュアル系／データ・検索系／為替・ツール系／エンタメ・おもしろ系）のいずれかを指定
+   - `categoryPath` はサイドバー用の階層分類。例: `["データ・検索系", "宇宙・天気"]`
 
-サイドバーは `CATALOG` の並び順・`category` 単位で自動グルーピングされます。
+サイドバーは `CATALOG` の並び順・`categoryPath` 単位で自動グルーピングされます。`categoryPath` がない古い項目は `category` だけの分類として表示されます。

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verome 楽曲・歌詞サーチ</title>
+  <style>
+    /* Verome API で楽曲を検索し、選択した曲の歌詞(LRCLib経由)を表示する */
+    :root{--bg:#0d1520;--panel:#111c2b;--border:rgba(174,204,255,.16);--text:#eef5ff;--muted:#a8bddc;--accent:#8dd2ff;--accent2:#e3f4ff;--shadow:0 24px 70px rgba(0,0,0,.36)}*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:"Segoe UI",Meiryo,sans-serif;color:var(--text);background:radial-gradient(circle at top right,rgba(141,210,255,.2),transparent 26%),linear-gradient(160deg,#09111a,#101a2a 48%,#05080c)}.wrap{width:min(1140px,calc(100% - 32px));margin:0 auto;padding:28px 0 42px}.hero,.panel{background:rgba(11,18,28,.84);border:1px solid var(--border);border-radius:24px;box-shadow:var(--shadow);backdrop-filter:blur(14px)}.hero{padding:28px;margin-bottom:18px;display:grid;gap:18px;grid-template-columns:1.2fr .9fr}.eyebrow{display:inline-flex;gap:8px;align-items:center;padding:7px 12px;border-radius:999px;background:rgba(141,210,255,.12);color:var(--accent2);font-size:12px;letter-spacing:.12em;text-transform:uppercase}.dot{width:8px;height:8px;border-radius:50%;background:#66f0b5}h1{margin:16px 0 10px;font-size:clamp(28px,4vw,46px);line-height:1.1}.lead{margin:0;color:var(--muted);line-height:1.8}.meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.pill{padding:9px 12px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:13px;color:#dceaff}.panel{padding:24px;display:grid;gap:16px}.controls{display:grid;grid-template-columns:1fr auto;gap:10px}.controls input,.controls button{min-height:44px;border-radius:14px;font:inherit}.controls input{background:#09111f;color:var(--text);border:1px solid rgba(255,255,255,.12);padding:0 14px}.controls button{appearance:none;border:none;cursor:pointer;background:linear-gradient(135deg,var(--accent2),var(--accent));color:#07101e;font-weight:700;padding:0 20px}.status{color:var(--muted);font-size:13px}.results{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}.card{padding:12px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);cursor:pointer;display:grid;gap:8px;text-align:left}.card:hover{border-color:var(--accent)}.card img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:10px;background:#07111c}.card strong{font-size:14px;line-height:1.4}.card small{color:var(--muted)}.lyrics-panel{display:none;gap:12px}.lyrics-panel.show{display:grid}.lyrics-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px}.lyrics-body{white-space:pre-wrap;line-height:1.9;max-height:420px;overflow:auto;padding:16px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}.footer{display:flex;justify-content:space-between;gap:12px;align-items:center;color:var(--muted);font-size:13px;flex-wrap:wrap}.footer a{color:var(--accent2);text-decoration:none}.footer a:hover{text-decoration:underline}.empty{color:#748bb0;padding:20px;text-align:center}@media (max-width:860px){.hero,.controls{grid-template-columns:1fr}.footer{flex-direction:column;align-items:flex-start}}
+  </style>
+</head>
+<body>
+  <!-- 構成: 検索フォーム / 検索結果カード一覧 / 選択曲の歌詞表示。歌詞取得失敗時はメッセージのみ表示 -->
+  <main class="wrap">
+    <section class="hero">
+      <div>
+        <div class="eyebrow"><span class="dot"></span> verome api</div>
+        <h1>曲を検索して、歌詞まで見る。</h1>
+        <p class="lead">Verome API で YouTube Music 由来の楽曲を検索し、選んだ曲の歌詞(LRCLib経由)を表示します。</p>
+        <div class="meta"><div class="pill">Base URL: https://verome-api.deno.dev</div><div class="pill">/api/search, /api/lyrics</div><div class="pill">No auth</div></div>
+      </div>
+      <div class="panel">
+        <strong>表示内容</strong>
+        <div style="color:var(--muted);line-height:1.8;">曲名・アーティスト・サムネイルの検索結果一覧と、選択した曲の歌詞テキストをまとめて表示します。</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <form class="controls" id="searchForm">
+        <input id="queryInput" type="text" placeholder="曲名やアーティスト名で検索（例: lemon）" value="lemon" autocomplete="off">
+        <button type="submit">検索</button>
+      </form>
+      <div class="status" id="statusText">キーワードを入力して検索してください。</div>
+      <div class="results" id="results"></div>
+    </section>
+
+    <section class="panel lyrics-panel" id="lyricsPanel">
+      <div class="lyrics-head">
+        <strong id="lyricsTitle">-</strong>
+        <span class="status" id="lyricsStatus"></span>
+      </div>
+      <div class="lyrics-body" id="lyricsBody">-</div>
+    </section>
+
+    <section class="panel">
+      <div class="footer"><span>楽曲データは実際の検索結果に基づきます。歌詞は LRCLib のデータベースに一致した場合のみ取得できます。</span><span>API: <a href="https://github.com/Kirazul/Verome-API" target="_blank" rel="noreferrer">Verome-API (GitHub)</a></span></div>
+    </section>
+  </main>
+
+  <script>
+    const API_BASE = 'https://verome-api.deno.dev';
+    const $ = (id) => document.getElementById(id);
+
+    function thumbOf(song) {
+      const list = Array.isArray(song.thumbnails) ? song.thumbnails : [];
+      return list.length ? list[list.length - 1].url : '';
+    }
+
+    function artistOf(song) {
+      const list = Array.isArray(song.artists) ? song.artists : [];
+      return list.map((a) => a.name).filter(Boolean).join(', ') || '不明なアーティスト';
+    }
+
+    function renderResults(songs) {
+      const box = $('results');
+      if (!songs.length) {
+        box.innerHTML = '<div class="empty">該当する曲が見つかりませんでした。</div>';
+        return;
+      }
+      box.innerHTML = songs.map((song, index) => {
+        const thumb = thumbOf(song);
+        const img = thumb ? `<img src="${thumb}" alt="${song.title || ''}" loading="lazy">` : '';
+        return `<button type="button" class="card" data-index="${index}">${img}<strong>${song.title || '(タイトル不明)'}</strong><small>${artistOf(song)}</small></button>`;
+      }).join('');
+      box.querySelectorAll('.card').forEach((el) => {
+        el.addEventListener('click', () => showLyrics(songs[Number(el.dataset.index)]));
+      });
+    }
+
+    async function search(query) {
+      $('statusText').textContent = '検索中...';
+      $('results').innerHTML = '';
+      try {
+        const res = await fetch(`${API_BASE}/api/search?q=${encodeURIComponent(query)}&filter=songs`, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        const songs = Array.isArray(json.results) ? json.results : [];
+        $('statusText').textContent = songs.length ? `${songs.length}件ヒットしました。曲を選ぶと歌詞を表示します。` : '該当する曲がありませんでした。';
+        renderResults(songs);
+      } catch (error) {
+        console.error(error);
+        $('statusText').textContent = '検索に失敗しました。しばらくしてから再度お試しください。';
+        $('results').innerHTML = '<div class="empty">API に接続できませんでした。</div>';
+      }
+    }
+
+    async function showLyrics(song) {
+      const panel = $('lyricsPanel');
+      panel.classList.add('show');
+      $('lyricsTitle').textContent = `${song.title || '(タイトル不明)'} / ${artistOf(song)}`;
+      $('lyricsStatus').textContent = '歌詞を取得中...';
+      $('lyricsBody').textContent = '-';
+      try {
+        const params = new URLSearchParams({ title: song.title || '', artist: artistOf(song) });
+        const res = await fetch(`${API_BASE}/api/lyrics?${params.toString()}`, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        if (!json.success || !json.plainLyrics) throw new Error('lyrics not found');
+        $('lyricsStatus').textContent = `アルバム: ${json.albumName || '-'} / 長さ: ${json.duration ? Math.round(json.duration) + '秒' : '-'}`;
+        $('lyricsBody').textContent = json.plainLyrics;
+      } catch (error) {
+        console.error(error);
+        $('lyricsStatus').textContent = '歌詞が見つかりませんでした。';
+        $('lyricsBody').textContent = 'LRCLib のデータベースにこの曲の歌詞が登録されていない可能性があります。';
+      }
+      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    $('searchForm').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const query = $('queryInput').value.trim();
+      if (query) search(query);
+    });
+
+    window.addEventListener('load', () => search($('queryInput').value.trim()));
+  </script>
+</body>
+</html>

@@ -123,4 +123,3 @@ control: continue
 | [Openwhyd](https://openwhyd.github.io/openwhyd/API) | Download curated playlists of streaming tracks (YouTube, SoundCloud, etc...) | Yes | No | ? |
 | [Radio Browser](https://api.radio-browser.info/) | List of internet radio stations | Yes | Yes | ? |
 | [Songsterr](https://www.songsterr.com/a/wa/api/) | Provides guitar, bass and drums tabs and chords | Yes | Unknown | ? |
-| [Verome](https://github.com/Kirazul/Verome-API) | Music API for searching, streaming and exploring music data from YouTube Music, YouTube, and Last.fm | Yes | Unknown | ? |

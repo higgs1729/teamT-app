@@ -124,6 +124,8 @@ window.CATALOG = [
     description: "無料PCゲームの一覧・情報を取得", apiName: "FreeToGame", apiUrl: "https://www.freetogame.com/api-doc", icon: "ti-device-gamepad" },
   { id: "applemusic", file: "data/applemusic.html", title: "Apple Music 検索", category: "データ・検索系", categoryPath: ["データ・検索系", "音楽・書籍"],
     description: "iTunes の楽曲をキーワード検索", apiName: "iTunes Search API", apiUrl: "https://performance-partners.apple.com/search-api", icon: "ti-music" },
+  { id: "verome", file: "data/verome.html", title: "Verome 楽曲・歌詞サーチ", category: "データ・検索系", categoryPath: ["データ・検索系", "音楽・書籍"],
+    description: "楽曲を検索し、選んだ曲の歌詞(LRCLib経由)を表示", apiName: "Verome API", apiUrl: "https://github.com/Kirazul/Verome-API", icon: "ti-music" },
   { id: "nasa", file: "data/nasa.html", title: "NASA 今日の天体", category: "データ・検索系", categoryPath: ["データ・検索系", "宇宙・天気"],
     description: "NASA APOD の天体写真をランダム表示", apiName: "NASA APOD", apiUrl: "https://api.nasa.gov/", icon: "ti-rocket" },
   { id: "utyu", file: "data/utyu.html", title: "NASA 近地天体", category: "データ・検索系", categoryPath: ["データ・検索系", "宇宙・天気"],

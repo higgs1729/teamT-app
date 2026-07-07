@@ -184,6 +184,8 @@ window.CATALOG = [
     description: "食品衛生評価の公開データを地域別に探索", apiName: "Food Hygiene Ratings API", apiUrl: "https://ratings.food.gov.uk/open-data", icon: "ti-tools-kitchen-2" },
   { id: "inei-portal", file: "data/inei-portal.html", title: "INEI 統計ポータル", category: "データ・検索系", categoryPath: ["データ・検索系", "統計・公的データ"],
     description: "INEI のテーマ別統計リンクを検索・参照", apiName: "INEI 統計ポータル", apiUrl: "https://www.inei.gob.pe/estadisticas-indice-tematico/", icon: "ti-article" },
+  { id: "chronicling-america", file: "data/chronicling-america.html", title: "Chronicling America 新聞検索", category: "データ・検索系", categoryPath: ["データ・検索系", "統計・公的データ"],
+    description: "米国議会図書館の歴史新聞コレクションをキーワード検索", apiName: "Chronicling America", apiUrl: "https://www.loc.gov/collections/chronicling-america/about-this-collection/technical-information/", icon: "ti-article" },
   { id: "interpol-red-notices", file: "data/interpol-red-notices.html", title: "Interpol 指名手配検索", category: "データ・検索系", categoryPath: ["データ・検索系", "事件・捜査"],
     description: "Interpol赤手配の人物を条件検索して表示", apiName: "Interpol Notices API", apiUrl: "https://interpol.api.bund.dev/", icon: "ti-search" },
   { id: "ibb-open-data", file: "data/ibb-open-data.html", title: "İBB オープンデータ", category: "データ・検索系", categoryPath: ["データ・検索系", "都市・オープンデータ"],

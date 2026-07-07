@@ -138,6 +138,7 @@
 | data | ip | ローカルサンプルデータ | IPジオロケーション情報の表示サンプル |
 | data | food-hygiene-ratings | Food Hygiene Ratings API | 食品衛生評価の公開データを地域別に探索 |
 | data | inei-portal | INEI 統計ポータル | INEI のテーマ別統計リンクを検索・参照 |
+| data | chronicling-america | Chronicling America | 米国議会図書館の歴史新聞コレクションをキーワード検索 |
 | data | interpol-red-notices | Interpol Notices API | Interpol赤手配の人物を条件検索して表示 |
 | data | ibb-open-data | İBB Open Data Portal | İBB公開データをキーワードとカテゴリで検索 |
 | data | kabu | Alpha Vantage | 銘柄コードで株価・騰落率を検索 |

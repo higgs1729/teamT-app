@@ -10,7 +10,6 @@ control: continue
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [Chronicling America](http://chroniclingamerica.loc.gov/about/api/) | Provides access to millions of pages of historic US newspapers from the Library of Congress | No | Unknown | ? |
 | [Florida Man](https://github.com/juliayxhuang/florida-man-api#readme) | Static JSON dataset of 10,000+ Florida Man headlines by date | Yes | Yes | ? |
 | [Graphs for Coronavirus](https://corona.dnsforfamily.com/api.txt) | Each Country separately and Worldwide Graphs for Coronavirus. Daily updates | Yes | Yes | ? |
 | [Inshorts News](https://github.com/cyberboysumanjay/Inshorts-News-API) | Provides news from inshorts | Yes | Unknown | ? |

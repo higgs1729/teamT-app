@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<!--
+  Chronicling America紹介ページ
+  目的: Library of Congress の歴史新聞コレクションを検索し、公開APIの使い方を体験できるようにする。
+  構成: 検索フォーム / 結果カード / APIメモ / フォールバック表示。
+-->
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chronicling America 新聞検索</title>
+  <style>
+    :root{--bg:#f5f7fb;--panel:#fff;--ink:#202536;--muted:#667086;--line:#dce4ef;--accent:#2f6ef0;--soft:#eaf1ff;--warn:#9a5b00;--danger:#b33131}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:linear-gradient(135deg,#f7f8fc,#eef5ff);color:var(--ink);font-family:"BIZ UDPGothic","Meiryo UI",sans-serif}main{width:min(1120px,100%);margin:auto;padding:32px 18px 42px}.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(260px,.85fr);gap:18px;align-items:stretch}.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:0 14px 36px rgba(32,37,54,.08)}h1{margin:0 0 10px;font-size:clamp(26px,4vw,42px);letter-spacing:0}h2{margin:0 0 10px;font-size:18px}p{margin:0;color:var(--muted);line-height:1.7}.controls{display:grid;grid-template-columns:1fr 140px auto;gap:10px;margin-top:18px}input,select,button{font:inherit;border-radius:10px}input,select{width:100%;border:1px solid var(--line);background:#fff;color:var(--ink);padding:12px}button{border:0;background:var(--accent);color:#fff;font-weight:700;padding:12px 16px;cursor:pointer}.meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}.chip{display:inline-flex;align-items:center;gap:6px;width:max-content;max-width:100%;border-radius:999px;background:var(--soft);color:#174ea6;font-size:12px;font-weight:700;padding:6px 9px}.status{margin:18px 0 10px;font-weight:700;color:var(--muted)}.status.error{color:var(--danger)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px;min-height:170px;display:flex;flex-direction:column;gap:9px}.card h3{margin:0;font-size:16px;line-height:1.45}.card small{color:var(--muted)}.card a{color:var(--accent);font-weight:700;text-decoration:none;margin-top:auto}.note{border-left:4px solid var(--accent);background:#f9fbff}.warning{border-left-color:var(--warn);background:#fff8eb}.api{font-family:Consolas,monospace;font-size:12px;word-break:break-all;color:#334155;background:#f4f6f9;border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:12px}@media (max-width:760px){.hero{grid-template-columns:1fr}.controls{grid-template-columns:1fr}.meta{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main>
+  <section class="hero">
+    <div class="panel">
+      <h1>Chronicling America 新聞検索</h1>
+      <p>Library of Congress の歴史新聞コレクションから、キーワードに関係する新聞ページやタイトルを検索します。認証なしで公開されているJSON APIの入口を、研究メモ作り向けに触れるページです。</p>
+      <div class="controls">
+        <input id="query" value="moon landing" aria-label="検索語">
+        <select id="count" aria-label="取得件数">
+          <option value="6">6件</option>
+          <option value="9">9件</option>
+          <option value="12">12件</option>
+        </select>
+        <button id="search">検索</button>
+      </div>
+      <p class="status" id="status">検索語を入れて「検索」を押してください。</p>
+    </div>
+    <aside class="panel note">
+      <h2>APIメモ</h2>
+      <p>公式情報では、Chronicling America のデータは LoC.gov API からJSON/YAMLなどで取得でき、APIキーは不要です。アクセス頻度には配慮します。</p>
+      <div class="meta">
+        <span class="chip">Auth: No</span>
+        <span class="chip">Format: JSON</span>
+        <span class="chip">Provider: LoC</span>
+        <span class="chip">Collection: Newspapers</span>
+      </div>
+      <div class="api" id="apiUrl"></div>
+    </aside>
+  </section>
+
+  <section class="grid" id="results" style="margin-top:16px"></section>
+
+  <section class="panel warning" style="margin-top:16px">
+    <h2>ライブ取得に失敗した場合</h2>
+    <p>ブラウザのCORSやネットワーク制限で取得できない場合は、下のサンプルカードに切り替わります。公式ページへのリンクとリクエストURLの形は確認できます。</p>
+    <p style="margin-top:10px">Docs: <a href="https://www.loc.gov/collections/chronicling-america/about-this-collection/technical-information/" target="_blank" rel="noreferrer">Chronicling America Technical Information</a></p>
+  </section>
+</main>
+<script>
+const statusEl=document.getElementById("status");
+const results=document.getElementById("results");
+const apiUrl=document.getElementById("apiUrl");
+const sample=[
+  {title:"Historic newspapers from the Library of Congress",date:"Collection guide",url:"https://www.loc.gov/collections/chronicling-america/"},
+  {title:"Technical information and API access",date:"No API key required",url:"https://www.loc.gov/collections/chronicling-america/about-this-collection/technical-information/"},
+  {title:"Digitized newspaper title list",date:"Browse by state, language, and date",url:"https://www.loc.gov/collections/chronicling-america/"}
+];
+function endpoint(){
+  const q=encodeURIComponent(document.getElementById("query").value.trim()||"newspaper");
+  const c=document.getElementById("count").value;
+  return `https://www.loc.gov/collections/chronicling-america/?fo=json&c=${c}&q=${q}`;
+}
+function card(item){
+  const title=item.title||item.item?.title||"Untitled newspaper item";
+  const date=item.date||item.item?.date||item.date_display||"date unknown";
+  const url=item.url||item.link||item.item?.url||"https://www.loc.gov/collections/chronicling-america/";
+  const list=Array.isArray(item.location||item.item?.location)?(item.location||item.item.location):[];
+  const place=list.slice(0,2).join(", ")||"Chronicling America";
+  return `<article class="card"><span class="chip">${place}</span><h3>${title}</h3><small>${date}</small><a href="${url}" target="_blank" rel="noreferrer">公式ページを開く</a></article>`;
+}
+async function search(){
+  const url=endpoint();
+  apiUrl.textContent=url;
+  statusEl.className="status";
+  statusEl.textContent="取得中...";
+  results.innerHTML="";
+  try{
+    const res=await fetch(url,{headers:{Accept:"application/json"}});
+    if(!res.ok)throw new Error(`HTTP ${res.status}`);
+    const data=await res.json();
+    const items=(data.results||data.content?.results||[]).slice(0,Number(document.getElementById("count").value));
+    if(!items.length)throw new Error("検索結果が空でした");
+    statusEl.textContent=`${items.length}件を表示しています。`;
+    results.innerHTML=items.map(card).join("");
+  }catch(error){
+    statusEl.className="status error";
+    statusEl.textContent=`ライブ取得に失敗したためサンプルを表示しています: ${error.message}`;
+    results.innerHTML=sample.map(card).join("");
+  }
+}
+document.getElementById("search").addEventListener("click",search);
+search();
+</script>
+</body>
+</html>

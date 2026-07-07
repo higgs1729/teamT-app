@@ -10,7 +10,6 @@ control: continue
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [Bhagavad Gita telugu](https://gita-api.vercel.app) | Bhagavad Gita API in telugu and odia languages | Yes | Yes | ? |
 | [Bible-api](https://bible-api.com/) | Free Bible API with multiple languages | Yes | Yes | ? |
 | [British National Bibliography](http://bnb.data.bl.uk/) | Books | No | Unknown | ? |
 | [Crossref Metadata Search](https://github.com/CrossRef/rest-api-doc) | Books & Articles Metadata | Yes | Unknown | ? |

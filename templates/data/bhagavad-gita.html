@@ -1,0 +1,252 @@
+<!--
+  bhagavad-gita.html
+  概要: Bhagavad Gita telugu API(gita-api.vercel.app)を利用し、
+        バガヴァッド・ギーターの詩節をテルグ語/オディア語で検索・閲覧するページ。
+  構成:
+    1. スタイル定義
+    2. 言語・検索フォーム（ランダム表示 / 章・節指定 / 通し番号指定）
+    3. 結果表示エリア（原文・翻訳・単語注解・注釈・音声リンク）
+    4. JS: fetch処理、状態表示（loading/empty/success/error）
+  API仕様メモ:
+    - GET https://gita-api.vercel.app/{language}/verse/{chapter_no}/{verse_no}
+    - GET https://gita-api.vercel.app/{language}/verse/{verse_no_serial}
+    - language: "tel"(テルグ語) / "odi"(オディア語)。"eng"/"esp"は未実装のため対象外
+    - 認証不要、キー不要
+-->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>バガヴァッド・ギーター 詩節ビューア</title>
+<style>
+  :root {
+    --bg: #fdf6e9;
+    --panel: #ffffff;
+    --accent: #b5651d;
+    --accent-dark: #8a4a12;
+    --text: #3a2a1a;
+    --muted: #8a7860;
+    --border: #e6d9c0;
+    --error: #c0392b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 24px;
+  }
+  .container { max-width: 760px; margin: 0 auto; }
+  h1 {
+    font-size: 22px;
+    margin-bottom: 4px;
+  }
+  .sub { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 16px;
+  }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  label { font-size: 13px; color: var(--muted); margin-right: 4px; }
+  select, input[type="number"] {
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    background: #fff;
+  }
+  input[type="number"] { width: 80px; }
+  button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  button:hover { background: var(--accent-dark); }
+  button.secondary {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+  button.secondary:hover { background: #fbeedd; }
+  .divider { border-top: 1px dashed var(--border); margin: 14px 0; }
+  .state-box {
+    text-align: center;
+    color: var(--muted);
+    padding: 32px 0;
+    font-size: 14px;
+  }
+  .state-box.error { color: var(--error); }
+  .result-title { font-size: 15px; color: var(--accent-dark); font-weight: bold; margin-bottom: 8px; }
+  .verse-block {
+    white-space: pre-line;
+    line-height: 1.9;
+    font-size: 16px;
+    background: #fbf3e2;
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  .field-label { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .translation { line-height: 1.8; margin-bottom: 12px; }
+  .purport-list { padding-left: 18px; line-height: 1.8; }
+  .purport-list li { margin-bottom: 6px; }
+  .audio-link { font-size: 13px; }
+  footer {
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 16px;
+  }
+  footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>バガヴァッド・ギーター 詩節ビューア</h1>
+  <p class="sub">テルグ語・オディア語でギーターの詩節を検索。ランダム表示にも対応</p>
+
+  <div class="panel">
+    <div class="row">
+      <label for="lang">言語</label>
+      <select id="lang">
+        <option value="tel">テルグ語</option>
+        <option value="odi">オディア語</option>
+      </select>
+      <button id="randomBtn">ランダムな詩節</button>
+    </div>
+    <div class="divider"></div>
+    <div class="row">
+      <label for="chapterInput">章</label>
+      <input type="number" id="chapterInput" min="1" max="18" placeholder="例: 1" />
+      <label for="verseInput">節</label>
+      <input type="number" id="verseInput" min="1" placeholder="例: 1" />
+      <button id="searchBtn" class="secondary">章・節で検索</button>
+    </div>
+  </div>
+
+  <div class="panel" id="resultPanel">
+    <div class="state-box" id="stateBox">左のボタンから詩節を表示してください</div>
+    <div id="resultContent" style="display:none;">
+      <div class="result-title" id="resultTitle"></div>
+      <div class="field-label">原文（サンスクリット / ローマ字表記）</div>
+      <div class="verse-block" id="verseText"></div>
+      <div class="field-label">翻訳</div>
+      <div class="translation" id="translationText"></div>
+      <div id="purportBlock" style="display:none;">
+        <div class="field-label">解説（purport）</div>
+        <ul class="purport-list" id="purportList"></ul>
+      </div>
+      <div class="audio-link" id="audioLink" style="display:none;"></div>
+    </div>
+  </div>
+
+  <footer>
+    Data: <a href="https://gita-api.vercel.app" target="_blank" rel="noopener">Bhagavad Gita telugu API</a>
+  </footer>
+</div>
+
+<script>
+(function () {
+  const API_BASE = "https://gita-api.vercel.app";
+  const MAX_SERIAL = 700; // Bhagavad Gita 全18章・全700節
+
+  const langSelect = document.getElementById("lang");
+  const randomBtn = document.getElementById("randomBtn");
+  const searchBtn = document.getElementById("searchBtn");
+  const chapterInput = document.getElementById("chapterInput");
+  const verseInput = document.getElementById("verseInput");
+
+  const stateBox = document.getElementById("stateBox");
+  const resultContent = document.getElementById("resultContent");
+  const resultTitle = document.getElementById("resultTitle");
+  const verseText = document.getElementById("verseText");
+  const translationText = document.getElementById("translationText");
+  const purportBlock = document.getElementById("purportBlock");
+  const purportList = document.getElementById("purportList");
+  const audioLink = document.getElementById("audioLink");
+
+  function showState(message, isError) {
+    resultContent.style.display = "none";
+    stateBox.style.display = "block";
+    stateBox.textContent = message;
+    stateBox.className = "state-box" + (isError ? " error" : "");
+  }
+
+  function renderVerse(data) {
+    if (data && data.error) {
+      showState(data.message || "取得に失敗しました", true);
+      return;
+    }
+    stateBox.style.display = "none";
+    resultContent.style.display = "block";
+
+    resultTitle.textContent =
+      "第" + data.chapter_no + "章 第" + data.verse_no + "節 - " + (data.chapter_name || "");
+
+    verseText.textContent = data.verse || "(原文なし)";
+    translationText.textContent = data.translation || "(翻訳なし)";
+
+    if (data.purport && Array.isArray(data.purport) && data.purport.length > 0) {
+      purportBlock.style.display = "block";
+      purportList.innerHTML = "";
+      data.purport.forEach(function (p) {
+        const li = document.createElement("li");
+        li.textContent = p;
+        purportList.appendChild(li);
+      });
+    } else {
+      purportBlock.style.display = "none";
+    }
+
+    if (data.audio_link) {
+      audioLink.style.display = "block";
+      audioLink.innerHTML =
+        '<a href="' + data.audio_link + '" target="_blank" rel="noopener">音声を聴く</a>';
+    } else {
+      audioLink.style.display = "none";
+    }
+  }
+
+  async function fetchVerse(path) {
+    showState("読み込み中...", false);
+    try {
+      const res = await fetch(API_BASE + path);
+      if (!res.ok) {
+        throw new Error("HTTP " + res.status);
+      }
+      const data = await res.json();
+      renderVerse(data);
+    } catch (err) {
+      showState("取得に失敗しました: " + err.message, true);
+    }
+  }
+
+  randomBtn.addEventListener("click", function () {
+    const lang = langSelect.value;
+    const serial = Math.floor(Math.random() * MAX_SERIAL) + 1;
+    fetchVerse("/" + lang + "/verse/" + serial);
+  });
+
+  searchBtn.addEventListener("click", function () {
+    const lang = langSelect.value;
+    const chapter = chapterInput.value.trim();
+    const verse = verseInput.value.trim();
+    if (!chapter || !verse) {
+      showState("章と節の両方を入力してください", true);
+      return;
+    }
+    fetchVerse("/" + lang + "/verse/" + chapter + "/" + verse);
+  });
+})();
+</script>
+</body>
+</html>

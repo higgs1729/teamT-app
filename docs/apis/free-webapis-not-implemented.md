@@ -9,7 +9,7 @@ Public APIs ??????? `Auth = No` ?????????????`docs/specification.md` ???????API?
 
 ## ??????
 
-- [free-webapis-not-implemented-1.md](free-webapis-not-implemented-1.md) - 82?: Books, Currency Exchange, Documents & Productivity, Email, Entertainment, Environment, Finance, Food & Drink
+- [free-webapis-not-implemented-1.md](free-webapis-not-implemented-1.md) - 81?: Books, Currency Exchange, Documents & Productivity, Email, Entertainment, Environment, Finance, Food & Drink
 - [free-webapis-not-implemented-2.md](free-webapis-not-implemented-2.md) - 96?: Games & Comics, Geocoding
 - [free-webapis-not-implemented-3.md](free-webapis-not-implemented-3.md) - 103?: Government, Health, Music
 - [free-webapis-not-implemented-4.md](free-webapis-not-implemented-4.md) - 98?: News, Open Data, Open Source Projects, Patent, Personality, Phone, Photography, Programming, Science & Math

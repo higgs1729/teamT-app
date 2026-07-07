@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Beeceptor HTTP Echo Playground</title>
+  <style>
+    :root { --bg:#0a0f1e; --panel:#111a33; --line:#27406f; --text:#ebf3ff; --sub:#a8badf; --accent:#7dd3fc; --ok:#34d399; --err:#f87171; }
+    *{box-sizing:border-box}
+    body{margin:0;background:radial-gradient(circle at top,#0f2248,#0a0f1e);color:var(--text);font-family:"Segoe UI",sans-serif}
+    .wrap{max-width:980px;margin:0 auto;padding:24px 16px 40px}
+    .card{background:linear-gradient(180deg,#132245,#0f1a34);border:1px solid var(--line);border-radius:14px;padding:16px}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    input,select,textarea,button{border-radius:10px;border:1px solid #345892;background:#0b1530;color:var(--text);padding:10px}
+    input,textarea{flex:1}
+    textarea{min-height:120px;font-family:ui-monospace,Consolas,monospace}
+    button{cursor:pointer;background:linear-gradient(90deg,#38bdf8,#60a5fa);border:none;color:#061226;font-weight:700}
+    pre{background:#081125;border:1px solid #2c4a79;border-radius:10px;padding:12px;overflow:auto;max-height:420px}
+    .status{margin-top:8px;color:var(--sub)}
+    .ok{color:var(--ok)} .err{color:var(--err)}
+  </style>
+</head>
+<body>
+  <!--
+    概要: Beeceptor の無料 HTTP Echo を使ってリクエスト内容を確認する。
+    構成: メソッド/パス/JSON入力 / 送信 / エコーレスポンス表示。
+  -->
+  <div class="wrap">
+    <div class="card">
+      <h1>Beeceptor HTTP Echo Playground</h1>
+      <p style="color:var(--sub)">Beeceptorの無料エコーエンドポイント <code>https://echo.free.beeceptor.com</code> に送信し、実際に何が送られたかを確認できます。</p>
+      <div class="row">
+        <select id="method">
+          <option>GET</option>
+          <option>POST</option>
+          <option>PUT</option>
+          <option>DELETE</option>
+        </select>
+        <input id="path" value="sample-request" placeholder="path" />
+        <button id="sendBtn">送信</button>
+        <a href="https://beeceptor.com/resources/http-echo/" target="_blank" rel="noreferrer" style="align-self:center;color:#93c5fd;">公式ガイド</a>
+      </div>
+      <textarea id="jsonBody" placeholder='{"message":"hello"}'></textarea>
+      <div id="status" class="status">リクエスト待ちです。</div>
+      <pre id="output">ここにレスポンスJSONが表示されます。</pre>
+    </div>
+  </div>
+
+  <script>
+    const methodEl = document.getElementById('method');
+    const pathEl = document.getElementById('path');
+    const jsonBodyEl = document.getElementById('jsonBody');
+    const statusEl = document.getElementById('status');
+    const outputEl = document.getElementById('output');
+
+    async function sendEcho() {
+      const method = methodEl.value;
+      const path = pathEl.value.trim().replace(/^\/+/, '') || 'sample-request';
+      const url = `https://echo.free.beeceptor.com/${path}`;
+      statusEl.className = 'status';
+      statusEl.textContent = `${method} ${url} を送信中...`;
+
+      const options = { method, headers: { 'Accept': 'application/json' } };
+      if (method !== 'GET' && method !== 'DELETE') {
+        const raw = jsonBodyEl.value.trim() || '{}';
+        options.headers['Content-Type'] = 'application/json';
+        options.body = raw;
+      }
+
+      try {
+        const res = await fetch(url, options);
+        const data = await res.json();
+        outputEl.textContent = JSON.stringify(data, null, 2);
+        statusEl.className = 'status ok';
+        statusEl.textContent = `成功: HTTP ${res.status}`;
+      } catch (e) {
+        statusEl.className = 'status err';
+        statusEl.textContent = `失敗: ${e.message}`;
+        outputEl.textContent = '通信に失敗しました。CORSやネットワークを確認してください。';
+      }
+    }
+
+    document.getElementById('sendBtn').addEventListener('click', sendEcho);
+  </script>
+</body>
+</html>

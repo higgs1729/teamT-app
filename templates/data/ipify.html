@@ -1,0 +1,6 @@
+<!DOCTYPE html>
+<!-- IPify紹介ページ: グローバルIPアドレス取得API。 -->
+<html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>IPify Viewer</title><style>
+body{margin:0;min-height:100vh;font-family:"BIZ UDPGothic","Meiryo UI",sans-serif;background:linear-gradient(135deg,#f6f7fb,#eef7ff);color:#202536;text-align:center}main{width:min(820px,100%);margin:auto;padding:40px 18px}h1{font-size:clamp(24px,4vw,38px);letter-spacing:0}.ip{margin:20px 0;padding:28px;border-radius:18px;background:#eaf1ff;color:#2f6ef0;font-size:clamp(30px,8vw,58px);font-weight:800;word-break:break-all}button{border:0;border-radius:10px;padding:12px 16px;background:#2f6ef0;color:white;font:inherit;font-weight:700}p{color:#667086;line-height:1.7}a{color:#2f6ef0}</style></head><body><main><h1>IPify Viewer</h1><p>シンプルに現在のグローバルIPを返すAPIです。</p><button id="load">IPを取得</button><div class="ip" id="ip">-</div><p>Docs: <a href="https://www.ipify.org/" target="_blank" rel="noreferrer">ipify.org</a></p></main><script>
+document.getElementById("load").onclick=async()=>{const ip=document.getElementById("ip");try{const r=await fetch("https://api.ipify.org?format=json");if(!r.ok)throw new Error(`HTTP ${r.status}`);ip.textContent=(await r.json()).ip}catch(e){ip.textContent="取得不可"}};
+</script></body></html>

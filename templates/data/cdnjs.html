@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<!--
+  CDNJS API紹介ページ
+  目的: cdnjsの公開APIからJavaScript/CSSライブラリ情報を検索する。
+  構成: 検索フォーム / ライブラリカード / CDN URLコピー用表示 / エラー時フォールバック。
+-->
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CDNJS Library Finder</title>
+  <style>
+    :root{--bg:#f5f7fb;--panel:#fff;--ink:#202536;--muted:#667084;--line:#dce4ef;--accent:#f38020;--soft:#fff2e8;--danger:#c43d3d}
+    *{box-sizing:border-box} body{margin:0;min-height:100vh;font-family:"BIZ UDPGothic","Meiryo UI",sans-serif;background:linear-gradient(135deg,#f5f7fb,#fff7ef);color:var(--ink)}
+    main{width:min(1080px,100%);margin:auto;padding:32px 18px} h1{margin:0 0 8px;font-size:clamp(24px,4vw,38px);letter-spacing:0} p{margin:0;color:var(--muted);line-height:1.7} a{color:var(--accent)}
+    .hero{display:flex;justify-content:space-between;gap:18px;margin-bottom:18px}.badge{height:max-content;padding:8px 12px;border-radius:999px;background:var(--soft);color:var(--accent);font-weight:700;white-space:nowrap}
+    .bar{display:flex;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px;box-shadow:0 14px 30px rgba(50,60,90,.08)}
+    input,button{font:inherit;border-radius:10px;padding:11px 12px}input{flex:1;border:1px solid var(--line)}button{border:0;background:var(--accent);color:#fff;font-weight:700;cursor:pointer;min-width:140px}
+    .status{font-weight:700;color:var(--muted);margin:0 0 12px}.status.error{color:var(--danger)}
+    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}.card{background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 12px 26px rgba(50,60,90,.06)}
+    .card h2{margin:0 0 8px;font-size:16px}.url{margin-top:12px;padding:10px;border-radius:10px;background:#172033;color:#dbe8ff;font-size:12px;word-break:break-all}
+    @media(max-width:720px){.hero,.bar{display:grid}.badge{width:max-content}button{width:100%}}
+  </style>
+</head>
+<body>
+<main>
+  <section class="hero">
+    <div><h1>CDNJS Library Finder</h1><p>cdnjs APIでライブラリ名を検索し、最新バージョンやCDN URLを確認します。</p></div>
+    <span class="badge">CDN Metadata</span>
+  </section>
+  <form class="bar" id="form"><input id="q" value="jquery" autocomplete="off" aria-label="ライブラリ名"><button>検索</button></form>
+  <p class="status" id="status">未検索です。</p>
+  <section class="cards" id="cards"></section>
+  <p style="margin-top:14px;font-size:12px;">Docs: <a href="https://api.cdnjs.com/libraries/jquery" target="_blank" rel="noreferrer">https://api.cdnjs.com/libraries/jquery</a></p>
+</main>
+<script>
+const form=document.getElementById("form"),q=document.getElementById("q"),statusEl=document.getElementById("status"),cards=document.getElementById("cards");
+function render(items){cards.innerHTML=items.map(x=>`<article class="card"><h2>${x.name}</h2><p>${x.description||"説明なし"}</p><p>Version: <b>${x.version||"-"}</b></p><div class="url">${x.latest||x.filename||"URLなし"}</div></article>`).join("")}
+form.addEventListener("submit",async e=>{e.preventDefault();statusEl.className="status";statusEl.textContent="検索中...";cards.innerHTML="";try{const url=`https://api.cdnjs.com/libraries?search=${encodeURIComponent(q.value)}&fields=version,description,latest`;const r=await fetch(url);if(!r.ok)throw new Error(`HTTP ${r.status}`);const d=await r.json();statusEl.textContent=`成功: ${d.results.length}件`;render(d.results.slice(0,12));}catch(err){statusEl.className="status error";statusEl.textContent="取得に失敗しました。";render([{name:"jquery",version:"latest",description:"フォールバック表示",latest:"https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"}]);}});
+</script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<!--
+  PurgoMalum API紹介ページ
+  目的: 無料のテキストフィルタAPIで、不適切語の検出と置換を試す。
+  構成: テキスト入力 / 置換オプション / JSON API呼び出し / 結果表示。
+-->
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PurgoMalum テキストフィルタ</title>
+  <style>
+    :root { --bg:#f6f4f1; --panel:#fff; --ink:#242424; --muted:#6c6a65; --line:#e4ded6; --accent:#c96a39; --soft:#fff0e8; --ok:#1b8a5a; --danger:#c43d3d; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; font-family:"BIZ UDPGothic","Meiryo UI",sans-serif; background:linear-gradient(140deg,#f6f4f1,#edf7f0); color:var(--ink); }
+    main { width:min(1040px,100%); margin:0 auto; padding:34px 18px; }
+    h1 { margin:0 0 8px; font-size:clamp(24px,4vw,38px); letter-spacing:0; }
+    p { margin:0; color:var(--muted); line-height:1.75; }
+    a { color:var(--accent); }
+    .hero { display:flex; justify-content:space-between; gap:18px; margin-bottom:18px; }
+    .pill { align-self:flex-start; padding:8px 12px; border-radius:999px; background:var(--soft); color:var(--accent); font-weight:700; white-space:nowrap; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .panel { background:rgba(255,255,255,.94); border:1px solid var(--line); border-radius:14px; padding:18px; box-shadow:0 18px 34px rgba(80,60,35,.08); }
+    label { display:block; font-size:13px; font-weight:700; margin:14px 0 7px; }
+    textarea, input, select { width:100%; border:1px solid var(--line); border-radius:10px; padding:11px 12px; font:inherit; background:#fff; color:var(--ink); }
+    textarea { min-height:150px; resize:vertical; }
+    .row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    button { margin-top:16px; width:100%; border:0; border-radius:10px; padding:12px 14px; font:inherit; font-weight:700; color:#fff; background:var(--accent); cursor:pointer; }
+    .status { margin-bottom:12px; color:var(--muted); font-weight:700; }
+    .status.ok { color:var(--ok); }
+    .status.error { color:var(--danger); }
+    .result { min-height:150px; padding:14px; border-radius:12px; background:#f8faf8; border:1px solid var(--line); white-space:pre-wrap; line-height:1.7; }
+    .meta { margin-top:12px; display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .stat { padding:12px; border-radius:12px; background:var(--soft); }
+    .stat b { display:block; font-size:20px; margin-top:4px; }
+    @media (max-width:760px){ .hero,.grid,.row,.meta{display:grid; grid-template-columns:1fr;} .pill{width:max-content;} }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div>
+        <h1>PurgoMalum テキストフィルタ</h1>
+        <p>文章内の不適切語を検出・置換するREST APIです。`json` と `containsprofanity` の2種類のエンドポイントを組み合わせて試します。</p>
+      </div>
+      <span class="pill">No Auth / Text Tool</span>
+    </section>
+
+    <section class="grid">
+      <form class="panel" id="filter-form">
+        <p>デモ用の短文を入力してください。置換文字や追加NGワードも指定できます。</p>
+        <label for="text">入力テキスト</label>
+        <textarea id="text">This is a clean sample, but block the word spoiler.</textarea>
+        <div class="row">
+          <div>
+            <label for="add">追加NGワード</label>
+            <input id="add" value="spoiler" autocomplete="off">
+          </div>
+          <div>
+            <label for="fill">置換文字</label>
+            <select id="fill">
+              <option value="*">*</option>
+              <option value="_">_</option>
+              <option value="-">-</option>
+              <option value="~">~</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit">フィルタを実行</button>
+        <p style="margin-top:12px;font-size:12px;">Docs: <a href="https://www.purgomalum.com" target="_blank" rel="noreferrer">https://www.purgomalum.com</a></p>
+      </form>
+
+      <section class="panel">
+        <div class="status" id="status">未実行です。</div>
+        <div class="result" id="result">結果がここに表示されます。</div>
+        <div class="meta">
+          <div class="stat">検出結果<b id="contains">-</b></div>
+          <div class="stat">置換後文字数<b id="length">-</b></div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById("filter-form");
+    const statusEl = document.getElementById("status");
+    const resultEl = document.getElementById("result");
+    const containsEl = document.getElementById("contains");
+    const lengthEl = document.getElementById("length");
+
+    function params() {
+      const p = new URLSearchParams();
+      p.set("text", document.getElementById("text").value);
+      const add = document.getElementById("add").value.trim();
+      if (add) p.set("add", add);
+      p.set("fill_char", document.getElementById("fill").value);
+      return p;
+    }
+
+    async function run(event) {
+      event.preventDefault();
+      statusEl.className = "status";
+      statusEl.textContent = "フィルタ中...";
+      resultEl.textContent = "";
+      containsEl.textContent = "-";
+      lengthEl.textContent = "-";
+      try {
+        const query = params();
+        const [jsonRes, containsRes] = await Promise.all([
+          fetch(`https://www.purgomalum.com/service/json?${query.toString()}`),
+          fetch(`https://www.purgomalum.com/service/containsprofanity?${query.toString()}`)
+        ]);
+        if (!jsonRes.ok || !containsRes.ok) throw new Error(`HTTP ${jsonRes.status}/${containsRes.status}`);
+        const data = await jsonRes.json();
+        const contains = await containsRes.text();
+        if (data.error) throw new Error(data.error);
+        statusEl.className = "status ok";
+        statusEl.textContent = "成功: テキストを処理しました。";
+        resultEl.textContent = data.result;
+        containsEl.textContent = contains.trim();
+        lengthEl.textContent = String(data.result.length);
+      } catch (error) {
+        statusEl.className = "status error";
+        statusEl.textContent = "取得に失敗しました。API制限またはCORSの可能性があります。";
+        const raw = document.getElementById("text").value;
+        resultEl.textContent = raw.replaceAll(document.getElementById("add").value.trim(), "***");
+        containsEl.textContent = "fallback";
+        lengthEl.textContent = String(resultEl.textContent.length);
+      }
+    }
+
+    form.addEventListener("submit", run);
+  </script>
+</body>
+</html>

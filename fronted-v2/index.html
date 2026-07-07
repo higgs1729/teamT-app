@@ -18,6 +18,7 @@
   <!-- Tabler Icons（モックアップと同じアイコンフォント） -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/game.css">
 </head>
 <body>
 <div class="app-window">
@@ -25,7 +26,7 @@
   <!-- ============================== SIDEBAR ============================== -->
   <aside class="sidebar" id="sidebar">
     <div class="brand">
-      <div class="brand-icon"><i class="ti ti-api"></i></div>
+      <div class="brand-icon"><i class="ti ti-api-app"></i></div>
       <div>
         <div class="brand-name">WebAPI Gallery</div>
         <div class="brand-sub">teamT — API 紹介集</div>
@@ -41,14 +42,22 @@
     <!-- カテゴリ別ナビ（app.js が CATALOG から描画） -->
     <nav class="nav-scroll" id="nav-list"></nav>
 
-    <!-- サイドバー下部: アカウント / 設定 -->
+    <!-- サイドバー下部: アカウント（設定へのアクセスは設定モーダル内のナビに集約） -->
     <div class="sidebar-foot">
-      <button class="account-btn" onclick="openSettings('account')" title="アカウント設定">
+      <!-- 未ログイン時のみ表示する赤字の案内。ログイン中は非表示 -->
+      <p class="login-hint" id="login-hint">
+        <i class="ti ti-alert-triangle"></i> アカウントを有効にするにはログインしてください
+      </p>
+      <!-- ゲーム: 自キャラの設定画面（js/game.js が結線） -->
+      <button class="character-btn" id="character-btn" title="キャラクター">
+        <i class="ti ti-user-heart"></i>
+        <span id="char-btn-name">冒険者</span>
+        <span class="char-lv" id="char-btn-lv">Lv.1</span>
+      </button>
+      <button class="account-btn" onclick="handleAccountClick()" title="アカウント">
         <span class="avatar" id="account-avatar">G</span>
         <span class="account-name" id="account-name">ゲスト</span>
-      </button>
-      <button class="settings-btn-side" onclick="openSettings('appearance')" title="設定">
-        <i class="ti ti-settings"></i> <span>設定</span>
+        <i class="ti ti-chevron-down account-chevron"></i>
       </button>
     </div>
   </aside>
@@ -64,6 +73,11 @@
               aria-label="サイドバーの表示切替" title="サイドバーの表示切替">
         <i class="ti ti-layout-sidebar-left-collapse"></i>
       </button>
+      <!-- ゲーム: 表示中のAPIページ内の操作で貯まる進捗バー（js/game.js。iframe内クリックを検知） -->
+      <div class="hdr-progress" id="hdr-progress">
+        <span class="hdr-progress-label" id="hdr-progress-label">進捗 0%</span>
+        <div class="hdr-progress-track"><div class="hdr-progress-fill" id="hdr-progress-fill"></div></div>
+      </div>
     </header>
 
     <!-- コンテンツ：iframe プレビュー + ウェルカム空状態 -->
@@ -115,15 +129,19 @@
           <div class="account-head">
             <span class="avatar avatar-lg" id="account-avatar-lg">G</span>
             <div>
-              <div class="account-head-name" id="account-head-name">ゲスト</div>
-              <div class="account-head-sub">ローカルのデモプロフィール</div>
+              <div class="account-head-name" id="account-head-name">ゲスト1</div>
+              <div class="account-head-sub" id="account-head-sub">ログインするとアカウント機能が使えます</div>
             </div>
           </div>
-          <label class="settings-field-label" for="account-name-input">表示名</label>
-          <input type="text" id="account-name-input" class="settings-input" maxlength="24" placeholder="表示名を入力">
-          <p class="settings-note">
-            このサイトはサーバー認証を持たないデモです。表示名はこのブラウザ（localStorage）にのみ保存されます。
-          </p>
+          <!-- 未ログイン: ログイン画面へ誘導 / ログイン中: ログアウトのみ表示 -->
+          <div class="account-actions">
+            <button class="settings-btn-side" id="account-login-btn" onclick="goToLogin()">
+              <i class="ti ti-login"></i> <span>ログインする</span>
+            </button>
+            <button class="settings-btn-side" id="account-logout-btn" onclick="logout()" style="display:none;">
+              <i class="ti ti-logout"></i> <span>ログアウトする</span>
+            </button>
+          </div>
         </section>
 
         <!-- 外観（テーマ / アクセント） -->
@@ -176,5 +194,6 @@
 
 <script src="js/catalog.js"></script>
 <script src="js/app.js"></script>
+<script src="js/game.js"></script>
 </body>
 </html>

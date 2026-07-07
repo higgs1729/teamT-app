@@ -120,6 +120,26 @@ a { color: inherit; }
 .nav-group-body { padding: 2px 0 6px 6px; }
 .nav-group.closed .nav-group-body { display: none; }
 
+/* 小分類: WebAPI数が増えても探しやすいように親カテゴリ内をさらに折りたたむ */
+.nav-subgroup { margin: 2px 0 4px; }
+.nav-subgroup-head {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 10px 7px 6px; cursor: pointer; user-select: none;
+  color: var(--text-muted); font-size: 11.5px; font-weight: 700;
+  transition: color 0.15s;
+}
+.nav-subgroup-head:hover { color: var(--accent); }
+[data-theme="dark"] .nav-subgroup-head:hover { color: var(--accent-mid); }
+.nav-subgroup-caret { font-size: 13px; transition: transform 0.18s; flex-shrink: 0; }
+.nav-subgroup.closed .nav-subgroup-caret { transform: rotate(-90deg); }
+.nav-subgroup-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nav-subgroup-count {
+  min-width: 20px; padding: 1px 6px; border-radius: 999px;
+  background: var(--bg-card); color: var(--text-muted); text-align: center; font-size: 10px;
+}
+.nav-subgroup-body { padding-left: 10px; }
+.nav-subgroup.closed .nav-subgroup-body { display: none; }
+
 .nav-item {
   display: flex; align-items: center; gap: 11px; padding: 9px 12px; border-radius: 10px;
   color: var(--text-secondary); font-size: 13px; cursor: pointer;
@@ -142,7 +162,20 @@ a { color: inherit; }
 }
 .account-btn:hover, .settings-btn-side:hover { background: var(--bg-card); color: var(--text-primary); }
 .settings-btn-side i { font-size: 18px; width: 20px; text-align: center; flex-shrink: 0; }
-.account-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.account-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; color: var(--text-primary); font-weight: 600; }
+.account-chevron { margin-left: auto; font-size: 16px; flex-shrink: 0; color: var(--text-muted); }
+/* 未ログイン時にアカウントボタンの上へ出す赤字の案内 */
+.login-hint {
+  display: flex; align-items: center; gap: 6px;
+  margin: 0 0 4px; padding: 6px 10px;
+  font-size: 11.5px; font-weight: 600; line-height: 1.3;
+  color: #d64545; background: rgba(214, 69, 69, 0.08); border-radius: 8px;
+}
+.login-hint i { font-size: 14px; flex-shrink: 0; }
+[data-theme="dark"] .login-hint { color: #ff8686; background: rgba(255, 134, 134, 0.12); }
+/* 設定パネル内のログイン/ログアウト導線 */
+.account-actions { margin: 12px 0; }
+.account-actions .settings-btn-side { border: 1px solid var(--border-subtle); }
 /* アカウントのアバター（頭文字を表示する円） */
 .avatar {
   display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
@@ -253,12 +286,6 @@ a { color: inherit; }
 .settings-panel { display: none; }
 .settings-panel.active { display: block; }
 .settings-title { font-size: 18px; font-weight: 700; color: var(--text-primary); margin-bottom: 20px; }
-.settings-field-label { display: block; font-size: 12px; color: var(--text-secondary); margin: 8px 0 6px; }
-.settings-input {
-  width: 100%; background: var(--bg-base); border: 1px solid var(--border-color); border-radius: 9px;
-  padding: 10px 12px; color: var(--text-primary); font-family: inherit; font-size: 13.5px; outline: none;
-}
-.settings-input:focus { border-color: var(--accent); }
 .settings-note { font-size: 12px; color: var(--text-muted); line-height: 1.7; margin-top: 12px; }
 .settings-value { font-size: 13px; color: var(--text-secondary); }
 /* アカウント見出し（大アバター + 名前） */

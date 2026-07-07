@@ -1,7 +1,7 @@
 /* ============================================================
    fronted-v2 / app.js
    サイト全体の動作を担うスクリプト。
-     - CATALOG(catalog.js) からサイドバーをカテゴリ別に描画
+     - CATALOG(catalog.js) からサイドバーをカテゴリ階層別に描画
      - 検索ボックスによる絞り込み
      - 一覧クリックで iframe にテンプレートを表示しヘッダーを更新
      - URLハッシュ連携（共有・リロードで選択を復元）
@@ -26,19 +26,32 @@
   const THEME_KEY    = "fronted-v2-theme";     // localStorage キー（テーマ）
   const ACCENT_KEY   = "fronted-v2-accent";    // localStorage キー（アクセント色）
   let   currentId    = null;                   // 現在選択中テンプレートの id
-  const openCats     = new Set();              // 開いているカテゴリ名（既定は全て閉じる）
+  const openCats     = new Set();              // 開いているカテゴリ階層キー（既定は全て閉じる）
 
   /* ============================================================
-     一覧描画 — CATALOG を category 単位の折りたたみグループとして出力。
+     一覧描画 — CATALOG を categoryPath に沿った2階層グループとして出力。
        - 既定は全カテゴリ閉じた状態。見出しクリックで開閉。
-       - keyword 指定時は title / apiName / description で部分一致フィルタし、
+       - keyword 指定時は title / apiName / description / categoryPath で部分一致フィルタし、
          検索中はヒットを見せるため該当グループを自動展開する。
      ============================================================ */
+  function getCategoryPath(item) {
+    if (Array.isArray(item.categoryPath) && item.categoryPath.length) return item.categoryPath;
+    return [item.category || "その他"];
+  }
+
+  function getCategoryKey(path) {
+    return path.join(" > ");
+  }
+
+  function getCategoryLabel(name) {
+    return String(name).replace(/系$/, "");
+  }
+
   function renderList(keyword) {
     const kw = (keyword || "").trim().toLowerCase();
     const items = kw
       ? CATALOG.filter(t =>
-          (t.title + " " + t.apiName + " " + t.description).toLowerCase().includes(kw))
+          (t.title + " " + t.apiName + " " + t.description + " " + getCategoryPath(t).join(" ")).toLowerCase().includes(kw))
       : CATALOG;
 
     navList.innerHTML = "";
@@ -47,41 +60,79 @@
       return;
     }
 
-    // category 単位にグルーピング（CATALOG の並び順を尊重）
-    const groups = [];                         // [{ category, items: [] }]
-    const index  = new Map();                  // category -> groups内の位置
+    // categoryPath 単位にグルーピング（CATALOG の並び順を尊重）
+    const groups = [];                         // [{ category, key, children: [{ category, key, items: [] }] }]
+    const index  = new Map();                  // 親カテゴリkey -> groups内の位置
     items.forEach(t => {
-      if (!index.has(t.category)) { index.set(t.category, groups.length); groups.push({ category: t.category, items: [] }); }
-      groups[index.get(t.category)].items.push(t);
+      const path = getCategoryPath(t);
+      const parentName = path[0] || "その他";
+      const childName = path[1] || "その他";
+      const parentKey = getCategoryKey([parentName]);
+      const childKey = getCategoryKey([parentName, childName]);
+
+      if (!index.has(parentKey)) {
+        index.set(parentKey, groups.length);
+        groups.push({ category: parentName, key: parentKey, children: [], childIndex: new Map() });
+      }
+
+      const parent = groups[index.get(parentKey)];
+      if (!parent.childIndex.has(childKey)) {
+        parent.childIndex.set(childKey, parent.children.length);
+        parent.children.push({ category: childName, key: childKey, items: [] });
+      }
+      parent.children[parent.childIndex.get(childKey)].items.push(t);
     });
 
     groups.forEach(g => {
       // 検索中(kw あり)は展開、通常時は openCats の状態に従う
-      const isOpen = kw ? true : openCats.has(g.category);
+      const isOpen = kw ? true : openCats.has(g.key);
 
       const group = document.createElement("div");
       group.className = "nav-group" + (isOpen ? "" : " closed");
-      group.dataset.category = g.category;
+      group.dataset.categoryKey = g.key;
 
       // 見出し（クリックで開閉）。表示名は末尾の「系」を省く + 開閉キャレット
       const head = document.createElement("div");
       head.className = "nav-group-head";
       head.innerHTML =
         `<i class="ti ti-chevron-down nav-group-caret"></i>` +
-        `<span class="nav-group-title">${g.category.replace(/系$/, "")}</span>`;
-      head.addEventListener("click", () => toggleGroup(g.category, group));
+        `<span class="nav-group-title">${getCategoryLabel(g.category)}</span>`;
+      head.addEventListener("click", () => toggleGroup(g.key, group));
       group.appendChild(head);
 
-      // 本体（テンプレート項目）
+      // 本体（小分類 + テンプレート項目）
       const body = document.createElement("div");
       body.className = "nav-group-body";
-      g.items.forEach(t => {
-        const item = document.createElement("div");
-        item.className = "nav-item" + (t.id === currentId ? " active" : "");
-        item.dataset.id = t.id;
-        item.innerHTML = `<i class="ti ${t.icon}"></i><span>${t.title}</span>`;
-        item.addEventListener("click", () => select(t.id, true));
-        body.appendChild(item);
+      g.children.forEach(child => {
+        const childOpen = kw ? true : openCats.has(child.key);
+        const subgroup = document.createElement("div");
+        subgroup.className = "nav-subgroup" + (childOpen ? "" : " closed");
+        subgroup.dataset.categoryKey = child.key;
+
+        const subhead = document.createElement("div");
+        subhead.className = "nav-subgroup-head";
+        subhead.innerHTML =
+          `<i class="ti ti-chevron-down nav-subgroup-caret"></i>` +
+          `<span class="nav-subgroup-title">${getCategoryLabel(child.category)}</span>` +
+          `<span class="nav-subgroup-count">${child.items.length}</span>`;
+        subhead.addEventListener("click", (event) => {
+          event.stopPropagation();
+          toggleGroup(child.key, subgroup);
+        });
+        subgroup.appendChild(subhead);
+
+        const subbody = document.createElement("div");
+        subbody.className = "nav-subgroup-body";
+        child.items.forEach(t => {
+          const item = document.createElement("div");
+          item.className = "nav-item" + (t.id === currentId ? " active" : "");
+          item.dataset.id = t.id;
+          item.innerHTML = `<i class="ti ${t.icon}"></i><span>${t.title}</span>`;
+          item.addEventListener("click", () => select(t.id, true));
+          subbody.appendChild(item);
+        });
+        subgroup.appendChild(subbody);
+        body.appendChild(subgroup);
       });
       group.appendChild(body);
 
@@ -89,19 +140,26 @@
     });
   }
 
-  // カテゴリの開閉をトグル（openCats に状態を保持し、DOM の closed を切替）
-  function toggleGroup(category, groupEl) {
-    if (openCats.has(category)) { openCats.delete(category); groupEl.classList.add("closed"); }
-    else { openCats.add(category); groupEl.classList.remove("closed"); }
+  // カテゴリ階層の開閉をトグル（openCats に状態を保持し、DOM の closed を切替）
+  function toggleGroup(categoryKey, groupEl) {
+    if (openCats.has(categoryKey)) { openCats.delete(categoryKey); groupEl.classList.add("closed"); }
+    else { openCats.add(categoryKey); groupEl.classList.remove("closed"); }
   }
 
   // 指定 id を含むカテゴリを開く（選択時に項目が隠れないようにする）
   function expandCategoryOf(id) {
     const t = CATALOG.find(x => x.id === id);
     if (!t) return;
-    openCats.add(t.category);
-    const g = navList.querySelector(`.nav-group[data-category="${t.category}"]`);
-    if (g) g.classList.remove("closed");
+    const path = getCategoryPath(t);
+    const parentKey = getCategoryKey([path[0]]);
+    const childKey = getCategoryKey([path[0], path[1] || "その他"]);
+    openCats.add(parentKey);
+    openCats.add(childKey);
+    navList.querySelectorAll(".nav-group, .nav-subgroup").forEach(el => {
+      if (el.dataset.categoryKey === parentKey || el.dataset.categoryKey === childKey) {
+        el.classList.remove("closed");
+      }
+    });
   }
 
   /* ============================================================
@@ -117,6 +175,9 @@
     preview.src = TEMPLATE_DIR + t.file;
     preview.classList.remove("hidden");
     welcome.classList.add("hidden");
+
+    // ゲーム(game.js)へ「API紹介ページを表示した」通知（疎結合フック）
+    document.dispatchEvent(new CustomEvent("apipage:shown", { detail: { id } }));
 
     // 選択項目を含むカテゴリを開いてからハイライトを付け替え
     expandCategoryOf(id);
@@ -163,28 +224,72 @@
      アカウント — サーバー認証は無く、表示名を localStorage に保持するだけ
      ============================================================ */
   const ACCOUNT_KEY   = "fronted-v2-account-name";
+  const EMAIL_KEY     = "fronted-v2-account-email";
+  const LOGIN_KEY     = "fronted-v2-logged-in";
   const DEFAULT_NAME  = "ゲスト";
+  // fronted-v2(5500)とSpring Boot(8080)は別オリジンのため相対パスでは繋がらない。
+  // 認証は将来的に外部のSSOサーバーへ切り出す予定。今はこのURLを差し替えるだけで移行できるようにしておく
+  const AUTH_LOGIN_URL = "http://localhost:8080/auth/login";
+
+  function isLoggedIn() { return localStorage.getItem(LOGIN_KEY) === "1"; }
 
   function setAccountName(name) {
     const n = (name && name.trim()) || DEFAULT_NAME;
     const initial = n.charAt(0).toUpperCase();
-    document.getElementById("account-name").textContent = n;
     document.getElementById("account-avatar").textContent = initial;
     document.getElementById("account-avatar-lg").textContent = initial;
     document.getElementById("account-head-name").textContent = n;
   }
 
+  // サイドバー下部のボタン表示・設定パネルのログイン/ログアウト導線を切り替える
+  function applyLoginState() {
+    const loggedIn = isLoggedIn();
+    const name = localStorage.getItem(ACCOUNT_KEY) || DEFAULT_NAME;
+    document.getElementById("account-name").textContent = loggedIn ? name : DEFAULT_NAME;
+    document.getElementById("login-hint").style.display = loggedIn ? "none" : "flex";
+    document.getElementById("account-login-btn").style.display = loggedIn ? "none" : "flex";
+    document.getElementById("account-logout-btn").style.display = loggedIn ? "flex" : "none";
+    document.getElementById("account-head-sub").textContent = loggedIn
+      ? (localStorage.getItem(EMAIL_KEY) || "")
+      : "ログインするとアカウント機能が使えます";
+  }
+
+  window.goToLogin = function () { window.location.href = AUTH_LOGIN_URL; };
+
+  window.logout = function () {
+    localStorage.removeItem(LOGIN_KEY);
+    localStorage.removeItem(ACCOUNT_KEY);
+    localStorage.removeItem(EMAIL_KEY);
+    setAccountName(DEFAULT_NAME);
+    applyLoginState();
+  };
+
+  // サイドバーのアカウントボタン: ログイン状態に関わらず設定のアカウントパネルを開く
+  // （ログイン画面への遷移は設定内の「ログイン」項目から行う）
+  window.handleAccountClick = function () {
+    openSettings("account");
+  };
+
+  // ログイン画面からの戻り（?login=表示名&email=メールアドレス）を検知し、ログイン済み状態として保存する
+  function consumeLoginCallback() {
+    const params = new URLSearchParams(location.search);
+    const loginName = params.get("login");
+    if (!loginName) return;
+    localStorage.setItem(LOGIN_KEY, "1");
+    localStorage.setItem(ACCOUNT_KEY, loginName);
+    const email = params.get("email");
+    if (email) localStorage.setItem(EMAIL_KEY, email);
+    params.delete("login");
+    params.delete("email");
+    const rest = params.toString();
+    history.replaceState(null, "", location.pathname + (rest ? "?" + rest : "") + location.hash);
+  }
+
   function initAccount() {
+    consumeLoginCallback();
     const saved = localStorage.getItem(ACCOUNT_KEY) || DEFAULT_NAME;
-    const input = document.getElementById("account-name-input");
-    input.value = saved === DEFAULT_NAME ? "" : saved;
     setAccountName(saved);
-    // 入力に応じて即時反映・保存
-    input.addEventListener("input", () => {
-      const v = input.value.trim();
-      setAccountName(v);
-      if (v) localStorage.setItem(ACCOUNT_KEY, v); else localStorage.removeItem(ACCOUNT_KEY);
-    });
+    applyLoginState();
   }
 
   /* ============================================================
@@ -227,10 +332,12 @@
     localStorage.removeItem(THEME_KEY);
     localStorage.removeItem(ACCENT_KEY);
     localStorage.removeItem(ACCOUNT_KEY);
+    localStorage.removeItem(LOGIN_KEY);
+    localStorage.removeItem(EMAIL_KEY);
     applyTheme("light");
     applyAccent("orange");
     setAccountName(DEFAULT_NAME);
-    document.getElementById("account-name-input").value = "";
+    applyLoginState();
   };
 
   /* ============================================================

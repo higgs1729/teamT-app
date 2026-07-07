@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>国情報検索</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+
+font-family:"Yu Gothic",sans-serif;
+
+background:linear-gradient(135deg,#0f172a,#1d4ed8,#38bdf8);
+
+min-height:100vh;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+}
+
+.container{
+
+width:450px;
+
+background:rgba(255,255,255,.12);
+
+backdrop-filter:blur(15px);
+
+padding:30px;
+
+border-radius:20px;
+
+box-shadow:0 10px 30px rgba(0,0,0,.3);
+
+color:white;
+
+}
+
+h1{
+
+text-align:center;
+
+margin-bottom:25px;
+
+font-size:32px;
+
+}
+
+.search{
+
+display:flex;
+
+gap:10px;
+
+}
+
+input{
+
+flex:1;
+
+padding:12px;
+
+font-size:17px;
+
+border:none;
+
+border-radius:10px;
+
+outline:none;
+
+}
+
+button{
+
+padding:12px 20px;
+
+background:#38bdf8;
+
+border:none;
+
+color:white;
+
+font-size:16px;
+
+border-radius:10px;
+
+cursor:pointer;
+
+transition:.3s;
+
+}
+
+button:hover{
+
+background:#0ea5e9;
+
+transform:translateY(-2px);
+
+}
+
+#result{
+
+margin-top:25px;
+
+}
+
+.card{
+
+background:white;
+
+color:#111827;
+
+padding:20px;
+
+border-radius:15px;
+
+text-align:center;
+
+animation:fade .5s;
+
+}
+
+.card img{
+
+width:180px;
+
+border-radius:8px;
+
+box-shadow:0 5px 15px rgba(0,0,0,.2);
+
+margin-bottom:15px;
+
+}
+
+.card p{
+
+margin:8px 0;
+
+font-size:17px;
+
+}
+
+.error{
+
+color:#fecaca;
+
+text-align:center;
+
+font-size:18px;
+
+}
+
+@keyframes fade{
+
+from{
+
+opacity:0;
+
+transform:translateY(20px);
+
+}
+
+to{
+
+opacity:1;
+
+transform:translateY(0);
+
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🌍 国情報検索</h1>
+
+<div class="search">
+
+<input
+id="country"
+placeholder="例：Japan">
+
+<button onclick="searchCountry()">
+
+検索
+
+</button>
+
+</div>
+
+<div id="result"></div>
+
+</div>
+
+<script>
+
+const input=document.getElementById("country");
+
+const result=document.getElementById("result");
+
+async function searchCountry(){
+
+    const name = input.value.trim();
+
+    if(name === ""){
+        result.innerHTML = '<p class="error">国名を入力してください。</p>';
+        return;
+    }
+
+    try{
+
+        // 国一覧取得
+        const res = await fetch("https://countriesnow.space/api/v0.1/countries/population");
+        const data = await res.json();
+
+        // 検索（部分一致）
+        const country = data.data.find(c =>
+            c.country.toLowerCase().includes(name.toLowerCase())
+        );
+
+        if(!country){
+            throw new Error("国が見つかりません");
+        }
+
+        // 首都取得
+        const capitalRes = await fetch("https://countriesnow.space/api/v0.1/countries/capital");
+        const capitalData = await capitalRes.json();
+
+        const capitalObj = capitalData.data.find(c =>
+            c.name === country.country
+        );
+
+        const capital = capitalObj ? capitalObj.capital : "不明";
+
+        // 最新人口
+        const population = country.populationCounts.slice(-1)[0].value;
+
+        result.innerHTML = `
+        <div class="card">
+
+            <h2>${country.country}</h2>
+
+            <p>🏛️ 首都：${capital}</p>
+
+            <p>👥 人口：${Number(population).toLocaleString()}人</p>
+
+        </div>
+        `;
+
+    }catch(error){
+        result.innerHTML = `<p class="error">${error.message}</p>`;
+    }
+}
+
+</script>
+
+</body>
+</html>

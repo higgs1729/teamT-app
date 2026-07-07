@@ -1,6 +1,6 @@
 ---
 name: clean-templates
-description: templates/ 直下にフォルダ分けされていない HTML を、ジャンル別フォルダ(image/data/tools/fun)へ整理し、fronted-v2 のカタログに反映する。「templatesを整理」「clean-templates」「未分類のテンプレートを振り分け」などのときに使う。
+description: templates/ 直下にフォルダ分けされていない HTML を、ジャンル別フォルダ(image/data/tools/fun)へ整理し、fronted-v2 のカタログに反映する。/clean-templates のときに使う。
 ---
 
 # clean-templates

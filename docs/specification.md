@@ -103,6 +103,15 @@
 | data | wakusei | ローカルデータ(サンプル) | 太陽系の惑星情報 |
 | data | burogu | JSONPlaceholder | ダミー記事のランダム表示 |
 | data | game | RAWG API | 高評価ゲーム一覧 |
+| data | amiibo | AmiiboAPI | Amiibo検索 |
+| data | animal-crossing-new-horizons | Animal Crossing: New Horizons API | 住民や魚・虫・化石の図鑑 |
+| data | astroworld | Astroworld API | Minecraft系データの検索 |
+| data | autochess-vng | Autochess VNG API | 英雄・クラス・種族の図鑑 |
+| data | magic-the-gathering | Magic The Gathering API | MTGカード検索 |
+| data | minecraft-server-status | Minecraft Server Status API | Minecraftサーバーの状態確認 |
+| data | mmo-games | MMOBomb MMO Games API | MMOゲーム・ニュース・配布情報 |
+| data | monster-hunter-world | MHW DB API | モンハンワールドのモンスター図鑑 |
+| data | playerdb | PlayerDB | Minecraft / Steam / Xbox / Hytale のプロフィール検索 |
 | data | hon | Open Library | 書籍・漫画検索 |
 | data | index | Random User Generator | ランダムなプロフィール生成 |
 | data | Cars | NHTSA Vehicle API / Wikipedia API / Argos Translate | メーカーとモデルを選んで車両情報と画像を検索 |
@@ -123,7 +132,7 @@
 | fun | meigenn | ローカルデータ(サンプル) | 名言をランダム表示 |
 | fun | Useless | Useless Facts / MyMemory Translation API / Unsplash Source | ランダム雑学を翻訳付きで表示 |
 
-※ 翻訳に MyMemory Translation API を併用するページあり（joke / ohuzake / Jikan / OpenTrivia / Yugio）。Cars は Argos Translate を併用。Useless は MyMemory Translation API と Unsplash Source を併用。`zyouku` は Google Translate を利用する。NASA系・RAWG(game)はAPIキーが必要。wakusei / meigenn / genngohonnyaku / sindan は外部APIを使わないローカルデータのサンプル。
+※ 翻訳に MyMemory Translation API を併用するページあり（joke / ohuzake / Jikan / OpenTrivia / Yugio）。Cars は Argos Translate を併用。Useless は MyMemory Translation API と Unsplash Source を併用。`zyouku` は Google Translate を利用する。NASA系・RAWG(game)はAPIキーが必要。wakusei / meigenn / genngohonnyaku / sindan は外部APIを使わないローカルデータのサンプル。`minecraft-server-status` はブラウザの User-Agent 制約で live fetch が失敗する場合があるため、icon endpoint とサンプル fallback を併用する。`autochess-vng` は公開リポジトリ由来のサンプル図鑑として扱い、ライブ API が使えない場合はサンプル表示を行う。
 
 ---
 

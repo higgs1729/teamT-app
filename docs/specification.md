@@ -139,6 +139,7 @@
 | data | food-hygiene-ratings | Food Hygiene Ratings API | 食品衛生評価の公開データを地域別に探索 |
 | data | inei-portal | INEI 統計ポータル | INEI のテーマ別統計リンクを検索・参照 |
 | data | bank-negara-malaysia-open-data | Bank Negara Malaysia Open Data | マレーシア中央銀行の公開データポータルを用途別に探索 |
+| data | world-bank | World Bank Indicators API | 国と指標を選んで人口・GDP・平均寿命などの年次推移を取得 |
 | data | interpol-red-notices | Interpol Notices API | Interpol赤手配の人物を条件検索して表示 |
 | data | ibb-open-data | İBB Open Data Portal | İBB公開データをキーワードとカテゴリで検索 |
 | data | kabu | Alpha Vantage | 銘柄コードで株価・騰落率を検索 |

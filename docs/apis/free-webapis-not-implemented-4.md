@@ -146,5 +146,4 @@ control: continue
 | [TLE](https://tle.ivanstanojevic.me/#/docs) | Satellite information | Yes | No | ? |
 | [USGS Earthquake Hazards Program](https://earthquake.usgs.gov/fdsnws/event/1/) | Earthquakes data real-time | Yes | No | ? |
 | [USGS Water Services](https://waterservices.usgs.gov/) | Water quality and level info for rivers and lakes | Yes | No | ? |
-| [World Bank](https://datahelpdesk.worldbank.org/knowledgebase/topics/125589) | World Data | Yes | No | ? |
 | [xMath](https://x-math.herokuapp.com/) | Random mathematical expressions | Yes | Yes | ? |

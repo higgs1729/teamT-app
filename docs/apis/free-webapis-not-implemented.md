@@ -248,31 +248,31 @@
 | [MY IP](https://www.myip.com/api-docs/) | Get IP address information | Yes | Unknown | implemented with fallback: `templates/data/my-ip.html` |
 | [Nationalize.io](https://nationalize.io) | Estimate the nationality of a first name | Yes | Yes | implemented: `templates/data/nationalize.html` |
 | [NetworkCalc](https://networkcalc.com/api/docs) | Network calculators, including subnets, DNS, binary, and security tools | Yes | Yes | implemented as request notes: `templates/tools/networkcalc.html` |
-| [npm Registry](https://github.com/npm/registry/blob/master/docs/REGISTRY-API.md) | Query information about your favorite Node.js libraries programatically | Yes | Unknown | ? |
-| [oyyi](https://oyyi.xyz/docs/1.0) | API for Fake Data, image/video conversion, optimization, pdf optimization and thumbnail generation | Yes | Yes | ? |
-| [QR & Barcode](https://solsigs.com/qrapi/) | QR codes and barcodes (Code 128, EAN-13, Data Matrix, PDF417 + more). SVG or PNG output | Yes | Yes | ? |
-| [QR code](https://www.qrtag.net/api/) | Create an easy to read QR code and URL shortener | Yes | Yes | ? |
-| [QR code](http://goqr.me/api/) | Generate and decode / read QR code graphics | Yes | Unknown | ? |
-| [Qrcode Monkey](https://www.qrcode-monkey.com/qr-code-api-with-logo/) | Integrate custom and unique looking QR codes into your system or workflow | Yes | Unknown | ? |
-| [QuickChart](https://quickchart.io/) | Generate chart and graph images | Yes | Yes | ? |
-| [ReqRes](https://reqres.in/) | A hosted REST-API ready to respond to your AJAX requests | Yes | Unknown | ? |
-| [RSS feed to JSON](https://rss-to-json-serverless-api.vercel.app) | Returns RSS feed in JSON format using feed URL | Yes | Yes | ? |
-| [Serialif Color](https://color.serialif.com/) | Color conversion, complementary, grayscale and contrasted text | Yes | No | ? |
-| [SHOUTCLOUD](http://shoutcloud.io/) | ALL-CAPS AS A SERVICE | No | Unknown | ? |
-| [Sonar](https://github.com/Cgboal/SonarSearch) | Project Sonar DNS Enumeration API | Yes | Yes | ? |
-| [Statically](https://statically.io/) | A free CDN for developers | Yes | Yes | ? |
-| [Thunder Client](https://www.thunderclient.com/) | API testing tool | Yes | Yes | ? |
-| [Wandbox](https://github.com/melpon/wandbox/blob/master/kennel2/API.rst) | Code compiler supporting 35+ languages mentioned at wandbox.org | Yes | Unknown | ? |
+| [npm Registry](https://github.com/npm/registry/blob/master/docs/REGISTRY-API.md) | Query information about your favorite Node.js libraries programatically | Yes | Unknown | implemented: `templates/data/npm-registry.html` |
+| [oyyi](https://oyyi.xyz/docs/1.0) | API for Fake Data, image/video conversion, optimization, pdf optimization and thumbnail generation | Yes | Yes | implemented as notes: `templates/tools/oyyi.html` |
+| [QR & Barcode](https://solsigs.com/qrapi/) | QR codes and barcodes (Code 128, EAN-13, Data Matrix, PDF417 + more). SVG or PNG output | Yes | Yes | implemented: `templates/tools/qr-barcode.html` |
+| [QR code](https://www.qrtag.net/api/) | Create an easy to read QR code and URL shortener | Yes | Yes | implemented: `templates/tools/qrtag.html` |
+| [QR code](http://goqr.me/api/) | Generate and decode / read QR code graphics | Yes | Unknown | existing related page: `templates/tools/QR.html` |
+| [Qrcode Monkey](https://www.qrcode-monkey.com/qr-code-api-with-logo/) | Integrate custom and unique looking QR codes into your system or workflow | Yes | Unknown | implemented as request notes: `templates/tools/qrcode-monkey.html` |
+| [QuickChart](https://quickchart.io/) | Generate chart and graph images | Yes | Yes | implemented: `templates/tools/quickchart.html` |
+| [ReqRes](https://reqres.in/) | A hosted REST-API ready to respond to your AJAX requests | Yes | Unknown | implemented: `templates/data/reqres.html` |
+| [RSS feed to JSON](https://rss-to-json-serverless-api.vercel.app) | Returns RSS feed in JSON format using feed URL | Yes | Yes | implemented with fallback: `templates/data/rss-to-json.html` |
+| [Serialif Color](https://color.serialif.com/) | Color conversion, complementary, grayscale and contrasted text | Yes | No | implemented as local color demo: `templates/tools/serialif-color.html` |
+| [SHOUTCLOUD](http://shoutcloud.io/) | ALL-CAPS AS A SERVICE | No | Unknown | implemented with local fallback: `templates/fun/shoutcloud.html` |
+| [Sonar](https://github.com/Cgboal/SonarSearch) | Project Sonar DNS Enumeration API | Yes | Yes | implemented as request notes: `templates/data/sonar-search.html` |
+| [Statically](https://statically.io/) | A free CDN for developers | Yes | Yes | implemented: `templates/tools/statically.html` |
+| [Thunder Client](https://www.thunderclient.com/) | API testing tool | Yes | Yes | implemented as notes: `templates/tools/thunder-client.html` |
+| [Wandbox](https://github.com/melpon/wandbox/blob/master/kennel2/API.rst) | Code compiler supporting 35+ languages mentioned at wandbox.org | Yes | Unknown | implemented as request notes: `templates/tools/wandbox.html` |
 
 ### Dictionaries
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [Chinese Character Web](http://ccdb.hemiola.com/) | Chinese character definitions and pronunciations | No | No | ? |
-| [Chinese Text Project](https://ctext.org/tools/api) | Online open-access digital library for pre-modern Chinese texts | Yes | Unknown | ? |
-| [Free Dictionary](https://dictionaryapi.dev/) | Definitions, phonetics, pronounciations, parts of speech, examples, synonyms | Yes | Unknown | ? |
-| [Indonesia Dictionary](https://new-kbbi-api.herokuapp.com/) | Indonesia dictionary many words | Yes | Unknown | ? |
-| [Wiktionary](https://en.wiktionary.org/w/api.php) | Collaborative dictionary data | Yes | Yes | ? |
+| [Chinese Character Web](http://ccdb.hemiola.com/) | Chinese character definitions and pronunciations | No | No | implemented as request notes: `templates/data/chinese-character-web.html` |
+| [Chinese Text Project](https://ctext.org/tools/api) | Online open-access digital library for pre-modern Chinese texts | Yes | Unknown | implemented as request notes: `templates/data/chinese-text-project.html` |
+| [Free Dictionary](https://dictionaryapi.dev/) | Definitions, phonetics, pronounciations, parts of speech, examples, synonyms | Yes | Unknown | implemented: `templates/data/free-dictionary.html` |
+| [Indonesia Dictionary](https://new-kbbi-api.herokuapp.com/) | Indonesia dictionary many words | Yes | Unknown | implemented as request notes: `templates/data/indonesia-dictionary.html` |
+| [Wiktionary](https://en.wiktionary.org/w/api.php) | Collaborative dictionary data | Yes | Yes | implemented: `templates/data/wiktionary.html` |
 
 ### Documents & Productivity
 

@@ -45,7 +45,7 @@
     UIは`design-spec-studio`の`ui_mockup.html`のデザインシステムに準拠。一覧データは`fronted-v2/js/catalog.js`に集約。
   - 分類設計: `category` は後方互換用の大分類、`categoryPath` はサイドバー表示用の階層分類（例: `["データ・検索系", "宇宙・天気"]`）。`categoryPath` が未指定の古い項目は `category` の1階層分類として扱う。
     - 大分類: 画像・ビジュアル系 / データ・検索系 / 為替・ツール系 / エンタメ・おもしろ系
-    - 小分類例: 動物画像 / 3D・アバター / キャラクター画像 / アニメ・カード / ゲーム・キャラクター / 宇宙・天気 / 乗り物・交通 / ネットワーク・セキュリティ / 金融・マーケット / 人名・属性推定 / 開発・OSS / 日付・時刻 / 通貨・為替 / 地図・住所 / 翻訳・言語 / 開発・検証 / テキスト検証 / ジョーク・雑学 / クイズ・ゲーム / 意思決定・名言
+    - 小分類例: 動物画像 / 3D・アバター / キャラクター画像 / アニメ・カード / ゲーム・キャラクター / 宇宙・天気 / 乗り物・交通 / ネットワーク・セキュリティ / 金融・マーケット / 人名・属性推定 / 開発・OSS / 辞書・言語 / 日付・時刻 / 通貨・為替 / 地図・住所 / 翻訳・言語 / 開発・検証 / テキスト検証 / ジョーク・雑学 / クイズ・ゲーム / 意思決定・名言
     - 追加の小分類例: 食品・生活 / 統計・公的データ / 都市・オープンデータ
 
 ---
@@ -123,8 +123,17 @@
 | data | my-ip | MY IP | IPアドレス情報を取得 |
 | data | isitdownstatus | isitdownstatus | Webサイトやサービスのダウン状態確認API候補 |
 | data | jsdelivr | jsDelivr Data API | npmパッケージのCDNファイル情報を取得 |
+| data | npm-registry | npm Registry | npmパッケージ情報と最新バージョンを取得 |
+| data | sonar-search | Sonar | Project Sonar DNS列挙API候補の検索例を表示 |
+| data | reqres | ReqRes | REST API練習用のユーザー一覧を取得 |
+| data | rss-to-json | RSS feed to JSON | RSSフィードURLをJSONへ変換して取得 |
 | data | license-api | License-API | OSSライセンス情報API候補を取得またはフォールバック表示 |
 | data | nationalize | Nationalize.io | 名前から国籍候補と確率を推定 |
+| data | chinese-character-web | Chinese Character Web | 漢字の定義・発音API候補の検索例を表示 |
+| data | chinese-text-project | Chinese Text Project | 中国古典テキストAPI候補の検索例を表示 |
+| data | free-dictionary | Free Dictionary | 英単語の定義・発音・品詞を取得 |
+| data | indonesia-dictionary | Indonesia Dictionary | インドネシア語辞書API候補の検索例を表示 |
+| data | wiktionary | Wiktionary | MediaWiki APIから辞書ページを検索 |
 | data | utyu | NASA NeoWs | 近地天体(NEO)観測データ |
 | data | wakusei | ローカルデータ(サンプル) | 太陽系の惑星情報 |
 | data | burogu | JSONPlaceholder | ダミー記事のランダム表示 |
@@ -165,10 +174,19 @@
 | tools | icanhazepoch | Icanhazepoch | 現在のUnix epoch秒を表示 |
 | tools | ifttt-connect | IFTTT Connect API | 認証が必要なConnect APIのリクエスト構造を確認 |
 | tools | image-charts | Image-Charts | URLパラメータで棒グラフ画像を生成 |
+| tools | oyyi | oyyi | Fake Dataや変換系API候補の利用メモを表示 |
+| tools | qr-barcode | QR & Barcode | QRコードやバーコード画像生成API候補を試す |
+| tools | qrtag | QRTag | QR画像URLを生成 |
+| tools | qrcode-monkey | Qrcode Monkey | カスタムQR作成APIのPOSTリクエスト例を表示 |
+| tools | quickchart | QuickChart | Chart.js設定からグラフ画像を生成 |
 | tools | json2jsonp | JSON 2 JSONP | JSON URLをJSONP呼び出し用URLへ変換 |
 | tools | keyvalue | Keyvalue | 簡易key-valueストレージAPI候補を試す |
 | tools | kroki | Kroki | Mermaidなどのテキスト図を画像化 |
 | tools | lua-decompiler | Lua Decompiler | Lua 5.1デコンパイラAPI候補のリクエスト形状を確認 |
+| tools | serialif-color | Serialif Color | 色変換・補色・コントラストAPI候補を紹介 |
+| tools | statically | Statically | GitHubや画像URLをCDN配信用URLへ変換 |
+| tools | thunder-client | Thunder Client | APIテストツールの利用メモを表示 |
+| tools | wandbox | Wandbox | オンラインコンパイラAPI候補のリクエスト形状を表示 |
 | tools | microenv | MicroENV | Fake REST API候補のリクエスト例を表示 |
 | tools | mocky | Mocky | 任意JSONを返すモックURL作成手順を確認 |
 | tools | networkcalc | NetworkCalc | サブネットなどのネットワーク計算API候補を紹介 |
@@ -179,6 +197,7 @@
 | fun | tai | Quotable API | 英文お題を使ったタイピングゲーム |
 | fun | bored | Bored API | 気分転換アクティビティを提案（応答不可時はローカル候補） |
 | fun | hipsum | Hipsum | ヒップスター風ダミーテキストを生成 |
+| fun | shoutcloud | SHOUTCLOUD | 入力テキストを大文字化するAPI候補 |
 | fun | YesNo | yesno.wtf | Yes/No判定 |
 | fun | meigenn | ローカルデータ(サンプル) | 名言をランダム表示 |
 | fun | Useless | Useless Facts / MyMemory Translation API / Unsplash Source | ランダム雑学を翻訳付きで表示 |

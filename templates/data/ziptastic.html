@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<!--
+  ziptastic.html
+  概要: 米国郵便番号(ZIP code)から国・州・都市を取得する紹介ページ
+  構成: 検索フォーム → Ziptastic API へfetch → 結果カード表示 / 読込中・空・エラー状態
+  API: Ziptastic (https://ziptasticapi.com/{zip})
+-->
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ziptastic ZIPコード検索</title>
+<style>
+  :root {
+    --bg: #0f1420;
+    --card: #1a2233;
+    --accent: #4f8cff;
+    --text: #e8edf7;
+    --muted: #8ea0bd;
+    --error: #ff6b6b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", "Hiragino Sans", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .card {
+    width: 100%;
+    max-width: 480px;
+    background: var(--card);
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  }
+  h1 {
+    font-size: 1.4rem;
+    margin: 0 0 6px;
+  }
+  p.desc {
+    color: var(--muted);
+    margin: 0 0 20px;
+    font-size: 0.9rem;
+  }
+  form {
+    display: flex;
+    gap: 8px;
+  }
+  input[type="text"] {
+    flex: 1;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid #2c3850;
+    background: #131a29;
+    color: var(--text);
+    font-size: 1rem;
+  }
+  input[type="text"]:focus {
+    outline: 2px solid var(--accent);
+  }
+  button {
+    padding: 12px 18px;
+    border: none;
+    border-radius: 10px;
+    background: var(--accent);
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  .result {
+    margin-top: 22px;
+    padding: 18px;
+    border-radius: 12px;
+    background: #131a29;
+    min-height: 60px;
+  }
+  .result .row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid #22304a;
+    font-size: 0.95rem;
+  }
+  .result .row:last-child { border-bottom: none; }
+  .result .label { color: var(--muted); }
+  .state-msg {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  .state-msg.error { color: var(--error); }
+  .examples {
+    margin-top: 14px;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .examples button {
+    background: none;
+    color: var(--accent);
+    padding: 2px 6px;
+    font-weight: normal;
+    text-decoration: underline;
+  }
+  a.api-link {
+    display: inline-block;
+    margin-top: 18px;
+    color: var(--accent);
+    font-size: 0.85rem;
+    text-decoration: none;
+  }
+  a.api-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>Ziptastic ZIPコード検索</h1>
+    <p class="desc">米国のZIPコード(郵便番号)を入力すると、国・州・都市を取得します。</p>
+
+    <form id="searchForm">
+      <input type="text" id="zipInput" placeholder="例: 90210" inputmode="numeric" maxlength="10" required>
+      <button type="submit" id="searchBtn">検索</button>
+    </form>
+
+    <div class="examples">
+      サンプル:
+      <button type="button" data-zip="90210">90210</button>
+      <button type="button" data-zip="10001">10001</button>
+      <button type="button" data-zip="60601">60601</button>
+    </div>
+
+    <div id="result" class="result">
+      <span class="state-msg">ZIPコードを入力して検索してください。</span>
+    </div>
+
+    <a class="api-link" href="https://github.com/mattkerle/ziptastic" target="_blank" rel="noopener">
+      API仕様: Ziptastic API
+    </a>
+  </div>
+
+<script>
+(() => {
+  const form = document.getElementById("searchForm");
+  const input = document.getElementById("zipInput");
+  const btn = document.getElementById("searchBtn");
+  const result = document.getElementById("result");
+
+  function renderMessage(text, isError) {
+    result.innerHTML = `<span class="state-msg${isError ? " error" : ""}">${text}</span>`;
+  }
+
+  function renderResult(data, zip) {
+    result.innerHTML = `
+      <div class="row"><span class="label">ZIPコード</span><span>${zip}</span></div>
+      <div class="row"><span class="label">国</span><span>${data.country ?? "-"}</span></div>
+      <div class="row"><span class="label">州</span><span>${data.state ?? "-"}</span></div>
+      <div class="row"><span class="label">都市</span><span>${data.city ?? "-"}</span></div>
+    `;
+  }
+
+  async function search(zip) {
+    if (!zip) return;
+    btn.disabled = true;
+    renderMessage("検索中...", false);
+    try {
+      const res = await fetch(`https://ziptasticapi.com/${encodeURIComponent(zip)}`);
+      if (!res.ok) {
+        throw new Error(`status ${res.status}`);
+      }
+      const data = await res.json();
+      if (!data || !data.country) {
+        renderMessage("該当するデータが見つかりませんでした。", false);
+        return;
+      }
+      renderResult(data, zip);
+    } catch (err) {
+      renderMessage("取得に失敗しました。ZIPコードを確認するか、時間をおいて再度お試しください。", true);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    search(input.value.trim());
+  });
+
+  document.querySelectorAll(".examples button").forEach((b) => {
+    b.addEventListener("click", () => {
+      input.value = b.dataset.zip;
+      search(b.dataset.zip);
+    });
+  });
+})();
+</script>
+</body>
+</html>

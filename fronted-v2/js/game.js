@@ -345,7 +345,6 @@
       <div class="game-overlay" id="char-overlay">
         <div class="game-modal">
           <button class="game-close" data-close="char-overlay"><i class="ti ti-x"></i></button>
-          <div class="game-title">キャラクター</div>
           <div class="char-name-row">
             <div class="char-avatar" id="char-avatar">冒</div>
             <input type="text" class="char-name-input" id="char-name-input" maxlength="16" placeholder="キャラ名">
@@ -364,10 +363,9 @@
       <div class="game-overlay" id="stage-overlay">
         <div class="game-modal wide">
           <button class="game-close" data-close="stage-overlay"><i class="ti ti-x"></i></button>
-          <div class="game-title">ステージ</div>
           <div class="stage-grid" id="stage-grid"></div>
           <div class="stage-complete" id="stage-complete" style="display:none;">🎉 全10ステージを制覇しました！</div>
-          <div style="margin-top:8px;"><button class="game-btn ghost" id="stage-back-btn">キャラクターに戻る</button></div>
+          <div style="margin-top:8px;"><button class="game-btn ghost" id="stage-back-btn">戻る</button></div>
         </div>
       </div>
 
@@ -403,6 +401,11 @@
     // API紹介ページ(iframe)内のクリックを検知して進捗を進める（+20%、100%で経験値付与）
     const preview = document.getElementById("preview");
     if (preview) attachIframeClickTracking(preview);
+
+    // ハッシュ付きURLでのリロード等、game.js の初期化前に app.js が
+    // 既にページを選択済み（"apipage:shown" を発火済み）のケースを補う。
+    // イベントの取りこぼしに頼らず、DOMの現在状態から直接判定する。
+    if (preview && !preview.classList.contains("hidden")) showProgressBar(true);
 
     // サイドバーのキャラボタン → キャラクター画面
     if (el.charBtn) el.charBtn.addEventListener("click", () => {

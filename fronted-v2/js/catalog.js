@@ -296,6 +296,8 @@ window.CATALOG = [
     description: "現在のグローバルIPアドレスをJSONで取得", apiName: "IPify", apiUrl: "https://www.ipify.org/", icon: "ti-globe" },
   { id: "ipinfo", file: "data/ipinfo.html", title: "IPinfo Lite", category: "データ・検索系", categoryPath: ["データ・検索系", "ネットワーク・セキュリティ"],
     description: "IPの地域・組織情報を取得（制限時はフォールバック）", apiName: "IPinfo", apiUrl: "https://ipinfo.io/developers", icon: "ti-globe" },
+  { id: "iplogs", file: "data/iplogs.html", title: "IPLogs VPN検出ダッシュボード", category: "データ・検索系", categoryPath: ["データ・検索系", "ネットワーク・セキュリティ"],
+    description: "IPアドレスがVPN・プロキシ・Torかどうかをスコア付きで判定", apiName: "IPLogs", apiUrl: "https://iplogs.com/docs", icon: "ti-globe" },
   { id: "my-ip", file: "data/my-ip.html", title: "MY IP Lookup", category: "データ・検索系", categoryPath: ["データ・検索系", "ネットワーク・セキュリティ"],
     description: "MY IP APIからIPアドレス情報を取得", apiName: "MY IP", apiUrl: "https://www.myip.com/api-docs/", icon: "ti-globe" },
   { id: "isitdownstatus", file: "data/isitdownstatus.html", title: "isitdownstatus Checker", category: "データ・検索系", categoryPath: ["データ・検索系", "ネットワーク・セキュリティ"],

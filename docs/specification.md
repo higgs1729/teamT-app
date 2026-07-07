@@ -49,6 +49,7 @@
     - 追加の小分類例: 食品・生活 / 統計・公的データ / 都市・オープンデータ
     - 設計判断: Chainlink / Chainpoint / Helium / Steem / TWZRD Agent Intel / Walltime は、暗号資産・分散ネットワーク・市場情報を横断するため、既存の「金融・マーケット」ではなく `["データ・検索系", "ブロックチェーン・市場"]` にまとめる。APIキーやCORS制限があるサービスはキー入力欄を持ち、失敗時は仕様理解用のサンプル表示にフォールバックする。
     - 設計判断: MarkerAPI / Pick an Agency / Tenders Guru は企業・商標・公共調達の検索データであり、国・地域の基礎情報とは用途が異なるため `["データ・検索系", "企業・公共データ"]` にまとめる。DomainsDB はドメイン調査用途のため既存の `["データ・検索系", "ネットワーク・セキュリティ"]` に置く。
+    - 設計判断: 複数メンバーが並行して同一APIの紹介ページを独立に作成した結果、`catalog.js` の `id` が重複するケースが発生した（例: apicagent / apis-guru / cdnjs / changelogs-md / cloudflare-trace / bored が `data/` と `tools/` の双方に存在）。`id` はURLハッシュでの一意識別に使うため重複させない。既存ファイルを両方活かす場合はジャンルが分かる接尾辞を付けて一意化する（例: `apicagent` → データ側はそのまま、ツール側は `apicagent-checker`）。同一ファイルを指す完全な重複エントリ（例: 旧 `brewpage` / `ciprand` の tools内二重登録）は片方を削除する。`domainsdb.html` のように2つの独立実装が1ファイルに連結されてしまっていたケースは、内容を1つに統合してから重複エントリを解消する。
 
 ---
 
@@ -170,7 +171,6 @@
 | data | api-gratis | API Grátis | 公式URLの到達状況と仕様確認メモを表示 |
 | data | cloudflare-trace | Cloudflare Trace API | IP・国・HTTP/TLS情報を取得 |
 | data | digitalocean-status | DigitalOcean Status API | DigitalOceanの全体状態とコンポーネント状態を取得 |
-| data | domainsdb | DomainDb Info | キーワードを含むドメイン名を検索 |
 | data | downstatus | DownStatus | 外部サービスの稼働状況確認API候補を表示 |
 | data | host-t-dns | host-t.com | HTTP GETでDNS問い合わせURLを作成し取得を試行 |
 | data | icanhazip | Icanhazip | アクセス元のグローバルIPアドレスを取得 |
@@ -266,15 +266,13 @@
 | tools | fileup | FileUp | 期限と閲覧回数を指定したファイル共有 |
 | tools | pantry | Pantry | JSONをクラウドのバスケットに保存・取得 |
 | tools | null-pointer | The Null Pointer (0x0.st) | ファイルやURLの使い捨て共有リンク生成 |
-| tools | apicagent | ApicAgent | User-Agent文字列から端末情報を解析 |
-| tools | apis-guru | APIs.guru | 公開API定義の検索・一覧取得 |
+| tools | apicagent-checker | ApicAgent | User-Agent文字列から端末情報を解析 |
+| tools | apis-guru-catalog | APIs.guru | 公開API定義の検索・一覧取得 |
 | tools | beeceptor | Beeceptor | モックAPIの送受信テスト |
-| tools | bored | Bored | ランダムな退屈しのぎ提案 |
-| tools | brewpage | BrewPage | HTMLやJSONを短縮URL付きで公開 |
-| tools | cdnjs | CDNJS | CDN上のライブラリ情報検索 |
-| tools | changelogs-md | Changelogs.md | changelogメタデータの到達性確認 |
-| tools | ciprand | Ciprand | 乱数文字列の生成 |
-| tools | cloudflare-trace | Cloudflare Trace | 接続情報とtrace文字列の表示 |
+| tools | bored-tools | Bored | ランダムな退屈しのぎ提案 |
+| tools | cdnjs-finder | CDNJS | CDN上のライブラリ情報検索 |
+| tools | changelogs-md-checker | Changelogs.md | changelogメタデータの到達性確認 |
+| tools | cloudflare-trace-tools | Cloudflare Trace | 接続情報とtrace文字列の表示 |
 | tools | codex | CodeX | オンラインコンパイラの公開情報確認 |
 | tools | genngohonnyaku | ローカル辞書(サンプル) | 日本語↔英語の簡易翻訳 |
 | tools | tizu | Leaflet / OpenStreetMap | 地図表示とクリック位置マーカー追加 |
@@ -283,7 +281,7 @@
 | tools | purgomalum | PurgoMalum | 入力テキストの不適切語を検出・置換 |
 | tools | beeceptor-echo | Beeceptor HTTP Echo | HTTPリクエストを送信しエコー内容を確認 |
 | tools | brewpage | BrewPage API | HTML投稿で共有URLを取得（失敗時はcurl手順を表示） |
-| tools | ciprand | Ciprand | セキュアなランダム文字列を生成 |
+| tools | ciprand | Ciprand | セキュアなランダム文字列をAPIまたはWeb Cryptoで生成 |
 | tools | passwordinator | Passwordinator | 条件を指定してランダムパスワードを生成 |
 | tools | codex-compiler | CodeX | オンラインコンパイラAPIへのリクエスト形状を確認 |
 | tools | cors-proxy | CORS Proxy | CORS回避用プロキシURLを生成し取得を試行 |

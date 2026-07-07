@@ -5,7 +5,7 @@ description: /execute で起動した Spring Boot バックエンドと fronted-
 
 # stop
 
-`/execute` の対になるスキル。`.claude/launch.json` の `springboot`（ポート8080）と `static`（ポート5500）を、
+`/execute` の対になるスキル。`.Codex/launch.json` の `springboot`（ポート8080）と `static`（ポート5500）を、
 稼働中であれば両方止める。
 
 ## 手順

@@ -10,7 +10,7 @@ description: Spring Boot バックエンドと fronted-v2 静的サイトの両�
 - `springboot` — Spring Boot バックエンド（認証・API本体）。ポート `8080`。
 - `static` — fronted-v2（WebAPI紹介ギャラリー、Node製の静的サーバー）。ポート `5500`。
 
-両方の設定は [`.claude/launch.json`](../../launch.json) に定義済み。
+両方の設定は [`.Codex/launch.json`](../../launch.json) に定義済み。
 
 ## 手順
 
@@ -27,5 +27,5 @@ description: Spring Boot バックエンドと fronted-v2 静的サイトの両�
 
 ## 注意
 
-- H2 コンソールを使った動作確認が必要な場合は、`springboot` を dev プロファイルで起動する必要がある（`.claude/launch.json` の `springboot` は既定でプロファイル指定なし）。dev プロファイルでの起動が必要なら、その場で `runtimeArgs` に `-Dspring-boot.run.profiles=dev` を加えた一時起動を検討する。
+- H2 コンソールを使った動作確認が必要な場合は、`springboot` を dev プロファイルで起動する必要がある（`.Codex/launch.json` の `springboot` は既定でプロファイル指定なし）。dev プロファイルでの起動が必要なら、その場で `runtimeArgs` に `-Dspring-boot.run.profiles=dev` を加えた一時起動を検討する。
 - fronted-v2 は Spring Boot 側とは別配信であり、認証状態は共有されない（`fronted-v2/js/app.js` の `AUTH_LOGIN_URL` 経由でリンクしているのみ）。両方起動していても、ログイン後に fronted-v2 へ自動反映はされない。

@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>🎮 FreeToGame Browser</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Segoe UI",sans-serif;
+}
+
+body{
+    min-height:100vh;
+    color:#fff;
+
+    background:
+    radial-gradient(circle at top,#2563eb55 0%,transparent 40%),
+    radial-gradient(circle at bottom right,#06b6d455 0%,transparent 35%),
+    linear-gradient(135deg,#020617,#071330,#0f172a,#1e3a8a);
+
+    background-attachment:fixed;
+}
+
+/* タイトル */
+
+header{
+    text-align:center;
+    padding:40px 20px;
+}
+
+header h1{
+
+    font-size:48px;
+
+    color:#6ee7ff;
+
+    text-shadow:
+    0 0 10px #38bdf8,
+    0 0 20px #38bdf8,
+    0 0 40px #2563eb;
+
+    letter-spacing:2px;
+
+}
+
+header p{
+
+    margin-top:15px;
+
+    color:#cbd5e1;
+
+}
+
+/* 検索 */
+
+.search{
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:15px;
+
+    flex-wrap:wrap;
+
+    margin-bottom:40px;
+
+}
+
+.search input{
+
+    width:350px;
+
+    max-width:90%;
+
+    padding:14px;
+
+    background:#0f172acc;
+
+    border:2px solid #38bdf8;
+
+    color:white;
+
+    border-radius:12px;
+
+    outline:none;
+
+    transition:.3s;
+
+}
+
+.search input:focus{
+
+    box-shadow:
+    0 0 15px #38bdf8,
+    0 0 30px #2563eb;
+
+}
+
+button{
+
+    padding:14px 24px;
+
+    border:none;
+
+    border-radius:12px;
+
+    cursor:pointer;
+
+    color:white;
+
+    font-weight:bold;
+
+    background:linear-gradient(45deg,#2563eb,#06b6d4);
+
+    transition:.3s;
+
+    box-shadow:0 0 15px #2563eb;
+
+}
+
+button:hover{
+
+    transform:translateY(-3px);
+
+    box-shadow:
+    0 0 20px #38bdf8,
+    0 0 40px #2563eb;
+
+}
+select{
+
+    padding:14px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#0f172a;
+
+    color:white;
+
+    font-size:16px;
+
+    cursor:pointer;
+
+    border:2px solid #38bdf8;
+
+}
+
+select:hover{
+
+    box-shadow:
+    0 0 15px #38bdf8;
+
+}
+
+/* カード一覧 */
+
+#games{
+
+    width:95%;
+
+    margin:auto;
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(340px,1fr));
+
+    gap:30px;
+
+    padding-bottom:50px;
+
+}
+
+/* カード */
+
+.card{
+
+    background:rgba(15,23,42,.7);
+
+    backdrop-filter:blur(12px);
+
+    border:1px solid rgba(56,189,248,.3);
+
+    border-radius:18px;
+
+    overflow:hidden;
+
+    transition:.35s;
+
+    box-shadow:
+    0 0 15px rgba(0,0,0,.5);
+
+}
+
+.card:hover{
+
+    transform:translateY(-10px) scale(1.03);
+
+    box-shadow:
+    0 0 20px #38bdf8,
+    0 0 40px #2563eb;
+
+}
+
+.card img{
+
+    width:100%;
+
+    height:200px;
+
+    object-fit:cover;
+
+    transition:.4s;
+
+}
+
+.card:hover img{
+
+    transform:scale(1.05);
+
+}
+
+/* 情報 */
+
+.info{
+
+    padding:18px;
+
+}
+
+.info h2{
+
+    color:#7dd3fc;
+
+    margin-bottom:10px;
+
+}
+
+.genre{
+
+    display:inline-block;
+
+    padding:5px 12px;
+
+    border-radius:20px;
+
+    background:#1d4ed8;
+
+    color:white;
+
+    margin-bottom:10px;
+
+}
+
+.platform{
+
+    color:#facc15;
+
+    margin:10px 0;
+
+}
+
+.desc{
+
+    color:#d1d5db;
+
+    line-height:1.7;
+
+    height:90px;
+
+    overflow:auto;
+
+}
+
+/* スクロールバー */
+
+.desc::-webkit-scrollbar{
+
+    width:6px;
+
+}
+
+.desc::-webkit-scrollbar-thumb{
+
+    background:#38bdf8;
+
+    border-radius:10px;
+
+}
+
+/* ボタン */
+
+.play{
+
+    display:block;
+
+    margin-top:18px;
+
+    text-align:center;
+
+    text-decoration:none;
+
+    color:white;
+
+    font-weight:bold;
+
+    padding:12px;
+
+    border-radius:12px;
+
+    background:linear-gradient(45deg,#06b6d4,#2563eb);
+
+    transition:.3s;
+
+    box-shadow:0 0 10px #38bdf8;
+
+}
+
+.play:hover{
+
+    box-shadow:
+    0 0 15px #38bdf8,
+    0 0 35px #2563eb;
+
+    transform:scale(1.03);
+
+}
+
+/* ローディング */
+
+.loading{
+
+    grid-column:1/-1;
+
+    text-align:center;
+
+    font-size:28px;
+
+    color:#7dd3fc;
+
+    text-shadow:
+    0 0 10px #38bdf8;
+
+}
+
+/* スマホ */
+
+@media(max-width:700px){
+
+header h1{
+
+    font-size:34px;
+
+}
+
+.search{
+
+    flex-direction:column;
+
+    align-items:center;
+
+}
+
+.search input{
+
+    width:90%;
+
+}
+
+button{
+
+    width:90%;
+
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<h1>🎮 FreeToGame Browser</h1>
+
+<p>無料ゲームを探そう！</p>
+
+</header>
+
+<div class="search">
+
+<input id="search" placeholder="ゲーム名を検索">
+
+<button onclick="filterGames()">
+検索
+</button>
+
+<select id="sort" onchange="loadGames()">
+    <option value="">通常</option>
+    <option value="popularity">🔥 人気順</option>
+    <option value="release-date">📅 リリース日順</option>
+    <option value="alphabetical">🔤 名前順</option>
+    <option value="relevance">⭐ おすすめ順</option>
+</select>
+
+</div>
+<div id="games">
+
+<div class="loading">
+
+読み込み中...
+
+</div>
+
+</div>
+
+<script>
+
+let gameList=[];
+
+async function loadGames(){
+
+const sort=document.getElementById("sort").value;
+
+let url="https://www.freetogame.com/api/games";
+
+if(sort!=""){
+    url+=`?sort-by=${sort}`;
+}
+
+try{
+
+const res=await fetch(url);
+
+gameList=await res.json();
+
+showGames(gameList);
+
+}catch(e){
+
+document.getElementById("games").innerHTML=
+
+"<h2 style='text-align:center'>APIの取得に失敗しました。<br>CORS制限の可能性があります。</h2>";
+
+}
+
+}
+
+function showGames(list){
+
+const area=document.getElementById("games");
+
+area.innerHTML="";
+
+list.forEach(game=>{
+
+area.innerHTML+=`
+
+<div class="card">
+
+<img src="${game.thumbnail}">
+
+<div class="info">
+
+<h2>${game.title}</h2>
+
+<div class="genre">
+
+🎯 ${game.genre}
+
+</div>
+
+<div class="platform">
+
+💻 ${game.platform}
+
+</div>
+
+<div class="desc">
+
+${game.short_description}
+
+</div>
+
+<a class="play"
+
+href="${game.game_url}"
+
+target="_blank">
+
+🎮 ゲームサイトへ
+
+</a>
+
+</div>
+
+</div>
+
+`;
+
+});
+
+}
+
+function filterGames(){
+
+const text=document.getElementById("search").value.toLowerCase();
+
+const result=gameList.filter(g=>
+
+g.title.toLowerCase().includes(text)
+
+);
+
+showGames(result);
+
+}
+
+loadGames();
+
+</script>
+
+</body>
+</html>

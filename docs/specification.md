@@ -129,7 +129,11 @@
 | data | applemusic | iTunes Search API | 楽曲検索 |
 | data | verome | Verome API | 楽曲検索と歌詞(LRCLib経由)の表示 |
 | data | countrySearch | CountriesNow API | 国名から人口・首都を検索 |
+<<<<<<< HEAD
 | data | ziptastic | Ziptastic API | 米国ZIPコードから国・州・都市を検索 |
+=======
+| data | brasilapi | BrasilAPI | CEPからブラジルの住所(州/市/地区/通り)を検索 |
+>>>>>>> claude/suspicious-ptolemy-8f06a9
 | data | domainsdb | DomainsDB API | 登録済みドメイン名をキーワード検索 |
 | data | markerapi | MarkerAPI | USPTO商標データを認証情報入力式で検索 |
 | data | pick-an-agency | Pick an Agency API | サービスと地域からマーケティング代理店を検索 |
@@ -320,6 +324,7 @@
 | fun | hipsum | Hipsum | ヒップスター風ダミーテキストを生成 |
 | fun | shoutcloud | SHOUTCLOUD | 入力テキストを大文字化するAPI候補 |
 | fun | YesNo | yesno.wtf | Yes/No判定 |
+| fun | florida-man | Florida Man API | 月日を指定して実在のFlorida Man見出しを表示 |
 | fun | meigenn | ローカルデータ(サンプル) | 名言をランダム表示 |
 | fun | Useless | Useless Facts / MyMemory Translation API / Unsplash Source | ランダム雑学を翻訳付きで表示 |
 

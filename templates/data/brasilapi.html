@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<<<<<<< HEAD
 <title>ブラジル公共データ検索</title>
 
 <!--
@@ -190,10 +191,151 @@ to{
 opacity:1;
 transform:translateY(0);
 }
+=======
+<title>ブラジル郵便番号(CEP)検索</title>
+<!--
+  概要: BrasilAPI (https://brasilapi.com.br/) の CEP(郵便番号) エンドポイントを使い、
+        ブラジルの郵便番号から住所(州/市/地区/通り)を検索して表示する自己完結型ページ。
+  構成: <style> 見た目 / <body> 検索フォーム+結果表示 / <script> fetch呼び出しとレンダリング
+-->
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:"Yu Gothic",sans-serif;
+background:linear-gradient(135deg,#064e3b,#059669,#34d399);
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:20px;
+}
+
+.container{
+width:460px;
+background:rgba(255,255,255,.12);
+backdrop-filter:blur(15px);
+padding:30px;
+border-radius:20px;
+box-shadow:0 10px 30px rgba(0,0,0,.3);
+color:white;
+}
+
+h1{
+text-align:center;
+margin-bottom:8px;
+font-size:26px;
+}
+
+.sub{
+text-align:center;
+font-size:13px;
+opacity:.85;
+margin-bottom:22px;
+}
+
+.search{
+display:flex;
+gap:10px;
+}
+
+input{
+flex:1;
+padding:12px;
+font-size:17px;
+border:none;
+border-radius:10px;
+outline:none;
+}
+
+button{
+padding:12px 20px;
+background:#34d399;
+border:none;
+color:#064e3b;
+font-weight:bold;
+font-size:16px;
+border-radius:10px;
+cursor:pointer;
+transition:.3s;
+}
+
+button:hover{
+background:#6ee7b7;
+transform:translateY(-2px);
+}
+
+button:disabled{
+opacity:.6;
+cursor:default;
+transform:none;
+}
+
+#result{
+margin-top:25px;
+min-height:24px;
+}
+
+.card{
+background:white;
+color:#111827;
+padding:20px;
+border-radius:15px;
+animation:fade .4s;
+}
+
+.card h2{
+font-size:20px;
+margin-bottom:12px;
+}
+
+.card p{
+margin:6px 0;
+font-size:15px;
+}
+
+.card p b{
+display:inline-block;
+width:70px;
+color:#059669;
+}
+
+.hint, .error{
+text-align:center;
+font-size:15px;
+opacity:.9;
+}
+
+.error{
+color:#fecaca;
+}
+
+.link{
+display:block;
+margin-top:18px;
+text-align:center;
+font-size:13px;
+color:#d1fae5;
+}
+
+.link a{
+color:#d1fae5;
+}
+
+@keyframes fade{
+from{ opacity:0; transform:translateY(15px); }
+to{ opacity:1; transform:translateY(0); }
+>>>>>>> claude/suspicious-ptolemy-8f06a9
 }
 
 </style>
 </head>
+<<<<<<< HEAD
 
 <body>
 
@@ -329,6 +471,68 @@ searchDdd();
 }
 });
 
+=======
+<body>
+
+<div class="container">
+  <h1>📮 ブラジル郵便番号(CEP)検索</h1>
+  <p class="sub">8桁のCEPを入力すると住所を取得します</p>
+
+  <div class="search">
+    <input id="cep" placeholder="例：01310-100" maxlength="9">
+    <button id="searchBtn" onclick="searchCep()">検索</button>
+  </div>
+
+  <div id="result"><p class="hint">CEPを入力して検索してください。</p></div>
+
+  <a class="link" href="https://brasilapi.com.br/docs" target="_blank" rel="noopener">BrasilAPI 公式ドキュメント</a>
+</div>
+
+<script>
+const input = document.getElementById("cep");
+const result = document.getElementById("result");
+const btn = document.getElementById("searchBtn");
+
+input.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") searchCep();
+});
+
+async function searchCep(){
+  const raw = input.value.trim().replace(/\D/g, "");
+
+  if (raw.length !== 8) {
+    result.innerHTML = '<p class="error">CEPは8桁の数字で入力してください(例: 01310100)。</p>';
+    return;
+  }
+
+  btn.disabled = true;
+  result.innerHTML = '<p class="hint">検索中...</p>';
+
+  try {
+    const res = await fetch(`https://brasilapi.com.br/api/cep/v1/${raw}`);
+
+    if (!res.ok) {
+      throw new Error("該当するCEPが見つかりませんでした");
+    }
+
+    const data = await res.json();
+
+    result.innerHTML = `
+      <div class="card">
+        <h2>${data.cep}</h2>
+        <p><b>州</b>${data.state}</p>
+        <p><b>市</b>${data.city}</p>
+        <p><b>地区</b>${data.neighborhood || "-"}</p>
+        <p><b>通り</b>${data.street || "-"}</p>
+      </div>
+    `;
+  } catch (error) {
+    result.innerHTML = `<p class="error">${error.message}</p>`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+>>>>>>> claude/suspicious-ptolemy-8f06a9
 </script>
 
 </body>

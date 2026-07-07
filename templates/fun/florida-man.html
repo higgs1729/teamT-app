@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Florida Man 見出しジェネレーター</title>
+<!--
+  概要: Florida Man API (静的JSONデータセット) から、指定した月日(MM/DD)に
+        実際に報道された「Florida Man」系の奇妙なニュース見出しを取得して表示する。
+  構成: <style> 見た目 / <body> 日付フォーム+結果一覧 / <script> fetchとレンダリング
+-->
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:"Yu Gothic",sans-serif;
+background:linear-gradient(135deg,#7c2d12,#ea580c,#fbbf24);
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:20px;
+}
+
+.container{
+width:520px;
+max-width:100%;
+background:rgba(255,255,255,.12);
+backdrop-filter:blur(15px);
+padding:30px;
+border-radius:20px;
+box-shadow:0 10px 30px rgba(0,0,0,.3);
+color:white;
+}
+
+h1{
+text-align:center;
+margin-bottom:8px;
+font-size:26px;
+}
+
+.sub{
+text-align:center;
+font-size:13px;
+opacity:.85;
+margin-bottom:22px;
+}
+
+.search{
+display:flex;
+gap:10px;
+justify-content:center;
+}
+
+select, button{
+padding:12px;
+font-size:16px;
+border:none;
+border-radius:10px;
+outline:none;
+}
+
+select{
+background:white;
+}
+
+button{
+background:#fbbf24;
+color:#7c2d12;
+font-weight:bold;
+cursor:pointer;
+transition:.3s;
+}
+
+button:hover{
+background:#fde68a;
+transform:translateY(-2px);
+}
+
+button:disabled{
+opacity:.6;
+cursor:default;
+transform:none;
+}
+
+#result{
+margin-top:22px;
+display:flex;
+flex-direction:column;
+gap:12px;
+}
+
+.card{
+background:white;
+color:#111827;
+padding:16px;
+border-radius:12px;
+animation:fade .4s;
+}
+
+.card a{
+color:#7c2d12;
+font-weight:bold;
+text-decoration:none;
+font-size:15px;
+}
+
+.card a:hover{
+text-decoration:underline;
+}
+
+.card .meta{
+margin-top:6px;
+font-size:12px;
+color:#6b7280;
+}
+
+.hint, .error{
+text-align:center;
+font-size:15px;
+opacity:.9;
+}
+
+.error{
+color:#fecaca;
+}
+
+.link{
+display:block;
+margin-top:18px;
+text-align:center;
+font-size:13px;
+color:#ffedd5;
+}
+
+.link a{
+color:#ffedd5;
+}
+
+@keyframes fade{
+from{ opacity:0; transform:translateY(15px); }
+to{ opacity:1; transform:translateY(0); }
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🐊 Florida Man 見出しジェネレーター</h1>
+  <p class="sub">月日を選ぶと、その日の実際のFlorida Man見出しを表示します</p>
+
+  <div class="search">
+    <select id="month"></select>
+    <select id="day"></select>
+    <button id="searchBtn" onclick="searchHeadlines()">検索</button>
+  </div>
+
+  <div id="result"><p class="hint">月日を選んで検索してください。</p></div>
+
+  <a class="link" href="https://github.com/juliayxhuang/florida-man-api" target="_blank" rel="noopener">Florida Man API 公式リポジトリ</a>
+</div>
+
+<script>
+const monthSelect = document.getElementById("month");
+const daySelect = document.getElementById("day");
+const result = document.getElementById("result");
+const btn = document.getElementById("searchBtn");
+
+const today = new Date();
+
+for (let m = 1; m <= 12; m++) {
+  const opt = document.createElement("option");
+  opt.value = String(m).padStart(2, "0");
+  opt.textContent = `${m}月`;
+  if (m === today.getMonth() + 1) opt.selected = true;
+  monthSelect.appendChild(opt);
+}
+
+function fillDays(){
+  const daysInMonth = new Date(today.getFullYear(), Number(monthSelect.value), 0).getDate();
+  const prevDay = daySelect.value;
+  daySelect.innerHTML = "";
+  for (let d = 1; d <= daysInMonth; d++) {
+    const opt = document.createElement("option");
+    opt.value = String(d).padStart(2, "0");
+    opt.textContent = `${d}日`;
+    daySelect.appendChild(opt);
+  }
+  if (prevDay && [...daySelect.options].some(o => o.value === prevDay)) {
+    daySelect.value = prevDay;
+  } else if (Number(monthSelect.value) === today.getMonth() + 1) {
+    daySelect.value = String(today.getDate()).padStart(2, "0");
+  }
+}
+
+monthSelect.addEventListener("change", fillDays);
+fillDays();
+
+async function searchHeadlines(){
+  const mm = monthSelect.value;
+  const dd = daySelect.value;
+
+  btn.disabled = true;
+  result.innerHTML = '<p class="hint">検索中...</p>';
+
+  try {
+    const res = await fetch(`https://juliayxhuang.github.io/florida-man-api/api/${mm}/${dd}.json`);
+
+    if (!res.ok) {
+      throw new Error("この日付の見出しは見つかりませんでした");
+    }
+
+    const data = await res.json();
+    const headlines = Array.isArray(data) ? data : (data.headlines || []);
+
+    if (headlines.length === 0) {
+      result.innerHTML = '<p class="hint">この日付の見出しは見つかりませんでした。</p>';
+      return;
+    }
+
+    result.innerHTML = headlines.map(h => `
+      <div class="card">
+        <a href="${h.url}" target="_blank" rel="noopener">${h.title}</a>
+        <div class="meta">${h.source || ""}${h.date ? " ・ " + h.date : ""}</div>
+      </div>
+    `).join("");
+
+  } catch (error) {
+    result.innerHTML = `<p class="error">${error.message}</p>`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+</script>
+
+</body>
+</html>

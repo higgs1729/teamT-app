@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ブラック企業診断</title>
+
+<style>
+body{
+    font-family:sans-serif;
+    background:#111;
+    color:white;
+    text-align:center;
+    padding:20px;
+}
+
+button,select{
+    padding:10px;
+    margin:8px;
+    font-size:16px;
+}
+
+#card{
+    max-width:700px;
+    margin:auto;
+    background:#222;
+    padding:20px;
+    border-radius:10px;
+}
+
+pre{
+    background:#000;
+    color:#00ff00;
+    text-align:left;
+    padding:10px;
+}
+</style>
+
+</head>
+<body>
+
+<h1>💀 ブラック企業診断 💀</h1>
+
+<div id="menu">
+
+<select id="level">
+<option value="b">🟢 初心者</option>
+<option value="n">🔵 あるある</option>
+<option value="h">🔴 地獄</option>
+<option value="j">😂 ネタ枠</option>
+</select>
+
+<br>
+
+<button onclick="start()">診断開始</button>
+
+</div>
+
+<div id="card" style="display:none;">
+
+<h2 id="question"></h2>
+
+<p id="count"></p>
+
+<button onclick="answer(2)">はい</button>
+<button onclick="answer(1)">どちらとも言えない</button>
+<button onclick="answer(0)">いいえ</button>
+
+</div>
+
+<div id="result"></div>
+
+<pre id="json"></pre>
+
+<script>
+
+const beginner=[
+"朝礼は好き？",
+"残業は少しならOK？",
+"休日でも返信する？",
+"有給を取りづらい？",
+"飲み会は仕事？",
+"先輩優先？",
+"早起き得意？",
+"定時帰宅好き？",
+"挨拶は大事？",
+"掃除好き？",
+"仕事は楽しい？"
+];
+
+const normal=[
+"タイムカード後に働いたことがある？",
+"月曜日が怖い？",
+"昼休みに仕事した？",
+"終電で帰ったことがある？",
+"休日出勤した？",
+"『5分だけ』を信じる？",
+"有給は最後の切り札？",
+"サービス残業した？",
+"休日の電話に出る？",
+"飲み会は仕事？",
+"やりがい重視？"
+];
+
+const hell=[
+"会社は家族？",
+"熱でも出勤する？",
+"残業100時間OK？",
+"社長の話を2時間聞ける？",
+"ボーナスが拍手でも嬉しい？",
+"家より会社？",
+"24時間戦える？",
+"夢が給料？",
+"睡眠3時間でも平気？",
+"辞めるのは甘え？",
+"気合で何とかなる？"
+];
+
+const joke=[
+"残業代は都市伝説？",
+"Wi-Fiより帰宅速度が遅い？",
+"社長の武勇伝を暗唱できる？",
+"月曜日を消したい？",
+"コピー機が親友？",
+"コーヒーが血液？",
+"会社に住みたい？",
+"上司の『ちょっといい？』が怖い？",
+"給料日は幻？",
+"気合で解決？",
+"椅子より床が落ち着く？"
+];
+
+let questions=[];
+let score=0;
+let index=0;
+let level="";
+
+function shuffle(arr){
+    return [...arr].sort(()=>Math.random()-0.5);
+}
+
+function start(){
+
+    level=document.getElementById("level").value;
+
+    if(level=="b") questions=shuffle(beginner);
+    if(level=="n") questions=shuffle(normal);
+    if(level=="h") questions=shuffle(hell);
+    if(level=="j") questions=shuffle(joke);
+
+    questions=questions.slice(0,10);
+
+    score=0;
+    index=0;
+
+    document.getElementById("menu").style.display="none";
+    document.getElementById("card").style.display="block";
+
+    showQuestion();
+
+}
+
+function showQuestion(){
+
+    document.getElementById("question").textContent=questions[index];
+
+    document.getElementById("count").textContent=(index+1)+" / 10";
+
+}
+
+function answer(point){
+
+    score+=point;
+    index++;
+
+    if(index<10){
+
+        showQuestion();
+
+    }else{
+
+        finish();
+
+    }
+
+}
+
+function finish(){
+
+    document.getElementById("card").style.display="none";
+
+    let rank;
+    let message;
+
+    if(level=="j"){
+
+        const ending=[
+        "👑 社畜キング",
+        "☕ コーヒーマスター",
+        "📅 月曜日の化身",
+        "💻 Ctrl+Cの達人",
+        "🚪 定時退社は都市伝説"
+        ];
+
+        rank="SSS";
+
+        message=ending[Math.floor(Math.random()*ending.length)];
+
+    }else{
+
+        if(score>=17){
+            rank="SS";
+            message="💀 今すぐ転職サイトを開こう";
+        }else if(score>=12){
+            rank="S";
+            message="⚠ ブラック企業適性高め";
+        }else if(score>=7){
+            rank="A";
+            message="🙂 普通です";
+        }else{
+            rank="C";
+            message="🎉 ホワイト企業向き";
+        }
+
+    }
+
+    document.getElementById("result").innerHTML=
+    "<h2>"+message+"</h2><h3>ランク："+rank+"</h3><button onclick='location.reload()'>もう一度診断</button>";
+
+    const api={
+        level:level,
+        score:score,
+        rank:rank,
+        result:message
+    };
+
+    document.getElementById("json").textContent=
+        JSON.stringify(api,null,4);
+
+}
+
+</script>
+
+</body>
+</html>

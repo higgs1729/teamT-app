@@ -93,6 +93,8 @@
 | data | applemusic | iTunes Search API | 楽曲検索 |
 | data | countrySearch | CountriesNow API | 国名から人口・首都を検索 |
 | data | ip | ローカルサンプルデータ | IPジオロケーション情報の表示サンプル |
+| data | simeitehai | FBI Wanted | FBI公開指名手配データのカテゴリ別一覧表示 |
+| data | scp_viewer | scp-data.tedivm.com | SCP番号から収容記録を検索・閲覧 |
 | data | kabu | Alpha Vantage | 銘柄コードで株価・騰落率を検索 |
 | data | nasa | NASA APOD | 今日の天体写真 |
 | data | radar | OpenSky Network API | 上空の航空機データを地図に表示 |
@@ -168,7 +170,7 @@
 | fun | meigenn | ローカルデータ(サンプル) | 名言をランダム表示 |
 | fun | Useless | Useless Facts / MyMemory Translation API / Unsplash Source | ランダム雑学を翻訳付きで表示 |
 
-※ 翻訳に MyMemory Translation API を併用するページあり（joke / ohuzake / Jikan / OpenTrivia / Yugio）。Cars は Argos Translate を併用。Useless は MyMemory Translation API と Unsplash Source を併用。NASA系・RAWG(game)はAPIキーが必要。wakusei / meigenn / genngohonnyaku は外部APIを使わないローカルデータのサンプル。
+※ 翻訳に MyMemory Translation API を併用するページあり（joke / ohuzake / Jikan / OpenTrivia / Yugio）。Cars は Argos Translate を併用。Useless は MyMemory Translation API と Unsplash Source を併用。`zyouku` は Google Translate を利用する。NASA系・RAWG(game)はAPIキーが必要。wakusei / meigenn / genngohonnyaku / sindan は外部APIを使わないローカルデータのサンプル。
 
 ---
 

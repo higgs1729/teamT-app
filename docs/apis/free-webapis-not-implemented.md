@@ -4,14 +4,24 @@
 
 Public APIs ??????? `Auth = No` ?????????????`docs/specification.md` ???????API??????????????????????????????????5?????????????
 
+<<<<<<< HEAD
 - ??????????: 96?
+=======
+- ??????????: 94?
+>>>>>>> claude/great-roentgen-45da0d
 - ????????: 533?
 
 ## ??????
 
+<<<<<<< HEAD
 - [free-webapis-not-implemented-1.md](free-webapis-not-implemented-1.md) - 81?: Books, Currency Exchange, Documents & Productivity, Email, Entertainment, Environment, Finance, Food & Drink
 - [free-webapis-not-implemented-2.md](free-webapis-not-implemented-2.md) - 96?: Games & Comics, Geocoding
 - [free-webapis-not-implemented-3.md](free-webapis-not-implemented-3.md) - 103?: Government, Health, Music
+=======
+- [free-webapis-not-implemented-1.md](free-webapis-not-implemented-1.md) - 82?: Books, Currency Exchange, Documents & Productivity, Email, Entertainment, Environment, Finance, Food & Drink
+- [free-webapis-not-implemented-2.md](free-webapis-not-implemented-2.md) - 95?: Games & Comics, Geocoding
+- [free-webapis-not-implemented-3.md](free-webapis-not-implemented-3.md) - 104?: Government, Health, Music
+>>>>>>> claude/great-roentgen-45da0d
 - [free-webapis-not-implemented-4.md](free-webapis-not-implemented-4.md) - 98?: News, Open Data, Open Source Projects, Patent, Personality, Phone, Photography, Programming, Science & Math
 - [free-webapis-not-implemented-5.md](free-webapis-not-implemented-5.md) - 153?: Security, Social, Sports & Fitness, Test Data, Text Analysis, Tracking, Transportation, URL Shorteners, Vehicle, Video, Weather
 

@@ -109,4 +109,3 @@ control: continue
 | [SLF](https://github.com/slftool/slftool.github.io/blob/master/API.md) | German city, country, river, database | Yes | Yes | ? |
 | [ViaCep](https://viacep.com.br) | Brazil RESTful zip codes API | Yes | Unknown | ? |
 | [Zippopotam.us](http://www.zippopotam.us) | Get information about place such as country, city, state, etc | No | Unknown | ? |
-| [Ziptastic](https://ziptasticapi.com/) | Get the country, state, and city of any US zip-code | Yes | Unknown | ? |

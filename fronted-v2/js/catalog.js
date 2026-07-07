@@ -168,6 +168,8 @@ window.CATALOG = [
     description: "カード名・属性・種族で検索してランダム表示", apiName: "YGOPRODeck API / MyMemory Translation API", apiUrl: "https://db.ygoprodeck.com/api-guide/", icon: "ti-cards" },
   { id: "countrysearch", file: "data/countrySearch.html", title: "国情報検索", category: "データ・検索系", categoryPath: ["データ・検索系", "国・地域"],
     description: "国名から人口と首都情報を検索して表示", apiName: "CountriesNow API", apiUrl: "https://countriesnow.space/", icon: "ti-globe" },
+  { id: "ziptastic", file: "data/ziptastic.html", title: "Ziptastic ZIPコード検索", category: "データ・検索系", categoryPath: ["データ・検索系", "国・地域"],
+    description: "米国のZIPコードから国・州・都市を検索して表示", apiName: "Ziptastic API", apiUrl: "https://github.com/mattkerle/ziptastic", icon: "ti-search" },
   { id: "domainsdb", file: "data/domainsdb.html", title: "DomainsDB Search", category: "データ・検索系", categoryPath: ["データ・検索系", "ネットワーク・セキュリティ"],
     description: "登録済みドメイン名をキーワード検索", apiName: "DomainsDB API", apiUrl: "https://domainsdb.info/", icon: "ti-search" },
   { id: "markerapi", file: "data/markerapi.html", title: "MarkerAPI Trademark Search", category: "データ・検索系", categoryPath: ["データ・検索系", "企業・公共データ"],

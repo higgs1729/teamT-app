@@ -1,0 +1,415 @@
+<!--
+  目的: Open Food Facts の商品データベースを商品名/バーコードで検索し、
+       栄養スコア(Nutriscore)・NOVA分類・画像などを一覧表示する。
+  構成: ヒーロー / 検索フォーム / 統計サマリー / 結果カード一覧 / 参照リンク。
+-->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Open Food Facts 商品検索</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #071a12;
+      --bg2: #0f2a1c;
+      --card: rgba(9, 26, 18, 0.82);
+      --card-border: rgba(140, 182, 152, 0.22);
+      --text: #edfff2;
+      --muted: #a9c9b7;
+      --accent: #34d399;
+      --accent-soft: rgba(52, 211, 153, 0.18);
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(52, 211, 153, 0.18), transparent 36%),
+        radial-gradient(circle at 85% 10%, rgba(245, 158, 11, 0.08), transparent 20%),
+        linear-gradient(135deg, var(--bg), var(--bg2));
+    }
+    .shell {
+      width: min(1200px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    .hero,
+    .panel,
+    .footer-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      border-radius: 24px;
+    }
+    .hero {
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -100px -80px auto;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(52, 211, 153, 0.38), transparent 68%);
+      pointer-events: none;
+    }
+    .eyebrow {
+      display: inline-flex;
+      gap: 10px;
+      align-items: center;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(52, 211, 153, 0.12);
+      color: #a7f3d0;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .title {
+      margin: 18px 0 10px;
+      font-size: clamp(30px, 4vw, 54px);
+      line-height: 1.05;
+    }
+    .lead {
+      margin: 0;
+      max-width: 760px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .pill {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      color: #d9f7e5;
+      font-size: 13px;
+    }
+    .controls,
+    .stats,
+    .results,
+    .footer-card {
+      margin-top: 18px;
+    }
+    .panel {
+      padding: 18px;
+    }
+    .controls-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(140px, 0.5fr) auto;
+      gap: 12px;
+      align-items: center;
+    }
+    .input,
+    .select,
+    .button {
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      background: rgba(6, 20, 13, 0.9);
+      color: var(--text);
+      font: inherit;
+      padding: 14px 16px;
+    }
+    .input::placeholder { color: #83a692; }
+    .input:focus,
+    .select:focus,
+    .button:focus {
+      outline: 2px solid rgba(52, 211, 153, 0.55);
+      outline-offset: 2px;
+    }
+    .button {
+      background: linear-gradient(135deg, #34d399, #22c55e);
+      color: #04160c;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      box-shadow: 0 10px 24px rgba(52, 211, 153, 0.22);
+    }
+    .button:hover { transform: translateY(-1px); }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .chip {
+      padding: 9px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      color: #dbf7e8;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+    .chip:hover,
+    .chip.active {
+      background: var(--accent-soft);
+      border-color: rgba(52, 211, 153, 0.4);
+      color: #d3ffe9;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .stat {
+      padding: 18px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .stat-label { color: var(--muted); font-size: 13px; }
+    .stat-value { font-size: 26px; font-weight: 800; margin-top: 8px; }
+    .state {
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #dbf7e8;
+      line-height: 1.6;
+    }
+    .state.error { background: rgba(248, 113, 113, 0.12); color: #ffd5d5; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+    .card {
+      padding: 18px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 200px;
+    }
+    .card-image {
+      width: 100%;
+      height: 140px;
+      border-radius: 14px;
+      object-fit: contain;
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .card-title {
+      font-size: 17px;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(52, 211, 153, 0.12);
+      color: #a7f3d0;
+      font-size: 12px;
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+    .card-desc {
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 14px;
+    }
+    .card-meta {
+      margin-top: auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: #dbf7e8;
+      font-size: 13px;
+    }
+    .footer-card {
+      padding: 18px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+    .link {
+      color: #a7f3d0;
+      text-decoration: none;
+    }
+    .link:hover { text-decoration: underline; }
+    @media (max-width: 980px) {
+      .controls-grid,
+      .stats,
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="hero">
+      <div class="eyebrow">Open Food Facts</div>
+      <h1 class="title">食品データベース検索</h1>
+      <p class="lead">商品名やブランド名で世界最大級のオープン食品データベースを検索し、Nutri-Score・NOVA分類・原材料・画像を確認できます。認証不要、CORS対応の公開APIです。</p>
+      <div class="meta">
+        <span class="pill">API: Open Food Facts REST API</span>
+        <span class="pill">認証不要</span>
+        <span class="pill">CORS対応</span>
+      </div>
+    </section>
+
+    <section class="panel controls">
+      <div class="controls-grid">
+        <input id="query" class="input" type="search" placeholder="商品名やブランド名で検索（例: chocolate）">
+        <select id="sort" class="select">
+          <option value="unique_scans_n">人気順</option>
+          <option value="product_name">商品名順</option>
+        </select>
+        <button id="search" class="button">検索</button>
+      </div>
+      <div class="chips" id="chips"></div>
+      <div class="state" id="status">商品名を入力して検索してください。</div>
+    </section>
+
+    <section class="stats" id="stats"></section>
+    <section class="grid" id="results"></section>
+
+    <section class="footer-card">
+      <div>公式ドキュメント: <a class="link" href="https://openfoodfacts.github.io/openfoodfacts-server/api/" target="_blank" rel="noreferrer">https://openfoodfacts.github.io/openfoodfacts-server/api/</a></div>
+      <div>データ提供: <a class="link" href="https://world.openfoodfacts.org/data" target="_blank" rel="noreferrer">https://world.openfoodfacts.org/data</a></div>
+    </section>
+  </div>
+
+  <script>
+    const SEARCH_URL = "https://world.openfoodfacts.org/cgi/search.pl";
+    const PRESETS = ["chocolate", "yogurt", "pasta", "cheese", "cereal", "juice"];
+
+    const queryInput = document.getElementById("query");
+    const sortSelect = document.getElementById("sort");
+    const searchButton = document.getElementById("search");
+    const chipsNode = document.getElementById("chips");
+    const statusNode = document.getElementById("status");
+    const statsNode = document.getElementById("stats");
+    const resultsNode = document.getElementById("results");
+
+    function setStatus(message, isError = false) {
+      statusNode.textContent = message;
+      statusNode.className = isError ? "state error" : "state";
+    }
+
+    function renderChips() {
+      chipsNode.innerHTML = PRESETS.map((name) => `<button class="chip" data-chip="${name}" type="button">${name}</button>`).join("");
+      chipsNode.querySelectorAll("[data-chip]").forEach((button) => {
+        button.addEventListener("click", () => {
+          queryInput.value = button.dataset.chip;
+          runSearch();
+        });
+      });
+    }
+
+    function renderStats(count, list) {
+      const withNutriscore = list.filter((p) => p.nutriscore_grade).length;
+      const withImage = list.filter((p) => p.image_front_url).length;
+      statsNode.innerHTML = [
+        { label: "総ヒット件数", value: new Intl.NumberFormat("ja-JP").format(count) },
+        { label: "表示件数", value: list.length },
+        { label: "Nutri-Score取得", value: withNutriscore },
+        { label: "画像あり", value: withImage }
+      ].map(({ label, value }) => `
+        <div class="stat">
+          <div class="stat-label">${label}</div>
+          <div class="stat-value">${value}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderCards(list) {
+      if (!list.length) {
+        resultsNode.innerHTML = `
+          <div class="card" style="grid-column: 1 / -1;">
+            <div class="card-title">該当結果なし</div>
+            <div class="card-desc">検索語を変えて試してください。</div>
+          </div>
+        `;
+        return;
+      }
+      resultsNode.innerHTML = list.slice(0, 12).map((p) => {
+        const name = p.product_name || p.generic_name || "(名称未登録)";
+        const brand = p.brands || "ブランド不明";
+        const nutriscore = (p.nutriscore_grade || "-").toUpperCase();
+        const nova = p.nova_group || "-";
+        const image = p.image_front_url || p.image_url || "";
+        return `
+        <article class="card">
+          ${image ? `<img class="card-image" src="${image}" alt="${name}" loading="lazy">` : `<div class="card-image"></div>`}
+          <div class="card-top">
+            <div>
+              <div class="card-title">${name}</div>
+              <div class="card-desc">${brand}</div>
+            </div>
+            <div class="badge">Nutri-Score ${nutriscore}</div>
+          </div>
+          <div class="card-meta">
+            <span>NOVA分類: ${nova}</span>
+            <span>バーコード: ${p.code || "-"}</span>
+          </div>
+        </article>
+      `;
+      }).join("");
+    }
+
+    async function runSearch() {
+      const term = queryInput.value.trim();
+      if (!term) {
+        setStatus("検索語を入力してください。", true);
+        return;
+      }
+      setStatus(`「${term}」を検索しています...`);
+      resultsNode.innerHTML = "";
+      statsNode.innerHTML = "";
+      try {
+        const url = `${SEARCH_URL}?search_terms=${encodeURIComponent(term)}&sort_by=${encodeURIComponent(sortSelect.value)}&json=1&page_size=12`;
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        const data = await response.json();
+        const products = Array.isArray(data.products) ? data.products : [];
+        renderStats(data.count || products.length, products);
+        renderCards(products);
+        setStatus(products.length ? `${products.length} 件を表示しています（総ヒット数 ${data.count || products.length} 件）。` : "該当する商品が見つかりませんでした。");
+      } catch (error) {
+        setStatus(`取得に失敗しました: ${error.message}`, true);
+      }
+    }
+
+    searchButton.addEventListener("click", runSearch);
+    queryInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") runSearch();
+    });
+
+    renderChips();
+    queryInput.value = "chocolate";
+    runSearch();
+  </script>
+</body>
+</html>

@@ -120,7 +120,6 @@ control: continue
 | [Foodish](https://github.com/surhud004/Foodish#readme) | Random pictures of food dishes | Yes | Yes | ? |
 | [Fruityvice](https://www.fruityvice.com) | Data about all kinds of fruit | Yes | Unknown | ? |
 | [Open Brewery DB](https://www.openbrewerydb.org) | Breweries, Cideries and Craft Beer Bottle Shops | Yes | Yes | ? |
-| [Open Food Facts](https://world.openfoodfacts.org/data) | Food Products Database | Yes | Unknown | ? |
 | [PunkAPI](https://punkapi.com/) | Brewdog Beer Recipes | Yes | Unknown | ? |
 | [Rustybeer](https://rustybeer.herokuapp.com/) | Beer brewing tools | Yes | No | ? |
 | [TacoFancy](https://github.com/evz/tacofancy-api) | Community-driven taco database | No | Unknown | ? |

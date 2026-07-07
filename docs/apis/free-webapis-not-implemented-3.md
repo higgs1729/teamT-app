@@ -10,7 +10,6 @@ control: continue
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [Bank Negara Malaysia Open Data](https://apikijangportal.bnm.gov.my/) | Malaysia Central Bank Open Data | Yes | Unknown | ? |
 | [BCLaws](https://www.bclaws.gov.bc.ca/civix/template/complete/api/index.html) | Access to the laws of British Columbia | No | Unknown | ? |
 | [Brazil](https://brasilapi.com.br/) | Community driven API for Brazil Public Data | Yes | Yes | ? |
 | [Brazil Central Bank Open Data](https://dadosabertos.bcb.gov.br/) | Brazil Central Bank Open Data | Yes | Unknown | ? |

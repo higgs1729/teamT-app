@@ -49,7 +49,7 @@ fronted-v2/                 # WebAPI紹介サイト(templatesを選択表示す�
 
 ### fronted-v2（WebAPI紹介サイト）
 
-`templates/`内の各WebAPI紹介ページを一覧から選択して表示できるギャラリーサイト。ビルド不要。
+`templates/`内の各WebAPI紹介ページを階層カテゴリ別の一覧から選択して表示できるギャラリーサイト。ビルド不要。
 リポジトリルートで`node fronted-v2/serve.cjs`を実行し、`http://localhost:5500/fronted-v2/index.html`を開く（停止は Ctrl+C）。
 起動・停止の詳細は[`fronted-v2/README.md`](fronted-v2/README.md)を参照。
 

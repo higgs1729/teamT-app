@@ -120,6 +120,26 @@ a { color: inherit; }
 .nav-group-body { padding: 2px 0 6px 6px; }
 .nav-group.closed .nav-group-body { display: none; }
 
+/* 小分類: WebAPI数が増えても探しやすいように親カテゴリ内をさらに折りたたむ */
+.nav-subgroup { margin: 2px 0 4px; }
+.nav-subgroup-head {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 10px 7px 6px; cursor: pointer; user-select: none;
+  color: var(--text-muted); font-size: 11.5px; font-weight: 700;
+  transition: color 0.15s;
+}
+.nav-subgroup-head:hover { color: var(--accent); }
+[data-theme="dark"] .nav-subgroup-head:hover { color: var(--accent-mid); }
+.nav-subgroup-caret { font-size: 13px; transition: transform 0.18s; flex-shrink: 0; }
+.nav-subgroup.closed .nav-subgroup-caret { transform: rotate(-90deg); }
+.nav-subgroup-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nav-subgroup-count {
+  min-width: 20px; padding: 1px 6px; border-radius: 999px;
+  background: var(--bg-card); color: var(--text-muted); text-align: center; font-size: 10px;
+}
+.nav-subgroup-body { padding-left: 10px; }
+.nav-subgroup.closed .nav-subgroup-body { display: none; }
+
 .nav-item {
   display: flex; align-items: center; gap: 11px; padding: 9px 12px; border-radius: 10px;
   color: var(--text-secondary); font-size: 13px; cursor: pointer;

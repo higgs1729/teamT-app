@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<!--
+  Not Human Search API
+  目的: AIツール探索APIのOpenAPI定義を読み込み、公開パスを確認する。
+  構成: 概要、OpenAPI URL入力、パス一覧、失敗時サンプル。
+-->
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Not Human Search API</title>
+  <style>
+    :root{--bg:#f5f7fb;--card:#fff;--ink:#172033;--muted:#64748b;--line:#d8e0ec;--accent:#0891b2;--accent2:#f59e0b}*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:"Yu Gothic","Meiryo",sans-serif;color:var(--ink);background:linear-gradient(180deg,#fbfdff,var(--bg))}main{width:min(1100px,calc(100% - 28px));margin:auto;padding:28px 0}.hero{display:grid;grid-template-columns:1.2fr .8fr;gap:16px;margin-bottom:16px}.panel{background:var(--card);border:1px solid var(--line);border-radius:8px;box-shadow:0 14px 30px rgba(15,23,42,.08)}.intro{padding:24px;border-top:5px solid var(--accent)}h1{margin:4px 0 10px;font-size:clamp(28px,4vw,40px);letter-spacing:0}.eyebrow{margin:0;color:var(--accent);font-weight:700}.meta{display:grid;gap:10px;padding:16px}.meta div{padding:12px;border:1px solid var(--line);border-radius:8px;background:#fbfdff}.meta strong{display:block;color:var(--muted);font-size:12px}.meta a{color:var(--accent);overflow-wrap:anywhere}.controls{padding:18px;margin-bottom:16px}label span{display:block;margin-bottom:6px;font-weight:700}input{width:100%;height:42px;border:1px solid var(--line);border-radius:8px;padding:9px 11px;font:inherit}.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}button{min-height:42px;border:0;border-radius:8px;padding:0 18px;background:var(--accent);color:#fff;font-weight:700;cursor:pointer}.secondary{background:#e2e8f0;color:#172033}.status{color:var(--muted)}.url{margin-top:12px;padding:12px;border-radius:8px;background:#111827;color:#d1fae5;font-family:Consolas,monospace;overflow-wrap:anywhere}.results{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}.item{padding:16px;border-top:4px solid var(--accent2)}.item h2{margin:0 0 8px;font-size:19px}.item p{margin:0;color:var(--muted);line-height:1.7}.item pre{max-height:180px;overflow:auto;background:#f1f5f9;border-radius:8px;padding:10px;font-size:12px;white-space:pre-wrap}@media(max-width:760px){.hero{grid-template-columns:1fr}main{width:min(100% - 22px,1100px)}}
+  </style>
+</head>
+<body>
+<main>
+  <section class="hero">
+    <div class="panel intro"><p class="eyebrow">Machine Learning / Tool Discovery</p><h1>Not Human Search API</h1><p>AIツールやMCPサーバーを探索するAPIのOpenAPI定義を読み込み、エンドポイントを確認します。</p></div>
+    <aside class="panel meta"><div><strong>公式URL</strong><a href="https://nothumansearch.ai/openapi.yaml" target="_blank" rel="noreferrer">https://nothumansearch.ai/openapi.yaml</a></div><div><strong>分類</strong>データ・検索系 / AI・機械学習</div></aside>
+  </section>
+  <section class="panel controls">
+    <label><span>取得URL</span><input id="endpoint" value="https://nothumansearch.ai/openapi.yaml"></label>
+    <div class="actions"><button id="loadBtn">取得する</button><button id="sampleBtn" class="secondary">サンプル表示</button><span id="status" class="status"></span></div>
+    <div id="requestUrl" class="url"></div>
+  </section>
+  <section id="results" class="results" aria-live="polite"></section>
+</main>
+<script>
+const sample=[{name:"GET /api/search",note:"AIツール検索",raw:"キーワードやカテゴリでツール候補を探す想定のエンドポイントです。"},{name:"GET /api/tools/{id}",note:"ツール詳細",raw:"個別ツールの説明、スコア、リンクを確認します。"}];
+const $=id=>document.getElementById(id);function esc(v){return String(v||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function render(items,msg){$("status").textContent=msg;$("results").innerHTML=items.map(x=>`<article class="panel item"><h2>${esc(x.name)}</h2><p>${esc(x.note)}</p><pre>${esc(x.raw)}</pre></article>`).join("")}
+function fromText(text){const paths=[...text.matchAll(/^\s{2}(\/[^:\n]+):/gm)].map(m=>m[1]);return paths.length?paths.slice(0,24).map(p=>({name:p,note:"OpenAPI path",raw:text.slice(text.indexOf(p),text.indexOf(p)+300)})):sample}
+async function loadData(){const url=$("endpoint").value.trim();$("requestUrl").textContent=url;$("status").textContent="取得中...";try{const r=await fetch(url);if(!r.ok)throw new Error("HTTP "+r.status);render(fromText(await r.text()),"取得しました");}catch(e){render(sample,"取得できないためサンプルを表示しています: "+e.message)}}
+$("loadBtn").addEventListener("click",loadData);$("sampleBtn").addEventListener("click",()=>render(sample,"サンプル表示"));render(sample,"サンプル表示");$("requestUrl").textContent=$("endpoint").value;
+</script>
+</body>
+</html>

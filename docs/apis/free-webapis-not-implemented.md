@@ -127,57 +127,11 @@
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [caldays](https://caldays.com/api) | Public holidays for 195+ countries | Yes | Yes | ? |
-| [Church Calendar](http://calapi.inadiutorium.cz/) | Catholic liturgical calendar | No | Unknown | ? |
-| [Czech Namedays Calendar](https://svatky.adresa.info) | Lookup for a name and returns nameday date | No | Unknown | ? |
-| [Hebrew Calendar](https://www.hebcal.com/home/developer-apis) | Convert between Gregorian and Hebrew, fetch Shabbat and Holiday times, etc | No | Unknown | ? |
-| [LectServe](http://www.lectserve.com) | Protestant liturgical calendar | No | Unknown | ? |
-| [Nager.Date](https://date.nager.at) | Public holidays for more than 90 countries | Yes | No | ? |
-| [Namedays Calendar](https://nameday.abalin.net) | Provides namedays for multiple countries | Yes | Yes | ? |
-| [Non-Working Days](https://github.com/gadael/icsdb) | Database of ICS files for non working days | Yes | Unknown | ? |
-| [Non-Working Days](https://isdayoff.ru) | Simple REST API for checking working, non-working or short days for Russia, CIS, USA and other | Yes | Yes | ? |
-| [Russian Calendar](https://github.com/egno/work-calendar) | Check if a date is a Russian holiday or not | Yes | No | ? |
-| [The Calendar](https://the-calendar.net/api/) | Public holidays for US states and 30 countries plus sports and finance calendars as static JSON | Yes | Yes | ? |
-| [UK Bank Holidays](https://www.gov.uk/bank-holidays.json) | Bank holidays in England and Wales, Scotland and Northern Ireland | Yes | Unknown | ? |
-
-### Cloud Storage & File Sharing
-
-| API | ?? | HTTPS | CORS | HTML??? |
-|---|---|---:|---:|---|
-| [File.io](https://www.file.io) | Super simple file sharing, convenient, anonymous and secure | Yes | Unknown | ? |
-| [FileUp](https://github.com/RealSinaSnp/FileUp) | Temporary file hosting with upload API, expiration times, and view limits | Yes | Unknown | ? |
-| [Pantry](https://getpantry.cloud/) | Free JSON storage for small projects | Yes | Yes | ? |
-| [The Null Pointer](https://0x0.st) | No-bullshit file hosting and URL shortening service | Yes | Unknown | ? |
 
 ### Cryptocurrency
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [0x](https://0x.org/api) | API for querying token and pool stats across various liquidity pools | Yes | Yes | ? |
-| [1inch](https://1inch.io/api/) | API for querying decentralize exchange | Yes | Unknown | ? |
-| [Alpha (Mossland)](https://alpha.moss.land/developers) | Korean crypto channel stance + RAG Q&A + canonical entity/topic/event store | Yes | Yes | ? |
-| [Bitcambio](https://nova.bitcambio.com.br/api/v3/docs#a-public) | Get the list of all traded assets in the exchange | Yes | Unknown | ? |
-| [BitcoinCharts](https://bitcoincharts.com/about/exchanges/) | Financial and Technical Data related to the Bitcoin Network | Yes | Unknown | ? |
-| [Block Lottos](https://blocklottos.com/openapi.json) | On-chain lottery, draw history, jackpot and advertising endpoints | Yes | Yes | ? |
-| [btcnode.uk](https://btcnode.uk) | Bitcoin blockchain data, fees, mempool, SEC insider trades, Reddit sentiment. x402 micropayments for paid endpoints. | Yes | Unknown | ? |
-| [CoinCap](https://docs.coincap.io/) | Real time Cryptocurrency prices through a RESTful API | Yes | Unknown | ? |
-| [CoinDesk](https://old.coindesk.com/coindesk-api/) | CoinDesk's Bitcoin Price Index (BPI) in multiple currencies | Yes | Unknown | ? |
-| [CoinGecko](http://www.coingecko.com/api) | Cryptocurrency Price, Market, and Developer/Social Data | Yes | Yes | ? |
-| [Coinlore](https://www.coinlore.com/cryptocurrency-data-api) | Cryptocurrencies prices, volume and more | Yes | Unknown | ? |
-| [Coinpaprika](https://api.coinpaprika.com) | Cryptocurrencies prices, volume and more | Yes | Yes | ? |
-| [CoinStats](https://documenter.getpostman.com/view/5734027/RzZ6Hzr3?version=latest) | Crypto Tracker | Yes | Unknown | ? |
-| [CryptAPI](https://docs.cryptapi.io/) | Cryptocurrency Payment Processor | Yes | Unknown | ? |
-| [CryptingUp](https://www.cryptingup.com/apidoc/#introduction) | Cryptocurrency data | Yes | Unknown | ? |
-| [CryptoCompare](https://www.cryptocompare.com/api#) | Cryptocurrencies Comparison | Yes | Unknown | ? |
-| [Cryptonator](https://www.cryptonator.com/api/) | Cryptocurrencies Exchange Rates | Yes | Unknown | ? |
-| [Gemini](https://docs.gemini.com/rest-api/) | Cryptocurrencies Exchange | Yes | Unknown | ? |
-| [Localbitcoins](https://localbitcoins.com/api-docs/) | P2P platform to buy and sell Bitcoins | Yes | Unknown | ? |
-| [Mempool](https://mempool.space/api) | Bitcoin API Service focusing on the transaction fee | Yes | No | ? |
-| [MercadoBitcoin](https://www.mercadobitcoin.com.br/api-doc/) | Brazilian Cryptocurrency Information | Yes | Unknown | ? |
-| [Messari](https://messari.io/api) | Provides API endpoints for thousands of crypto assets | Yes | Unknown | ? |
-| [Nexchange](https://nexchange2.docs.apiary.io/) | Automated cryptocurrency exchange service | No | Yes | ? |
-| [Solana JSON RPC](https://docs.solana.com/developing/clients/jsonrpc-api) | Provides various endpoints to interact with the Solana Blockchain | Yes | Unknown | ? |
-| [ZMOK](https://zmok.io) | Ethereum JSON RPC API and Web3 provider | Yes | Unknown | ? |
 
 ### Currency Exchange
 
@@ -208,16 +162,6 @@
 | [24 Pull Requests](https://24pullrequests.com/api) | Project to promote open source collaboration during December | Yes | Yes | ? |
 | [Agify.io](https://agify.io) | Estimates the age from a first name | Yes | Yes | ? |
 | [API Grátis](https://apigratis.com.br/) | Multiples services and public APIs | Yes | Unknown | ? |
-| [ApicAgent](https://www.apicagent.com) | Extract device details from user-agent string | Yes | Yes | ? |
-| [APIs.guru](https://apis.guru/api-doc/) | Wikipedia for Web APIs, OpenAPI/Swagger specs for public APIs | Yes | Unknown | ? |
-| [Beeceptor](https://beeceptor.com/) | Build a mock Rest API endpoint in seconds | Yes | Yes | ? |
-| [Bored](https://www.boredapi.com/) | Find random activities to fight boredom | Yes | Unknown | ? |
-| [BrewPage](https://brewpage.app) | Free hosting for HTML, JSON, key-value, files, multi-file sites with short URLs and TTL retention | Yes | No | ? |
-| [CDNJS](https://api.cdnjs.com/libraries/jquery) | Library info on CDNJS | Yes | Unknown | ? |
-| [Changelogs.md](https://changelogs.md) | Structured changelog metadata from open source projects | Yes | Unknown | ? |
-| [Ciprand](https://github.com/polarspetroll/ciprand) | Secure random string generator | Yes | No | ? |
-| [Cloudflare Trace](https://github.com/fawazahmed0/cloudflare-trace-api) | Get IP Address, Timestamp, User Agent, Country Code, IATA, HTTP Version, TLS/SSL Version & More | Yes | Yes | ? |
-| [Codex](https://github.com/Jaagrav/CodeX) | Online Compiler for Various Languages | Yes | Unknown | ? |
 | [CORS Proxy](https://github.com/burhanuday/cors-proxy) | Get around the dreaded CORS error by using this proxy as a middle man | Yes | Yes | ? |
 | [CountAPI](https://countapi.xyz) | Free and simple counting service. You can use it to track page hits and specific events | Yes | Yes | ? |
 | [DigitalOcean Status](https://status.digitalocean.com/api) | Status of all DigitalOcean services | Yes | Unknown | ? |
@@ -588,21 +532,11 @@
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [AI Dev Jobs](https://aidevboard.com/openapi.yaml) | AI/ML engineering job aggregator with REST, RSS, and MCP endpoints | Yes | Yes | ? |
-| [Arbeitnow](https://documenter.getpostman.com/view/18545278/UVJbJdKh) | API for Job board aggregator in Europe / Remote | Yes | Yes | ? |
-| [DevITjobs UK](https://devitjobs.uk/job_feed.xml) | Jobs with GraphQL | Yes | Yes | ? |
-| [GraphQL Jobs](https://graphql.jobs/docs/api/) | Jobs with GraphQL | Yes | Yes | ? |
-| [Open Skills](https://github.com/workforce-data-initiative/skills-api/wiki/API-Overview) | Job titles, skills and related jobs data | No | Unknown | ? |
 
 ### Machine Learning
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [Deepcode](https://www.deepcode.ai) | AI for code review | Yes | Unknown | ? |
-| [EXUDE-API](http://uttesh.com/exude-api/) | Used for the primary ways for filtering the stopping, stemming words from the text data | Yes | Yes | ? |
-| [Not Human Search](https://nothumansearch.ai/openapi.yaml) | AI tool discovery with agentic scoring for 8,600+ tools and MCP servers | Yes | Yes | ? |
-| [OpenVisionAPI](https://openvisionapi.com) | Open source computer vision API based on open source models | Yes | Yes | ? |
-| [TensorFeed](https://tensorfeed.ai/developers) | Real-time AI news, model pricing, service status, and agent activity feeds | Yes | Yes | ? |
 
 ### Music
 

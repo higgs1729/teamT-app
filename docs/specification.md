@@ -45,7 +45,7 @@
     UIは`design-spec-studio`の`ui_mockup.html`のデザインシステムに準拠。一覧データは`fronted-v2/js/catalog.js`に集約。
   - 分類設計: `category` は後方互換用の大分類、`categoryPath` はサイドバー表示用の階層分類（例: `["データ・検索系", "宇宙・天気"]`）。`categoryPath` が未指定の古い項目は `category` の1階層分類として扱う。
     - 大分類: 画像・ビジュアル系 / データ・検索系 / 為替・ツール系 / エンタメ・おもしろ系
-    - 小分類例: 動物画像 / 3D・アバター / キャラクター画像 / アニメ・カード / ゲーム・キャラクター / 宇宙・天気 / 乗り物・交通 / ネットワーク・セキュリティ / 金融・マーケット / 日付・時刻 / 通貨・為替 / 地図・住所 / 翻訳・言語 / ジョーク・雑学 / クイズ・ゲーム / 意思決定・名言
+    - 小分類例: 動物画像 / 3D・アバター / キャラクター画像 / アニメ・カード / ゲーム・キャラクター / 宇宙・天気 / 乗り物・交通 / ネットワーク・セキュリティ / 金融・マーケット / 求人・スキル / AI・機械学習 / 日付・時刻 / 通貨・為替 / 地図・住所 / ファイル共有・保存 / 開発・検証 / 翻訳・言語 / ジョーク・雑学 / クイズ・ゲーム / 意思決定・名言
 
 ---
 
@@ -107,11 +107,72 @@
 | data | index | Random User Generator | ランダムなプロフィール生成 |
 | data | Cars | NHTSA Vehicle API / Wikipedia API / Argos Translate | メーカーとモデルを選んで車両情報と画像を検索 |
 | data | Yugio | YGOPRODeck API / MyMemory Translation API | 遊戯王カードを検索して詳細表示 |
+| data | zero-x | 0x API | DEXの価格見積もりやスワップAPIをAPIキー入力式で確認 |
+| data | one-inch | 1inch API | DEX集約APIをBearerキー入力式で確認 |
+| data | alpha-mossland | Alpha by Mossland | 韓国暗号資産チャンネル由来の正規化データを表示 |
+| data | bitcambio | Bitcambio API | ブラジル取引所の公開アセット情報を確認 |
+| data | bitcoincharts | BitcoinCharts | BitcoinChartsのマーケット一覧JSONを表示 |
+| data | block-lottos | Block Lottos | オンチェーン抽選サービスのOpenAPI定義を表示 |
+| data | btcnode-uk | btcnode.uk | Bitcoinデータとx402課金エンドポイントのURLを確認 |
+| data | coincap | CoinCap | 暗号資産の価格・時価総額・取引所データを取得 |
+| data | coindesk-bpi | CoinDesk BPI | Bitcoin Price Index系JSONを確認 |
+| data | coingecko | CoinGecko API | BTC/ETHの複数通貨建て価格を取得 |
+| data | coinlore | CoinLore | 公開ティッカーAPIから価格・出来高を一覧表示 |
+| data | coinpaprika | Coinpaprika | 暗号資産マーケットデータをティッカー形式で表示 |
+| data | coinstats | CoinStats | 暗号資産トラッカーAPIをキー入力式で確認 |
+| data | cryptapi | CryptAPI | 暗号資産決済APIの公開情報エンドポイントを確認 |
+| data | cryptingup | CryptingUp | 取引ペアやマーケットデータを取得 |
+| data | cryptocompare | CryptoCompare | BTC/ETHの価格を複数通貨で比較 |
+| data | cryptonator | Cryptonator | 暗号資産為替レートAPIを確認 |
+| data | gemini | Gemini REST API | Gemini取引所の公開マーケットデータを取得 |
+| data | localbitcoins | LocalBitcoins | 旧P2P取引API資料とサンプルデータを確認 |
+| data | mempool-space | Mempool.space | Bitcoinの推奨手数料を取得 |
+| data | mercado-bitcoin | Mercado Bitcoin | BTC/BRLの公開ティッカーを確認 |
+| data | messari | Messari API | Messariの暗号資産データAPIをキー入力式で確認 |
+| data | nexchange | Nexchange | 自動暗号資産交換サービスの通貨情報を確認 |
+| data | solana-json-rpc | Solana JSON RPC | Solana JSON-RPCへPOSTしてヘルスチェック |
+| data | zmok-ethereum-rpc | ZMOK | Ethereum JSON-RPCプロバイダーURLを入力して確認 |
+| data | ai-dev-jobs | AI Dev Jobs | AI/MLエンジニア求人APIのOpenAPI定義を確認 |
+| data | arbeitnow | Arbeitnow | Europe/Remote求人をキーワードで絞り込んで表示 |
+| data | devitjobs-uk | DevITjobs UK | UK開発者求人のXMLフィードを読み込んで表示 |
+| data | graphql-jobs | GraphQL Jobs | GraphQL求人APIへクエリをPOSTして確認 |
+| data | open-skills | Open Skills | 職種名やスキル名の候補を検索 |
+| data | deepcode-ai | DeepCode AI | AIコードレビューサービスの公開情報を確認 |
+| data | exude-api | EXUDE-API | 英文テキストのストップワード除去を試す |
+| data | not-human-search | Not Human Search | AIツール探索APIのOpenAPI定義を確認 |
+| data | openvisionapi | OpenVisionAPI | 画像URLを渡すコンピュータビジョンAPIを確認 |
+| data | tensorfeed | TensorFeed | AIニュース・モデル情報・サービス状態を取得 |
 | tools | currency_converter | ExchangeRate-API | 通貨換算 |
 | tools | calendar | Public Holidays API | 祝日付きカレンダー表示 |
+| tools | caldays | CalDays API | APIキー入力式の祝日APIリクエスト確認 |
+| tools | church-calendar | Church Calendar API | カトリック典礼暦の日付情報表示 |
+| tools | czech-namedays | Svátky API | チェコ語・スロバキア語の名前日検索 |
+| tools | hebcal-converter | Hebcal Developer APIs | グレゴリオ暦からヘブライ暦への変換 |
+| tools | lectserve | LectServe | プロテスタント系朗読暦の見出し表示 |
+| tools | nager-date | Nager.Date | 国コードと年から世界各国の祝日一覧を取得 |
+| tools | namedays-calendar | International Nameday API | 国別の名前日を月日から検索 |
+| tools | icsdb-non-working-days | icsdb | GitHub上の非稼働日ICSファイル候補を一覧 |
+| tools | isdayoff | isDayOff | 稼働日・休日・短縮日のコード判定 |
+| tools | russian-calendar | work-calendar | ロシア稼働日判定サービス実装例の確認 |
+| tools | the-calendar-api | The Calendar | カレンダーJSONのURL組み立てと取得確認 |
+| tools | uk-bank-holidays | GOV.UK Bank Holidays | 英国地域別バンクホリデーJSON表示 |
 | tools | time | ローカル時刻 | 現在時刻の表示 |
 | tools | kawase | exchangerate.host | 為替レート |
 | tools | QR | QR Server (goQR) | QRコード生成 |
+| tools | file-io | file.io | ファイルや短文の一時共有リンク生成 |
+| tools | fileup | FileUp | 期限と閲覧回数を指定したファイル共有 |
+| tools | pantry | Pantry | JSONをクラウドのバスケットに保存・取得 |
+| tools | null-pointer | The Null Pointer (0x0.st) | ファイルやURLの使い捨て共有リンク生成 |
+| tools | apicagent | ApicAgent | User-Agent文字列から端末情報を解析 |
+| tools | apis-guru | APIs.guru | 公開API定義の検索・一覧取得 |
+| tools | beeceptor | Beeceptor | モックAPIの送受信テスト |
+| tools | bored | Bored | ランダムな退屈しのぎ提案 |
+| tools | brewpage | BrewPage | HTMLやJSONを短縮URL付きで公開 |
+| tools | cdnjs | CDNJS | CDN上のライブラリ情報検索 |
+| tools | changelogs-md | Changelogs.md | changelogメタデータの到達性確認 |
+| tools | ciprand | Ciprand | 乱数文字列の生成 |
+| tools | cloudflare-trace | Cloudflare Trace | 接続情報とtrace文字列の表示 |
+| tools | codex | CodeX | オンラインコンパイラの公開情報確認 |
 | tools | genngohonnyaku | ローカル辞書(サンプル) | 日本語↔英語の簡易翻訳 |
 | tools | tizu | Leaflet / OpenStreetMap | 地図表示とクリック位置マーカー追加 |
 | tools | zipcode | ZipCloud API | 郵便番号から住所検索 |

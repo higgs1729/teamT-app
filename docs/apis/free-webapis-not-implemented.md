@@ -1,4 +1,4 @@
-# ??????Web API??
+﻿# ??????Web API??
 
 ???: 2026-07-07
 
@@ -23,68 +23,53 @@
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [Axolotl](https://theaxolotlapi.netlify.app/) | Collection of axolotl pictures and facts | Yes | No | ? |
-| [Cat Facts](https://alexwohlbruck.github.io/cat-facts/) | Daily cat facts | Yes | No | ? |
-| [Cat Facts](https://catfact.ninja/) | Random cat facts | Yes | Yes | ? |
-| [Cataas](https://cataas.com/) | Cat as a service (cats pictures and gifs) | Yes | No | ? |
-| [Dog Facts](https://dukengn.github.io/Dog-facts-API/) | Random dog facts | Yes | Yes | ? |
-| [Dog Facts](https://kinduff.github.io/dog-api/) | Random facts of Dogs | Yes | Yes | ? |
-| [FishWatch](https://www.fishwatch.gov/developers) | Information and pictures about individual fish species | Yes | Yes | ? |
-| [HTTP Dog](https://http.dog/) | Dogs for every HTTP response status code | Yes | Yes | ? |
-| [MeowFacts](https://github.com/wh-iterabb-it/meowfacts) | Get random cat facts | Yes | No | ? |
-| [Movebank](https://github.com/movebank/movebank-api-doc) | Movement and Migration data of animals | Yes | Yes | ? |
-| [PlaceBear](https://placebear.com/) | Placeholder bear pictures | Yes | Yes | ? |
-| [PlaceDog](https://place.dog) | Placeholder Dog pictures | Yes | Yes | ? |
-| [RandomDog](https://random.dog/woof.json) | Random pictures of dogs | Yes | Yes | ? |
-| [RescueGroups](https://userguide.rescuegroups.org/display/APIDG/API+Developers+Guide+Home) | Adoption | Yes | Unknown | ? |
-| [Shibe.Online](http://shibe.online/) | Random pictures of Shiba Inu, cats or birds | Yes | Yes | ? |
-| [xeno-canto](https://xeno-canto.org/explore/api) | Bird recordings | Yes | Unknown | ? |
+| [Axolotl](https://theaxolotlapi.netlify.app/) | Collection of axolotl pictures and facts | Yes | No | 実装済み |
+| [Cat Facts](https://alexwohlbruck.github.io/cat-facts/) | Daily cat facts | Yes | No | 実装済み |
+| [Cat Facts](https://catfact.ninja/) | Random cat facts | Yes | Yes | 実装済み |
+| [Cataas](https://cataas.com/) | Cat as a service (cats pictures and gifs) | Yes | No | 実装済み |
+| [Dog Facts](https://dukengn.github.io/Dog-facts-API/) | Random dog facts | Yes | Yes | 実装済み |
+| [Dog Facts](https://kinduff.github.io/dog-api/) | Random facts of Dogs | Yes | Yes | 実装済み |
+| [FishWatch](https://www.fishwatch.gov/developers) | Information and pictures about individual fish species | Yes | Yes | 実装済み |
+| [HTTP Dog](https://http.dog/) | Dogs for every HTTP response status code | Yes | Yes | 実装済み |
+| [MeowFacts](https://github.com/wh-iterabb-it/meowfacts) | Get random cat facts | Yes | No | 実装済み |
+| [Movebank](https://github.com/movebank/movebank-api-doc) | Movement and Migration data of animals | Yes | Yes | 実装済み |
+| [PlaceBear](https://placebear.com/) | Placeholder bear pictures | Yes | Yes | 実装済み |
+| [PlaceDog](https://place.dog) | Placeholder Dog pictures | Yes | Yes | 実装済み |
+| [RandomDog](https://random.dog/woof.json) | Random pictures of dogs | Yes | Yes | 実装済み |
+| [RescueGroups](https://userguide.rescuegroups.org/display/APIDG/API+Developers+Guide+Home) | Adoption | Yes | Unknown | 実装済み |
+| [Shibe.Online](http://shibe.online/) | Random pictures of Shiba Inu, cats or birds | Yes | Yes | 実装済み |
+| [xeno-canto](https://xeno-canto.org/explore/api) | Bird recordings | Yes | Unknown | 実装済み |
 
 ### Anime
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [AnimeChan](https://github.com/RocktimSaikia/anime-chan) | Anime quotes (over 10k+) | Yes | No | ? |
-| [AnimeFacts](https://chandan-02.github.io/anime-facts-rest-api/) | Anime Facts (over 100+) | Yes | Yes | ? |
-| [AnimeNewsNetwork](https://www.animenewsnetwork.com/encyclopedia/api.php) | Anime industry news | Yes | Yes | ? |
-| [Catboy](https://catboys.com/api) | Neko images, funny GIFs & more | Yes | Yes | ? |
-| [Studio Ghibli](https://ghibliapi.herokuapp.com) | Resources from Studio Ghibli films | Yes | Yes | ? |
-| [Trace Moe](https://soruly.github.io/trace.moe-api/#/) | A useful tool to get the exact scene of an anime from a screenshot | Yes | Yes | ? |
-| [Waifu.pics](https://waifu.pics/docs) | Image sharing platform for anime images | Yes | No | ? |
-
 ### Anti-Malware
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [URLhaus](https://urlhaus-api.abuse.ch/) | Bulk queries and Download Malware Samples | Yes | Yes | ? |
 
 ### Art & Design
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [Art Institute of Chicago](https://api.artic.edu/docs/) | Art | Yes | Yes | ? |
-| [Colormind](http://colormind.io/api-access/) | Color scheme generator | No | Unknown | ? |
-| [ColourLovers](http://www.colourlovers.com/api) | Get various patterns, palettes and images | No | Unknown | ? |
-| [DummyImage](https://dummyimage.com/) | Generate placeholder images with custom size, colors and text | Yes | Unknown | ? |
-| [EmojiHub](https://github.com/cheatsnake/emojihub) | Get emojis by categories and groups | Yes | Yes | ? |
-| [Icon Horse](https://icon.horse) | Favicons for any website, with fallbacks | Yes | Yes | ? |
-| [Icons8](https://img.icons8.com/) | Icons (find "search icon" hyperlink in page) | Yes | Unknown | ? |
-| [Lordicon](https://lordicon.com/) | Icons with predone Animations | Yes | Yes | ? |
-| [Metropolitan Museum of Art](https://metmuseum.github.io/) | Met Museum of Art | Yes | No | ? |
-| [PHP-Noise](https://php-noise.com/) | Noise Background Image Generator | Yes | Yes | ? |
-| [Pixel Encounter](https://pixelencounter.com/api) | SVG Icon Generator | Yes | No | ? |
-| [xColors](https://x-colors.herokuapp.com/) | Generate & convert colors | Yes | Yes | ? |
+| [Art Institute of Chicago](https://api.artic.edu/docs/) | Art | Yes | Yes | 実装済み |
+| [Colormind](http://colormind.io/api-access/) | Color scheme generator | No | Unknown | 実装済み |
+| [ColourLovers](http://www.colourlovers.com/api) | Get various patterns, palettes and images | No | Unknown | 実装済み |
+| [DummyImage](https://dummyimage.com/) | Generate placeholder images with custom size, colors and text | Yes | Unknown | 実装済み |
+| [EmojiHub](https://github.com/cheatsnake/emojihub) | Get emojis by categories and groups | Yes | Yes | 実装済み |
+| [Icon Horse](https://icon.horse) | Favicons for any website, with fallbacks | Yes | Yes | 実装済み |
+| [Icons8](https://img.icons8.com/) | Icons (find "search icon" hyperlink in page) | Yes | Unknown | 実装済み |
+| [Lordicon](https://lordicon.com/) | Icons with predone Animations | Yes | Yes | 実装済み |
+| [Metropolitan Museum of Art](https://metmuseum.github.io/) | Met Museum of Art | Yes | No | 実装済み |
+| [PHP-Noise](https://php-noise.com/) | Noise Background Image Generator | Yes | Yes | 実装済み |
+| [Pixel Encounter](https://pixelencounter.com/api) | SVG Icon Generator | Yes | No | 実装済み |
+| [xColors](https://x-colors.herokuapp.com/) | Generate & convert colors | Yes | Yes | 実装済み |
 
 ### Blockchain
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [Chainlink](https://chain.link/developer-resources) | Build hybrid smart contracts with Chainlink | Yes | Unknown | ? |
-| [Chainpoint](https://tierion.com/chainpoint/) | Chainpoint is a global network for anchoring data to the Bitcoin blockchain | Yes | Unknown | ? |
-| [Helium](https://docs.helium.com/api/blockchain/introduction/) | Helium is a global, distributed network of Hotspots that create public, long-range wireless coverage | Yes | Unknown | ? |
-| [Steem](https://developers.steem.io/) | Blockchain-based blogging and social media website | No | No | ? |
-| [TWZRD Agent Intel](https://intel.twzrd.xyz) | Solana on-chain agent trust scoring via MCP; 4 free tools to score, resolve and verify AI agent wallets | Yes | Yes | ? |
-| [Walltime](https://walltime.info/api.html) | To retrieve Walltime's market info | Yes | Unknown | ? |
 
 ### Books
 
@@ -114,70 +99,16 @@
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [Domainsdb.info](https://domainsdb.info/) | Registered Domain Names Search | Yes | No | ? |
-| [markerapi](https://markerapi.com) | Trademark Search | No | Unknown | ? |
-| [Pick an Agency](https://www.pickanagency.com/developers) | Search 47,000+ marketing agencies by service, location and rating | Yes | Yes | ? |
-| [Tenders in Hungary](https://tenders.guru/hu/api) | Get data for procurements in Hungary in JSON format | Yes | Unknown | ? |
-| [Tenders in Poland](https://tenders.guru/pl/api) | Get data for procurements in Poland in JSON format | Yes | Unknown | ? |
-| [Tenders in Romania](https://tenders.guru/ro/api) | Get data for procurements in Romania in JSON format | Yes | Unknown | ? |
-| [Tenders in Spain](https://tenders.guru/es/api) | Get data for procurements in Spain in JSON format | Yes | Unknown | ? |
-| [Tenders in Ukraine](https://tenders.guru/ua/api) | Get data for procurements in Ukraine in JSON format | Yes | Unknown | ? |
-
+//いったん私ここまで
 ### Calendar
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [caldays](https://caldays.com/api) | Public holidays for 195+ countries | Yes | Yes | ? |
-| [Church Calendar](http://calapi.inadiutorium.cz/) | Catholic liturgical calendar | No | Unknown | ? |
-| [Czech Namedays Calendar](https://svatky.adresa.info) | Lookup for a name and returns nameday date | No | Unknown | ? |
-| [Hebrew Calendar](https://www.hebcal.com/home/developer-apis) | Convert between Gregorian and Hebrew, fetch Shabbat and Holiday times, etc | No | Unknown | ? |
-| [LectServe](http://www.lectserve.com) | Protestant liturgical calendar | No | Unknown | ? |
-| [Nager.Date](https://date.nager.at) | Public holidays for more than 90 countries | Yes | No | ? |
-| [Namedays Calendar](https://nameday.abalin.net) | Provides namedays for multiple countries | Yes | Yes | ? |
-| [Non-Working Days](https://github.com/gadael/icsdb) | Database of ICS files for non working days | Yes | Unknown | ? |
-| [Non-Working Days](https://isdayoff.ru) | Simple REST API for checking working, non-working or short days for Russia, CIS, USA and other | Yes | Yes | ? |
-| [Russian Calendar](https://github.com/egno/work-calendar) | Check if a date is a Russian holiday or not | Yes | No | ? |
-| [The Calendar](https://the-calendar.net/api/) | Public holidays for US states and 30 countries plus sports and finance calendars as static JSON | Yes | Yes | ? |
-| [UK Bank Holidays](https://www.gov.uk/bank-holidays.json) | Bank holidays in England and Wales, Scotland and Northern Ireland | Yes | Unknown | ? |
-
-### Cloud Storage & File Sharing
-
-| API | ?? | HTTPS | CORS | HTML??? |
-|---|---|---:|---:|---|
-| [File.io](https://www.file.io) | Super simple file sharing, convenient, anonymous and secure | Yes | Unknown | ? |
-| [FileUp](https://github.com/RealSinaSnp/FileUp) | Temporary file hosting with upload API, expiration times, and view limits | Yes | Unknown | ? |
-| [Pantry](https://getpantry.cloud/) | Free JSON storage for small projects | Yes | Yes | ? |
-| [The Null Pointer](https://0x0.st) | No-bullshit file hosting and URL shortening service | Yes | Unknown | ? |
 
 ### Cryptocurrency
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [0x](https://0x.org/api) | API for querying token and pool stats across various liquidity pools | Yes | Yes | ? |
-| [1inch](https://1inch.io/api/) | API for querying decentralize exchange | Yes | Unknown | ? |
-| [Alpha (Mossland)](https://alpha.moss.land/developers) | Korean crypto channel stance + RAG Q&A + canonical entity/topic/event store | Yes | Yes | ? |
-| [Bitcambio](https://nova.bitcambio.com.br/api/v3/docs#a-public) | Get the list of all traded assets in the exchange | Yes | Unknown | ? |
-| [BitcoinCharts](https://bitcoincharts.com/about/exchanges/) | Financial and Technical Data related to the Bitcoin Network | Yes | Unknown | ? |
-| [Block Lottos](https://blocklottos.com/openapi.json) | On-chain lottery, draw history, jackpot and advertising endpoints | Yes | Yes | ? |
-| [btcnode.uk](https://btcnode.uk) | Bitcoin blockchain data, fees, mempool, SEC insider trades, Reddit sentiment. x402 micropayments for paid endpoints. | Yes | Unknown | ? |
-| [CoinCap](https://docs.coincap.io/) | Real time Cryptocurrency prices through a RESTful API | Yes | Unknown | ? |
-| [CoinDesk](https://old.coindesk.com/coindesk-api/) | CoinDesk's Bitcoin Price Index (BPI) in multiple currencies | Yes | Unknown | ? |
-| [CoinGecko](http://www.coingecko.com/api) | Cryptocurrency Price, Market, and Developer/Social Data | Yes | Yes | ? |
-| [Coinlore](https://www.coinlore.com/cryptocurrency-data-api) | Cryptocurrencies prices, volume and more | Yes | Unknown | ? |
-| [Coinpaprika](https://api.coinpaprika.com) | Cryptocurrencies prices, volume and more | Yes | Yes | ? |
-| [CoinStats](https://documenter.getpostman.com/view/5734027/RzZ6Hzr3?version=latest) | Crypto Tracker | Yes | Unknown | ? |
-| [CryptAPI](https://docs.cryptapi.io/) | Cryptocurrency Payment Processor | Yes | Unknown | ? |
-| [CryptingUp](https://www.cryptingup.com/apidoc/#introduction) | Cryptocurrency data | Yes | Unknown | ? |
-| [CryptoCompare](https://www.cryptocompare.com/api#) | Cryptocurrencies Comparison | Yes | Unknown | ? |
-| [Cryptonator](https://www.cryptonator.com/api/) | Cryptocurrencies Exchange Rates | Yes | Unknown | ? |
-| [Gemini](https://docs.gemini.com/rest-api/) | Cryptocurrencies Exchange | Yes | Unknown | ? |
-| [Localbitcoins](https://localbitcoins.com/api-docs/) | P2P platform to buy and sell Bitcoins | Yes | Unknown | ? |
-| [Mempool](https://mempool.space/api) | Bitcoin API Service focusing on the transaction fee | Yes | No | ? |
-| [MercadoBitcoin](https://www.mercadobitcoin.com.br/api-doc/) | Brazilian Cryptocurrency Information | Yes | Unknown | ? |
-| [Messari](https://messari.io/api) | Provides API endpoints for thousands of crypto assets | Yes | Unknown | ? |
-| [Nexchange](https://nexchange2.docs.apiary.io/) | Automated cryptocurrency exchange service | No | Yes | ? |
-| [Solana JSON RPC](https://docs.solana.com/developing/clients/jsonrpc-api) | Provides various endpoints to interact with the Solana Blockchain | Yes | Unknown | ? |
-| [ZMOK](https://zmok.io) | Ethereum JSON RPC API and Web3 provider | Yes | Unknown | ? |
 
 ### Currency Exchange
 
@@ -573,21 +504,11 @@
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [AI Dev Jobs](https://aidevboard.com/openapi.yaml) | AI/ML engineering job aggregator with REST, RSS, and MCP endpoints | Yes | Yes | ? |
-| [Arbeitnow](https://documenter.getpostman.com/view/18545278/UVJbJdKh) | API for Job board aggregator in Europe / Remote | Yes | Yes | ? |
-| [DevITjobs UK](https://devitjobs.uk/job_feed.xml) | Jobs with GraphQL | Yes | Yes | ? |
-| [GraphQL Jobs](https://graphql.jobs/docs/api/) | Jobs with GraphQL | Yes | Yes | ? |
-| [Open Skills](https://github.com/workforce-data-initiative/skills-api/wiki/API-Overview) | Job titles, skills and related jobs data | No | Unknown | ? |
 
 ### Machine Learning
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [Deepcode](https://www.deepcode.ai) | AI for code review | Yes | Unknown | ? |
-| [EXUDE-API](http://uttesh.com/exude-api/) | Used for the primary ways for filtering the stopping, stemming words from the text data | Yes | Yes | ? |
-| [Not Human Search](https://nothumansearch.ai/openapi.yaml) | AI tool discovery with agentic scoring for 8,600+ tools and MCP servers | Yes | Yes | ? |
-| [OpenVisionAPI](https://openvisionapi.com) | Open source computer vision API based on open source models | Yes | Yes | ? |
-| [TensorFeed](https://tensorfeed.ai/developers) | Real-time AI news, model pricing, service status, and agent activity feeds | Yes | Yes | ? |
 
 ### Music
 
@@ -766,7 +687,6 @@
 | [Passwordinator](https://github.com/fawazsullia/password-generator/) | Generate random passwords of varying complexities | Yes | Yes | ? |
 | [PhishStats](https://phishstats.info/) | Phishing database | Yes | Unknown | ? |
 | [UK Police](https://data.police.uk/docs/) | UK Police data | Yes | Unknown | ? |
-| [URLhaus](https://urlhaus.abuse.ch/api/) | Database of malicious URLs used for malware distribution | Yes | Unknown | ? |
 | [Virushee](https://api.virushee.com/) | Virushee file/data scanning | Yes | Yes | ? |
 
 ### Social
@@ -962,3 +882,5 @@
 1. `docs/apis` ???URL??????API????
 2. `$webapi-page-maker <URL1> <URL2> ...` ??????????????? `templates/` ?HTML??????
 3. `fronted-v2/js/catalog.js` ? `docs/specification.md` ?????????
+
+

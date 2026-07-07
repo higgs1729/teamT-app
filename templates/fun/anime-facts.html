@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anime Facts Browser</title>
+  <style>
+    /* アニメ作品を選んで、facts を読むための軽量ビューア */
+    :root{--bg:#0b1321;--panel:#101b2f;--border:rgba(170,200,255,.16);--text:#eef5ff;--muted:#a7badb;--accent:#8cc7ff;--accent2:#d9ecff;--shadow:0 24px 70px rgba(0,0,0,.35)}*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:"Segoe UI",Meiryo,sans-serif;color:var(--text);background:radial-gradient(circle at top right,rgba(140,199,255,.22),transparent 26%),linear-gradient(160deg,#08111d,#0c1730 48%,#050812)}
+    .wrap{width:min(1120px,calc(100% - 32px));margin:0 auto;padding:28px 0 42px}.hero,.panel{background:rgba(11,21,38,.84);border:1px solid var(--border);border-radius:24px;box-shadow:var(--shadow);backdrop-filter:blur(14px)}.hero{padding:28px;margin-bottom:18px;display:grid;gap:18px;grid-template-columns:1.2fr .9fr}.eyebrow{display:inline-flex;gap:8px;align-items:center;padding:7px 12px;border-radius:999px;background:rgba(140,199,255,.12);color:var(--accent2);font-size:12px;letter-spacing:.12em;text-transform:uppercase}.dot{width:8px;height:8px;border-radius:50%;background:#66f0b5}
+    h1{margin:16px 0 10px;font-size:clamp(30px,4vw,48px);line-height:1.06}.lead{margin:0;color:var(--muted);line-height:1.8}.meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.pill{padding:9px 12px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:13px;color:#dce9ff}.panel{padding:24px;display:grid;gap:16px}.controls{display:grid;grid-template-columns:1fr auto auto;gap:10px}.controls select,.controls button,.controls a{min-height:44px;border-radius:14px;font:inherit}.controls select{background:#09111e;color:var(--text);border:1px solid rgba(255,255,255,.12);padding:0 12px}.controls button,.controls a{appearance:none;border:none;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;padding:0 15px;font-weight:700}.primary{background:linear-gradient(135deg,var(--accent2),var(--accent));color:#09111e}.secondary{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:var(--text)}.content{display:grid;grid-template-columns:minmax(220px,.7fr) 1.3fr;gap:18px;align-items:start}.art{border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.08);background:#07111f;min-height:280px;display:grid;place-items:center}.art img{width:100%;height:100%;object-fit:cover;display:none}.placeholder{color:#6d83a8;padding:18px;text-align:center}.facts{display:grid;gap:12px}.fact{padding:16px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}.fact small{display:block;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}.fact strong{font-size:17px;line-height:1.6}.status{display:flex;justify-content:space-between;gap:12px;align-items:center;color:var(--muted);font-size:13px;flex-wrap:wrap}.status b{color:var(--text)}@media (max-width:860px){.hero,.content,.controls{grid-template-columns:1fr}.status{flex-direction:column;align-items:flex-start}}
+  </style>
+</head>
+<body>
+  <!-- 構成: 作品選択 / 作品画像 / Facts 一覧 / 状態表示。API は一覧取得 → 作品別 facts の二段構成。 -->
+  <main class="wrap">
+    <section class="hero">
+      <div>
+        <div class="eyebrow"><span class="dot"></span> anime facts api</div>
+        <h1>作品名を選ぶと、雑学と画像が出る。</h1>
+        <p class="lead">Anime Facts REST API から作品一覧を取り、選んだ作品の facts を表示します。まずは一覧を取得し、失敗時はローカルのサンプル作品へ切り替えます。</p>
+        <div class="meta"><div class="pill">Home: /api/v1</div><div class="pill">Facts: /api/v1/:anime_name</div><div class="pill">Image + facts demo</div></div>
+      </div>
+      <div class="panel" style="align-content:start;">
+        <strong style="font-size:18px;">使い方</strong>
+        <div style="color:var(--muted);line-height:1.8;">1. 作品を選ぶ  2. 取得ボタンを押す  3. facts を読む。作品画像がある場合はカード左に表示します。</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="controls">
+        <select id="animeSelect"></select>
+        <button id="loadBtn" class="primary" type="button">Facts を取得</button>
+        <button id="randomBtn" class="secondary" type="button">ランダム作品</button>
+      </div>
+
+      <div class="status"><span id="statusText">一覧を読み込み中...</span><b id="countText"></b></div>
+
+      <div class="content">
+        <div class="art"><img id="animeImg" alt="anime poster"><div id="placeholder" class="placeholder">作品画像があれば表示されます。</div></div>
+        <div class="facts">
+          <div class="fact"><small>headline</small><strong id="headline">作品を選んでください。</strong></div>
+          <div id="factsList" class="facts"></div>
+          <a class="secondary" style="min-height:44px;display:inline-flex;align-items:center;justify-content:center;" href="https://chandan-02.github.io/anime-facts-rest-api/" target="_blank" rel="noreferrer">Docs を開く</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const HOME_URL = 'https://anime-facts-rest-api.herokuapp.com/api/v1';
+    const FALLBACK = [
+      {anime_name:'fma_brotherhood', anime_img:'', facts:['Ishvalans And Ametris Conflict Is Based On Hokkaido s Ainu People','Arakawa Actually Bought Military Prop Guns For Drawing References']},
+      {anime_name:'black_clover', anime_img:'', facts:['The grimoire tower holds many old records.','Magic attribute matching is a huge part of the world.']}
+    ];
+    const $ = (id) => document.getElementById(id);
+    let animeList = [];
+
+    function setStatus(text, count='') { $('statusText').textContent = text; $('countText').textContent = count; }
+    function fillSelect(list) {
+      $('animeSelect').innerHTML = list.map(item => `<option value="${item.anime_name}">${item.anime_name.replace(/_/g, ' ')}</option>`).join('');
+    }
+    function showFacts(name, image, facts, fallback=false) {
+      $('headline').textContent = fallback ? 'ローカルサンプル' : name.replace(/_/g, ' ');
+      $('factsList').innerHTML = facts.slice(0, 8).map((fact, index) => `<div class="fact"><small>fact ${index + 1}</small><strong>${fact}</strong></div>`).join('');
+      if (image) { $('animeImg').src = image; $('animeImg').style.display = 'block'; $('placeholder').style.display = 'none'; } else { $('animeImg').style.display = 'none'; $('placeholder').style.display = 'grid'; }
+      setStatus(fallback ? 'fallback data' : 'live data', `${facts.length} facts`);
+    }
+    function pickRandom() { $('animeSelect').value = animeList[Math.floor(Math.random() * animeList.length)]?.anime_name || $('animeSelect').value; }
+
+    async function loadCatalog() {
+      try {
+        const res = await fetch(HOME_URL, { cache:'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        animeList = json.data || [];
+        if (!animeList.length) throw new Error('empty list');
+        fillSelect(animeList);
+        setStatus('一覧を取得しました', `${animeList.length}作品`);
+        await loadFacts(true);
+      } catch (error) {
+        console.error(error);
+        animeList = FALLBACK;
+        fillSelect(animeList);
+        setStatus('一覧取得失敗', 'fallback');
+        showFacts(FALLBACK[0].anime_name, FALLBACK[0].anime_img, FALLBACK[0].facts, true);
+      }
+    }
+
+    async function loadFacts(initial=false) {
+      const name = $('animeSelect').value;
+      $('loadBtn').disabled = $('randomBtn').disabled = true;
+      try {
+        const res = await fetch(`${HOME_URL}/${encodeURIComponent(name)}`, { cache:'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        const data = json.data || {};
+        const facts = Array.isArray(data) ? data.map(x => x.fact) : (data.data || []).map(x => x.fact);
+        showFacts(name, json.anime_img || data.anime_img || '', facts.length ? facts : ['No facts returned.']);
+      } catch (error) {
+        console.error(error);
+        const fallback = FALLBACK.find(item => item.anime_name === name) || FALLBACK[0];
+        showFacts(fallback.anime_name, fallback.anime_img, fallback.facts, true);
+      } finally {
+        $('loadBtn').disabled = $('randomBtn').disabled = false;
+        if (initial) setStatus('ライブ取得を試行しました', $('countText').textContent);
+      }
+    }
+
+    $('loadBtn').addEventListener('click', () => loadFacts());
+    $('randomBtn').addEventListener('click', () => { pickRandom(); loadFacts(); });
+    $('animeSelect').addEventListener('change', () => loadFacts());
+    window.addEventListener('load', loadCatalog);
+  </script>
+</body>
+</html>

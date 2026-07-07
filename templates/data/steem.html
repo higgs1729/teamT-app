@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<!--
+  Steem JSON-RPC Market Viewer
+  目的: Steem の無料JSON-RPCを使い、内部マーケット情報をブラウザから確認する。
+  構成: メソッド選択 / POSTフェッチ / 結果カード / エラー時のサンプル表示。
+-->
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Steem JSON-RPC Market Viewer</title>
+  <style>
+    :root{--ink:#111827;--muted:#64748b;--panel:#fff;--line:#dbe3ef;--accent:#06a6b7;--dark:#102a43}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:"Segoe UI",Meiryo,sans-serif;color:var(--ink);background:linear-gradient(135deg,#ecfeff,#f8fafc)}
+    main{width:min(1080px,calc(100% - 28px));margin:auto;padding:28px 0 42px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:22px;box-shadow:0 14px 34px rgba(15,23,42,.08)}.layout{display:grid;grid-template-columns:.9fr 1.1fr;gap:16px}.tag{font-size:12px;letter-spacing:.08em;color:var(--accent);font-weight:700;text-transform:uppercase}h1{font-size:clamp(28px,4vw,44px);line-height:1.08;margin:10px 0}.lead,.status{color:var(--muted);line-height:1.75}.controls{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:16px}select,button{min-height:44px;border-radius:8px;font:inherit}select{border:1px solid var(--line);padding:0 12px;background:#fff}button{border:0;background:var(--accent);color:#fff;font-weight:700;cursor:pointer}.result{border:1px solid var(--line);border-radius:8px;background:#f8fafc;padding:16px;white-space:pre-wrap;line-height:1.55;min-height:320px}.link{color:var(--accent);font-weight:700;text-decoration:none}@media(max-width:840px){.layout,.controls{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="layout">
+    <section class="panel">
+      <div class="tag">steem json-rpc</div>
+      <h1>Steem の市場データをJSON-RPCで取得</h1>
+      <p class="lead">Steem Developer Portal で公開されているJSON-RPCを使い、SBD:STEEM内部マーケットのティッカーや出来高を取得します。認証なしで試せるため、WebAPI紹介ページに向いています。</p>
+      <div class="controls">
+        <select id="method">
+          <option value="market_history_api.get_ticker">market ticker</option>
+          <option value="market_history_api.get_volume">24h volume</option>
+          <option value="market_history_api.get_order_book">order book</option>
+        </select>
+        <button id="loadBtn" type="button">取得</button>
+      </div>
+      <p id="status" class="status">メソッドを選んで取得してください。</p>
+      <a class="link" href="https://developers.steem.io/" target="_blank" rel="noreferrer">公式Docs</a>
+    </section>
+    <section class="panel"><pre id="result" class="result"></pre></section>
+  </main>
+  <script>
+    const endpoint = "https://api.steemit.com";
+    const fallback = {latest:"0.000000", lowest_ask:"0.000000", highest_bid:"0.000000", percent_change:"0.00", note:"APIまたはCORS失敗時のサンプルです。"};
+    async function loadRpc(){
+      const method = document.getElementById("method").value;
+      const params = method.endsWith("get_order_book") ? {limit:10} : {};
+      document.getElementById("status").textContent = "loading...";
+      try{
+        const res = await fetch(endpoint, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({jsonrpc:"2.0", method, params, id:1})});
+        if(!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        if(json.error) throw new Error(json.error.message || "RPC error");
+        document.getElementById("status").textContent = "取得に成功しました。";
+        document.getElementById("result").textContent = JSON.stringify(json.result, null, 2);
+      }catch(error){
+        console.warn(error);
+        document.getElementById("status").textContent = "ライブ取得できなかったためサンプルを表示しています。";
+        document.getElementById("result").textContent = JSON.stringify(fallback, null, 2);
+      }
+    }
+    document.getElementById("loadBtn").addEventListener("click", loadRpc);
+    loadRpc();
+  </script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anime News Network Digest</title>
+  <style>
+    /* ANN のレポート一覧を抽出して、速報っぽく並べるページ */
+    :root{--bg:#081018;--panel:#101a27;--border:rgba(170,200,255,.16);--text:#eef4ff;--muted:#9fb4d8;--accent:#9ad0ff;--accent2:#dff2ff;--shadow:0 24px 70px rgba(0,0,0,.35)}*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:"Segoe UI",Meiryo,sans-serif;color:var(--text);background:radial-gradient(circle at top left,rgba(154,208,255,.22),transparent 26%),linear-gradient(160deg,#07101a,#0b1424 50%,#05080d)}.wrap{width:min(1140px,calc(100% - 32px));margin:0 auto;padding:28px 0 42px}.hero,.panel{background:rgba(12,18,28,.84);border:1px solid var(--border);border-radius:24px;box-shadow:var(--shadow);backdrop-filter:blur(14px)}.hero{padding:28px;margin-bottom:18px;display:grid;gap:18px;grid-template-columns:1.2fr .9fr}.eyebrow{display:inline-flex;gap:8px;align-items:center;padding:7px 12px;border-radius:999px;background:rgba(154,208,255,.12);color:var(--accent2);font-size:12px;letter-spacing:.12em;text-transform:uppercase}.dot{width:8px;height:8px;border-radius:50%;background:#66f0b5}h1{margin:16px 0 10px;font-size:clamp(30px,4vw,50px);line-height:1.06}.lead{margin:0;color:var(--muted);line-height:1.8}.meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.pill{padding:9px 12px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:13px;color:#dfe9ff}.panel{padding:24px;display:grid;gap:16px}.controls{display:flex;flex-wrap:wrap;gap:10px}.btn,a.btn{appearance:none;border:none;text-decoration:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 15px;border-radius:14px;font:inherit;font-weight:700}.primary{background:linear-gradient(135deg,var(--accent2),var(--accent));color:#07101e}.secondary{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:var(--text)}.status{display:flex;justify-content:space-between;gap:12px;align-items:center;color:var(--muted);font-size:13px;flex-wrap:wrap}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.item{padding:16px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}.item small{display:block;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}.item strong{font-size:16px;line-height:1.6}.item a{color:var(--accent2);text-decoration:none}.item a:hover{text-decoration:underline}.note{color:var(--muted);font-size:13px;line-height:1.7}@media (max-width:860px){.hero,.grid{grid-template-columns:1fr}.status{flex-direction:column;align-items:flex-start}}
+  </style>
+</head>
+<body>
+  <!-- 構成: レポート一覧の取得 / 主要タイトル抽出 / 外部リンク / 失敗時の速報サンプル。 -->
+  <main class="wrap">
+    <section class="hero">
+      <div>
+        <div class="eyebrow"><span class="dot"></span> ann encyclopedia</div>
+        <h1>Anime News Network の記事を速報一覧にする。</h1>
+        <p class="lead">Encyclopedia Reports の HTML を読み込み、アニメ関連の見出しを抜き出して一覧化します。XML も使えますが、このページではブラウザで扱いやすいレポート一覧を優先しています。</p>
+        <div class="meta"><div class="pill">Docs: encyclopedia/api.php</div><div class="pill">Reports: id=155&type=anime</div><div class="pill">CORS: yes</div></div>
+      </div>
+      <div class="panel note">
+        <strong style="color:var(--text);display:block;margin-bottom:8px;">表示内容</strong>
+        近況のアニメニュース、レビュー、コンベンション記事を拾って、タイトルとリンクだけを見やすく並べます。
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="controls">
+        <button id="reload" class="btn primary" type="button">最新を取得</button>
+        <button id="copy" class="btn secondary" type="button">一覧をコピー</button>
+        <a class="btn secondary" href="https://www.animenewsnetwork.com/encyclopedia/api.php" target="_blank" rel="noreferrer">Docs を開く</a>
+      </div>
+      <div class="status"><span id="statusText">レポートを待機中</span><b id="countText"></b></div>
+      <div id="grid" class="grid"></div>
+      <div class="note" id="note">まずは最新のレポート一覧を取得してください。</div>
+    </section>
+  </main>
+
+  <script>
+    const API_URL = 'https://www.animenewsnetwork.com/encyclopedia/reports.php?id=155&type=anime&nlist=12';
+    const FALLBACK = [
+      {title:'Studio Trigger Reveals 4th Project From Director Hiroyuki Imaishi, Screenwriter Kazuki Nakashima', href:'https://www.animenewsnetwork.com/news/2026-07-04/studio-trigger-reveals-4th-project-from-director-hiroyuki-imaishi-screenwriter-kazuki-nakashima/.239299'},
+      {title:'Murciélago Manga Gets Anime Adaptation in 2027', href:'https://www.animenewsnetwork.com/news/2026-07-04/murcielago-manga-gets-anime-adaptation-in-2027/.239286'},
+      {title:'The Summer 2026 Anime Preview Guide', href:'https://www.animenewsnetwork.com/preview-guide/2026/summer/.237625'}
+    ];
+    const $ = (id) => document.getElementById(id);
+
+    function render(items, fallback = false) {
+      $('grid').innerHTML = items.map((item, index) => `<div class="item"><small>${fallback ? 'fallback' : `item ${index + 1}`}</small><strong><a href="${item.href}" target="_blank" rel="noreferrer">${item.title}</a></strong></div>`).join('');
+      $('statusText').textContent = fallback ? 'fallback feed' : 'live feed';
+      $('countText').textContent = `${items.length}件`;
+      $('note').textContent = fallback ? '取得に失敗したため、近い内容のサンプルへ切り替えています。' : 'レポート一覧を取得しました。';
+    }
+
+    function parseItems(html) {
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      const seen = new Set();
+      const items = [];
+      [...doc.querySelectorAll('a[href]')].forEach((a) => {
+        const href = a.getAttribute('href') || '';
+        const title = (a.textContent || '').trim().replace(/\s+/g, ' ');
+        const isTarget = /\/(news|review|convention|feature|preview-guide)\//.test(href) || /\/news\//.test(href) || /\/review\//.test(href);
+        if (!isTarget || title.length < 24 || title.length > 160) return;
+        const absolute = href.startsWith('http') ? href : `https://www.animenewsnetwork.com${href}`;
+        const key = `${absolute}|${title}`;
+        if (seen.has(key)) return;
+        seen.add(key);
+        items.push({ title, href: absolute });
+      });
+      return items.slice(0, 12);
+    }
+
+    async function loadFeed() {
+      $('reload').disabled = $('copy').disabled = true;
+      $('statusText').textContent = 'loading...';
+      try {
+        const res = await fetch(API_URL, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const html = await res.text();
+        const items = parseItems(html);
+        if (!items.length) throw new Error('no items');
+        render(items, false);
+      } catch (error) {
+        console.error(error);
+        render(FALLBACK, true);
+      } finally {
+        $('reload').disabled = $('copy').disabled = false;
+      }
+    }
+
+    $('reload').addEventListener('click', loadFeed);
+    $('copy').addEventListener('click', async () => {
+      const text = [...document.querySelectorAll('#grid a')].map(a => a.textContent.trim()).join('\n');
+      try { await navigator.clipboard.writeText(text); $('note').textContent = '一覧をコピーしました。'; } catch { $('note').textContent = 'コピーに失敗しました。'; }
+    });
+    window.addEventListener('load', loadFeed);
+  </script>
+</body>
+</html>

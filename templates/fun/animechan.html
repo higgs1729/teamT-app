@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Animechan Quote Lab</title>
+  <style>
+    /* Animechan のランダム引用を、すぐ読めるカードUIで見せるページ */
+    :root{--bg:#0b1020;--panel:#111833;--border:rgba(168,190,255,.16);--text:#eef3ff;--muted:#a7b6da;--accent:#8db1ff;--accent2:#d7e3ff;--shadow:0 22px 70px rgba(0,0,0,.38)}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:"Segoe UI",Meiryo,sans-serif;color:var(--text);background:radial-gradient(circle at top left,rgba(141,177,255,.22),transparent 26%),linear-gradient(160deg,#07101e,#0d1630 48%,#050912)}
+    .wrap{width:min(1100px,calc(100% - 32px));margin:0 auto;padding:28px 0 40px}.hero,.panel{background:rgba(12,18,36,.82);border:1px solid var(--border);border-radius:24px;box-shadow:var(--shadow);backdrop-filter:blur(14px)}
+    .hero{padding:28px;margin-bottom:18px;display:grid;gap:18px;grid-template-columns:1.35fr .9fr}.eyebrow{display:inline-flex;gap:8px;align-items:center;padding:7px 12px;border-radius:999px;background:rgba(141,177,255,.12);color:var(--accent2);font-size:12px;letter-spacing:.12em;text-transform:uppercase}.dot{width:8px;height:8px;border-radius:50%;background:#66f0b5;box-shadow:0 0 16px rgba(102,240,181,.8)}
+    h1{margin:16px 0 10px;font-size:clamp(30px,4vw,50px);line-height:1.06}.lead{margin:0;color:var(--muted);line-height:1.8}.meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.pill{padding:9px 12px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:13px;color:#dbe6ff}
+    .panel{padding:24px;display:grid;gap:16px}.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.state{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:999px;background:rgba(102,240,181,.1);color:#66f0b5;font-size:13px}.quote{font-size:clamp(28px,4vw,52px);font-weight:800;line-height:1.1;text-wrap:balance}.meta-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.box{padding:16px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}.box span{display:block;color:var(--muted);font-size:12px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}.box strong{font-size:16px}.actions{display:flex;flex-wrap:wrap;gap:10px}.btn,a.btn{appearance:none;border:none;text-decoration:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 15px;border-radius:14px;font:inherit;font-weight:700;transition:transform .18s ease,background .18s ease,color .18s ease}.btn:hover,a.btn:hover{transform:translateY(-1px)}.primary{background:linear-gradient(135deg,var(--accent2),var(--accent));color:#07101e}.secondary{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:var(--text)}.note,.footer{color:var(--muted);font-size:13px;line-height:1.7}.footer{display:flex;justify-content:space-between;gap:12px;align-items:center}.footer a{color:var(--accent2);text-decoration:none}.footer a:hover{text-decoration:underline}
+    @media (max-width: 860px){.hero{grid-template-columns:1fr}.meta-grid{grid-template-columns:1fr}.top,.footer{flex-direction:column;align-items:flex-start}}
+  </style>
+</head>
+<body>
+  <!-- 構成: ヒーロー / 取得済み引用 / 操作ボタン / メタ情報。失敗時はローカル引用へ退避。 -->
+  <main class="wrap">
+    <section class="hero">
+      <div>
+        <div class="eyebrow"><span class="dot"></span> anime quotes api</div>
+        <h1>アニメの一言を、すぐ貼れる形で。</h1>
+        <p class="lead">Animechan のランダム引用を取得して、作品名・キャラ名・本文を読みやすく表示します。API は無料枠で動き、失敗時はローカルのサンプルへ切り替えます。</p>
+        <div class="meta">
+          <div class="pill">Base URL: https://api.animechan.io/v1</div>
+          <div class="pill">Rate limit: 5 requests/hour</div>
+          <div class="pill">Auth: optional supporter tier</div>
+        </div>
+      </div>
+      <div class="panel note">
+        <strong style="color:var(--text);display:block;margin-bottom:8px;">使いどころ</strong>
+        会議メモの冒頭、推し台詞の共有、作品名の引用カード作成に向いています。ランダム取得なので、毎回少しだけ違う文面が出ます。
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="top">
+        <div>
+          <div style="color:var(--muted);font-size:12px;letter-spacing:.12em;text-transform:uppercase;">random quote</div>
+          <div id="title" style="margin-top:6px;font-size:22px;font-weight:800;">取得準備中</div>
+        </div>
+        <div id="state" class="state">待機中</div>
+      </div>
+
+      <div id="quote" class="quote">ボタンを押して、Animechan から引用を取得してください。</div>
+      <div id="note" class="note">リロード時にも自動で1件取得します。</div>
+
+      <div class="actions">
+        <button id="reload" class="btn primary" type="button">再取得</button>
+        <button id="copy" class="btn secondary" type="button">コピー</button>
+        <a class="btn secondary" href="https://animechan.io/docs/quote/random" target="_blank" rel="noreferrer">Docs を開く</a>
+      </div>
+
+      <div class="meta-grid">
+        <div class="box"><span>anime</span><strong id="anime">-</strong></div>
+        <div class="box"><span>character</span><strong id="character">-</strong></div>
+        <div class="box"><span>quote length</span><strong id="length">-</strong></div>
+      </div>
+      <div class="footer"><span id="hint"></span><span>API: <a href="https://animechan.io/" target="_blank" rel="noreferrer">animechan.io</a></span></div>
+    </section>
+  </main>
+
+  <script>
+    const API_URL = 'https://api.animechan.io/v1/quotes/random';
+    const FALLBACK = [
+      {quote:'迷ったら、まず一歩進む。', anime:'Fullmetal Alchemist', character:'Roy Mustang'},
+      {quote:'最後まであきらめない理由が、物語を前へ進める。', anime:'Naruto', character:'Naruto Uzumaki'},
+      {quote:'覚悟は、行動でしか証明できない。', anime:'Attack on Titan', character:'Mikasa Ackerman'}
+    ];
+    const $ = (id) => document.getElementById(id);
+    const state = $('state'), title = $('title'), quote = $('quote'), note = $('note'), anime = $('anime'), character = $('character'), length = $('length'), hint = $('hint');
+
+    function setView(data, fallback = false) {
+      const text = data.quote || data.content || '';
+      const animeName = data.anime?.name || data.anime || 'Unknown';
+      const characterName = data.character?.name || data.character || 'Unknown';
+      quote.textContent = text;
+      title.textContent = fallback ? 'ローカルサンプル' : animeName;
+      anime.textContent = animeName;
+      character.textContent = characterName;
+      length.textContent = `${text.length} chars`;
+      note.textContent = fallback ? 'ライブ取得に失敗したため、ローカル候補を表示しています。' : 'ライブデータを取得しました。';
+      state.textContent = fallback ? 'fallback' : 'live';
+      state.style.background = fallback ? 'rgba(255,160,160,.12)' : 'rgba(102,240,181,.1)';
+      state.style.color = fallback ? '#ffb7b7' : '#66f0b5';
+      hint.textContent = fallback ? 'rate-limit や通信状況によってはローカル表示になります。' : 'APIの無料枠は 5 回/時です。';
+    }
+
+    function pickFallback() { return FALLBACK[Math.floor(Math.random() * FALLBACK.length)]; }
+
+    async function loadQuote() {
+      $('reload').disabled = $('copy').disabled = true;
+      state.textContent = 'loading';
+      try {
+        const res = await fetch(API_URL, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        setView(json.data || json, false);
+      } catch (error) {
+        console.error(error);
+        setView(pickFallback(), true);
+      } finally {
+        $('reload').disabled = $('copy').disabled = false;
+      }
+    }
+
+    $('reload').addEventListener('click', loadQuote);
+    $('copy').addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(quote.textContent); hint.textContent = '引用をコピーしました。'; } catch { hint.textContent = 'コピーに失敗しました。'; }
+    });
+    window.addEventListener('load', loadQuote);
+  </script>
+</body>
+</html>

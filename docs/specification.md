@@ -125,6 +125,7 @@
 | data | trace-moe | trace.moe API | 画像URLからアニメの出典候補を検索 |
 | data | Poke | PokeAPI | ポケモン情報 |
 | data | akusyonn | FreeToGame | 無料ゲーム一覧 |
+| data | cheapshark | CheapShark | PCゲームの現在セール情報をタイトル検索 |
 | data | applemusic | iTunes Search API | 楽曲検索 |
 | data | countrySearch | CountriesNow API | 国名から人口・首都を検索 |
 | data | domainsdb | DomainsDB API | 登録済みドメイン名をキーワード検索 |

@@ -14,7 +14,6 @@ control: continue
 | [Board Game Geek](https://boardgamegeek.com/wiki/page/BGG_XML_API2) | Board games, RPG and videogames | Yes | No | ? |
 | [Bugsnax](https://www.bugsnaxapi.com/) | Get information about Bugsnax | Yes | Yes | ? |
 | [Call of Duty Mobile](https://callofdutymobile.vercel.app/) | Unofficial API for CODM player data and daily cache claiming | Yes | Unknown | ? |
-| [CheapShark](https://www.cheapshark.com/api) | Steam/PC Game Prices and Deals | Yes | Yes | ? |
 | [Chess.com](https://www.chess.com/news/view/published-data-api) | Chess.com read-only REST API | Yes | Unknown | ? |
 | [Chuck Norris Database](http://www.icndb.com/api/) | Jokes | No | Unknown | ? |
 | [Comic Vine](https://comicvine.gamespot.com/api/documentation) | Comics | Yes | Unknown | ? |

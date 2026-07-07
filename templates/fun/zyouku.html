@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>😂 ジョークAPI</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background:
+        radial-gradient(circle at top left, rgba(255, 214, 102, 0.35), transparent 34%),
+        radial-gradient(circle at top right, rgba(255, 153, 102, 0.30), transparent 30%),
+        radial-gradient(circle at bottom left, rgba(102, 204, 255, 0.28), transparent 32%),
+        linear-gradient(135deg, #fff8e8 0%, #ffe7ef 48%, #e8f7ff 100%);
+    min-height:100vh;
+    position:relative;
+    overflow:hidden;
+    text-align:center;
+    padding:30px;
+}
+
+body::before{
+    content:"";
+    position:fixed;
+    inset:-80px auto auto -60px;
+    width:220px;
+    height:220px;
+    border-radius:50%;
+    background:rgba(255, 255, 255, 0.38);
+    filter:blur(2px);
+    pointer-events:none;
+}
+
+body::after{
+    content:"";
+    position:fixed;
+    inset:auto -70px -90px auto;
+    width:280px;
+    height:280px;
+    border-radius:50%;
+    background:rgba(255, 255, 255, 0.30);
+    pointer-events:none;
+}
+
+h1{
+    color:#5b3b00;
+    text-shadow:0 2px 0 rgba(255,255,255,0.5);
+}
+
+button{
+    padding:10px 20px;
+    font-size:18px;
+    cursor:pointer;
+    border:none;
+    background:#4CAF50;
+    color:white;
+    border-radius:8px;
+}
+
+button:hover{
+    background:#45a049;
+}
+
+.controls{
+    margin-top:20px;
+}
+
+.hidden{
+    display:none;
+}
+
+.scoreboard{
+    margin-top:20px;
+    font-size:18px;
+    font-weight:bold;
+    color:#333;
+}
+
+.options{
+    display:grid;
+    gap:12px;
+    margin-top:20px;
+}
+
+.option-btn{
+    width:100%;
+    max-width:500px;
+    margin:0 auto;
+    background:#2196f3;
+}
+
+.option-btn:hover{
+    background:#1976d2;
+}
+
+.option-btn:disabled{
+    cursor:not-allowed;
+    opacity:0.8;
+}
+
+.result{
+    margin-top:20px;
+    font-size:20px;
+    font-weight:bold;
+}
+
+.correct{
+    color:#2e7d32;
+}
+
+.wrong{
+    color:#c62828;
+}
+
+#joke{
+    margin-top:30px;
+    background:rgba(255,255,255,0.88);
+    display:inline-block;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 18px 40px rgba(126, 84, 26, .14);
+    backdrop-filter:blur(6px);
+    max-width:500px;
+}
+
+.setup{
+    font-size:22px;
+    font-weight:bold;
+}
+
+.punchline{
+    margin-top:20px;
+    font-size:20px;
+    color:#e91e63;
+}
+</style>
+
+</head>
+<body>
+
+<h1>😂 ランダムジョーク問題</h1>
+
+<div class="controls">
+    <button id="startButton" onclick="startQuiz()">スタート</button>
+    <button id="languageButton" class="hidden" onclick="toggleLanguage()">英語原文を表示</button>
+    <button id="nextButton" class="hidden" onclick="loadQuiz()">次の問題</button>
+    <button id="resultButton" class="hidden" onclick="showResult()">結果を表示する</button>
+</div>
+
+<div id="scoreboard" class="scoreboard">スコア: 0 / 0</div>
+
+<div id="questionNumber" class="scoreboard">第1問 / 全10問</div>
+
+<div id="joke">
+    スタートボタンを押してください
+</div>
+
+<script>
+const MAX_QUESTIONS = 10;
+let currentAnswerIndex = -1;
+let currentCorrectAnswer = "";
+let currentQuestion = null;
+let currentOptionOrder = [];
+let showOriginal = false;
+let score = 0;
+let answeredCount = 0;
+let questionNumber = 0;
+let quizFinished = false;
+let finalResultPending = false;
+let previousQuestionOptionTextsJa = [];
+let previousQuestionOptionTextsEn = [];
+
+const LOCAL_JOKES = [
+    {
+        setup: "Why did the computer go to the doctor?",
+        punchline: "Because it had a virus."
+    },
+    {
+        setup: "Why did the golfer bring two pairs of pants?",
+        punchline: "In case he got a hole in one."
+    },
+    {
+        setup: "Why don't scientists trust atoms?",
+        punchline: "Because they make up everything."
+    }
+];
+
+const DISTRACTOR_POOL = [
+    { ja: "だって、鍵を失くしたから。", en: "Because I lost the keys." },
+    { ja: "面接に遅れたと思ったんです。", en: "I thought I was late for the interview." },
+    { ja: "それは完全に計画通りでした。", en: "That was completely on purpose." },
+    { ja: "靴ひもが先に謝ったんです。", en: "The shoelaces apologized first." },
+    { ja: "電話が鳴る前に寝てしまった。", en: "I fell asleep before the phone rang." },
+    { ja: "私はただ流れに身を任せただけ。", en: "I just went with the flow." },
+    { ja: "その話は次の駅で降ります。", en: "That story gets off at the next stop." },
+    { ja: "答えはポケットの中で迷子です。", en: "The answer is lost in my pocket." },
+    { ja: "冗談は家に置いてきました。", en: "I left the joke at home." },
+    { ja: "そのときコーヒーが足りなかった。", en: "There was not enough coffee." }
+];
+
+function startQuiz(){
+
+    score = 0;
+    answeredCount = 0;
+    questionNumber = 0;
+    quizFinished = false;
+    finalResultPending = false;
+    previousQuestionOptionTextsJa = [];
+    previousQuestionOptionTextsEn = [];
+    showOriginal = false;
+    updateScoreboard();
+    updateQuestionNumber();
+    updateLanguageButton();
+    updateResultButtons();
+
+    document.getElementById("startButton").classList.add("hidden");
+    document.getElementById("languageButton").classList.remove("hidden");
+    document.getElementById("nextButton").classList.remove("hidden");
+    document.getElementById("resultButton").classList.add("hidden");
+
+    loadQuiz();
+
+}
+
+async function loadQuiz(){
+
+    if(quizFinished){
+        finishQuiz();
+        return;
+    }
+
+    if(finalResultPending){
+        showResult();
+        return;
+    }
+
+    questionNumber += 1;
+    updateQuestionNumber();
+
+    const joke = document.getElementById("joke");
+    joke.innerHTML = "読み込み中...";
+
+    try{
+
+        let questionJoke = null;
+        let translatedSetup = "";
+        let translatedPunchline = "";
+        let distractors = [];
+
+        for(let attempt = 0; attempt < 6; attempt += 1){
+
+            questionJoke = await fetchRandomJoke();
+            translatedSetup = await translateText(questionJoke.setup);
+            translatedPunchline = await translateText(questionJoke.punchline);
+
+            const excludedTexts = [
+                ...previousQuestionOptionTextsJa,
+                ...previousQuestionOptionTextsEn,
+                translatedPunchline,
+                questionJoke.punchline
+            ];
+
+            distractors = getDistractors(excludedTexts);
+
+            if(distractors.length === 2){
+                break;
+            }
+
+        }
+
+        if(distractors.length < 2){
+            throw new Error("Could not build unique options");
+        }
+
+        currentQuestion = {
+            setupJa: translatedSetup,
+            setupEn: questionJoke.setup,
+            punchlinesJa: [translatedPunchline].concat(distractors.map(function(item){
+                return item.ja;
+            })),
+            punchlinesEn: [questionJoke.punchline].concat(distractors.map(function(item){
+                return item.en;
+            }))
+        };
+
+        const options = [
+            { text: currentQuestion.punchlinesJa[0], index: 0 },
+            { text: currentQuestion.punchlinesJa[1], index: 1 },
+            { text: currentQuestion.punchlinesJa[2], index: 2 }
+        ]
+            .sort(() => Math.random() - 0.5);
+
+        currentOptionOrder = options.map(function(option){
+            return option.index;
+        });
+        currentAnswerIndex = options.findIndex(option => option.index === 0);
+        currentCorrectAnswer = currentQuestion.punchlinesJa[0];
+
+        previousQuestionOptionTextsJa = [...currentQuestion.punchlinesJa];
+        previousQuestionOptionTextsEn = [...currentQuestion.punchlinesEn];
+
+        renderQuiz();
+
+    }catch(e){
+
+        joke.innerHTML = "問題を取得できませんでした。";
+
+    }
+
+}
+
+function checkAnswer(selectedIndex){
+
+    const result = document.getElementById("result");
+    const buttons = document.querySelectorAll(".option-btn");
+
+    buttons.forEach(button => button.disabled = true);
+
+    answeredCount += 1;
+
+    if(selectedIndex === currentAnswerIndex){
+        score += 1;
+        result.className = "result correct";
+        result.textContent = "正解です。";
+    }else{
+        const correctAnswer = showOriginal ? currentQuestion.punchlinesEn[0] : currentQuestion.punchlinesJa[0];
+        result.className = "result wrong";
+        result.textContent = `不正解です。正解は「${correctAnswer}」です。`;
+    }
+
+    updateScoreboard();
+
+    if(answeredCount >= MAX_QUESTIONS){
+        finalResultPending = true;
+        updateResultButtons();
+    }
+
+}
+
+function toggleLanguage(){
+
+    showOriginal = !showOriginal;
+    updateLanguageButton();
+
+    if(currentQuestion && !quizFinished){
+        renderQuiz();
+    }
+
+}
+
+function updateLanguageButton(){
+    const button = document.getElementById("languageButton");
+    button.textContent = showOriginal ? "日本語に戻す" : "英語原文を表示";
+}
+
+function renderQuiz(){
+
+    const joke = document.getElementById("joke");
+    const setupText = showOriginal ? currentQuestion.setupEn : currentQuestion.setupJa;
+    const optionTexts = currentOptionOrder.map(function(originalIndex){
+        return showOriginal ? currentQuestion.punchlinesEn[originalIndex] : currentQuestion.punchlinesJa[originalIndex];
+    });
+
+    joke.innerHTML = `
+        <div class="setup">${setupText}</div>
+        <div class="options">
+            ${optionTexts.map(function(text, index){
+                return `
+                    <button class="option-btn" onclick="checkAnswer(${index})">
+                        ${text}
+                    </button>
+                `;
+            }).join("")}
+        </div>
+        <div id="result" class="result"></div>
+    `;
+
+}
+
+function finishQuiz(){
+    quizFinished = true;
+    finalResultPending = false;
+    document.getElementById("nextButton").classList.add("hidden");
+    document.getElementById("resultButton").classList.add("hidden");
+    document.getElementById("startButton").classList.remove("hidden");
+    document.getElementById("languageButton").classList.add("hidden");
+
+    const joke = document.getElementById("joke");
+    const accuracy = Math.round((score / MAX_QUESTIONS) * 100);
+    joke.innerHTML = `
+        <div class="setup">結果</div>
+        <div class="result correct">最終スコア: ${score} / ${answeredCount}</div>
+        <div class="result correct">正答率: ${accuracy}%</div>
+    `;
+}
+
+function updateScoreboard(){
+    document.getElementById("scoreboard").textContent =
+        `スコア: ${score} / ${answeredCount}（全${MAX_QUESTIONS}問）`;
+}
+
+function updateQuestionNumber(){
+    document.getElementById("questionNumber").textContent =
+        `第${questionNumber || 1}問 / 全${MAX_QUESTIONS}問`;
+}
+
+function updateResultButtons(){
+    const nextButton = document.getElementById("nextButton");
+    const resultButton = document.getElementById("resultButton");
+
+    if(finalResultPending){
+        nextButton.classList.add("hidden");
+        resultButton.classList.remove("hidden");
+    }else{
+        resultButton.classList.add("hidden");
+        nextButton.classList.remove("hidden");
+    }
+}
+
+function showResult(){
+    finishQuiz();
+}
+
+async function fetchRandomJoke(){
+
+    try{
+
+        const res = await fetch("https://official-joke-api.appspot.com/random_joke");
+        const data = await res.json();
+
+        if(!data || !data.setup || !data.punchline){
+            throw new Error("Invalid joke data");
+        }
+
+        return data;
+
+    }catch(e){
+
+        return LOCAL_JOKES[Math.floor(Math.random() * LOCAL_JOKES.length)];
+
+    }
+
+}
+
+function getDistractors(excludedTexts){
+
+    const excluded = new Set((excludedTexts || []).filter(Boolean));
+    const unique = [];
+
+    const shuffled = [...DISTRACTOR_POOL].sort(() => Math.random() - 0.5);
+
+    for(const candidate of shuffled){
+        if(unique.length >= 2){
+            break;
+        }
+
+        if(excluded.has(candidate.ja) || excluded.has(candidate.en)){
+            continue;
+        }
+
+        if(unique.some(function(item){
+            return item.ja === candidate.ja || item.en === candidate.en;
+        })){
+            continue;
+        }
+
+        unique.push(candidate);
+    }
+
+    return unique;
+
+}
+
+async function translateText(text){
+
+    try{
+
+        if(!text){
+            return "";
+        }
+
+        const url =
+            "https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ja&dt=t&q=" +
+            encodeURIComponent(text);
+
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if(!Array.isArray(data) || !Array.isArray(data[0])){
+            return text;
+        }
+
+        const translated = data[0]
+            .map(function(part){
+                return Array.isArray(part) ? part[0] : "";
+            })
+            .join("");
+
+        return translated || text;
+
+    }catch(e){
+
+        return text;
+
+    }
+
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Studio Ghibli Browser</title>
+  <style>
+    /* Studio Ghibli API の films 一覧を選べるブラウザ */
+    :root{--bg:#0d1520;--panel:#111c2b;--border:rgba(174,204,255,.16);--text:#eef5ff;--muted:#a8bddc;--accent:#8dd2ff;--accent2:#e3f4ff;--shadow:0 24px 70px rgba(0,0,0,.36)}*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:"Segoe UI",Meiryo,sans-serif;color:var(--text);background:radial-gradient(circle at top right,rgba(141,210,255,.2),transparent 26%),linear-gradient(160deg,#09111a,#101a2a 48%,#05080c)}.wrap{width:min(1140px,calc(100% - 32px));margin:0 auto;padding:28px 0 42px}.hero,.panel{background:rgba(11,18,28,.84);border:1px solid var(--border);border-radius:24px;box-shadow:var(--shadow);backdrop-filter:blur(14px)}.hero{padding:28px;margin-bottom:18px;display:grid;gap:18px;grid-template-columns:1.2fr .9fr}.eyebrow{display:inline-flex;gap:8px;align-items:center;padding:7px 12px;border-radius:999px;background:rgba(141,210,255,.12);color:var(--accent2);font-size:12px;letter-spacing:.12em;text-transform:uppercase}.dot{width:8px;height:8px;border-radius:50%;background:#66f0b5}h1{margin:16px 0 10px;font-size:clamp(30px,4vw,50px);line-height:1.06}.lead{margin:0;color:var(--muted);line-height:1.8}.meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.pill{padding:9px 12px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:13px;color:#dceaff}.panel{padding:24px;display:grid;gap:16px}.controls{display:grid;grid-template-columns:1fr auto auto;gap:10px}.controls select,.controls button,.controls a{min-height:44px;border-radius:14px;font:inherit}.controls select{background:#09111f;color:var(--text);border:1px solid rgba(255,255,255,.12);padding:0 12px}.controls button,.controls a{appearance:none;border:none;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;padding:0 15px;font-weight:700}.primary{background:linear-gradient(135deg,var(--accent2),var(--accent));color:#07101e}.secondary{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:var(--text)}.content{display:grid;grid-template-columns:minmax(260px,.8fr) 1.2fr;gap:18px;align-items:start}.poster{border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.08);background:#07111c;min-height:340px;display:grid;place-items:center;padding:18px}.poster img{width:100%;height:100%;object-fit:cover;border-radius:18px;display:none}.placeholder{color:#748bb0;text-align:center}.details{display:grid;gap:12px}.card{padding:16px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}.card small{display:block;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}.card strong{font-size:16px;line-height:1.7}.status{display:flex;justify-content:space-between;gap:12px;align-items:center;color:var(--muted);font-size:13px;flex-wrap:wrap}.footer{display:flex;justify-content:space-between;gap:12px;align-items:center;color:var(--muted);font-size:13px;flex-wrap:wrap}.footer a{color:var(--accent2);text-decoration:none}.footer a:hover{text-decoration:underline}@media (max-width:860px){.hero,.controls,.content{grid-template-columns:1fr}.footer{flex-direction:column;align-items:flex-start}}
+  </style>
+</head>
+<body>
+  <!-- 構成: film 一覧の取得 / 作品切替 / 詳細カード / フォールバック候補。 -->
+  <main class="wrap">
+    <section class="hero">
+      <div>
+        <div class="eyebrow"><span class="dot"></span> studio ghibli api</div>
+        <h1>作品一覧から、1本を選んで眺める。</h1>
+        <p class="lead">Studio Ghibli API の films を読み込み、作品ごとの詳細をカード化します。全件取得してから選ぶ方式なので、オフライン寄りの利用でも扱いやすいです。</p>
+        <div class="meta"><div class="pill">Base URL: https://ghibliapi.vercel.app</div><div class="pill">Endpoint: /films</div><div class="pill">No auth</div></div>
+      </div>
+      <div class="panel">
+        <strong>表示内容</strong>
+        <div style="color:var(--muted);line-height:1.8;">タイトル、監督、公開年、RT スコア、概要をまとめて表示します。ランダム切替にも対応します。</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="controls">
+        <select id="filmSelect"></select>
+        <button id="randomBtn" class="primary" type="button">ランダム</button>
+        <button id="reloadBtn" class="secondary" type="button">再読込</button>
+      </div>
+      <div class="status"><span id="statusText">films を読み込み中...</span><b id="countText"></b></div>
+      <div class="content">
+        <div class="poster"><img id="poster" alt="Studio Ghibli poster"><div id="placeholder" class="placeholder">選択した作品の内容を表示します。</div></div>
+        <div class="details">
+          <div class="card"><small>title</small><strong id="title">-</strong></div>
+          <div class="card"><small>director / year / score</small><strong id="meta">-</strong></div>
+          <div class="card"><small>description</small><strong id="desc">-</strong></div>
+          <div class="card"><small>related people / places</small><strong id="relations">-</strong></div>
+          <div class="footer"><span id="note">films を取得すると選択できます。</span><span>API: <a href="https://ghibliapi.vercel.app/" target="_blank" rel="noreferrer">ghibliapi.vercel.app</a></span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const API_URL = 'https://ghibliapi.vercel.app/films';
+    const FALLBACK = [
+      {id:'2baf70d1-42bb-4437-b551-e5fed5a87abe', title:'Castle in the Sky', director:'Hayao Miyazaki', release_date:'1986', rt_score:'95', description:'A boy and a girl search for a floating city.', people:['...'], locations:['...']},
+      {id:'12cfb892-aac0-4c5b-94af-521852e46d6a', title:'Grave of the Fireflies', director:'Isao Takahata', release_date:'1988', rt_score:'97', description:'A war-time survival story.', people:['...'], locations:['...']}
+    ];
+    const $ = (id) => document.getElementById(id);
+    let films = [];
+
+    function renderFilm(film, fallback = false) {
+      $('title').textContent = film.title || '-';
+      $('meta').textContent = `${film.director || '-'} / ${film.release_date || '-'} / RT ${film.rt_score || '-'}`;
+      $('desc').textContent = film.description || '-';
+      const relPeople = Array.isArray(film.people) ? film.people.length : 0;
+      const relLocations = Array.isArray(film.locations) ? film.locations.length : 0;
+      $('relations').textContent = `people ${relPeople} / locations ${relLocations}`;
+      $('statusText').textContent = fallback ? 'fallback data' : 'live data';
+      $('note').textContent = fallback ? 'ライブ取得に失敗したため、ローカル候補を表示しています。' : 'films の全件一覧から選んでいます。';
+      $('countText').textContent = films.length ? `${films.length}作品` : '';
+      $('placeholder').style.display = 'grid';
+      $('poster').style.display = 'none';
+    }
+
+    function fillSelect(list) {
+      $('filmSelect').innerHTML = list.map((film, index) => `<option value="${index}">${film.title}</option>`).join('');
+    }
+
+    async function loadFilms() {
+      $('reloadBtn').disabled = $('randomBtn').disabled = true;
+      $('statusText').textContent = 'loading...';
+      try {
+        const res = await fetch(API_URL, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        films = Array.isArray(json) ? json : (json.data || json.items || []);
+        if (!films.length) throw new Error('empty');
+        fillSelect(films);
+        showSelected();
+      } catch (error) {
+        console.error(error);
+        films = FALLBACK;
+        fillSelect(films);
+        renderFilm(FALLBACK[0], true);
+      } finally {
+        $('reloadBtn').disabled = $('randomBtn').disabled = false;
+      }
+    }
+
+    function showSelected(fallback = false) {
+      const film = films[Number($('filmSelect').value) || 0] || films[0];
+      renderFilm(film, fallback);
+    }
+
+    $('filmSelect').addEventListener('change', () => showSelected());
+    $('randomBtn').addEventListener('click', () => {
+      $('filmSelect').value = String(Math.floor(Math.random() * films.length));
+      showSelected();
+    });
+    $('reloadBtn').addEventListener('click', loadFilms);
+    window.addEventListener('load', loadFilms);
+  </script>
+</body>
+</html>

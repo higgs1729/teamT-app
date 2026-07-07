@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BrewPage HTML Publisher</title>
+  <style>
+    :root { --bg:#0f1418; --panel:#1a232b; --line:#314654; --text:#eef6fb; --sub:#a8bfce; --accent:#67e8f9; --ok:#34d399; --warn:#fbbf24; --err:#f87171; }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(150deg,#0f1418,#17232b);color:var(--text);font-family:"Segoe UI",sans-serif}
+    .wrap{max-width:960px;margin:0 auto;padding:24px 16px 40px}
+    .card{background:linear-gradient(180deg,#1d2831,#172028);border:1px solid var(--line);border-radius:14px;padding:16px}
+    textarea{width:100%;min-height:210px;margin-top:10px;background:#111920;color:var(--text);border:1px solid #355062;border-radius:10px;padding:12px;font-family:ui-monospace,Consolas,monospace}
+    .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    button,a{padding:10px 12px;border-radius:10px;border:none;text-decoration:none}
+    button{cursor:pointer;font-weight:700;background:linear-gradient(90deg,#22d3ee,#38bdf8);color:#042028}
+    a{background:#2a3b47;color:#d4e8f6}
+    pre{margin-top:10px;background:#111920;border:1px solid #355062;border-radius:10px;padding:12px;white-space:pre-wrap;word-break:break-word}
+    .status{margin-top:10px;color:var(--sub)}
+  </style>
+</head>
+<body>
+  <!--
+    概要: BrewPage API(/api/html)でHTMLを公開するデモ。
+    構成: HTML入力 / API投稿 / URL表示 / CORS失敗時のcurlフォールバック。
+  -->
+  <div class="wrap">
+    <div class="card">
+      <h1>BrewPage HTML Publisher</h1>
+      <p style="color:var(--sub)">入力したHTMLを <code>POST https://brewpage.app/api/html</code> へ送信し、共有URLを取得します。CORS制限時は同内容のcurlコマンドを表示します。</p>
+      <textarea id="htmlInput"><!doctype html><html lang="ja"><head><meta charset="UTF-8"><title>Hello BrewPage</title></head><body><h1>Hello BrewPage</h1><p>teamT-app demo</p></body></html></textarea>
+      <div class="row">
+        <button id="publishBtn">公開URLを取得</button>
+        <a href="https://brewpage.app/api" target="_blank" rel="noreferrer">APIページ</a>
+        <a href="https://brewpage.app/llms.txt" target="_blank" rel="noreferrer">llms.txt</a>
+      </div>
+      <div id="status" class="status">入力後に公開ボタンを押してください。</div>
+      <pre id="output">ここに結果が表示されます。</pre>
+    </div>
+  </div>
+
+  <script>
+    const statusEl = document.getElementById('status');
+    const outputEl = document.getElementById('output');
+    const htmlInputEl = document.getElementById('htmlInput');
+
+    function shellEscapeSingleQuotes(str) {
+      return str.replace(/'/g, `'"'"'`);
+    }
+
+    async function publish() {
+      const html = htmlInputEl.value.trim();
+      if (!html) {
+        statusEl.textContent = 'HTMLを入力してください。';
+        return;
+      }
+      statusEl.textContent = 'BrewPage APIへ送信中...';
+      outputEl.textContent = '';
+
+      try {
+        const res = await fetch('https://brewpage.app/api/html', {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/html' },
+          body: html
+        });
+        const text = await res.text();
+        if (!res.ok) throw new Error(`HTTP ${res.status}: ${text.slice(0, 150)}`);
+
+        statusEl.textContent = '公開URLを取得しました。';
+        outputEl.textContent = text;
+      } catch (e) {
+        const curl = `curl -X POST https://brewpage.app/api/html -H "Content-Type: text/html" --data '${shellEscapeSingleQuotes(html)}'`;
+        statusEl.textContent = `ブラウザからの送信に失敗しました (${e.message})。フォールバックとしてcurlを使ってください。`;
+        outputEl.textContent = curl;
+      }
+    }
+
+    document.getElementById('publishBtn').addEventListener('click', publish);
+  </script>
+</body>
+</html>

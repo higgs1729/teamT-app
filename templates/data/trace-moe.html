@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>trace.moe Scene Finder</title>
+  <style>
+    /* 画像URLを入れて、アニメの出典候補を返す trace.moe 検索ページ */
+    :root{--bg:#09101b;--panel:#111a28;--border:rgba(172,201,255,.16);--text:#eef4ff;--muted:#a7bad9;--accent:#89d1ff;--accent2:#e1f3ff;--shadow:0 24px 70px rgba(0,0,0,.36)}*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:"Segoe UI",Meiryo,sans-serif;color:var(--text);background:radial-gradient(circle at top right,rgba(137,209,255,.2),transparent 26%),linear-gradient(160deg,#08101a,#0d1728 48%,#05070b)}.wrap{width:min(1140px,calc(100% - 32px));margin:0 auto;padding:28px 0 42px}.hero,.panel{background:rgba(11,18,28,.84);border:1px solid var(--border);border-radius:24px;box-shadow:var(--shadow);backdrop-filter:blur(14px)}.hero{padding:28px;margin-bottom:18px;display:grid;gap:18px;grid-template-columns:1.2fr .9fr}.eyebrow{display:inline-flex;gap:8px;align-items:center;padding:7px 12px;border-radius:999px;background:rgba(137,209,255,.12);color:var(--accent2);font-size:12px;letter-spacing:.12em;text-transform:uppercase}.dot{width:8px;height:8px;border-radius:50%;background:#66f0b5}h1{margin:16px 0 10px;font-size:clamp(30px,4vw,48px);line-height:1.06}.lead{margin:0;color:var(--muted);line-height:1.8}.meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.pill{padding:9px 12px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:13px;color:#dceaff}.panel{padding:24px;display:grid;gap:16px}.controls{display:grid;grid-template-columns:1fr auto auto;gap:10px}.controls input,.controls button,.controls a{min-height:44px;border-radius:14px;font:inherit}.controls input{background:#09111f;color:var(--text);border:1px solid rgba(255,255,255,.12);padding:0 12px}.controls button,.controls a{appearance:none;border:none;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;padding:0 15px;font-weight:700}.primary{background:linear-gradient(135deg,var(--accent2),var(--accent));color:#07101e}.secondary{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:var(--text)}.content{display:grid;grid-template-columns:minmax(260px,.8fr) 1.2fr;gap:18px}.preview{border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.08);background:#07111c;min-height:300px;display:grid;place-items:center;padding:16px}.preview img{width:100%;height:100%;object-fit:cover;border-radius:18px;display:none}.placeholder{color:#758db1;text-align:center}.details{display:grid;gap:12px}.card{padding:16px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}.card small{display:block;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}.card strong{font-size:16px;line-height:1.7}.status{display:flex;justify-content:space-between;gap:12px;align-items:center;color:var(--muted);font-size:13px;flex-wrap:wrap}.footer{display:flex;justify-content:space-between;gap:12px;align-items:center;color:var(--muted);font-size:13px;flex-wrap:wrap}.footer a{color:var(--accent2);text-decoration:none}.footer a:hover{text-decoration:underline}@media (max-width:860px){.hero,.controls,.content{grid-template-columns:1fr}.footer{flex-direction:column;align-items:flex-start}}
+  </style>
+</head>
+<body>
+  <!-- 構成: 画像URL入力 / trace.moe 検索 / 結果カード / 画像プレビュー。 -->
+  <main class="wrap">
+    <section class="hero">
+      <div>
+        <div class="eyebrow"><span class="dot"></span> trace.moe api</div>
+        <h1>1 枚のスクリーンショットから出典を探す。</h1>
+        <p class="lead">画像 URL を入れると trace.moe の検索結果を表示します。アニメ名、話数、類似度、候補の静止画をまとめて確認できます。</p>
+        <div class="meta"><div class="pill">Web URL integration</div><div class="pill">search?url=...</div><div class="pill">anilistInfo = on</div></div>
+      </div>
+      <div class="panel">
+        <strong>サンプル URL</strong>
+        <div style="color:var(--muted);line-height:1.8;">trace.moe のデモ画像をそのまま試せます。URL を変更して、違うアニメの候補も検索できます。</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="controls">
+        <input id="imageUrl" type="url" value="https://raw.githubusercontent.com/soruly/trace.moe/master/demo.jpg" placeholder="画像URLを入力">
+        <button id="searchBtn" class="primary" type="button">検索</button>
+        <button id="sampleBtn" class="secondary" type="button">サンプルに戻す</button>
+      </div>
+      <div class="status"><span id="statusText">検索待機中</span><b id="countText"></b></div>
+      <div class="content">
+        <div class="preview"><img id="previewImg" alt="trace.moe preview"><div id="placeholder" class="placeholder">結果画像をここに表示します。</div></div>
+        <div class="details">
+          <div class="card"><small>title</small><strong id="title">-</strong></div>
+          <div class="card"><small>episode / similarity</small><strong id="meta">-</strong></div>
+          <div class="card"><small>time range</small><strong id="time">-</strong></div>
+          <div class="card"><small>other info</small><strong id="info">-</strong></div>
+          <div class="footer"><span id="note">画像 URL を入れて検索してください。</span><span>API: <a href="https://soruly.github.io/trace.moe-api/" target="_blank" rel="noreferrer">trace.moe-api</a></span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const API_ROOT = 'https://api.trace.moe/search?anilistInfo=1&url=';
+    const FALLBACK = { title:'Sample result', episode:'-', similarity:'-', from:0, to:0, image:'', video:'', filename:'trace.moe demo', anilist:{ title:'Demo', synonyms:['demo'] } };
+    const $ = (id) => document.getElementById(id);
+    const fmt = (sec) => `${Math.floor(sec / 60)}:${String(Math.round(sec % 60)).padStart(2, '0')}`;
+
+    function showResult(result, fallback = false) {
+      $('title').textContent = result.anilist?.title || result.filename || 'Unknown';
+      $('meta').textContent = `episode ${result.episode ?? '-'} / ${(Number(result.similarity) * 100).toFixed(1)}%`;
+      $('time').textContent = `${fmt(result.from || 0)} - ${fmt(result.to || 0)}`;
+      $('info').textContent = result.anilist?.synonyms?.[0] || result.filename || '-';
+      $('statusText').textContent = fallback ? 'fallback' : 'live result';
+      $('countText').textContent = fallback ? 'demo' : 'trace.moe';
+      $('note').textContent = fallback ? 'ライブ検索失敗時のサンプルです。' : '候補が複数ある場合は一番類似度が高い結果を表示しています。';
+      if (result.image) { $('previewImg').src = result.image; $('previewImg').style.display = 'block'; $('placeholder').style.display = 'none'; } else { $('previewImg').style.display = 'none'; $('placeholder').style.display = 'grid'; }
+    }
+
+    async function search() {
+      const url = $('imageUrl').value.trim();
+      if (!url) return;
+      $('searchBtn').disabled = $('sampleBtn').disabled = true;
+      $('statusText').textContent = 'searching...';
+      try {
+        const res = await fetch(API_ROOT + encodeURIComponent(url), { cache:'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        const result = json.result?.[0];
+        if (!result) throw new Error('no results');
+        showResult(result, false);
+      } catch (error) {
+        console.error(error);
+        showResult({ ...FALLBACK, image:'', from:0, to:0, episode:0, similarity:0 }, true);
+      } finally {
+        $('searchBtn').disabled = $('sampleBtn').disabled = false;
+      }
+    }
+
+    $('searchBtn').addEventListener('click', search);
+    $('sampleBtn').addEventListener('click', () => { $('imageUrl').value = 'https://raw.githubusercontent.com/soruly/trace.moe/master/demo.jpg'; search(); });
+    window.addEventListener('load', search);
+  </script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-# ??????Web API??
+﻿# ??????Web API??
 
 ???: 2026-07-07
 
@@ -23,68 +23,53 @@
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [Axolotl](https://theaxolotlapi.netlify.app/) | Collection of axolotl pictures and facts | Yes | No | ? |
-| [Cat Facts](https://alexwohlbruck.github.io/cat-facts/) | Daily cat facts | Yes | No | ? |
-| [Cat Facts](https://catfact.ninja/) | Random cat facts | Yes | Yes | ? |
-| [Cataas](https://cataas.com/) | Cat as a service (cats pictures and gifs) | Yes | No | ? |
-| [Dog Facts](https://dukengn.github.io/Dog-facts-API/) | Random dog facts | Yes | Yes | ? |
-| [Dog Facts](https://kinduff.github.io/dog-api/) | Random facts of Dogs | Yes | Yes | ? |
-| [FishWatch](https://www.fishwatch.gov/developers) | Information and pictures about individual fish species | Yes | Yes | ? |
-| [HTTP Dog](https://http.dog/) | Dogs for every HTTP response status code | Yes | Yes | ? |
-| [MeowFacts](https://github.com/wh-iterabb-it/meowfacts) | Get random cat facts | Yes | No | ? |
-| [Movebank](https://github.com/movebank/movebank-api-doc) | Movement and Migration data of animals | Yes | Yes | ? |
-| [PlaceBear](https://placebear.com/) | Placeholder bear pictures | Yes | Yes | ? |
-| [PlaceDog](https://place.dog) | Placeholder Dog pictures | Yes | Yes | ? |
-| [RandomDog](https://random.dog/woof.json) | Random pictures of dogs | Yes | Yes | ? |
-| [RescueGroups](https://userguide.rescuegroups.org/display/APIDG/API+Developers+Guide+Home) | Adoption | Yes | Unknown | ? |
-| [Shibe.Online](http://shibe.online/) | Random pictures of Shiba Inu, cats or birds | Yes | Yes | ? |
-| [xeno-canto](https://xeno-canto.org/explore/api) | Bird recordings | Yes | Unknown | ? |
+| [Axolotl](https://theaxolotlapi.netlify.app/) | Collection of axolotl pictures and facts | Yes | No | 実装済み |
+| [Cat Facts](https://alexwohlbruck.github.io/cat-facts/) | Daily cat facts | Yes | No | 実装済み |
+| [Cat Facts](https://catfact.ninja/) | Random cat facts | Yes | Yes | 実装済み |
+| [Cataas](https://cataas.com/) | Cat as a service (cats pictures and gifs) | Yes | No | 実装済み |
+| [Dog Facts](https://dukengn.github.io/Dog-facts-API/) | Random dog facts | Yes | Yes | 実装済み |
+| [Dog Facts](https://kinduff.github.io/dog-api/) | Random facts of Dogs | Yes | Yes | 実装済み |
+| [FishWatch](https://www.fishwatch.gov/developers) | Information and pictures about individual fish species | Yes | Yes | 実装済み |
+| [HTTP Dog](https://http.dog/) | Dogs for every HTTP response status code | Yes | Yes | 実装済み |
+| [MeowFacts](https://github.com/wh-iterabb-it/meowfacts) | Get random cat facts | Yes | No | 実装済み |
+| [Movebank](https://github.com/movebank/movebank-api-doc) | Movement and Migration data of animals | Yes | Yes | 実装済み |
+| [PlaceBear](https://placebear.com/) | Placeholder bear pictures | Yes | Yes | 実装済み |
+| [PlaceDog](https://place.dog) | Placeholder Dog pictures | Yes | Yes | 実装済み |
+| [RandomDog](https://random.dog/woof.json) | Random pictures of dogs | Yes | Yes | 実装済み |
+| [RescueGroups](https://userguide.rescuegroups.org/display/APIDG/API+Developers+Guide+Home) | Adoption | Yes | Unknown | 実装済み |
+| [Shibe.Online](http://shibe.online/) | Random pictures of Shiba Inu, cats or birds | Yes | Yes | 実装済み |
+| [xeno-canto](https://xeno-canto.org/explore/api) | Bird recordings | Yes | Unknown | 実装済み |
 
 ### Anime
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [AnimeChan](https://github.com/RocktimSaikia/anime-chan) | Anime quotes (over 10k+) | Yes | No | ? |
-| [AnimeFacts](https://chandan-02.github.io/anime-facts-rest-api/) | Anime Facts (over 100+) | Yes | Yes | ? |
-| [AnimeNewsNetwork](https://www.animenewsnetwork.com/encyclopedia/api.php) | Anime industry news | Yes | Yes | ? |
-| [Catboy](https://catboys.com/api) | Neko images, funny GIFs & more | Yes | Yes | ? |
-| [Studio Ghibli](https://ghibliapi.herokuapp.com) | Resources from Studio Ghibli films | Yes | Yes | ? |
-| [Trace Moe](https://soruly.github.io/trace.moe-api/#/) | A useful tool to get the exact scene of an anime from a screenshot | Yes | Yes | ? |
-| [Waifu.pics](https://waifu.pics/docs) | Image sharing platform for anime images | Yes | No | ? |
-
 ### Anti-Malware
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [URLhaus](https://urlhaus-api.abuse.ch/) | Bulk queries and Download Malware Samples | Yes | Yes | ? |
 
 ### Art & Design
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [Art Institute of Chicago](https://api.artic.edu/docs/) | Art | Yes | Yes | ? |
-| [Colormind](http://colormind.io/api-access/) | Color scheme generator | No | Unknown | ? |
-| [ColourLovers](http://www.colourlovers.com/api) | Get various patterns, palettes and images | No | Unknown | ? |
-| [DummyImage](https://dummyimage.com/) | Generate placeholder images with custom size, colors and text | Yes | Unknown | ? |
-| [EmojiHub](https://github.com/cheatsnake/emojihub) | Get emojis by categories and groups | Yes | Yes | ? |
-| [Icon Horse](https://icon.horse) | Favicons for any website, with fallbacks | Yes | Yes | ? |
-| [Icons8](https://img.icons8.com/) | Icons (find "search icon" hyperlink in page) | Yes | Unknown | ? |
-| [Lordicon](https://lordicon.com/) | Icons with predone Animations | Yes | Yes | ? |
-| [Metropolitan Museum of Art](https://metmuseum.github.io/) | Met Museum of Art | Yes | No | ? |
-| [PHP-Noise](https://php-noise.com/) | Noise Background Image Generator | Yes | Yes | ? |
-| [Pixel Encounter](https://pixelencounter.com/api) | SVG Icon Generator | Yes | No | ? |
-| [xColors](https://x-colors.herokuapp.com/) | Generate & convert colors | Yes | Yes | ? |
+| [Art Institute of Chicago](https://api.artic.edu/docs/) | Art | Yes | Yes | 実装済み |
+| [Colormind](http://colormind.io/api-access/) | Color scheme generator | No | Unknown | 実装済み |
+| [ColourLovers](http://www.colourlovers.com/api) | Get various patterns, palettes and images | No | Unknown | 実装済み |
+| [DummyImage](https://dummyimage.com/) | Generate placeholder images with custom size, colors and text | Yes | Unknown | 実装済み |
+| [EmojiHub](https://github.com/cheatsnake/emojihub) | Get emojis by categories and groups | Yes | Yes | 実装済み |
+| [Icon Horse](https://icon.horse) | Favicons for any website, with fallbacks | Yes | Yes | 実装済み |
+| [Icons8](https://img.icons8.com/) | Icons (find "search icon" hyperlink in page) | Yes | Unknown | 実装済み |
+| [Lordicon](https://lordicon.com/) | Icons with predone Animations | Yes | Yes | 実装済み |
+| [Metropolitan Museum of Art](https://metmuseum.github.io/) | Met Museum of Art | Yes | No | 実装済み |
+| [PHP-Noise](https://php-noise.com/) | Noise Background Image Generator | Yes | Yes | 実装済み |
+| [Pixel Encounter](https://pixelencounter.com/api) | SVG Icon Generator | Yes | No | 実装済み |
+| [xColors](https://x-colors.herokuapp.com/) | Generate & convert colors | Yes | Yes | 実装済み |
 
 ### Blockchain
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [Chainlink](https://chain.link/developer-resources) | Build hybrid smart contracts with Chainlink | Yes | Unknown | ? |
-| [Chainpoint](https://tierion.com/chainpoint/) | Chainpoint is a global network for anchoring data to the Bitcoin blockchain | Yes | Unknown | ? |
-| [Helium](https://docs.helium.com/api/blockchain/introduction/) | Helium is a global, distributed network of Hotspots that create public, long-range wireless coverage | Yes | Unknown | ? |
-| [Steem](https://developers.steem.io/) | Blockchain-based blogging and social media website | No | No | ? |
-| [TWZRD Agent Intel](https://intel.twzrd.xyz) | Solana on-chain agent trust scoring via MCP; 4 free tools to score, resolve and verify AI agent wallets | Yes | Yes | ? |
-| [Walltime](https://walltime.info/api.html) | To retrieve Walltime's market info | Yes | Unknown | ? |
 
 ### Books
 
@@ -114,15 +99,7 @@
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [Domainsdb.info](https://domainsdb.info/) | Registered Domain Names Search | Yes | No | ? |
-| [markerapi](https://markerapi.com) | Trademark Search | No | Unknown | ? |
-| [Pick an Agency](https://www.pickanagency.com/developers) | Search 47,000+ marketing agencies by service, location and rating | Yes | Yes | ? |
-| [Tenders in Hungary](https://tenders.guru/hu/api) | Get data for procurements in Hungary in JSON format | Yes | Unknown | ? |
-| [Tenders in Poland](https://tenders.guru/pl/api) | Get data for procurements in Poland in JSON format | Yes | Unknown | ? |
-| [Tenders in Romania](https://tenders.guru/ro/api) | Get data for procurements in Romania in JSON format | Yes | Unknown | ? |
-| [Tenders in Spain](https://tenders.guru/es/api) | Get data for procurements in Spain in JSON format | Yes | Unknown | ? |
-| [Tenders in Ukraine](https://tenders.guru/ua/api) | Get data for procurements in Ukraine in JSON format | Yes | Unknown | ? |
-
+//いったん私ここまで
 ### Calendar
 
 | API | ?? | HTTPS | CORS | HTML??? |
@@ -152,46 +129,56 @@
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [Postman Echo](https://www.postman-echo.com) | Test api server to receive and return value from HTTP method | Yes | Unknown | ? |
-| [PurgoMalum](http://www.purgomalum.com) | Content validator against profanity & obscenity | No | Unknown | ? |
+| [Postman Echo](https://www.postman-echo.com) | Test api server to receive and return value from HTTP method | Yes | Unknown | implemented: `templates/tools/postman-echo.html` |
+| [PurgoMalum](http://www.purgomalum.com) | Content validator against profanity & obscenity | No | Unknown | implemented: `templates/tools/purgomalum.html` |
 
 ### Development
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [24 Pull Requests](https://24pullrequests.com/api) | Project to promote open source collaboration during December | Yes | Yes | ? |
-| [Agify.io](https://agify.io) | Estimates the age from a first name | Yes | Yes | ? |
-| [API Grátis](https://apigratis.com.br/) | Multiples services and public APIs | Yes | Unknown | ? |
-| [CORS Proxy](https://github.com/burhanuday/cors-proxy) | Get around the dreaded CORS error by using this proxy as a middle man | Yes | Yes | ? |
-| [CountAPI](https://countapi.xyz) | Free and simple counting service. You can use it to track page hits and specific events | Yes | Yes | ? |
-| [DigitalOcean Status](https://status.digitalocean.com/api) | Status of all DigitalOcean services | Yes | Unknown | ? |
-| [DomainDb Info](https://api.domainsdb.info/) | Domain name search to find all domains containing particular words/phrases/etc | Yes | Unknown | ? |
-| [DownStatus](https://isitdownstatus.com) | Real-time status for GitHub, AWS, Discord and 90+ services | Yes | Yes | ? |
-| [ExtendsClass JSON Storage](https://extendsclass.com/json-storage.html) | A simple JSON store API | Yes | Yes | ? |
-| [host-t.com](https://host-t.com) | Basic DNS query via HTTP GET request | Yes | No | ? |
-| [HTTP2.Pro](https://http2.pro/doc/api) | Test endpoints for client and server HTTP/2 protocol support | Yes | Unknown | ? |
-| [Httpbin](https://httpbin.org/) | A Simple HTTP Request & Response Service | Yes | Yes | ? |
-| [Httpbin Cloudflare](https://cloudflare-quic.com/b/) | A Simple HTTP Request & Response Service with HTTP/3 Support by Cloudflare | Yes | Yes | ? |
-| [Hipsum](https://hipsum.co) | Hipster-themed lorem ipsum generator for placeholder text | Yes | Unknown | ? |
-| [Icanhazepoch](https://icanhazepoch.com) | Get Epoch time | Yes | Yes | ? |
-| [Icanhazip](https://major.io/icanhazip-com-faq/) | IP Address API | Yes | Yes | ? |
-| [IFTTT](https://platform.ifttt.com/docs/connect_api) | IFTTT Connect API | Yes | Unknown | ? |
-| [Image-Charts](https://documentation.image-charts.com/) | Generate charts, QR codes and graph images | Yes | Yes | ? |
-| [ip-fast.com](https://ip-fast.com/docs/) | IP address, country and city | Yes | Yes | ? |
-| [IPify](https://www.ipify.org/) | A simple IP Address API | Yes | Unknown | ? |
-| [IPinfo](https://ipinfo.io/developers) | Another simple IP Address API | Yes | Unknown | ? |
-| [isitdownstatus](https://isitdownstatus.com) | Check if websites and online services are currently down | Yes | Unknown | ? |
-| [jsDelivr](https://github.com/jsdelivr/data.jsdelivr.com) | Package info and download stats on jsDelivr CDN | Yes | Yes | ? |
-| [JSON 2 JSONP](https://json2jsonp.com/) | Convert JSON to JSONP (on-the-fly) for easy cross-domain data requests using client-side JavaScript | Yes | Unknown | ? |
-| [Keyvalue](https://keyvalue.immanuel.co/) | Simple key-value storage REST API for quick prototyping | Yes | Unknown | ? |
-| [Kroki](https://kroki.io) | Creates diagrams from textual descriptions | Yes | Yes | ? |
-| [License-API](https://github.com/cmccandless/license-api/blob/master/README.md) | Unofficial REST API for choosealicense.com | Yes | No | ? |
-| [Lua Decompiler](https://lua-decompiler.ferib.dev/) | Online Lua 5.1 Decompiler | Yes | Yes | ? |
-| [MicroENV](https://microenv.com/) | Fake Rest API for developers | Yes | Unknown | ? |
-| [Mocky](https://designer.mocky.io/) | Mock user defined test JSON for REST API endpoints | Yes | Yes | ? |
-| [MY IP](https://www.myip.com/api-docs/) | Get IP address information | Yes | Unknown | ? |
-| [Nationalize.io](https://nationalize.io) | Estimate the nationality of a first name | Yes | Yes | ? |
-| [NetworkCalc](https://networkcalc.com/api/docs) | Network calculators, including subnets, DNS, binary, and security tools | Yes | Yes | ? |
+| [24 Pull Requests](https://24pullrequests.com/api) | Project to promote open source collaboration during December | Yes | Yes | implemented: `templates/data/24-pull-requests.html` |
+| [Agify.io](https://agify.io) | Estimates the age from a first name | Yes | Yes | implemented: `templates/data/agify.html` |
+| [API Grátis](https://apigratis.com.br/) | Multiples services and public APIs | Yes | Unknown | implemented with fallback: `templates/data/api-gratis.html` |
+| [ApicAgent](https://www.apicagent.com) | Extract device details from user-agent string | Yes | Yes | implemented with fallback: `templates/data/apicagent.html` |
+| [APIs.guru](https://apis.guru/api-doc/) | Wikipedia for Web APIs, OpenAPI/Swagger specs for public APIs | Yes | Unknown | implemented: `templates/data/apis-guru.html` |
+| [Beeceptor](https://beeceptor.com/) | Build a mock Rest API endpoint in seconds | Yes | Yes | implemented: `templates/tools/beeceptor-echo.html` |
+| [Bored](https://www.boredapi.com/) | Find random activities to fight boredom | Yes | Unknown | implemented with fallback: `templates/fun/bored.html` |
+| [BrewPage](https://brewpage.app) | Free hosting for HTML, JSON, key-value, files, multi-file sites with short URLs and TTL retention | Yes | No | implemented with CORS fallback: `templates/tools/brewpage.html` |
+| [CDNJS](https://api.cdnjs.com/libraries/jquery) | Library info on CDNJS | Yes | Unknown | implemented: `templates/data/cdnjs.html` |
+| [Changelogs.md](https://changelogs.md) | Structured changelog metadata from open source projects | Yes | Unknown | implemented with fallback: `templates/data/changelogs-md.html` |
+| [Ciprand](https://github.com/polarspetroll/ciprand) | Secure random string generator | Yes | No | implemented with Web Crypto fallback: `templates/tools/ciprand.html` |
+| [Cloudflare Trace](https://github.com/fawazahmed0/cloudflare-trace-api) | Get IP Address, Timestamp, User Agent, Country Code, IATA, HTTP Version, TLS/SSL Version & More | Yes | Yes | implemented: `templates/data/cloudflare-trace.html` |
+| [Codex](https://github.com/Jaagrav/CodeX) | Online Compiler for Various Languages | Yes | Unknown | implemented with request fallback: `templates/tools/codex-compiler.html` |
+| [CORS Proxy](https://github.com/burhanuday/cors-proxy) | Get around the dreaded CORS error by using this proxy as a middle man | Yes | Yes | implemented: `templates/tools/cors-proxy.html` |
+| [CountAPI](https://countapi.xyz) | Free and simple counting service. You can use it to track page hits and specific events | Yes | Yes | implemented: `templates/tools/countapi.html` |
+| [DigitalOcean Status](https://status.digitalocean.com/api) | Status of all DigitalOcean services | Yes | Unknown | implemented: `templates/data/digitalocean-status.html` |
+| [DomainDb Info](https://api.domainsdb.info/) | Domain name search to find all domains containing particular words/phrases/etc | Yes | Unknown | implemented: `templates/data/domainsdb.html` |
+| [DownStatus](https://isitdownstatus.com) | Real-time status for GitHub, AWS, Discord and 90+ services | Yes | Yes | implemented with fallback: `templates/data/downstatus.html` |
+| [ExtendsClass JSON Storage](https://extendsclass.com/json-storage.html) | A simple JSON store API | Yes | Yes | implemented with fallback: `templates/tools/extendsclass-json-storage.html` |
+| [host-t.com](https://host-t.com) | Basic DNS query via HTTP GET request | Yes | No | implemented with URL fallback: `templates/data/host-t-dns.html` |
+| [HTTP2.Pro](https://http2.pro/doc/api) | Test endpoints for client and server HTTP/2 protocol support | Yes | Unknown | implemented with fallback: `templates/tools/http2-pro.html` |
+| [Httpbin](https://httpbin.org/) | A Simple HTTP Request & Response Service | Yes | Yes | implemented: `templates/tools/httpbin.html` |
+| [Httpbin Cloudflare](https://cloudflare-quic.com/b/) | A Simple HTTP Request & Response Service with HTTP/3 Support by Cloudflare | Yes | Yes | implemented: `templates/tools/httpbin-cloudflare.html` |
+| [Hipsum](https://hipsum.co) | Hipster-themed lorem ipsum generator for placeholder text | Yes | Unknown | implemented with fallback: `templates/fun/hipsum.html` |
+| [Icanhazepoch](https://icanhazepoch.com) | Get Epoch time | Yes | Yes | implemented: `templates/tools/icanhazepoch.html` |
+| [Icanhazip](https://major.io/icanhazip-com-faq/) | IP Address API | Yes | Yes | implemented: `templates/data/icanhazip.html` |
+| [IFTTT](https://platform.ifttt.com/docs/connect_api) | IFTTT Connect API | Yes | Unknown | implemented as auth-safe notes: `templates/tools/ifttt-connect.html` |
+| [Image-Charts](https://documentation.image-charts.com/) | Generate charts, QR codes and graph images | Yes | Yes | implemented: `templates/tools/image-charts.html` |
+| [ip-fast.com](https://ip-fast.com/docs/) | IP address, country and city | Yes | Yes | implemented: `templates/data/ip-fast.html` |
+| [IPify](https://www.ipify.org/) | A simple IP Address API | Yes | Unknown | implemented: `templates/data/ipify.html` |
+| [IPinfo](https://ipinfo.io/developers) | Another simple IP Address API | Yes | Unknown | implemented with fallback: `templates/data/ipinfo.html` |
+| [isitdownstatus](https://isitdownstatus.com) | Check if websites and online services are currently down | Yes | Unknown | implemented with fallback: `templates/data/isitdownstatus.html` |
+| [jsDelivr](https://github.com/jsdelivr/data.jsdelivr.com) | Package info and download stats on jsDelivr CDN | Yes | Yes | implemented: `templates/data/jsdelivr.html` |
+| [JSON 2 JSONP](https://json2jsonp.com/) | Convert JSON to JSONP (on-the-fly) for easy cross-domain data requests using client-side JavaScript | Yes | Unknown | implemented: `templates/tools/json2jsonp.html` |
+| [Keyvalue](https://keyvalue.immanuel.co/) | Simple key-value storage REST API for quick prototyping | Yes | Unknown | implemented with fallback: `templates/tools/keyvalue.html` |
+| [Kroki](https://kroki.io) | Creates diagrams from textual descriptions | Yes | Yes | implemented: `templates/tools/kroki.html` |
+| [License-API](https://github.com/cmccandless/license-api/blob/master/README.md) | Unofficial REST API for choosealicense.com | Yes | No | implemented with fallback: `templates/data/license-api.html` |
+| [Lua Decompiler](https://lua-decompiler.ferib.dev/) | Online Lua 5.1 Decompiler | Yes | Yes | implemented as request notes: `templates/tools/lua-decompiler.html` |
+| [MicroENV](https://microenv.com/) | Fake Rest API for developers | Yes | Unknown | implemented as request notes: `templates/tools/microenv.html` |
+| [Mocky](https://designer.mocky.io/) | Mock user defined test JSON for REST API endpoints | Yes | Yes | implemented as request notes: `templates/tools/mocky.html` |
+| [MY IP](https://www.myip.com/api-docs/) | Get IP address information | Yes | Unknown | implemented with fallback: `templates/data/my-ip.html` |
+| [Nationalize.io](https://nationalize.io) | Estimate the nationality of a first name | Yes | Yes | implemented: `templates/data/nationalize.html` |
+| [NetworkCalc](https://networkcalc.com/api/docs) | Network calculators, including subnets, DNS, binary, and security tools | Yes | Yes | implemented as request notes: `templates/tools/networkcalc.html` |
 | [npm Registry](https://github.com/npm/registry/blob/master/docs/REGISTRY-API.md) | Query information about your favorite Node.js libraries programatically | Yes | Unknown | ? |
 | [oyyi](https://oyyi.xyz/docs/1.0) | API for Fake Data, image/video conversion, optimization, pdf optimization and thumbnail generation | Yes | Yes | ? |
 | [QR & Barcode](https://solsigs.com/qrapi/) | QR codes and barcodes (Code 128, EAN-13, Data Matrix, PDF417 + more). SVG or PNG output | Yes | Yes | ? |
@@ -306,10 +293,6 @@
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [AmiiboAPI](https://amiiboapi.com/) | Nintendo Amiibo Information | Yes | Yes | ? |
-| [Animal Crossing: New Horizons](http://acnhapi.com/) | API for critters, fossils, art, music, furniture and villagers | Yes | Unknown | ? |
-| [Astroworld](https://api.astroworldmc.com) | Free Minecraft data: mobs, biomes, items, enchantments, structures, commands, versions, achievements, trades | Yes | Yes | ? |
-| [Autochess VNG](https://github.com/didadadida93/autochess-vng-api) | Rest Api for Autochess VNG | Yes | Yes | ? |
 | [Barter.VG](https://github.com/bartervg/barter.vg/wiki) | Provides information about Game, DLC, Bundles, Giveaways, Trading | Yes | Yes | ? |
 | [Board Game Geek](https://boardgamegeek.com/wiki/page/BGG_XML_API2) | Board games, RPG and videogames | Yes | No | ? |
 | [Bugsnax](https://www.bugsnaxapi.com/) | Get information about Bugsnax | Yes | Yes | ? |
@@ -342,11 +325,6 @@
 | [Hytale](https://hytale-api.com/) | Hytale blog posts and jobs | Yes | Unknown | ? |
 | [JokeAPI](https://sv443.net/jokeapi/v2/) | Programming, Miscellaneous and Dark Jokes | Yes | Yes | ? |
 | [Jservice](http://jservice.io) | Jeopardy Question Database | No | Unknown | ? |
-| [Magic The Gathering](http://magicthegathering.io/) | Magic The Gathering Game Information | No | Unknown | ? |
-| [Minecraft Server Status](https://api.mcsrvstat.us) | API to get Information about a Minecraft Server | Yes | No | ? |
-| [MMO Games](https://www.mmobomb.com/api) | MMO Games Database, News and Giveaways | Yes | No | ? |
-| [Monster Hunter World](https://docs.mhw-db.com/) | Monster Hunter World data | Yes | Yes | ? |
-| [PlayerDB](https://playerdb.co/) | Query Minecraft, Steam and XBox Accounts | Yes | Unknown | ? |
 | [Pokémon TCG](https://pokemontcg.io) | Pokémon TCG Information | Yes | Unknown | ? |
 | [Psychonauts](https://psychonauts-api.netlify.app/) | Psychonauts World Characters Information and PSI Powers | Yes | Yes | ? |
 | [Puyo Nexus](https://github.com/deltadex7/puyodb-api-deno) | Puyo Puyo information from Puyo Nexus Wiki | Yes | Yes | ? |
@@ -441,13 +419,7 @@
 | [Data.parliament.uk](https://explore.data.parliament.uk/?learnmore=Members) | Contains live datasets including information about petitions, bills, MP votes, attendance and more | No | Unknown | ? |
 | [District of Columbia Open Data](http://opendata.dc.gov/pages/using-apis) | Contains D.C. government public datasets, including crime, GIS, financial data, and so on | Yes | Unknown | ? |
 | [EPA](https://www.epa.gov/developers/data-data-products#apis) | Web services and data sets from the US Environmental Protection Agency | Yes | Unknown | ? |
-| [FBI Wanted](https://www.fbi.gov/wanted/api) | Access information on the FBI Wanted program | Yes | Unknown | ? |
 | [Federal Register](https://www.federalregister.gov/reader-aids/developer-resources/rest-api) | The Daily Journal of the United States Government | Yes | Unknown | ? |
-| [Food Standards Agency](http://ratings.food.gov.uk/open-data/en-GB) | UK food hygiene rating data API | No | Unknown | ? |
-| [Indian Pincode](https://indianpincode.com/) | Free India PIN code lookup with GPS coordinates, 165k+ post offices, state & district data | Yes | Yes | ? |
-| [INEI](http://iinei.inei.gob.pe/microdatos/) | Peruvian Statistical Government Open Data | No | Unknown | ? |
-| [Interpol Red Notices](https://interpol.api.bund.dev/) | Access and search Interpol Red Notices | Yes | Unknown | ? |
-| [Istanbul (İBB) Open Data](https://data.ibb.gov.tr) | Data sets from the İstanbul Metropolitan Municipality (İBB) | Yes | Unknown | ? |
 | [LocalGov.jp](https://localgov.jp/) | Japan grants and subsidies (central J-Grants + 1,916 municipalities) | Yes | Yes | ? |
 | [Neotimo DGFiP Mirror](https://neotimo.com/annuaire-dgfip) | French DGFiP registry of certified e-invoicing platforms (Plateformes Agréées), searchable by SIRET | Yes | Unknown | ? |
 | [Open Government, ACT](https://www.data.act.gov.au/) | Australian Capital Territory Open Data | Yes | Unknown | ? |
@@ -715,7 +687,6 @@
 | [Passwordinator](https://github.com/fawazsullia/password-generator/) | Generate random passwords of varying complexities | Yes | Yes | ? |
 | [PhishStats](https://phishstats.info/) | Phishing database | Yes | Unknown | ? |
 | [UK Police](https://data.police.uk/docs/) | UK Police data | Yes | Unknown | ? |
-| [URLhaus](https://urlhaus.abuse.ch/api/) | Database of malicious URLs used for malware distribution | Yes | Unknown | ? |
 | [Virushee](https://api.virushee.com/) | Virushee file/data scanning | Yes | Yes | ? |
 
 ### Social
@@ -911,3 +882,5 @@
 1. `docs/apis` ???URL??????API????
 2. `$webapi-page-maker <URL1> <URL2> ...` ??????????????? `templates/` ?HTML??????
 3. `fronted-v2/js/catalog.js` ? `docs/specification.md` ?????????
+
+

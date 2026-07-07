@@ -1,0 +1,327 @@
+<!--
+  目的: Indian Pincode の郵便番号検索をサンプルデータで再現する。
+  構成: ヒーロー / 検索フォーム / 結果カード / フォールバック案内。
+-->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>インド郵便番号検索</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg1: #09111e;
+      --bg2: #1f2a44;
+      --card: rgba(11, 19, 35, 0.84);
+      --line: rgba(255, 255, 255, 0.12);
+      --text: #f4f8ff;
+      --muted: #b8c5d8;
+      --accent: #f97316;
+      --accent2: #22c55e;
+      --shadow: 0 26px 70px rgba(0, 0, 0, 0.35);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% 10%, rgba(249, 115, 22, 0.18), transparent 32%),
+        radial-gradient(circle at 90% 0%, rgba(34, 197, 94, 0.1), transparent 20%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+    }
+    .wrap {
+      width: min(1080px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    .hero,
+    .panel,
+    .footer {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+    .hero {
+      padding: 28px;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 13px;
+      border-radius: 999px;
+      background: rgba(249, 115, 22, 0.12);
+      color: #ffd4b0;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 16px 0 10px;
+      font-size: clamp(30px, 4vw, 52px);
+      line-height: 1.05;
+    }
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 760px;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .pill {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      color: #e7efff;
+      font-size: 13px;
+    }
+    .panel {
+      padding: 18px;
+      margin-top: 18px;
+    }
+    .controls {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) auto auto;
+      gap: 12px;
+      align-items: center;
+    }
+    .input,
+    .button {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(8, 15, 26, 0.92);
+      color: var(--text);
+      font: inherit;
+    }
+    .input::placeholder { color: #93a5bf; }
+    .button {
+      cursor: pointer;
+      font-weight: 700;
+      background: linear-gradient(135deg, #f97316, #f43f5e);
+      box-shadow: 0 12px 28px rgba(249, 115, 22, 0.22);
+      transition: transform 0.18s ease;
+    }
+    .button:hover { transform: translateY(-1px); }
+    .button.ghost {
+      background: rgba(255, 255, 255, 0.06);
+      box-shadow: none;
+      font-weight: 600;
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .chip {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.05);
+      color: #dbe8ff;
+      padding: 8px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+    .chip.active,
+    .chip:hover {
+      background: rgba(249, 115, 22, 0.16);
+      border-color: rgba(249, 115, 22, 0.35);
+      color: #ffe7cf;
+    }
+    .status {
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #dfe8f5;
+      line-height: 1.65;
+    }
+    .status.error {
+      background: rgba(248, 113, 113, 0.12);
+      color: #ffd3d3;
+    }
+    .grid {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .card {
+      padding: 18px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      min-height: 170px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .zip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(249, 115, 22, 0.14);
+      color: #ffd9bf;
+      width: fit-content;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+    }
+    .title { font-size: 18px; font-weight: 800; line-height: 1.35; }
+    .body { color: var(--muted); line-height: 1.65; font-size: 14px; }
+    .meta-row {
+      margin-top: auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: #d9e4f6;
+      font-size: 13px;
+    }
+    .footer {
+      margin-top: 18px;
+      padding: 18px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+    a { color: #ffd4b0; }
+    @media (max-width: 940px) {
+      .controls,
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="eyebrow">Indian Pincode / Fallback Demo</div>
+      <h1>インド郵便番号検索</h1>
+      <p class="lead">元の公開ページは現在 404 のため、ここではよく使われる郵便番号のサンプルデータを使って住所検索を再現しています。番号・地区名・州名のどれかで検索できます。</p>
+      <div class="meta">
+        <span class="pill">サンプルデータ</span>
+        <span class="pill">検索 / 住所表示</span>
+        <span class="pill">ライブ元は現在不達</span>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="controls">
+        <input id="query" class="input" type="search" placeholder="PINコード / 地区 / 州を入力">
+        <button id="search" class="button">検索</button>
+        <button id="reset" class="button ghost">全件表示</button>
+      </div>
+      <div class="chips" id="chips"></div>
+      <div class="status" id="status">サンプルデータを読み込み中...</div>
+    </section>
+
+    <section class="grid" id="results"></section>
+
+    <section class="footer">
+      <div>元ページ: <a href="https://indianpincode.com/" target="_blank" rel="noreferrer">indianpincode.com</a></div>
+      <div>候補が見つからない場合は、州名でも試せます。</div>
+    </section>
+  </div>
+
+  <script>
+    const SAMPLE = [
+      { pin: "110001", office: "Sansad Marg", district: "New Delhi", state: "Delhi", region: "North", note: "デリー中心部" },
+      { pin: "400001", office: "Mumbai G.P.O.", district: "Mumbai", state: "Maharashtra", region: "West", note: "ムンバイの代表局" },
+      { pin: "560001", office: "Bangalore G.P.O.", district: "Bengaluru Urban", state: "Karnataka", region: "South", note: "バンガロール中心部" },
+      { pin: "700001", office: "Kolkata G.P.O.", district: "Kolkata", state: "West Bengal", region: "East", note: "コルカタの代表局" },
+      { pin: "600001", office: "Chennai G.P.O.", district: "Chennai", state: "Tamil Nadu", region: "South", note: "チェンナイ中心部" },
+      { pin: "500001", office: "Hyderabad G.P.O.", district: "Hyderabad", state: "Telangana", region: "South", note: "ハイデラバード中心部" },
+      { pin: "302001", office: "Jaipur G.P.O.", district: "Jaipur", state: "Rajasthan", region: "North", note: "ジャイプールの代表局" },
+      { pin: "110011", office: "New Delhi South", district: "New Delhi", state: "Delhi", region: "North", note: "南デリー圏" }
+    ];
+
+    const queryInput = document.getElementById("query");
+    const searchButton = document.getElementById("search");
+    const resetButton = document.getElementById("reset");
+    const chipsNode = document.getElementById("chips");
+    const statusNode = document.getElementById("status");
+    const resultsNode = document.getElementById("results");
+
+    let currentRegion = "all";
+    const formatCount = new Intl.NumberFormat("ja-JP");
+
+    function setStatus(message, isError = false) {
+      statusNode.textContent = message;
+      statusNode.className = isError ? "status error" : "status";
+    }
+
+    function renderChips() {
+      const regions = ["All", "North", "South", "East", "West"].map((label) => ({ label, value: label.toLowerCase() }));
+      chipsNode.innerHTML = regions.map((item) => `
+        <button class="chip ${currentRegion === item.value ? "active" : ""}" data-region="${item.value}" type="button">${item.label}</button>
+      `).join("");
+      chipsNode.querySelectorAll("[data-region]").forEach((button) => {
+        button.addEventListener("click", () => {
+          currentRegion = button.dataset.region;
+          render();
+        });
+      });
+    }
+
+    function filterRows() {
+      const term = queryInput.value.trim().toLowerCase();
+      return SAMPLE.filter((row) => {
+        const regionOk = currentRegion === "all" || row.region.toLowerCase() === currentRegion;
+        const termOk = !term || [row.pin, row.office, row.district, row.state, row.region, row.note].join(" ").toLowerCase().includes(term);
+        return regionOk && termOk;
+      });
+    }
+
+    function render() {
+      const list = filterRows();
+      const uniqueStates = new Set(list.map((row) => row.state)).size;
+      setStatus(`サンプル ${formatCount.format(SAMPLE.length)} 件から ${formatCount.format(list.length)} 件を表示中。`);
+      resultsNode.innerHTML = list.length ? list.map((row) => `
+        <article class="card">
+          <div class="zip">PIN ${row.pin}</div>
+          <div class="title">${row.office}</div>
+          <div class="body">${row.district} / ${row.state}</div>
+          <div class="meta-row">
+            <span>Region: ${row.region}</span>
+            <span>${row.note}</span>
+          </div>
+        </article>
+      `).join("") : `
+        <article class="card" style="grid-column: 1 / -1;">
+          <div class="title">該当なし</div>
+          <div class="body">郵便番号、地区、州名を変えてもう一度試してください。</div>
+        </article>
+      `;
+      chipsNode.dataset.states = String(uniqueStates);
+    }
+
+    searchButton.addEventListener("click", render);
+    resetButton.addEventListener("click", () => {
+      queryInput.value = "";
+      currentRegion = "all";
+      renderChips();
+      render();
+    });
+    queryInput.addEventListener("input", render);
+
+    renderChips();
+    render();
+  </script>
+</body>
+</html>

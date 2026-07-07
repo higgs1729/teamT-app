@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+<meta charset="UTF-8">
+<title>日本語 Dictionary API</title>
+
+<style>
+
+body{
+    background:#202124;
+    color:white;
+    font-family:sans-serif;
+    text-align:center;
+    padding:30px;
+}
+
+input{
+    width:300px;
+    padding:12px;
+    font-size:16px;
+    border-radius:8px;
+    border:none;
+}
+
+button{
+    padding:12px 20px;
+    background:#2196F3;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#1976D2;
+}
+
+
+.card{
+
+    background:#2d2d2d;
+    max-width:600px;
+    margin:30px auto;
+    padding:20px;
+    border-radius:15px;
+
+}
+
+
+pre{
+
+    background:#111;
+    color:#00ff88;
+    padding:15px;
+    text-align:left;
+    border-radius:10px;
+    overflow:auto;
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<h1>📖 Dictionary API</h1>
+
+<p>英単語を入力してください</p>
+
+
+<input id="word" placeholder="例: apple">
+
+<button onclick="searchWord()">
+検索
+</button>
+
+
+
+<div id="result"></div>
+
+
+
+<script>
+
+
+async function searchWord(){
+
+
+const word =
+document.getElementById("word").value;
+
+
+
+if(!word){
+
+alert("単語を入力してください");
+return;
+
+}
+
+
+
+const url =
+`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`;
+
+
+
+try{
+
+
+const response =
+await fetch(url);
+
+
+const data =
+await response.json();
+
+
+
+if(data.title){
+
+
+document.getElementById("result").innerHTML = `
+
+<div class="card">
+
+<h2>❌ 見つかりません</h2>
+
+<p>
+その単語は辞書にありません。
+</p>
+
+</div>
+
+`;
+
+return;
+
+}
+
+
+
+const item = data[0];
+
+const meaning =
+item.meanings[0];
+
+
+const definition =
+meaning.definitions[0];
+
+
+
+document.getElementById("result").innerHTML = `
+
+<div class="card">
+
+
+<h2>
+🔤 ${item.word}
+</h2>
+
+
+
+<p>
+🔊 発音：
+${item.phonetic || "なし"}
+</p>
+
+
+
+<p>
+📚 品詞：
+${translatePartOfSpeech(meaning.partOfSpeech)}
+</p>
+
+
+
+<p>
+💡 意味：
+${translateMeaning(definition.definition)}
+</p>
+
+
+
+<p>
+📝 例文：
+${definition.example 
+? definition.example 
+: "例文なし"}
+</p>
+
+
+
+<pre>
+${JSON.stringify(data,null,2)}
+</pre>
+
+
+
+</div>
+
+`;
+
+
+
+}catch(error){
+
+
+
+document.getElementById("result").innerHTML = `
+
+<div class="card">
+
+<h2>⚠ エラー</h2>
+
+<p>
+通信に失敗しました
+</p>
+
+</div>
+
+`;
+
+}
+
+
+}
+
+
+
+
+
+// 品詞を日本語化
+
+function translatePartOfSpeech(word){
+
+
+const list = {
+
+noun:"名詞",
+verb:"動詞",
+adjective:"形容詞",
+adverb:"副詞",
+pronoun:"代名詞",
+preposition:"前置詞",
+conjunction:"接続詞"
+
+};
+
+
+return list[word] || word;
+
+
+}
+
+
+
+
+
+// 意味を日本語化
+
+function translateMeaning(text){
+
+
+
+const dictionary = {
+
+
+"A common, round fruit produced by the tree Malus domestica, cultivated in temperate climates.":
+"温帯地域で栽培されるリンゴの木（Malus domestica）が作る、一般的な丸い果物。",
+
+
+
+"A sweet fruit that grows on trees.":
+"木に実る甘い果物。"
+
+
+
+};
+
+
+
+return dictionary[text] || 
+"日本語訳がありません";
+
+
+}
+
+
+
+</script>
+
+
+</body>
+
+</html>

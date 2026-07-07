@@ -280,6 +280,8 @@ window.CATALOG = [
     description: "名前と国コードから推定年齢と参照件数を取得", apiName: "Agify.io", apiUrl: "https://agify.io/", icon: "ti-user" },
   { id: "weather", file: "data/weather.html", title: "天気アプリ（気象庁版）", category: "データ・検索系", categoryPath: ["データ・検索系", "宇宙・天気"],
     description: "都道府県名から最新の天気予報を取得", apiName: "気象庁 予報JSON", apiUrl: "https://www.jma.go.jp/bosai/forecast/", icon: "ti-planet" },
+  { id: "wttr-in", file: "data/wttr-in.html", title: "世界の天気検索", category: "データ・検索系", categoryPath: ["データ・検索系", "宇宙・天気"],
+    description: "都市名で現在の天気と3日間予報を取得", apiName: "wttr.in", apiUrl: "https://github.com/chubin/wttr.in", icon: "ti-planet" },
   { id: "24-pull-requests", file: "data/24-pull-requests.html", title: "24 Pull Requests Explorer", category: "データ・検索系", categoryPath: ["データ・検索系", "開発・OSS"],
     description: "OSS貢献促進サービスのプロジェクト一覧やPR統計を取得", apiName: "24 Pull Requests API", apiUrl: "https://24pullrequests.com/api", icon: "ti-article" },
   { id: "api-gratis", file: "data/api-gratis.html", title: "API Grátis チェッカー", category: "データ・検索系", categoryPath: ["データ・検索系", "開発・OSS"],

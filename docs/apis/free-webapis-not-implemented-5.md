@@ -211,7 +211,6 @@ control: continue
 | [RainViewer](https://www.rainviewer.com/api.html) | Radar data collected from different websites across the Internet | Yes | Unknown | ? |
 | [US Weather](https://www.weather.gov/documentation/services-web-api) | US National Weather Service | Yes | Yes | ? |
 | [weather-api](https://github.com/robertoduessmann/weather-api) | A RESTful free API to check the weather | Yes | No | ? |
-| [wttr.in](https://wttr.in/:help) | Weather in your terminal, supports JSON output | Yes | Yes | ? |
 
 ## ????
 

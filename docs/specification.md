@@ -165,6 +165,7 @@
 | data | cdnjs | CDNJS API | ライブラリ情報とCDN URLを検索 |
 | data | changelogs-md | Changelogs.md | OSSライブラリのchangelog検索結果を取得 |
 | data | weather | 気象庁 予報JSON | 都道府県ごとの天気予報を取得 |
+| data | wttr-in | wttr.in | 世界の都市名で現在天気と3日間予報を取得 |
 | data | 24-pull-requests | 24 Pull Requests API | OSS貢献促進サービスのプロジェクト一覧やPR統計を取得 |
 | data | api-gratis | API Grátis | 公式URLの到達状況と仕様確認メモを表示 |
 | data | cloudflare-trace | Cloudflare Trace API | IP・国・HTTP/TLS情報を取得 |

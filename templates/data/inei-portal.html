@@ -1,0 +1,430 @@
+<!--
+  目的: INEI の統計ポータルをテーマ別に探索する。
+  構成: ヒーロー / テーマ検索 / 主要リンク / テーマカード / ステータス。
+-->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>INEI 統計ポータル</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg1: #06101d;
+      --bg2: #18243e;
+      --card: rgba(8, 15, 28, 0.84);
+      --line: rgba(255, 255, 255, 0.12);
+      --text: #f4f8ff;
+      --muted: #b3c0d5;
+      --accent: #38bdf8;
+      --accent2: #a78bfa;
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.36);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.16), transparent 28%),
+        radial-gradient(circle at 90% 0%, rgba(167, 139, 250, 0.1), transparent 18%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+    }
+    .wrap {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    .hero,
+    .panel,
+    .footer {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+    .hero { padding: 28px; }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 13px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.12);
+      color: #c8f0ff;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 16px 0 10px;
+      font-size: clamp(30px, 4vw, 54px);
+      line-height: 1.05;
+    }
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 780px;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .pill {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      color: #e7efff;
+      font-size: 13px;
+    }
+    .panel {
+      margin-top: 18px;
+      padding: 18px;
+    }
+    .controls {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) auto auto;
+      gap: 12px;
+      align-items: center;
+    }
+    .input,
+    .button {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(8, 15, 26, 0.92);
+      color: var(--text);
+      font: inherit;
+    }
+    .input::placeholder { color: #92a3bd; }
+    .button {
+      cursor: pointer;
+      font-weight: 700;
+      background: linear-gradient(135deg, #38bdf8, #a78bfa);
+      box-shadow: 0 12px 28px rgba(56, 189, 248, 0.18);
+      transition: transform 0.18s ease;
+    }
+    .button:hover { transform: translateY(-1px); }
+    .button.ghost {
+      background: rgba(255, 255, 255, 0.06);
+      box-shadow: none;
+      font-weight: 600;
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .chip {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.05);
+      color: #dbe8ff;
+      padding: 8px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+    .chip.active,
+    .chip:hover {
+      background: rgba(56, 189, 248, 0.16);
+      border-color: rgba(56, 189, 248, 0.35);
+      color: #d7f3ff;
+    }
+    .status {
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #dfe8f5;
+      line-height: 1.65;
+    }
+    .status.error {
+      background: rgba(248, 113, 113, 0.12);
+      color: #ffd3d3;
+    }
+    .sections {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 14px;
+    }
+    .box {
+      padding: 18px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .box h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+    .link-list,
+    .grid {
+      display: grid;
+      gap: 12px;
+    }
+    .link-item,
+    .topic-card {
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 14px 16px;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .link-item strong,
+    .topic-card strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 15px;
+    }
+    .link-item span,
+    .topic-card span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .topics {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .topic-card {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 140px;
+    }
+    .topic-card small {
+      color: #cfe7ff;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .footer {
+      margin-top: 18px;
+      padding: 18px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+    a { color: #c8f0ff; }
+    @media (max-width: 980px) {
+      .controls,
+      .sections,
+      .topics {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="eyebrow">INEI / Indicadores por tema</div>
+      <h1>INEI 統計ポータル</h1>
+      <p class="lead">ペルー国家統計局のテーマ別指標を読み込み、関心のあるテーマだけを絞り込んで開けます。公開ページからテーマリンクを収集するので、検索対象の切り替えが軽く、入口ページとしても使いやすい構成です。</p>
+      <div class="meta">
+        <span class="pill">テーマ別指標</span>
+        <span class="pill">ライブ HTML 取得</span>
+        <span class="pill">検索 / 参照</span>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="controls">
+        <input id="query" class="input" type="search" placeholder="テーマ名を入力 (Economía / Población / Sociales など)">
+        <button id="reload" class="button">更新</button>
+        <button id="clear" class="button ghost">クリア</button>
+      </div>
+      <div class="chips" id="chips"></div>
+      <div class="status" id="status">テーマ一覧を読み込み中...</div>
+    </section>
+
+    <section class="sections">
+      <div class="box">
+        <h2>主要リンク</h2>
+        <div class="link-list" id="links"></div>
+      </div>
+      <div class="box">
+        <h2>概要</h2>
+        <div class="grid" id="summary"></div>
+      </div>
+    </section>
+
+    <section class="topics" id="topics"></section>
+
+    <section class="footer">
+      <div>公式: <a href="https://www.inei.gob.pe/estadisticas-indice-tematico/" target="_blank" rel="noreferrer">estadisticas-indice-tematico</a></div>
+      <div>トップ: <a href="https://www.inei.gob.pe/" target="_blank" rel="noreferrer">inei.gob.pe</a></div>
+    </section>
+  </div>
+
+  <script>
+    const SOURCE_URL = "https://www.inei.gob.pe/estadisticas-indice-tematico/";
+    const TOP_LINKS = [
+      { title: "Biblioteca Virtual", url: "https://www.inei.gob.pe/biblioteca_virtual", note: "電子資料の入口" },
+      { title: "Sistemas de consulta", url: "https://www.inei.gob.pe/sistemas-consulta/", note: "照会・検索系サービス" },
+      { title: "Bases de datos", url: "https://www.inei.gob.pe/bases-de-datos/", note: "データベース案内" }
+    ];
+    const FALLBACK_TOPICS = [
+      { title: "Economía", url: "https://www.inei.gob.pe/estadisticas/indice-tematico/economia/", note: "経済指標" },
+      { title: "Población y Vivienda", url: "https://www.inei.gob.pe/estadisticas/indice-tematico/poblacion-y-vivienda/", note: "人口・住宅" },
+      { title: "Empleo", url: "https://www.inei.gob.pe/estadisticas/indice-tematico/ocupacion-y-vivienda/", note: "雇用・就業" },
+      { title: "Sociales", url: "https://www.inei.gob.pe/estadisticas/indice-tematico/sociales/", note: "社会統計" },
+      { title: "Medio Ambiente", url: "https://www.inei.gob.pe/estadisticas/indice-tematico/medio-ambiente/", note: "環境統計" },
+      { title: "Tecnologías de la Información y Comunicación", url: "https://www.inei.gob.pe/estadisticas/indice-tematico/tecnologias-de-la-informacion-y-telecomunicaciones/", note: "ICT 指標" },
+      { title: "Seguridad Ciudadana", url: "https://www.inei.gob.pe/estadisticas/indice-tematico/seguridad-ciudadana/", note: "治安関連" },
+      { title: "Indicadores de Género", url: "https://www.inei.gob.pe/estadisticas/indice-tematico/brechas-de-genero-7913/", note: "ジェンダー指標" }
+    ];
+
+    const queryInput = document.getElementById("query");
+    const reloadButton = document.getElementById("reload");
+    const clearButton = document.getElementById("clear");
+    const chipsNode = document.getElementById("chips");
+    const statusNode = document.getElementById("status");
+    const linksNode = document.getElementById("links");
+    const summaryNode = document.getElementById("summary");
+    const topicsNode = document.getElementById("topics");
+
+    let topics = [];
+    let active = "all";
+    let sourceMode = "live";
+
+    function setStatus(message, isError = false) {
+      statusNode.textContent = message;
+      statusNode.className = isError ? "status error" : "status";
+    }
+
+    function renderLinks() {
+      linksNode.innerHTML = TOP_LINKS.map((item) => `
+        <a class="link-item" href="${item.url}" target="_blank" rel="noreferrer">
+          <strong>${item.title}</strong>
+          <span>${item.note}</span>
+        </a>
+      `).join("");
+    }
+
+    function renderSummary(list) {
+      const total = list.length;
+      const names = list.slice(0, 3).map((item) => item.title).join(" / ") || "-";
+      summaryNode.innerHTML = [
+        ["表示テーマ", total],
+        ["データ源", sourceMode],
+        ["先頭テーマ", names]
+      ].map(([label, value]) => `
+        <div class="link-item">
+          <strong>${label}</strong>
+          <span>${value}</span>
+        </div>
+      `).join("");
+    }
+
+    function renderChips() {
+      const groups = ["all", "economía", "población", "empleo", "sociales", "medio ambiente", "seguridad ciudadana"].map((value) => ({
+        value,
+        label: value === "all" ? "All" : value
+      }));
+      chipsNode.innerHTML = groups.map((item) => `
+        <button class="chip ${active === item.value ? "active" : ""}" data-chip="${item.value}" type="button">${item.label}</button>
+      `).join("");
+      chipsNode.querySelectorAll("[data-chip]").forEach((button) => {
+        button.addEventListener("click", () => {
+          active = button.dataset.chip;
+          queryInput.value = active === "all" ? "" : queryInput.value;
+          render();
+        });
+      });
+    }
+
+    function filterTopics() {
+      const term = queryInput.value.trim().toLowerCase();
+      return topics.filter((item) => {
+        const title = item.title.toLowerCase();
+        const note = (item.note || "").toLowerCase();
+        const textOk = !term || title.includes(term) || note.includes(term);
+        const chipOk = active === "all" || title.includes(active) || note.includes(active);
+        return textOk && chipOk;
+      });
+    }
+
+    function renderTopics() {
+      const list = filterTopics();
+      topicsNode.innerHTML = list.length ? list.map((item) => `
+        <a class="topic-card" href="${item.url}" target="_blank" rel="noreferrer">
+          <small>INEI</small>
+          <strong>${item.title}</strong>
+          <span>${item.note || "テーマ別指標"}</span>
+        </a>
+      `).join("") : `
+        <div class="topic-card" style="grid-column: 1 / -1;">
+          <small>INEI</small>
+          <strong>該当テーマなし</strong>
+          <span>別のキーワードで絞り込んでください。</span>
+        </div>
+      `;
+      renderSummary(list);
+    }
+
+    function parseTopics(html) {
+      const doc = new DOMParser().parseFromString(html, "text/html");
+      const anchors = [...doc.querySelectorAll('a[href*="/estadisticas/indice-tematico/"]')];
+      const result = [];
+      const seen = new Set();
+      for (const anchor of anchors) {
+        const title = anchor.textContent.replace(/\s+/g, " ").trim();
+        const href = anchor.href;
+        if (!title || title.length < 2 || title === "Indicadores por tema" || seen.has(href)) {
+          continue;
+        }
+        seen.add(href);
+        result.push({ title, url: href, note: "テーマ別指標" });
+      }
+      return result;
+    }
+
+    async function loadTopics() {
+      setStatus("INEI のテーマ一覧を取得しています...");
+      try {
+        const response = await fetch(SOURCE_URL);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        const html = await response.text();
+        topics = parseTopics(html);
+        sourceMode = "live";
+        setStatus(`INEI の公開テーマを ${topics.length} 件読み込みました。`);
+      } catch (error) {
+        topics = FALLBACK_TOPICS.slice();
+        sourceMode = "sample";
+        setStatus("テーマ一覧を live 取得できなかったため、公開ページから抜き出したサンプルを表示しています。", true);
+      }
+      renderChips();
+      renderLinks();
+      renderTopics();
+    }
+
+    queryInput.addEventListener("input", renderTopics);
+    reloadButton.addEventListener("click", loadTopics);
+    clearButton.addEventListener("click", () => {
+      queryInput.value = "";
+      active = "all";
+      renderChips();
+      renderTopics();
+    });
+
+    renderLinks();
+    loadTopics();
+  </script>
+</body>
+</html>

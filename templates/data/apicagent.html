@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ApicAgent User-Agent 解析</title>
+  <style>
+    :root { --bg:#0b1020; --panel:#141b33; --text:#e8edff; --sub:#aeb8d9; --accent:#6ee7ff; --ok:#34d399; --warn:#f59e0b; --err:#f87171; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:"Segoe UI",sans-serif; background:radial-gradient(circle at top,#142247,#0b1020 50%); color:var(--text); min-height:100vh; }
+    .wrap { max-width:920px; margin:0 auto; padding:28px 16px 48px; }
+    .card { background:linear-gradient(180deg,#1a2448,#121a36); border:1px solid #2a3768; border-radius:16px; padding:18px; box-shadow:0 10px 24px rgba(0,0,0,.35); }
+    h1 { margin:0 0 8px; font-size:1.5rem; }
+    p { color:var(--sub); line-height:1.6; }
+    textarea { width:100%; min-height:110px; padding:12px; border-radius:10px; border:1px solid #415389; background:#0f1630; color:var(--text); }
+    .row { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    button, a.btn { border:none; border-radius:10px; padding:10px 14px; cursor:pointer; font-weight:700; text-decoration:none; display:inline-block; }
+    button { background:linear-gradient(90deg,#22d3ee,#3b82f6); color:#031327; }
+    .btn-sub { background:#283865; color:var(--text); }
+    .status { margin-top:12px; color:var(--sub); }
+    .status.ok { color:var(--ok); }
+    .status.warn { color:var(--warn); }
+    .status.err { color:var(--err); }
+    .grid { margin-top:16px; display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:10px; }
+    .kv { background:#0f1630; border:1px solid #2a3768; border-radius:10px; padding:10px; }
+    .k { color:#97a4cd; font-size:.85rem; }
+    .v { font-size:1rem; font-weight:700; margin-top:4px; word-break:break-word; }
+  </style>
+</head>
+<body>
+  <!--
+    概要: ApicAgent の GET APIで User-Agent を解析する紹介ページ。
+    構成: 入力フォーム / API呼び出し / 結果カード / API失敗時フォールバック。
+  -->
+  <div class="wrap">
+    <div class="card">
+      <h1>ApicAgent User-Agent 解析</h1>
+      <p>ユーザーエージェント文字列からブラウザ・OS・デバイス情報を推定します。まずは現在ブラウザのUAが入っています。</p>
+      <textarea id="uaInput"></textarea>
+      <div class="row">
+        <button id="analyzeBtn">解析する</button>
+        <button id="currentBtn" class="btn-sub">現在のUAを再入力</button>
+        <a class="btn btn-sub" href="https://www.apicagent.com/docs" target="_blank" rel="noreferrer">公式ドキュメント</a>
+      </div>
+      <div id="status" class="status">入力待ちです。</div>
+      <div id="result" class="grid"></div>
+    </div>
+  </div>
+
+  <script>
+    const uaInput = document.getElementById('uaInput');
+    const statusEl = document.getElementById('status');
+    const resultEl = document.getElementById('result');
+
+    function setStatus(text, type = '') {
+      statusEl.className = `status ${type}`.trim();
+      statusEl.textContent = text;
+    }
+
+    function renderMap(map) {
+      resultEl.innerHTML = '';
+      Object.entries(map).forEach(([k, v]) => {
+        const div = document.createElement('div');
+        div.className = 'kv';
+        div.innerHTML = `<div class="k">${k}</div><div class="v">${String(v ?? '-')}</div>`;
+        resultEl.appendChild(div);
+      });
+    }
+
+    function fallbackParse(ua) {
+      const browser = /Chrome/i.test(ua) ? 'Chrome系' : /Firefox/i.test(ua) ? 'Firefox' : /Safari/i.test(ua) ? 'Safari系' : '不明';
+      const os = /Windows/i.test(ua) ? 'Windows' : /Mac OS X/i.test(ua) ? 'macOS' : /Android/i.test(ua) ? 'Android' : /iPhone|iPad/i.test(ua) ? 'iOS' : '不明';
+      const device = /Mobile|Android|iPhone/i.test(ua) ? 'Mobile' : 'Desktop';
+      return { source: 'local-fallback', browser, os, deviceType: device, note: 'API応答が取得できないため簡易推定を表示中' };
+    }
+
+    async function analyze() {
+      const ua = uaInput.value.trim();
+      if (!ua) {
+        setStatus('User-Agent を入力してください。', 'warn');
+        return;
+      }
+      setStatus('ApicAgent に問い合わせ中...', '');
+      try {
+        const url = `https://api.apicagent.com/?ua=${encodeURIComponent(ua)}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        renderMap({
+          source: 'api.apicagent.com',
+          browser: data.browser_name || data.browser || '-',
+          browserVersion: data.browser_version || '-',
+          os: data.os_name || data.os || '-',
+          osVersion: data.os_version || '-',
+          deviceType: data.device_type || '-',
+          deviceBrand: data.device_brand || '-',
+          isBot: data.is_bot,
+          isMobile: data.is_mobile
+        });
+        setStatus('APIレスポンスを表示しました。', 'ok');
+      } catch (err) {
+        renderMap(fallbackParse(ua));
+        setStatus(`API応答を取得できなかったためフォールバック表示に切り替えました (${err.message})`, 'warn');
+      }
+    }
+
+    document.getElementById('analyzeBtn').addEventListener('click', analyze);
+    document.getElementById('currentBtn').addEventListener('click', () => {
+      uaInput.value = navigator.userAgent;
+      setStatus('現在のUAを入力しました。', '');
+    });
+
+    uaInput.value = navigator.userAgent;
+  </script>
+</body>
+</html>

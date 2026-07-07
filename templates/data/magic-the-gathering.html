@@ -1,0 +1,46 @@
+<!--
+  Purpose: MTG card lookup page for the WebAPI gallery.
+  Structure: search form, status summary, card grid, and sample fallback data.
+-->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MTGカード検索</title>
+<style>
+:root{--bg:#0f172a;--bg2:#1e293b;--card:#111827cc;--line:#334155;--text:#e2e8f0;--muted:#94a3b8;--accent:#f59e0b;--accent2:#fb7185}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at top left,rgba(245,158,11,.24),transparent 28%),radial-gradient(circle at 85% 10%,rgba(251,113,133,.22),transparent 24%),linear-gradient(135deg,#020617 0%,#0f172a 55%,#111827 100%);color:var(--text)}main{max-width:1180px;margin:0 auto;padding:32px 20px 48px}.hero,.panel{background:linear-gradient(180deg,rgba(15,23,42,.92),rgba(15,23,42,.84));border:1px solid rgba(148,163,184,.2);box-shadow:0 24px 60px rgba(2,6,23,.35);backdrop-filter:blur(14px);border-radius:24px}.hero{padding:28px}.kicker{display:inline-flex;gap:8px;align-items:center;padding:6px 12px;border-radius:999px;background:rgba(245,158,11,.12);color:#fbbf24;font-size:12px;letter-spacing:.08em;text-transform:uppercase}.hero h1{margin:14px 0 10px;font-size:clamp(32px,5vw,54px);line-height:1.05}.hero p{margin:0;max-width:780px;color:var(--muted);line-height:1.8}.hero-foot{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:20px}.link,.chip,.tag{display:inline-flex;align-items:center;gap:6px}.link{color:#fbbf24;text-decoration:none}.chip,.tag{padding:9px 12px;border-radius:999px;background:rgba(148,163,184,.12);color:var(--text);border:1px solid rgba(148,163,184,.16)}.panel{margin-top:18px;padding:18px}.controls{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:12px;align-items:end}.field{display:grid;gap:8px}.field label{font-size:12px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}.field input{width:100%;padding:14px 14px;border-radius:16px;border:1px solid var(--line);background:#0b1220;color:var(--text)}button{padding:14px 16px;border:none;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#111827;font-weight:700;cursor:pointer;box-shadow:0 14px 30px rgba(245,158,11,.22)}button.secondary{background:#111827;color:var(--text);border:1px solid var(--line);box-shadow:none}.summary{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;color:var(--muted)}.summary strong{color:var(--text)}.status{margin-top:16px;padding:14px 16px;border-radius:16px;background:rgba(51,65,85,.4);border:1px solid rgba(148,163,184,.16);color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:18px}.card{background:rgba(15,23,42,.8);border:1px solid rgba(148,163,184,.16);border-radius:20px;overflow:hidden;box-shadow:0 18px 40px rgba(2,6,23,.28)}.art{height:164px;background:linear-gradient(135deg,rgba(245,158,11,.28),rgba(251,113,133,.24)),linear-gradient(160deg,#1f2937,#0f172a);display:flex;align-items:flex-end;padding:16px;border-bottom:1px solid rgba(148,163,184,.16)}.art img{width:100%;height:100%;object-fit:cover;border-radius:14px;background:#0f172a}.meta{padding:16px}.meta h3{margin:0 0 8px;font-size:20px}.meta p{margin:0;color:var(--muted);line-height:1.7;font-size:14px}.meta .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.empty{padding:24px;border:1px dashed rgba(148,163,184,.25);border-radius:20px;color:var(--muted);text-align:center}.note{margin-top:18px;color:var(--muted);font-size:13px;line-height:1.7}
+@media (max-width:860px){.controls{grid-template-columns:1fr}.hero,.panel{border-radius:20px}}
+</style>
+</head>
+<body>
+<main>
+  <section class="hero">
+    <span class="kicker">data / game cards</span>
+    <h1>MTGカード検索</h1>
+    <p>Magic The Gathering のカード名で検索して、カードの種類・コスト・レアリティを一覧します。ライブ API が失敗しても、サンプルカードで利用イメージを維持します。</p>
+    <div class="hero-foot"><a class="link" href="http://magicthegathering.io/" target="_blank" rel="noreferrer">API ドキュメント</a><span class="tag">無料利用</span><span class="tag">ライブ検索 + サンプル fallback</span></div>
+  </section>
+  <section class="panel">
+    <div class="controls">
+      <div class="field"><label for="search">カード名</label><input id="search" type="text" value="Black Lotus" placeholder="Black Lotus, Counterspell ..."></div>
+      <button id="searchButton">検索</button>
+      <button id="sampleButton" class="secondary">サンプルを見る</button>
+    </div>
+    <div class="summary" id="summary"></div>
+    <div class="status" id="status">カード検索を準備中です。</div>
+    <div class="grid" id="results"></div>
+  </section>
+  <p class="note">検索は cards?name=... を使用します。レスポンス形が変わる場合に備えて、ライブ結果はカード配列として自動判定します。</p>
+</main>
+<script>
+const SEARCH=document.getElementById("search"),STATUS=document.getElementById("status"),SUMMARY=document.getElementById("summary"),RESULTS=document.getElementById("results");
+const SAMPLE_CARDS=[{name:"Black Lotus",type:"Artifact",manaCost:"{0}",rarity:"Rare",setName:"Alpha",text:"Add three mana of any one color.",colors:[]},{name:"Counterspell",type:"Instant",manaCost:"{U}{U}",rarity:"Uncommon",setName:"Ice Age",text:"Counter target spell.",colors:["Blue"]},{name:"Shivan Dragon",type:"Creature - Dragon",manaCost:"{4}{R}{R}",rarity:"Rare",setName:"Limited Edition Alpha",text:"Flying. {R}: Shivan Dragon gets +1/+0 until end of turn.",colors:["Red"]},{name:"Serra Angel",type:"Creature - Angel",manaCost:"{3}{W}{W}",rarity:"Uncommon",setName:"Limited Edition Alpha",text:"Flying, vigilance.",colors:["White"]}];
+function setStatus(message){STATUS.textContent=message}
+function normalizeCards(json){if(Array.isArray(json))return json;if(Array.isArray(json?.cards))return json.cards;if(Array.isArray(json?.data))return json.data;return[]}
+function safeText(value){return value?String(value):"-"}
+function render(cards,source){const term=SEARCH.value.trim().toLowerCase();const list=cards.filter((card)=>{const haystack=[card.name,card.type,card.setName,card.text,card.rarity,card.manaCost].join(" ").toLowerCase();return !term||haystack.includes(term)}).slice(0,12);SUMMARY.innerHTML=`<span class="tag"><strong>${cards.length}</strong> 件取得</span><span class="tag">表示 ${list.length} 件</span><span class="tag">ソース: ${source}</span>`;if(!list.length){RESULTS.innerHTML='<div class="empty">一致するカードがありませんでした。</div>';return}RESULTS.innerHTML=list.map((card)=>{const image=card.imageUrl?`<div class="art"><img src="${card.imageUrl}" alt="${card.name}"></div>`:`<div class="art"><div><strong>${safeText(card.type)}</strong><div style="opacity:.8;margin-top:8px">${safeText(card.setName)}</div></div></div>`;const colors=Array.isArray(card.colors)&&card.colors.length?card.colors.join(" / "):"Colorless";return`<article class="card">${image}<div class="meta"><h3>${safeText(card.name)}</h3><p>${safeText(card.text)}</p><div class="row"><span class="chip">${safeText(card.type)}</span><span class="chip">${safeText(card.manaCost)}</span><span class="chip">${safeText(card.rarity)}</span><span class="chip">${colors}</span></div></div></article>`}).join("")}
+async function loadCards(query,fallbackOnly=false){const term=(query||SEARCH.value).trim();if(fallbackOnly){setStatus("サンプルカードを表示しています。");render(SAMPLE_CARDS,"サンプル");return}setStatus("カードを取得中です...");try{const url=term?`https://api.magicthegathering.io/v1/cards?name=${encodeURIComponent(term)}&pageSize=12`:"https://api.magicthegathering.io/v1/cards?pageSize=12";const response=await fetch(url);if(!response.ok)throw new Error(`HTTP ${response.status}`);const json=await response.json();const cards=normalizeCards(json);if(!cards.length)throw new Error("カードが見つかりませんでした");setStatus(`ライブ取得に成功しました。${cards.length} 件見つかりました。`);render(cards,"ライブ API")}catch(error){setStatus(`ライブ API に失敗したため、サンプルカードを表示しています。(${error.message})`);render(SAMPLE_CARDS,"サンプル")}}
+document.getElementById("searchButton").addEventListener("click",()=>loadCards());document.getElementById("sampleButton").addEventListener("click",()=>loadCards("",true));SEARCH.addEventListener("keydown",(event)=>{if(event.key==="Enter")loadCards()});loadCards();
+</script></body></html>

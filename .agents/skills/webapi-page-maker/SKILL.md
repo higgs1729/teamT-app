@@ -82,7 +82,7 @@ Update all applicable docs:
 - `docs/specification.md`: add each new page to the external API table. If a new subcategory or design rule is introduced, document it near the WebAPI Gallery spec.
 - `README.md`: update only if the project-level description, folder structure, or operating instructions changed.
 - `fronted-v2/README.md`: update if add-flow fields or category rules changed.
-- `docs/apis/free-webapis-not-implemented.md`: remove or mark APIs that have just been implemented when practical.
+- `docs/apis/free-webapis-not-implemented.md`: mark APIs that have just been implemented when practical.
 
 ## Verification
 

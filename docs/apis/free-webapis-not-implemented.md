@@ -175,56 +175,56 @@
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [Postman Echo](https://www.postman-echo.com) | Test api server to receive and return value from HTTP method | Yes | Unknown | ? |
-| [PurgoMalum](http://www.purgomalum.com) | Content validator against profanity & obscenity | No | Unknown | ? |
+| [Postman Echo](https://www.postman-echo.com) | Test api server to receive and return value from HTTP method | Yes | Unknown | implemented: `templates/tools/postman-echo.html` |
+| [PurgoMalum](http://www.purgomalum.com) | Content validator against profanity & obscenity | No | Unknown | implemented: `templates/tools/purgomalum.html` |
 
 ### Development
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [24 Pull Requests](https://24pullrequests.com/api) | Project to promote open source collaboration during December | Yes | Yes | ? |
-| [Agify.io](https://agify.io) | Estimates the age from a first name | Yes | Yes | ? |
-| [API Grátis](https://apigratis.com.br/) | Multiples services and public APIs | Yes | Unknown | ? |
-| [ApicAgent](https://www.apicagent.com) | Extract device details from user-agent string | Yes | Yes | ? |
-| [APIs.guru](https://apis.guru/api-doc/) | Wikipedia for Web APIs, OpenAPI/Swagger specs for public APIs | Yes | Unknown | ? |
-| [Beeceptor](https://beeceptor.com/) | Build a mock Rest API endpoint in seconds | Yes | Yes | ? |
-| [Bored](https://www.boredapi.com/) | Find random activities to fight boredom | Yes | Unknown | ? |
-| [BrewPage](https://brewpage.app) | Free hosting for HTML, JSON, key-value, files, multi-file sites with short URLs and TTL retention | Yes | No | ? |
-| [CDNJS](https://api.cdnjs.com/libraries/jquery) | Library info on CDNJS | Yes | Unknown | ? |
-| [Changelogs.md](https://changelogs.md) | Structured changelog metadata from open source projects | Yes | Unknown | ? |
-| [Ciprand](https://github.com/polarspetroll/ciprand) | Secure random string generator | Yes | No | ? |
-| [Cloudflare Trace](https://github.com/fawazahmed0/cloudflare-trace-api) | Get IP Address, Timestamp, User Agent, Country Code, IATA, HTTP Version, TLS/SSL Version & More | Yes | Yes | ? |
-| [Codex](https://github.com/Jaagrav/CodeX) | Online Compiler for Various Languages | Yes | Unknown | ? |
-| [CORS Proxy](https://github.com/burhanuday/cors-proxy) | Get around the dreaded CORS error by using this proxy as a middle man | Yes | Yes | ? |
-| [CountAPI](https://countapi.xyz) | Free and simple counting service. You can use it to track page hits and specific events | Yes | Yes | ? |
-| [DigitalOcean Status](https://status.digitalocean.com/api) | Status of all DigitalOcean services | Yes | Unknown | ? |
-| [DomainDb Info](https://api.domainsdb.info/) | Domain name search to find all domains containing particular words/phrases/etc | Yes | Unknown | ? |
-| [DownStatus](https://isitdownstatus.com) | Real-time status for GitHub, AWS, Discord and 90+ services | Yes | Yes | ? |
-| [ExtendsClass JSON Storage](https://extendsclass.com/json-storage.html) | A simple JSON store API | Yes | Yes | ? |
-| [host-t.com](https://host-t.com) | Basic DNS query via HTTP GET request | Yes | No | ? |
-| [HTTP2.Pro](https://http2.pro/doc/api) | Test endpoints for client and server HTTP/2 protocol support | Yes | Unknown | ? |
-| [Httpbin](https://httpbin.org/) | A Simple HTTP Request & Response Service | Yes | Yes | ? |
-| [Httpbin Cloudflare](https://cloudflare-quic.com/b/) | A Simple HTTP Request & Response Service with HTTP/3 Support by Cloudflare | Yes | Yes | ? |
-| [Hipsum](https://hipsum.co) | Hipster-themed lorem ipsum generator for placeholder text | Yes | Unknown | ? |
-| [Icanhazepoch](https://icanhazepoch.com) | Get Epoch time | Yes | Yes | ? |
-| [Icanhazip](https://major.io/icanhazip-com-faq/) | IP Address API | Yes | Yes | ? |
-| [IFTTT](https://platform.ifttt.com/docs/connect_api) | IFTTT Connect API | Yes | Unknown | ? |
-| [Image-Charts](https://documentation.image-charts.com/) | Generate charts, QR codes and graph images | Yes | Yes | ? |
-| [ip-fast.com](https://ip-fast.com/docs/) | IP address, country and city | Yes | Yes | ? |
-| [IPify](https://www.ipify.org/) | A simple IP Address API | Yes | Unknown | ? |
-| [IPinfo](https://ipinfo.io/developers) | Another simple IP Address API | Yes | Unknown | ? |
-| [isitdownstatus](https://isitdownstatus.com) | Check if websites and online services are currently down | Yes | Unknown | ? |
-| [jsDelivr](https://github.com/jsdelivr/data.jsdelivr.com) | Package info and download stats on jsDelivr CDN | Yes | Yes | ? |
-| [JSON 2 JSONP](https://json2jsonp.com/) | Convert JSON to JSONP (on-the-fly) for easy cross-domain data requests using client-side JavaScript | Yes | Unknown | ? |
-| [Keyvalue](https://keyvalue.immanuel.co/) | Simple key-value storage REST API for quick prototyping | Yes | Unknown | ? |
-| [Kroki](https://kroki.io) | Creates diagrams from textual descriptions | Yes | Yes | ? |
-| [License-API](https://github.com/cmccandless/license-api/blob/master/README.md) | Unofficial REST API for choosealicense.com | Yes | No | ? |
-| [Lua Decompiler](https://lua-decompiler.ferib.dev/) | Online Lua 5.1 Decompiler | Yes | Yes | ? |
-| [MicroENV](https://microenv.com/) | Fake Rest API for developers | Yes | Unknown | ? |
-| [Mocky](https://designer.mocky.io/) | Mock user defined test JSON for REST API endpoints | Yes | Yes | ? |
-| [MY IP](https://www.myip.com/api-docs/) | Get IP address information | Yes | Unknown | ? |
-| [Nationalize.io](https://nationalize.io) | Estimate the nationality of a first name | Yes | Yes | ? |
-| [NetworkCalc](https://networkcalc.com/api/docs) | Network calculators, including subnets, DNS, binary, and security tools | Yes | Yes | ? |
+| [24 Pull Requests](https://24pullrequests.com/api) | Project to promote open source collaboration during December | Yes | Yes | implemented: `templates/data/24-pull-requests.html` |
+| [Agify.io](https://agify.io) | Estimates the age from a first name | Yes | Yes | implemented: `templates/data/agify.html` |
+| [API Grátis](https://apigratis.com.br/) | Multiples services and public APIs | Yes | Unknown | implemented with fallback: `templates/data/api-gratis.html` |
+| [ApicAgent](https://www.apicagent.com) | Extract device details from user-agent string | Yes | Yes | implemented with fallback: `templates/data/apicagent.html` |
+| [APIs.guru](https://apis.guru/api-doc/) | Wikipedia for Web APIs, OpenAPI/Swagger specs for public APIs | Yes | Unknown | implemented: `templates/data/apis-guru.html` |
+| [Beeceptor](https://beeceptor.com/) | Build a mock Rest API endpoint in seconds | Yes | Yes | implemented: `templates/tools/beeceptor-echo.html` |
+| [Bored](https://www.boredapi.com/) | Find random activities to fight boredom | Yes | Unknown | implemented with fallback: `templates/fun/bored.html` |
+| [BrewPage](https://brewpage.app) | Free hosting for HTML, JSON, key-value, files, multi-file sites with short URLs and TTL retention | Yes | No | implemented with CORS fallback: `templates/tools/brewpage.html` |
+| [CDNJS](https://api.cdnjs.com/libraries/jquery) | Library info on CDNJS | Yes | Unknown | implemented: `templates/data/cdnjs.html` |
+| [Changelogs.md](https://changelogs.md) | Structured changelog metadata from open source projects | Yes | Unknown | implemented with fallback: `templates/data/changelogs-md.html` |
+| [Ciprand](https://github.com/polarspetroll/ciprand) | Secure random string generator | Yes | No | implemented with Web Crypto fallback: `templates/tools/ciprand.html` |
+| [Cloudflare Trace](https://github.com/fawazahmed0/cloudflare-trace-api) | Get IP Address, Timestamp, User Agent, Country Code, IATA, HTTP Version, TLS/SSL Version & More | Yes | Yes | implemented: `templates/data/cloudflare-trace.html` |
+| [Codex](https://github.com/Jaagrav/CodeX) | Online Compiler for Various Languages | Yes | Unknown | implemented with request fallback: `templates/tools/codex-compiler.html` |
+| [CORS Proxy](https://github.com/burhanuday/cors-proxy) | Get around the dreaded CORS error by using this proxy as a middle man | Yes | Yes | implemented: `templates/tools/cors-proxy.html` |
+| [CountAPI](https://countapi.xyz) | Free and simple counting service. You can use it to track page hits and specific events | Yes | Yes | implemented: `templates/tools/countapi.html` |
+| [DigitalOcean Status](https://status.digitalocean.com/api) | Status of all DigitalOcean services | Yes | Unknown | implemented: `templates/data/digitalocean-status.html` |
+| [DomainDb Info](https://api.domainsdb.info/) | Domain name search to find all domains containing particular words/phrases/etc | Yes | Unknown | implemented: `templates/data/domainsdb.html` |
+| [DownStatus](https://isitdownstatus.com) | Real-time status for GitHub, AWS, Discord and 90+ services | Yes | Yes | implemented with fallback: `templates/data/downstatus.html` |
+| [ExtendsClass JSON Storage](https://extendsclass.com/json-storage.html) | A simple JSON store API | Yes | Yes | implemented with fallback: `templates/tools/extendsclass-json-storage.html` |
+| [host-t.com](https://host-t.com) | Basic DNS query via HTTP GET request | Yes | No | implemented with URL fallback: `templates/data/host-t-dns.html` |
+| [HTTP2.Pro](https://http2.pro/doc/api) | Test endpoints for client and server HTTP/2 protocol support | Yes | Unknown | implemented with fallback: `templates/tools/http2-pro.html` |
+| [Httpbin](https://httpbin.org/) | A Simple HTTP Request & Response Service | Yes | Yes | implemented: `templates/tools/httpbin.html` |
+| [Httpbin Cloudflare](https://cloudflare-quic.com/b/) | A Simple HTTP Request & Response Service with HTTP/3 Support by Cloudflare | Yes | Yes | implemented: `templates/tools/httpbin-cloudflare.html` |
+| [Hipsum](https://hipsum.co) | Hipster-themed lorem ipsum generator for placeholder text | Yes | Unknown | implemented with fallback: `templates/fun/hipsum.html` |
+| [Icanhazepoch](https://icanhazepoch.com) | Get Epoch time | Yes | Yes | implemented: `templates/tools/icanhazepoch.html` |
+| [Icanhazip](https://major.io/icanhazip-com-faq/) | IP Address API | Yes | Yes | implemented: `templates/data/icanhazip.html` |
+| [IFTTT](https://platform.ifttt.com/docs/connect_api) | IFTTT Connect API | Yes | Unknown | implemented as auth-safe notes: `templates/tools/ifttt-connect.html` |
+| [Image-Charts](https://documentation.image-charts.com/) | Generate charts, QR codes and graph images | Yes | Yes | implemented: `templates/tools/image-charts.html` |
+| [ip-fast.com](https://ip-fast.com/docs/) | IP address, country and city | Yes | Yes | implemented: `templates/data/ip-fast.html` |
+| [IPify](https://www.ipify.org/) | A simple IP Address API | Yes | Unknown | implemented: `templates/data/ipify.html` |
+| [IPinfo](https://ipinfo.io/developers) | Another simple IP Address API | Yes | Unknown | implemented with fallback: `templates/data/ipinfo.html` |
+| [isitdownstatus](https://isitdownstatus.com) | Check if websites and online services are currently down | Yes | Unknown | implemented with fallback: `templates/data/isitdownstatus.html` |
+| [jsDelivr](https://github.com/jsdelivr/data.jsdelivr.com) | Package info and download stats on jsDelivr CDN | Yes | Yes | implemented: `templates/data/jsdelivr.html` |
+| [JSON 2 JSONP](https://json2jsonp.com/) | Convert JSON to JSONP (on-the-fly) for easy cross-domain data requests using client-side JavaScript | Yes | Unknown | implemented: `templates/tools/json2jsonp.html` |
+| [Keyvalue](https://keyvalue.immanuel.co/) | Simple key-value storage REST API for quick prototyping | Yes | Unknown | implemented with fallback: `templates/tools/keyvalue.html` |
+| [Kroki](https://kroki.io) | Creates diagrams from textual descriptions | Yes | Yes | implemented: `templates/tools/kroki.html` |
+| [License-API](https://github.com/cmccandless/license-api/blob/master/README.md) | Unofficial REST API for choosealicense.com | Yes | No | implemented with fallback: `templates/data/license-api.html` |
+| [Lua Decompiler](https://lua-decompiler.ferib.dev/) | Online Lua 5.1 Decompiler | Yes | Yes | implemented as request notes: `templates/tools/lua-decompiler.html` |
+| [MicroENV](https://microenv.com/) | Fake Rest API for developers | Yes | Unknown | implemented as request notes: `templates/tools/microenv.html` |
+| [Mocky](https://designer.mocky.io/) | Mock user defined test JSON for REST API endpoints | Yes | Yes | implemented as request notes: `templates/tools/mocky.html` |
+| [MY IP](https://www.myip.com/api-docs/) | Get IP address information | Yes | Unknown | implemented with fallback: `templates/data/my-ip.html` |
+| [Nationalize.io](https://nationalize.io) | Estimate the nationality of a first name | Yes | Yes | implemented: `templates/data/nationalize.html` |
+| [NetworkCalc](https://networkcalc.com/api/docs) | Network calculators, including subnets, DNS, binary, and security tools | Yes | Yes | implemented as request notes: `templates/tools/networkcalc.html` |
 | [npm Registry](https://github.com/npm/registry/blob/master/docs/REGISTRY-API.md) | Query information about your favorite Node.js libraries programatically | Yes | Unknown | ? |
 | [oyyi](https://oyyi.xyz/docs/1.0) | API for Fake Data, image/video conversion, optimization, pdf optimization and thumbnail generation | Yes | Yes | ? |
 | [QR & Barcode](https://solsigs.com/qrapi/) | QR codes and barcodes (Code 128, EAN-13, Data Matrix, PDF417 + more). SVG or PNG output | Yes | Yes | ? |
@@ -339,10 +339,6 @@
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [AmiiboAPI](https://amiiboapi.com/) | Nintendo Amiibo Information | Yes | Yes | ? |
-| [Animal Crossing: New Horizons](http://acnhapi.com/) | API for critters, fossils, art, music, furniture and villagers | Yes | Unknown | ? |
-| [Astroworld](https://api.astroworldmc.com) | Free Minecraft data: mobs, biomes, items, enchantments, structures, commands, versions, achievements, trades | Yes | Yes | ? |
-| [Autochess VNG](https://github.com/didadadida93/autochess-vng-api) | Rest Api for Autochess VNG | Yes | Yes | ? |
 | [Barter.VG](https://github.com/bartervg/barter.vg/wiki) | Provides information about Game, DLC, Bundles, Giveaways, Trading | Yes | Yes | ? |
 | [Board Game Geek](https://boardgamegeek.com/wiki/page/BGG_XML_API2) | Board games, RPG and videogames | Yes | No | ? |
 | [Bugsnax](https://www.bugsnaxapi.com/) | Get information about Bugsnax | Yes | Yes | ? |
@@ -375,11 +371,6 @@
 | [Hytale](https://hytale-api.com/) | Hytale blog posts and jobs | Yes | Unknown | ? |
 | [JokeAPI](https://sv443.net/jokeapi/v2/) | Programming, Miscellaneous and Dark Jokes | Yes | Yes | ? |
 | [Jservice](http://jservice.io) | Jeopardy Question Database | No | Unknown | ? |
-| [Magic The Gathering](http://magicthegathering.io/) | Magic The Gathering Game Information | No | Unknown | ? |
-| [Minecraft Server Status](https://api.mcsrvstat.us) | API to get Information about a Minecraft Server | Yes | No | ? |
-| [MMO Games](https://www.mmobomb.com/api) | MMO Games Database, News and Giveaways | Yes | No | ? |
-| [Monster Hunter World](https://docs.mhw-db.com/) | Monster Hunter World data | Yes | Yes | ? |
-| [PlayerDB](https://playerdb.co/) | Query Minecraft, Steam and XBox Accounts | Yes | Unknown | ? |
 | [Pokémon TCG](https://pokemontcg.io) | Pokémon TCG Information | Yes | Unknown | ? |
 | [Psychonauts](https://psychonauts-api.netlify.app/) | Psychonauts World Characters Information and PSI Powers | Yes | Yes | ? |
 | [Puyo Nexus](https://github.com/deltadex7/puyodb-api-deno) | Puyo Puyo information from Puyo Nexus Wiki | Yes | Yes | ? |
@@ -474,13 +465,7 @@
 | [Data.parliament.uk](https://explore.data.parliament.uk/?learnmore=Members) | Contains live datasets including information about petitions, bills, MP votes, attendance and more | No | Unknown | ? |
 | [District of Columbia Open Data](http://opendata.dc.gov/pages/using-apis) | Contains D.C. government public datasets, including crime, GIS, financial data, and so on | Yes | Unknown | ? |
 | [EPA](https://www.epa.gov/developers/data-data-products#apis) | Web services and data sets from the US Environmental Protection Agency | Yes | Unknown | ? |
-| [FBI Wanted](https://www.fbi.gov/wanted/api) | Access information on the FBI Wanted program | Yes | Unknown | ? |
 | [Federal Register](https://www.federalregister.gov/reader-aids/developer-resources/rest-api) | The Daily Journal of the United States Government | Yes | Unknown | ? |
-| [Food Standards Agency](http://ratings.food.gov.uk/open-data/en-GB) | UK food hygiene rating data API | No | Unknown | ? |
-| [Indian Pincode](https://indianpincode.com/) | Free India PIN code lookup with GPS coordinates, 165k+ post offices, state & district data | Yes | Yes | ? |
-| [INEI](http://iinei.inei.gob.pe/microdatos/) | Peruvian Statistical Government Open Data | No | Unknown | ? |
-| [Interpol Red Notices](https://interpol.api.bund.dev/) | Access and search Interpol Red Notices | Yes | Unknown | ? |
-| [Istanbul (İBB) Open Data](https://data.ibb.gov.tr) | Data sets from the İstanbul Metropolitan Municipality (İBB) | Yes | Unknown | ? |
 | [LocalGov.jp](https://localgov.jp/) | Japan grants and subsidies (central J-Grants + 1,916 municipalities) | Yes | Yes | ? |
 | [Neotimo DGFiP Mirror](https://neotimo.com/annuaire-dgfip) | French DGFiP registry of certified e-invoicing platforms (Plateformes Agréées), searchable by SIRET | Yes | Unknown | ? |
 | [Open Government, ACT](https://www.data.act.gov.au/) | Australian Capital Territory Open Data | Yes | Unknown | ? |

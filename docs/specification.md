@@ -45,7 +45,8 @@
     UIは`design-spec-studio`の`ui_mockup.html`のデザインシステムに準拠。一覧データは`fronted-v2/js/catalog.js`に集約。
   - 分類設計: `category` は後方互換用の大分類、`categoryPath` はサイドバー表示用の階層分類（例: `["データ・検索系", "宇宙・天気"]`）。`categoryPath` が未指定の古い項目は `category` の1階層分類として扱う。
     - 大分類: 画像・ビジュアル系 / データ・検索系 / 為替・ツール系 / エンタメ・おもしろ系
-    - 小分類例: 動物画像 / アート・デザイン / 3D・アバター / キャラクター画像 / アニメ・カード / ゲーム・キャラクター / 宇宙・天気 / 乗り物・交通 / ネットワーク・セキュリティ / 企業・公共データ / 金融・マーケット / ブロックチェーン・市場 / 日付・時刻 / 通貨・為替 / 地図・住所 / 翻訳・言語 / ジョーク・雑学 / クイズ・ゲーム / 意思決定・名言
+    - 小分類例: 動物画像 / アート・デザイン / 3D・アバター / キャラクター画像 / アニメ・カード / ゲーム・キャラクター / 宇宙・天気 / 乗り物・交通 / ネットワーク・セキュリティ / 企業・公共データ / 金融・マーケット / ブロックチェーン・市場 / 人名・属性推定 / 開発・OSS / 日付・時刻 / 通貨・為替 / 地図・住所 / 翻訳・言語 / 開発・検証 / テキスト検証 / ジョーク・雑学 / クイズ・ゲーム / 意思決定・名言
+    - 追加の小分類例: 食品・生活 / 統計・公的データ / 都市・オープンデータ
     - 設計判断: Chainlink / Chainpoint / Helium / Steem / TWZRD Agent Intel / Walltime は、暗号資産・分散ネットワーク・市場情報を横断するため、既存の「金融・マーケット」ではなく `["データ・検索系", "ブロックチェーン・市場"]` にまとめる。APIキーやCORS制限があるサービスはキー入力欄を持ち、失敗時は仕様理解用のサンプル表示にフォールバックする。
     - 設計判断: MarkerAPI / Pick an Agency / Tenders Guru は企業・商標・公共調達の検索データであり、国・地域の基礎情報とは用途が異なるため `["データ・検索系", "企業・公共データ"]` にまとめる。DomainsDB はドメイン調査用途のため既存の `["データ・検索系", "ネットワーク・セキュリティ"]` に置く。
 
@@ -135,6 +136,10 @@
 | data | tenders-guru-es | Tenders Guru API | スペインの公共調達データを取得 |
 | data | tenders-guru-ua | Tenders Guru API | ウクライナの公共調達データを取得 |
 | data | ip | ローカルサンプルデータ | IPジオロケーション情報の表示サンプル |
+| data | food-hygiene-ratings | Food Hygiene Ratings API | 食品衛生評価の公開データを地域別に探索 |
+| data | inei-portal | INEI 統計ポータル | INEI のテーマ別統計リンクを検索・参照 |
+| data | interpol-red-notices | Interpol Notices API | Interpol赤手配の人物を条件検索して表示 |
+| data | ibb-open-data | İBB Open Data Portal | İBB公開データをキーワードとカテゴリで検索 |
 | data | kabu | Alpha Vantage | 銘柄コードで株価・騰落率を検索 |
 | data | chainlink | Chainlink Data Feeds | Data Feeds種別と利用イメージを表示 |
 | data | chainpoint | Chainpoint | ハッシュを使ったブロックチェーン証明フローを表示 |
@@ -147,11 +152,41 @@
 | data | saiba- | Shodan API | IPの公開アセット情報・ポート調査 |
 | data | urlhaus | URLhaus API | URLhaus の recent URLs / payloads を Auth-Key 付きで閲覧 |
 | data | seibetu | Genderize.io | 名前から性別と確率を推定 |
+| data | agify | Agify.io | 名前から推定年齢と参照件数を取得 |
+| data | apicagent | ApicAgent | User-Agent文字列を解析してブラウザ・OS・端末情報を表示 |
+| data | apis-guru | APIs.guru Directory API | OpenAPIディレクトリのメトリクス・プロバイダ一覧を検索 |
+| data | cdnjs | CDNJS API | ライブラリ情報とCDN URLを検索 |
+| data | changelogs-md | Changelogs.md | OSSライブラリのchangelog検索結果を取得 |
 | data | weather | 気象庁 予報JSON | 都道府県ごとの天気予報を取得 |
+| data | 24-pull-requests | 24 Pull Requests API | OSS貢献促進サービスのプロジェクト一覧やPR統計を取得 |
+| data | api-gratis | API Grátis | 公式URLの到達状況と仕様確認メモを表示 |
+| data | cloudflare-trace | Cloudflare Trace API | IP・国・HTTP/TLS情報を取得 |
+| data | digitalocean-status | DigitalOcean Status API | DigitalOceanの全体状態とコンポーネント状態を取得 |
+| data | domainsdb | DomainDb Info | キーワードを含むドメイン名を検索 |
+| data | downstatus | DownStatus | 外部サービスの稼働状況確認API候補を表示 |
+| data | host-t-dns | host-t.com | HTTP GETでDNS問い合わせURLを作成し取得を試行 |
+| data | icanhazip | Icanhazip | アクセス元のグローバルIPアドレスを取得 |
+| data | ip-fast | ip-fast.com | IPアドレス・国・都市情報を取得 |
+| data | ipify | IPify | 現在のグローバルIPアドレスをJSONで取得 |
+| data | ipinfo | IPinfo | IPの地域・組織情報を取得 |
+| data | my-ip | MY IP | IPアドレス情報を取得 |
+| data | isitdownstatus | isitdownstatus | Webサイトやサービスのダウン状態確認API候補 |
+| data | jsdelivr | jsDelivr Data API | npmパッケージのCDNファイル情報を取得 |
+| data | license-api | License-API | OSSライセンス情報API候補を取得またはフォールバック表示 |
+| data | nationalize | Nationalize.io | 名前から国籍候補と確率を推定 |
 | data | utyu | NASA NeoWs | 近地天体(NEO)観測データ |
 | data | wakusei | ローカルデータ(サンプル) | 太陽系の惑星情報 |
 | data | burogu | JSONPlaceholder | ダミー記事のランダム表示 |
 | data | game | RAWG API | 高評価ゲーム一覧 |
+| data | amiibo | AmiiboAPI | Amiibo検索 |
+| data | animal-crossing-new-horizons | Animal Crossing: New Horizons API | 住民や魚・虫・化石の図鑑 |
+| data | astroworld | Astroworld API | Minecraft系データの検索 |
+| data | autochess-vng | Autochess VNG API | 英雄・クラス・種族の図鑑 |
+| data | magic-the-gathering | Magic The Gathering API | MTGカード検索 |
+| data | minecraft-server-status | Minecraft Server Status API | Minecraftサーバーの状態確認 |
+| data | mmo-games | MMOBomb MMO Games API | MMOゲーム・ニュース・配布情報 |
+| data | monster-hunter-world | MHW DB API | モンハンワールドのモンスター図鑑 |
+| data | playerdb | PlayerDB | Minecraft / Steam / Xbox / Hytale のプロフィール検索 |
 | data | hon | Open Library | 書籍・漫画検索 |
 | data | index | Random User Generator | ランダムなプロフィール生成 |
 | data | Cars | NHTSA Vehicle API / Wikipedia API / Argos Translate | メーカーとモデルを選んで車両情報と画像を検索 |
@@ -164,17 +199,42 @@
 | tools | genngohonnyaku | ローカル辞書(サンプル) | 日本語↔英語の簡易翻訳 |
 | tools | tizu | Leaflet / OpenStreetMap | 地図表示とクリック位置マーカー追加 |
 | tools | zipcode | ZipCloud API | 郵便番号から住所検索 |
+| tools | postman-echo | Postman Echo | GETパラメータを返すテストAPIでリクエスト検証 |
+| tools | purgomalum | PurgoMalum | 入力テキストの不適切語を検出・置換 |
+| tools | beeceptor-echo | Beeceptor HTTP Echo | HTTPリクエストを送信しエコー内容を確認 |
+| tools | brewpage | BrewPage API | HTML投稿で共有URLを取得（失敗時はcurl手順を表示） |
+| tools | ciprand | Ciprand | セキュアなランダム文字列を生成 |
+| tools | codex-compiler | CodeX | オンラインコンパイラAPIへのリクエスト形状を確認 |
+| tools | cors-proxy | CORS Proxy | CORS回避用プロキシURLを生成し取得を試行 |
+| tools | countapi | CountAPI | 名前空間とキーでシンプルなカウンターを操作 |
+| tools | extendsclass-json-storage | ExtendsClass JSON Storage | JSON保存API候補を試し、失敗時はlocalStorageに保存 |
+| tools | http2-pro | HTTP2.Pro | 指定URLのHTTP/2対応チェックAPI候補を試行 |
+| tools | httpbin | Httpbin | HTTPリクエスト/レスポンス検証用APIを試す |
+| tools | httpbin-cloudflare | Httpbin Cloudflare | Cloudflare版Httpbin互換API候補でGET echoを確認 |
+| tools | icanhazepoch | Icanhazepoch | 現在のUnix epoch秒を表示 |
+| tools | ifttt-connect | IFTTT Connect API | 認証が必要なConnect APIのリクエスト構造を確認 |
+| tools | image-charts | Image-Charts | URLパラメータで棒グラフ画像を生成 |
+| tools | json2jsonp | JSON 2 JSONP | JSON URLをJSONP呼び出し用URLへ変換 |
+| tools | keyvalue | Keyvalue | 簡易key-valueストレージAPI候補を試す |
+| tools | kroki | Kroki | Mermaidなどのテキスト図を画像化 |
+| tools | lua-decompiler | Lua Decompiler | Lua 5.1デコンパイラAPI候補のリクエスト形状を確認 |
+| tools | microenv | MicroENV | Fake REST API候補のリクエスト例を表示 |
+| tools | mocky | Mocky | 任意JSONを返すモックURL作成手順を確認 |
+| tools | networkcalc | NetworkCalc | サブネットなどのネットワーク計算API候補を紹介 |
+| tools | india-pincode | Indian Pincode | インド郵便番号のサンプルデータで住所検索 |
 | fun | joke | Official Joke API | 海外ジョーク |
 | fun | animechan | Animechan API | アニメ引用をランダム取得して表示 |
 | fun | anime-facts | Anime Facts REST API | アニメ作品の雑学と画像を取得 |
 | fun | ohuzake | Useless Facts | ランダム雑学 |
 | fun | OpenTrivia | Open Trivia DB | クイズ |
 | fun | tai | Quotable API | 英文お題を使ったタイピングゲーム |
+| fun | bored | Bored API | 気分転換アクティビティを提案（応答不可時はローカル候補） |
+| fun | hipsum | Hipsum | ヒップスター風ダミーテキストを生成 |
 | fun | YesNo | yesno.wtf | Yes/No判定 |
 | fun | meigenn | ローカルデータ(サンプル) | 名言をランダム表示 |
 | fun | Useless | Useless Facts / MyMemory Translation API / Unsplash Source | ランダム雑学を翻訳付きで表示 |
 
-※ 翻訳に MyMemory Translation API を併用するページあり（joke / ohuzake / Jikan / OpenTrivia / Yugio）。Cars は Argos Translate を併用。Useless は MyMemory Translation API と Unsplash Source を併用。NASA系・RAWG(game)はAPIキーが必要。wakusei / meigenn / genngohonnyaku は外部APIを使わないローカルデータのサンプル。
+※ 翻訳に MyMemory Translation API を併用するページあり（joke / ohuzake / Jikan / OpenTrivia / Yugio）。Cars は Argos Translate を併用。Useless は MyMemory Translation API と Unsplash Source を併用。`zyouku` は Google Translate を利用する。NASA系・RAWG(game)はAPIキーが必要。wakusei / meigenn / genngohonnyaku / sindan は外部APIを使わないローカルデータのサンプル。`minecraft-server-status` はブラウザの User-Agent 制約で live fetch が失敗する場合があるため、icon endpoint とサンプル fallback を併用する。`autochess-vng` は公開リポジトリ由来のサンプル図鑑として扱い、ライブ API が使えない場合はサンプル表示を行う。
 
 ---
 

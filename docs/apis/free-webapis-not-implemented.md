@@ -362,10 +362,6 @@
 
 | API | ?? | HTTPS | CORS | HTML??? |
 |---|---|---:|---:|---|
-| [AmiiboAPI](https://amiiboapi.com/) | Nintendo Amiibo Information | Yes | Yes | ? |
-| [Animal Crossing: New Horizons](http://acnhapi.com/) | API for critters, fossils, art, music, furniture and villagers | Yes | Unknown | ? |
-| [Astroworld](https://api.astroworldmc.com) | Free Minecraft data: mobs, biomes, items, enchantments, structures, commands, versions, achievements, trades | Yes | Yes | ? |
-| [Autochess VNG](https://github.com/didadadida93/autochess-vng-api) | Rest Api for Autochess VNG | Yes | Yes | ? |
 | [Barter.VG](https://github.com/bartervg/barter.vg/wiki) | Provides information about Game, DLC, Bundles, Giveaways, Trading | Yes | Yes | ? |
 | [Board Game Geek](https://boardgamegeek.com/wiki/page/BGG_XML_API2) | Board games, RPG and videogames | Yes | No | ? |
 | [Bugsnax](https://www.bugsnaxapi.com/) | Get information about Bugsnax | Yes | Yes | ? |
@@ -398,11 +394,6 @@
 | [Hytale](https://hytale-api.com/) | Hytale blog posts and jobs | Yes | Unknown | ? |
 | [JokeAPI](https://sv443.net/jokeapi/v2/) | Programming, Miscellaneous and Dark Jokes | Yes | Yes | ? |
 | [Jservice](http://jservice.io) | Jeopardy Question Database | No | Unknown | ? |
-| [Magic The Gathering](http://magicthegathering.io/) | Magic The Gathering Game Information | No | Unknown | ? |
-| [Minecraft Server Status](https://api.mcsrvstat.us) | API to get Information about a Minecraft Server | Yes | No | ? |
-| [MMO Games](https://www.mmobomb.com/api) | MMO Games Database, News and Giveaways | Yes | No | ? |
-| [Monster Hunter World](https://docs.mhw-db.com/) | Monster Hunter World data | Yes | Yes | ? |
-| [PlayerDB](https://playerdb.co/) | Query Minecraft, Steam and XBox Accounts | Yes | Unknown | ? |
 | [Pokémon TCG](https://pokemontcg.io) | Pokémon TCG Information | Yes | Unknown | ? |
 | [Psychonauts](https://psychonauts-api.netlify.app/) | Psychonauts World Characters Information and PSI Powers | Yes | Yes | ? |
 | [Puyo Nexus](https://github.com/deltadex7/puyodb-api-deno) | Puyo Puyo information from Puyo Nexus Wiki | Yes | Yes | ? |

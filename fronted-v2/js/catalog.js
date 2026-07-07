@@ -122,6 +122,8 @@ window.CATALOG = [
     description: "ランダムにポケモンを引いて図鑑表示", apiName: "PokeAPI", apiUrl: "https://pokeapi.co/", icon: "ti-device-gamepad-2" },
   { id: "akusyonn", file: "data/akusyonn.html", title: "ゲーム図鑑", category: "データ・検索系", categoryPath: ["データ・検索系", "ゲーム・キャラクター"],
     description: "無料PCゲームの一覧・情報を取得", apiName: "FreeToGame", apiUrl: "https://www.freetogame.com/api-doc", icon: "ti-device-gamepad" },
+  { id: "cheapshark", file: "data/cheapshark.html", title: "ゲームセール検索", category: "データ・検索系", categoryPath: ["データ・検索系", "ゲーム・キャラクター"],
+    description: "PCゲームの現在セール情報をタイトル検索して一覧表示", apiName: "CheapShark", apiUrl: "https://apidocs.cheapshark.com/", icon: "ti-currency-yen" },
   { id: "applemusic", file: "data/applemusic.html", title: "Apple Music 検索", category: "データ・検索系", categoryPath: ["データ・検索系", "音楽・書籍"],
     description: "iTunes の楽曲をキーワード検索", apiName: "iTunes Search API", apiUrl: "https://performance-partners.apple.com/search-api", icon: "ti-music" },
   { id: "nasa", file: "data/nasa.html", title: "NASA 今日の天体", category: "データ・検索系", categoryPath: ["データ・検索系", "宇宙・天気"],

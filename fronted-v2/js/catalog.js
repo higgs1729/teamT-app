@@ -129,4 +129,8 @@ window.CATALOG = [
     description: "雑学を取得して翻訳付きで表示", apiName: "Useless Facts / MyMemory Translation API / Unsplash Source", apiUrl: "https://uselessfacts.jsph.pl/", icon: "ti-bulb" },
   { id: "tai", file: "fun/tai.html", title: "Dynamic Typing Challenge", category: "エンタメ・おもしろ系", categoryPath: ["エンタメ・おもしろ系", "クイズ・ゲーム"],
     description: "ランダムな英文お題でタイピングに挑戦", apiName: "Quotable API", apiUrl: "https://api.quotable.io/", icon: "ti-device-gamepad-2" },
+  { id: "sindan", file: "fun/sindan.html", title: "ブラック企業診断", category: "エンタメ・おもしろ系",
+    description: "質問に答えてブラック企業適性を診断する", apiName: "ローカルデータ", apiUrl: "", icon: "ti-help" },
+  { id: "zyouku", file: "fun/zyouku.html", title: "ランダムジョーク問題", category: "エンタメ・おもしろ系",
+    description: "海外ジョークを日本語訳付きで出題するクイズ", apiName: "Official Joke API + Google Translate", apiUrl: "https://official-joke-api.appspot.com/", icon: "ti-mood-crazy-happy" },
 ];

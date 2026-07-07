@@ -125,7 +125,7 @@
 | fun | meigenn | ローカルデータ(サンプル) | 名言をランダム表示 |
 | fun | Useless | Useless Facts / MyMemory Translation API / Unsplash Source | ランダム雑学を翻訳付きで表示 |
 
-※ 翻訳に MyMemory Translation API を併用するページあり（joke / ohuzake / Jikan / OpenTrivia / Yugio）。Cars は Argos Translate を併用。Useless は MyMemory Translation API と Unsplash Source を併用。NASA系・RAWG(game)はAPIキーが必要。wakusei / meigenn / genngohonnyaku は外部APIを使わないローカルデータのサンプル。
+※ 翻訳に MyMemory Translation API を併用するページあり（joke / ohuzake / Jikan / OpenTrivia / Yugio）。Cars は Argos Translate を併用。Useless は MyMemory Translation API と Unsplash Source を併用。`zyouku` は Google Translate を利用する。NASA系・RAWG(game)はAPIキーが必要。wakusei / meigenn / genngohonnyaku / sindan は外部APIを使わないローカルデータのサンプル。
 
 ---
 

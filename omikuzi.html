@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Fortune API</title>
+
+<style>
+body{
+    font-family:Arial,sans-serif;
+    background:#202124;
+    color:white;
+    text-align:center;
+    padding:30px;
+}
+
+button{
+    padding:12px 25px;
+    font-size:18px;
+    background:#ff9800;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.card{
+    margin:30px auto;
+    max-width:500px;
+    background:#2d2d2d;
+    border-radius:15px;
+    padding:20px;
+}
+
+pre{
+    text-align:left;
+    background:#111;
+    color:#00ff88;
+    padding:15px;
+    border-radius:10px;
+    overflow:auto;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🔮 Fortune API Demo</h1>
+
+<button onclick="getFortune()">おみくじを引く</button>
+
+<div id="result"></div>
+
+<script>
+
+const fortunes = [
+{
+    fortune:"大吉",
+    luck:100,
+    color:"金色",
+    item:"四つ葉のクローバー",
+    message:"今日は何を始めても良い日です。"
+},
+{
+    fortune:"中吉",
+    luck:80,
+    color:"青",
+    item:"ノート",
+    message:"努力が良い結果につながります。"
+},
+{
+    fortune:"小吉",
+    luck:60,
+    color:"緑",
+    item:"水筒",
+    message:"焦らず一歩ずつ進みましょう。"
+},
+{
+    fortune:"吉",
+    luck:50,
+    color:"黄色",
+    item:"ペン",
+    message:"新しい出会いがあるかもしれません。"
+},
+{
+    fortune:"末吉",
+    luck:40,
+    color:"白",
+    item:"本",
+    message:"慎重に行動すると運気アップ。"
+},
+{
+    fortune:"凶",
+    luck:15,
+    color:"黒",
+    item:"ハンカチ",
+    message:"今日は無理をしないようにしましょう。"
+}
+];
+
+function getFortune(){
+
+const data = fortunes[Math.floor(Math.random()*fortunes.length)];
+
+document.getElementById("result").innerHTML=`
+<div class="card">
+<h2>${data.fortune}</h2>
+<p>🍀 運勢: ${data.luck}%</p>
+<p>🎨 ラッキーカラー: ${data.color}</p>
+<p>🎁 ラッキーアイテム: ${data.item}</p>
+<p>💬 ${data.message}</p>
+
+<pre>${JSON.stringify(data,null,2)}</pre>
+</div>
+`;
+
+}
+
+</script>
+
+</body>
+</html>

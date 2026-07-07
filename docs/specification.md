@@ -46,6 +46,7 @@
   - 分類設計: `category` は後方互換用の大分類、`categoryPath` はサイドバー表示用の階層分類（例: `["データ・検索系", "宇宙・天気"]`）。`categoryPath` が未指定の古い項目は `category` の1階層分類として扱う。
     - 大分類: 画像・ビジュアル系 / データ・検索系 / 為替・ツール系 / エンタメ・おもしろ系
     - 小分類例: 動物画像 / 3D・アバター / キャラクター画像 / アニメ・カード / ゲーム・キャラクター / 宇宙・天気 / 乗り物・交通 / ネットワーク・セキュリティ / 金融・マーケット / 日付・時刻 / 通貨・為替 / 地図・住所 / 翻訳・言語 / ジョーク・雑学 / クイズ・ゲーム / 意思決定・名言
+    - 追加の小分類例: 食品・生活 / 統計・公的データ / 都市・オープンデータ
 
 ---
 
@@ -93,8 +94,10 @@
 | data | applemusic | iTunes Search API | 楽曲検索 |
 | data | countrySearch | CountriesNow API | 国名から人口・首都を検索 |
 | data | ip | ローカルサンプルデータ | IPジオロケーション情報の表示サンプル |
-| data | simeitehai | FBI Wanted | FBI公開指名手配データのカテゴリ別一覧表示 |
-| data | scp_viewer | scp-data.tedivm.com | SCP番号から収容記録を検索・閲覧 |
+| data | food-hygiene-ratings | Food Hygiene Ratings API | 食品衛生評価の公開データを地域別に探索 |
+| data | inei-portal | INEI 統計ポータル | INEI のテーマ別統計リンクを検索・参照 |
+| data | interpol-red-notices | Interpol Notices API | Interpol赤手配の人物を条件検索して表示 |
+| data | ibb-open-data | İBB Open Data Portal | İBB公開データをキーワードとカテゴリで検索 |
 | data | kabu | Alpha Vantage | 銘柄コードで株価・騰落率を検索 |
 | data | nasa | NASA APOD | 今日の天体写真 |
 | data | radar | OpenSky Network API | 上空の航空機データを地図に表示 |
@@ -117,6 +120,7 @@
 | tools | genngohonnyaku | ローカル辞書(サンプル) | 日本語↔英語の簡易翻訳 |
 | tools | tizu | Leaflet / OpenStreetMap | 地図表示とクリック位置マーカー追加 |
 | tools | zipcode | ZipCloud API | 郵便番号から住所検索 |
+| tools | india-pincode | Indian Pincode | インド郵便番号のサンプルデータで住所検索 |
 | fun | joke | Official Joke API | 海外ジョーク |
 | fun | ohuzake | Useless Facts | ランダム雑学 |
 | fun | OpenTrivia | Open Trivia DB | クイズ |

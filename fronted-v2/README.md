@@ -85,6 +85,7 @@ node fronted-v2/serve.cjs
 ## テンプレートを追加するには
 
 テンプレートはジャンル別のサブフォルダに整理されています。
+APIドキュメントURLから追加する場合は、プロジェクトスキル `.agents/skills/webapi-page-maker/`（`$webapi-page-maker <URL...>`）を使うと、HTML・カタログ・仕様書更新をまとめて進められます。
 
 ```
 templates/...

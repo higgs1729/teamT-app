@@ -13,6 +13,8 @@
 ## 仕様書
 
 詳細な仕様は [`docs/specification.md`](docs/specification.md) を参照してください。
+未実装の無料WebAPI候補は [`docs/apis/free-webapis-not-implemented.md`](docs/apis/free-webapis-not-implemented.md) に整理しています。
+APIドキュメントURLから紹介HTMLを追加する場合は `.agents/skills/webapi-page-maker/` の `$webapi-page-maker` スキルを使います。
 
 ## セットアップ手順
 

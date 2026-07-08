@@ -117,10 +117,18 @@ a { color: inherit; }
   padding: 8px 0 6px;
   margin-bottom: 2px;
 }
-/* トップ「おすすめ一覧」の見出しは入口として少し目立たせる（星アイコンをアクセント色に） */
-.recommend-group-head { font-size: 14.5px; font-weight: 800; color: var(--text-primary); }
+/* トップ「おすすめ一覧」の見出しのみ、入口として大きく・既定から濃くして読みやすくする。
+   中のカテゴリ見出し・各アイテムは通常一覧と同じ見た目のまま対象外。
+   .nav-group-head との詳細度を揃えるため複合セレクタにする（同じ要素が両クラスを持つため、
+   単クラスの .recommend-group-head だとスタイルシート内の記述順で .nav-group-head に負けうる） */
+.nav-group-head.recommend-group-head { font-size: 15px; font-weight: 800; color: var(--text-primary); }
 .recommend-group-head .nav-group-icon { color: var(--accent); }
 [data-theme="dark"] .recommend-group-head .nav-group-icon { color: var(--accent-mid); }
+/* 開いている(=選択中)ときは薄いアクセント背景を乗せて選択状態を分かりやすくする（トップ見出しのみ） */
+.recommend-group:not(.closed) > .recommend-group-head {
+  background: var(--accent-soft); border-radius: 10px; color: var(--accent);
+}
+[data-theme="dark"] .recommend-group:not(.closed) > .recommend-group-head { color: var(--accent-mid); }
 
 /* おすすめ一覧の最内アイテム（個々のHTML）。＞は付けず「アイコン 文字」のみ */
 .recommend-item {

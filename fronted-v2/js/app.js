@@ -126,10 +126,14 @@
     head.innerHTML =
       `<i class="ti ti-star nav-group-icon"></i>` +
       `<span class="nav-group-title">おすすめ一覧</span>` +
-      `<i class="ti ti-chevron-right nav-group-caret"></i>`;
+      `<i class="ti ${topOpen ? "ti-chevron-down" : "ti-chevron-right"} nav-group-caret"></i>`;
     head.addEventListener("click", () => {
       recommendOpen = !recommendOpen;
       group.classList.toggle("closed", !recommendOpen);
+      // 開閉に合わせて＞を下矢印/右矢印に切替（選択=展開中は下矢印）
+      const caret = head.querySelector(".nav-group-caret");
+      caret.classList.toggle("ti-chevron-right", !recommendOpen);
+      caret.classList.toggle("ti-chevron-down", recommendOpen);
     });
     group.appendChild(head);
 
@@ -158,10 +162,15 @@
         chead.innerHTML =
           `<i class="ti ${getCategoryIcon(c.cat)} nav-group-icon"></i>` +
           `<span class="nav-group-title">${getCategoryLabel(c.cat)}</span>` +
-          `<i class="ti ti-chevron-right nav-group-caret"></i>`;
+          `<i class="ti ${catOpen ? "ti-chevron-down" : "ti-chevron-right"} nav-group-caret"></i>`;
         chead.addEventListener("click", () => {
-          if (openRecCats.has(c.cat)) openRecCats.delete(c.cat); else openRecCats.add(c.cat);
-          cg.classList.toggle("closed", !openRecCats.has(c.cat));
+          const nowOpen = !openRecCats.has(c.cat);
+          if (nowOpen) openRecCats.add(c.cat); else openRecCats.delete(c.cat);
+          cg.classList.toggle("closed", !nowOpen);
+          // 開閉に合わせて＞を下矢印/右矢印に切替（選択=展開中は下矢印）
+          const caret = chead.querySelector(".nav-group-caret");
+          caret.classList.toggle("ti-chevron-right", !nowOpen);
+          caret.classList.toggle("ti-chevron-down", nowOpen);
         });
         cg.appendChild(chead);
 
@@ -232,13 +241,13 @@
       group.dataset.categoryKey = g.key;
 
       // 見出し（クリックで開閉）。表示名は末尾の「系」を省く。
-      // 最内でない行（カテゴリ）は「文字 ＞」の形式：＞は行末に固定で右向き（回転しない）
+      // 最内でない行（カテゴリ）は「文字 ＞」の形式：開いている(=選択中)ときは下矢印に変わる
       const head = document.createElement("div");
       head.className = "nav-group-head";
       head.innerHTML =
         `<i class="ti ${getCategoryIcon(g.category)} nav-group-icon"></i>` +
         `<span class="nav-group-title">${getCategoryLabel(g.category)}</span>` +
-        `<i class="ti ti-chevron-right nav-group-caret"></i>`;
+        `<i class="ti ${isOpen ? "ti-chevron-down" : "ti-chevron-right"} nav-group-caret"></i>`;
       head.addEventListener("click", () => toggleGroup(g.key, group));
       group.appendChild(head);
 
@@ -253,12 +262,12 @@
 
         const subhead = document.createElement("div");
         subhead.className = "nav-subgroup-head";
-        // 小分類も最内でない行なので「文字 件数 ＞」の形式（＞は行末で右向き固定）
+        // 小分類も最内でない行なので「文字 件数 ＞」の形式（開いている(=選択中)ときは下矢印）
         subhead.innerHTML =
           `<i class="ti ${SUBCATEGORY_ICON} nav-subgroup-icon"></i>` +
           `<span class="nav-subgroup-title">${getCategoryLabel(child.category)}</span>` +
           `<span class="nav-subgroup-count">${child.items.length}</span>` +
-          `<i class="ti ti-chevron-right nav-subgroup-caret"></i>`;
+          `<i class="ti ${childOpen ? "ti-chevron-down" : "ti-chevron-right"} nav-subgroup-caret"></i>`;
         subhead.addEventListener("click", (event) => {
           event.stopPropagation();
           toggleGroup(child.key, subgroup);
@@ -285,10 +294,24 @@
     });
   }
 
-  // カテゴリ階層の開閉をトグル（openCats に状態を保持し、DOM の closed を切替）
+  // カテゴリ階層の開閉をトグル（openCats に状態を保持し、DOM の closed を切替）。
+  // 開閉に合わせて見出し行末の＞も下矢印/右矢印に切り替える（選択=展開中は下矢印）。
   function toggleGroup(categoryKey, groupEl) {
-    if (openCats.has(categoryKey)) { openCats.delete(categoryKey); groupEl.classList.add("closed"); }
-    else { openCats.add(categoryKey); groupEl.classList.remove("closed"); }
+    const nowOpen = !openCats.has(categoryKey);
+    if (nowOpen) openCats.add(categoryKey); else openCats.delete(categoryKey);
+    groupEl.classList.toggle("closed", !nowOpen);
+    setGroupCaretOpen(groupEl, nowOpen);
+  }
+
+  // groupEl（.nav-group または .nav-subgroup）の直下の見出しにあるキャレットだけを切り替える。
+  // querySelector だと入れ子の小分類のキャレットまで拾ってしまうため :scope で直下の見出しに限定する。
+  function setGroupCaretOpen(groupEl, open) {
+    const caret = groupEl.querySelector(
+      ":scope > .nav-group-head .nav-group-caret, :scope > .nav-subgroup-head .nav-subgroup-caret"
+    );
+    if (!caret) return;
+    caret.classList.toggle("ti-chevron-right", !open);
+    caret.classList.toggle("ti-chevron-down", open);
   }
 
   // 指定 id を含むカテゴリを開く（選択時に項目が隠れないようにする）
@@ -303,6 +326,7 @@
     navList.querySelectorAll(".nav-group, .nav-subgroup").forEach(el => {
       if (el.dataset.categoryKey === parentKey || el.dataset.categoryKey === childKey) {
         el.classList.remove("closed");
+        setGroupCaretOpen(el, true);
       }
     });
   }

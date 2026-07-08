@@ -16,6 +16,8 @@
 
   /* ---- よく使う DOM 参照 ---- */
   const navList     = document.getElementById("nav-list");
+  const recommendList = document.getElementById("recommend-list");
+  const recommendHead = document.getElementById("recommend-heading");
   const searchInput = document.getElementById("search");
   const preview     = document.getElementById("preview");
   const welcome     = document.getElementById("welcome");
@@ -47,11 +49,59 @@
     return String(name).replace(/系$/, "");
   }
 
+  const RECOMMENDED_IDS = [
+    "dog-api",
+    "cat-api",
+    "nasa",
+    "weather",
+    "coingecko",
+    "open-food-facts"
+  ];
+
+  function matchesKeyword(item, keyword) {
+    const kw = (keyword || "").trim().toLowerCase();
+    if (!kw) return true;
+    return (item.title + " " + item.apiName + " " + item.description + " " + getCategoryPath(item).join(" "))
+      .toLowerCase()
+      .includes(kw);
+  }
+
+  // おすすめ一覧はCATALOGの実在項目だけを抜粋し、検索中は一致するおすすめだけ残す。
+  function renderRecommendations(keyword) {
+    if (!recommendList) return;
+    const items = RECOMMENDED_IDS
+      .map(id => CATALOG.find(item => item.id === id))
+      .filter(Boolean)
+      .filter(item => matchesKeyword(item, keyword));
+
+    recommendList.innerHTML = "";
+    if (items.length === 0) {
+      recommendList.innerHTML = '<div class="recommend-empty">一致するおすすめはありません</div>';
+      return;
+    }
+
+    items.forEach(item => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "recommend-item" + (item.id === currentId ? " active" : "");
+      button.dataset.id = item.id;
+
+      const icon = document.createElement("i");
+      icon.className = "ti " + item.icon;
+      const text = document.createElement("span");
+      text.textContent = item.title;
+
+      button.appendChild(icon);
+      button.appendChild(text);
+      button.addEventListener("click", () => select(item.id, true));
+      recommendList.appendChild(button);
+    });
+  }
+
   function renderList(keyword) {
     const kw = (keyword || "").trim().toLowerCase();
     const items = kw
-      ? CATALOG.filter(t =>
-          (t.title + " " + t.apiName + " " + t.description + " " + getCategoryPath(t).join(" ")).toLowerCase().includes(kw))
+      ? CATALOG.filter(t => matchesKeyword(t, kw))
       : CATALOG;
 
     navList.innerHTML = "";
@@ -183,6 +233,10 @@
     expandCategoryOf(id);
     navList.querySelectorAll(".nav-item").forEach(el =>
       el.classList.toggle("active", el.dataset.id === id));
+    if (recommendList) {
+      recommendList.querySelectorAll(".recommend-item").forEach(el =>
+        el.classList.toggle("active", el.dataset.id === id));
+    }
 
     if (updateHash) location.hash = id;
     // narrow 幅のときだけ、選択後にドロワーを閉じる（デスクトップは開いたまま）
@@ -367,13 +421,25 @@
     initSettingsSearch();
     const apiCount = document.getElementById("settings-api-count");
     if (apiCount) apiCount.textContent = CATALOG.length;
+    renderRecommendations("");
     renderList("");
 
     // narrow 幅では初期状態でサイドバー（ドロワー）を閉じておく
     if (mobileMQ.matches) setSidebarCollapsed(true);
 
     // 検索入力で再描画
-    searchInput.addEventListener("input", e => renderList(e.target.value));
+    searchInput.addEventListener("input", e => {
+      renderRecommendations(e.target.value);
+      renderList(e.target.value);
+    });
+
+    if (recommendHead) {
+      recommendHead.addEventListener("click", () => {
+        const section = recommendHead.closest(".recommend-section");
+        const closed = section.classList.toggle("closed");
+        recommendHead.setAttribute("aria-expanded", String(!closed));
+      });
+    }
 
     // Esc キーで設定モーダルを閉じる
     document.addEventListener("keydown", (e) => {

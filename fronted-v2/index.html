@@ -40,6 +40,16 @@
     </div>
 
     <!-- カテゴリ別ナビ（app.js が CATALOG から描画） -->
+    <!-- おすすめ一覧: 初めて開いた人がすぐ試せるAPIをCATALOGから抜粋して表示 -->
+    <section class="recommend-section closed" aria-labelledby="recommend-heading">
+      <button class="recommend-head" id="recommend-heading" type="button" aria-expanded="false">
+        <i class="ti ti-chevron-down recommend-caret"></i>
+        <span>おすすめ一覧</span>
+      </button>
+      <div class="recommend-list" id="recommend-list"></div>
+    </section>
+
+    <div class="nav-section-label">ジャンルごとに探す</div>
     <nav class="nav-scroll" id="nav-list"></nav>
 
     <!-- サイドバー下部: アカウント（設定へのアクセスは設定モーダル内のナビに集約） -->

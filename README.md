@@ -61,3 +61,6 @@ fronted-v2/                 # WebAPI紹介サイト(templatesを選択表示す�
 feature/機能名     # 新機能（例：feature/weather-api）
 fix/バグ名         # バグ修正（例：fix/null-pointer-error）
 ```
+# 更新メモ
+
+- fronted-v2 のサイドバーは、検索欄の下におすすめAPI一覧、その下にジャンルごとのAPI一覧、最後に footer を配置します。

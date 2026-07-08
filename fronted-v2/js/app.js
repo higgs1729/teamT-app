@@ -185,7 +185,8 @@
           item.innerHTML =
             `<i class="ti ${it.icon}"></i>` +
             `<span class="recommend-item-label">${it.title}</span>`;
-          item.addEventListener("click", () => select(it.id, true));
+          // おすすめ一覧からの選択では、下の「ジャンルごとに探す」側のカテゴリは開かない
+          item.addEventListener("click", () => select(it.id, true, false));
           cbody.appendChild(item);
         });
         cg.appendChild(cbody);
@@ -335,7 +336,10 @@
      選択 — 指定 id のテンプレートを iframe に表示しヘッダーを更新。
      updateHash=true のときは location.hash も書き換える（共有用）。
      ============================================================ */
-  function select(id, updateHash) {
+  // expandNav: 下の「ジャンルごとに探す」側で選択項目のカテゴリを自動展開するか。
+  // 通常一覧のクリックやハッシュ復元では true のまま、おすすめ一覧からの選択では false を渡す
+  // （おすすめから選んだだけで下の一覧まで連動して開くと、意図せず一覧が広がってしまうため）。
+  function select(id, updateHash, expandNav = true) {
     const t = CATALOG.find(x => x.id === id);
     if (!t) return;
     currentId = id;
@@ -349,7 +353,7 @@
     document.dispatchEvent(new CustomEvent("apipage:shown", { detail: { id } }));
 
     // 選択項目を含むカテゴリを開いてからハイライトを付け替え
-    expandCategoryOf(id);
+    if (expandNav) expandCategoryOf(id);
     navList.querySelectorAll(".nav-item").forEach(el =>
       el.classList.toggle("active", el.dataset.id === id));
     if (recommendRoot) {

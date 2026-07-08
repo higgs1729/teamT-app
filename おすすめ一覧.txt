@@ -7,8 +7,12 @@ kanou
 
 
 yasuda
-
-
+countrySearch.html
+kabu.html
+nasa.html
+time.html
+weather.html
+zipcode.html
 
 shizuka
 

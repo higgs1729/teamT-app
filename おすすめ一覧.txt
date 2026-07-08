@@ -1,3 +1,14 @@
+//nakayama
+3D.html
+dance-proto.html
+hipum.html
+joke.html
+ohuzake.html
+oto.html
+QR.html
+YesNo.html
+
+
 
 //kanou
 Cars.html

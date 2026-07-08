@@ -106,16 +106,14 @@ a { color: inherit; }
 }
 .recommend-head {
   display: flex; align-items: center; gap: 8px; width: 100%;
-  padding: 8px 10px; border: 1px solid var(--accent); border-radius: 8px;
-  background: color-mix(in srgb, var(--accent) 90%, transparent); color: #fff;
+  padding: 8px 10px; border: 0; background: transparent; color: var(--text-primary);
   font-family: inherit; font-size: 16px; font-weight: 800;
   cursor: pointer; text-align: left; transition: border-color 0.15s, color 0.15s;
 }
-.recommend-head:hover { border-color: var(--accent); color: #fff; filter: brightness(0.96); }
-[data-theme="dark"] .recommend-head:hover { color: #fff; }
-[data-theme="dark"] .recommend-head { background: color-mix(in srgb, var(--accent) 70%, transparent); }
+.recommend-head:hover { color: var(--accent); }
+[data-theme="dark"] .recommend-head:hover { color: var(--accent-mid); }
 .recommend-head span { flex: 1; }
-.recommend-caret { font-size: 15px; color: #fff; transition: transform 0.18s; flex-shrink: 0; }
+.recommend-caret { font-size: 15px; color: var(--text-muted); transition: transform 0.18s; flex-shrink: 0; }
 .recommend-section.closed .recommend-caret { transform: rotate(-90deg); }
 .recommend-list { display: grid; gap: 2px; padding: 6px 4px 0; }
 .recommend-section.closed .recommend-list { display: none; }
@@ -134,7 +132,7 @@ a { color: inherit; }
 .recommend-empty { padding: 8px 12px; font-size: 11.5px; color: var(--text-muted); }
 
 .nav-section-label {
-  padding: 8px 12px 4px;
+  padding: 10px 12px 4px; border-top: 1px solid var(--border-subtle);
   color: var(--text-muted); font-size: 11px; font-weight: 700;
 }
 
@@ -146,9 +144,10 @@ a { color: inherit; }
 .nav-group-head {
   display: flex; align-items: center; gap: 9px;
   padding: 11px 12px 9px; cursor: pointer; user-select: none;
-  color: var(--text-primary); font-size: 13px; font-weight: 700; letter-spacing: 0.02em;
+  color: var(--text-muted); font-size: 13px; font-weight: 700; letter-spacing: 0.02em;
   transition: color 0.15s;
 }
+.nav-group:not(.closed) > .nav-group-head { color: var(--text-primary); }
 .nav-group:first-child .nav-group-head { border-top: 0; }   /* 先頭は検索欄直下なので線なし */
 .nav-group-head:hover { color: var(--accent); }
 [data-theme="dark"] .nav-group-head:hover { color: var(--accent-mid); }
@@ -166,6 +165,7 @@ a { color: inherit; }
   color: var(--text-muted); font-size: 11.5px; font-weight: 700;
   transition: color 0.15s;
 }
+.nav-subgroup:not(.closed) > .nav-subgroup-head { color: var(--text-primary); }
 .nav-subgroup-head:hover { color: var(--accent); }
 [data-theme="dark"] .nav-subgroup-head:hover { color: var(--accent-mid); }
 .nav-subgroup-caret { font-size: 13px; transition: transform 0.18s; flex-shrink: 0; }
@@ -180,7 +180,7 @@ a { color: inherit; }
 
 .nav-item {
   display: flex; align-items: center; gap: 11px; padding: 9px 12px; border-radius: 10px;
-  color: var(--text-secondary); font-size: 13px; cursor: pointer;
+  color: var(--text-muted); font-size: 13px; cursor: pointer;
   border: 1px solid transparent; transition: background 0.15s, color 0.15s;
 }
 .nav-item i { font-size: 18px; width: 20px; text-align: center; flex-shrink: 0; }

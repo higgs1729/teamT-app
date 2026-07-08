@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<!-- IPLogs紹介ページ: VPN/プロキシ/Tor/データセンターIP検出API。キー不要・CORS許可。 -->
+<html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>IPLogs VPN検出</title><style>
+body{margin:0;min-height:100vh;font-family:"BIZ UDPGothic","Meiryo UI",sans-serif;background:linear-gradient(135deg,#f6f7fb,#eef1fb);color:#202536}
+main{width:min(900px,100%);margin:auto;padding:34px 18px}
+h1{font-size:clamp(24px,4vw,38px);letter-spacing:0;margin-bottom:6px}
+p.lead{color:#667086;line-height:1.7}
+.panel{background:#fff;border:1px solid #dde5ef;border-radius:15px;padding:18px;margin-top:16px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input[type=text]{flex:1;min-width:220px;padding:10px 12px;border:1px solid #cdd6e4;border-radius:10px;font:inherit}
+label.chk{display:flex;align-items:center;gap:6px;color:#4a5064;font-size:14px}
+button{border:0;border-radius:10px;padding:12px 18px;background:#3a5fd9;color:#fff;font:inherit;font-weight:700;cursor:pointer}
+button:disabled{opacity:.6;cursor:wait}
+.badge{display:inline-block;padding:4px 12px;border-radius:999px;font-weight:700;font-size:13px;margin:10px 0}
+.badge.clean{background:#e2f6ea;color:#1a7a44}
+.badge.suspicious{background:#fff3d6;color:#9a6a00}
+.badge.vpn{background:#fde3e3;color:#a02020}
+.stats{display:flex;gap:14px;flex-wrap:wrap;margin:8px 0}
+.stat{background:#f5f7fc;border-radius:10px;padding:10px 14px;min-width:120px}
+.stat b{display:block;font-size:20px}
+.stat span{font-size:12px;color:#7a8296}
+pre{padding:14px;border-radius:12px;background:#172033;color:#dbe8ff;white-space:pre-wrap;word-break:break-all;min-height:120px;max-height:340px;overflow:auto}
+a{color:#3a5fd9}
+.hint{font-size:13px;color:#8890a3;margin-top:4px}
+</style></head><body><main>
+<h1>IPLogs VPN検出ダッシュボード</h1>
+<p class="lead">アクセス元(またはIPアドレスを指定)がVPN・プロキシ・Tor・データセンター経由かどうかを判定します。認証不要・ブラウザから直接呼び出せるAPIです。</p>
+<section class="panel">
+  <div class="row">
+    <input type="text" id="ipInput" placeholder="IPアドレス（空欄で自分の接続元を検査）">
+    <button id="run">検査する</button>
+  </div>
+  <label class="chk"><input type="checkbox" id="withSignals" checked> ブラウザ情報(User-Agent/タイムゾーン/言語)も送って精度を上げる</label>
+  <div id="result"></div>
+  <pre id="out">まだ検査していません。</pre>
+  <p class="hint">Docs: <a href="https://iplogs.com/docs" target="_blank" rel="noreferrer">IPLogs API Documentation</a></p>
+</section>
+</main>
+<script>
+const runBtn = document.getElementById("run");
+const resultBox = document.getElementById("result");
+const out = document.getElementById("out");
+
+function badgeClass(verdict){
+  if (verdict === "vpn_detected" || verdict === "vpn_likely") return "vpn";
+  if (verdict === "suspicious") return "suspicious";
+  return "clean";
+}
+
+runBtn.onclick = async () => {
+  const ip = document.getElementById("ipInput").value.trim();
+  const withSignals = document.getElementById("withSignals").checked;
+  runBtn.disabled = true;
+  runBtn.textContent = "検査中...";
+  resultBox.innerHTML = "";
+  out.textContent = "読み込み中...";
+
+  const body = {};
+  if (ip) body.ip = ip;
+  if (withSignals) {
+    body.user_agent = navigator.userAgent;
+    body.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    body.language = navigator.language;
+  }
+
+  try {
+    const res = await fetch("https://iplogs.com/v1/check", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    const verdict = data.verdict || "unknown";
+    const score = typeof data.score === "number" ? data.score.toFixed(2) : "-";
+    const confidence = typeof data.confidence === "number" ? data.confidence.toFixed(2) : "-";
+    const ipInfo = data.ip_info || {};
+
+    resultBox.innerHTML = `
+      <span class="badge ${badgeClass(verdict)}">${verdict}</span>
+      <div class="stats">
+        <div class="stat"><b>${score}</b><span>スコア</span></div>
+        <div class="stat"><b>${confidence}</b><span>確信度</span></div>
+        <div class="stat"><b>${data.is_vpn ? "はい" : "いいえ"}</b><span>VPN判定</span></div>
+        <div class="stat"><b>${ipInfo.country || "-"}</b><span>国</span></div>
+      </div>
+    `;
+    out.textContent = JSON.stringify(data, null, 2);
+  } catch (e) {
+    resultBox.innerHTML = `<span class="badge suspicious">取得失敗</span>`;
+    out.textContent = JSON.stringify({ error: true, message: e.message }, null, 2);
+  } finally {
+    runBtn.disabled = false;
+    runBtn.textContent = "検査する";
+  }
+};
+</script>
+</body></html>

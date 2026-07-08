@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>世界の天気検索（wttr.in）</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!--
+  wttr.in の JSON エンドポイント（https://wttr.in/<地名>?format=j1）を使い、
+  世界中の都市名から現在の天気と3日間の予報を取得して表示するページ。
+  認証不要・CORS許可済みのため、そのまま fetch できる。
+-->
+<style>
+  :root{
+    --bg:#0f1b2d; --card:#16243c; --accent:#4da6ff; --text:#eef3fb; --muted:#9fb2cc; --err:#ff8a8a;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; min-height:100vh; font-family:"Segoe UI",Meiryo,sans-serif;
+    background:linear-gradient(160deg,#0f1b2d,#1b3352);
+    color:var(--text); display:flex; justify-content:center; padding:32px 16px;
+  }
+  .container{ width:100%; max-width:640px; }
+  h1{ font-size:22px; margin:0 0 6px; }
+  .sub{ color:var(--muted); font-size:13px; margin-bottom:20px; }
+  .search-row{ display:flex; gap:8px; margin-bottom:20px; }
+  input{
+    flex:1; padding:12px 14px; border-radius:10px; border:1px solid #2b3f5c;
+    background:#0f1b2d; color:var(--text); font-size:15px;
+  }
+  input:focus{ outline:2px solid var(--accent); }
+  button{
+    padding:12px 20px; border:none; border-radius:10px; background:var(--accent);
+    color:#06192f; font-weight:bold; cursor:pointer; font-size:15px;
+  }
+  button:hover{ filter:brightness(1.08); }
+  button:disabled{ opacity:.6; cursor:default; }
+  .card{
+    background:var(--card); border-radius:16px; padding:20px; margin-bottom:16px;
+    box-shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  .current{ display:flex; align-items:center; gap:16px; }
+  .current img{ width:64px; height:64px; }
+  .current .temp{ font-size:38px; font-weight:bold; }
+  .current .desc{ color:var(--muted); font-size:14px; }
+  .meta-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-top:16px; font-size:13px; color:var(--muted); }
+  .forecast{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .forecast .day{ background:#0f1b2d; border-radius:12px; padding:12px; text-align:center; }
+  .forecast .day .date{ font-size:12px; color:var(--muted); margin-bottom:6px; }
+  .forecast .day img{ width:40px; height:40px; }
+  .forecast .day .range{ font-size:13px; margin-top:4px; }
+  .state{ text-align:center; color:var(--muted); padding:24px 0; }
+  .state.error{ color:var(--err); }
+  .link{ display:inline-block; margin-top:8px; color:var(--accent); font-size:12px; text-decoration:none; }
+  .link:hover{ text-decoration:underline; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>世界の天気検索</h1>
+  <p class="sub">都市名を入力すると、現在の天気と3日間の予報を取得します</p>
+
+  <div class="search-row">
+    <input id="cityInput" placeholder="例：Tokyo / London / New York" value="Tokyo">
+    <button id="searchBtn" onclick="searchWeather()">検索</button>
+  </div>
+
+  <div id="output">
+    <div class="state">都市名を入力して検索してください</div>
+  </div>
+
+  <a class="link" href="https://github.com/chubin/wttr.in" target="_blank" rel="noopener">API仕様（wttr.in / GitHub）</a>
+</div>
+
+<script>
+// ===== アイコン用の簡易マッピング（weatherCode -> 絵文字） =====
+function iconFor(code){
+  const c = Number(code);
+  if ([113].includes(c)) return "☀️";
+  if ([116, 119, 122].includes(c)) return "☁️";
+  if ([176,263,266,293,296,299,302,305,308,311,314,317,353,356,359].includes(c)) return "🌧️";
+  if ([179,182,185,227,230,323,326,329,332,335,338,350,368,371,374,377,392,395].includes(c)) return "❄️";
+  if ([200,386,389].includes(c)) return "⛈️";
+  if ([143,248,260].includes(c)) return "🌫️";
+  return "🌤️";
+}
+
+async function searchWeather(){
+  const city = document.getElementById("cityInput").value.trim();
+  const output = document.getElementById("output");
+  const btn = document.getElementById("searchBtn");
+
+  if(!city){
+    output.innerHTML = '<div class="state error">都市名を入力してください</div>';
+    return;
+  }
+
+  output.innerHTML = '<div class="state">読み込み中…</div>';
+  btn.disabled = true;
+
+  try{
+    const res = await fetch(`https://wttr.in/${encodeURIComponent(city)}?format=j1`);
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+
+    const cur = data.current_condition[0];
+    const area = data.nearest_area[0];
+    const areaName = area.areaName[0].value;
+    const country = area.country[0].value;
+
+    const forecastHtml = data.weather.slice(0, 3).map(day => `
+      <div class="day">
+        <div class="date">${day.date}</div>
+        <div>${iconFor(day.hourly[4].weatherCode)}</div>
+        <div class="range">${day.mintempC}℃ 〜 ${day.maxtempC}℃</div>
+      </div>
+    `).join("");
+
+    output.innerHTML = `
+      <div class="card">
+        <div class="current">
+          <div style="font-size:48px">${iconFor(cur.weatherCode)}</div>
+          <div>
+            <div class="temp">${cur.temp_C}℃</div>
+            <div class="desc">${cur.weatherDesc[0].value} ・ ${areaName}, ${country}</div>
+          </div>
+        </div>
+        <div class="meta-grid">
+          <div>体感温度: ${cur.FeelsLikeC}℃</div>
+          <div>湿度: ${cur.humidity}%</div>
+          <div>風速: ${cur.windspeedKmph} km/h (${cur.winddir16Point})</div>
+          <div>気圧: ${cur.pressure} hPa</div>
+        </div>
+      </div>
+      <div class="forecast">${forecastHtml}</div>
+    `;
+  }catch(e){
+    console.error(e);
+    output.innerHTML = '<div class="state error">取得に失敗しました。都市名を確認するか、時間を置いて再試行してください</div>';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+document.getElementById("cityInput").addEventListener("keydown", e => {
+  if(e.key === "Enter") searchWeather();
+});
+searchWeather();
+</script>
+</body>
+</html>

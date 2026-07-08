@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<!--
+  File.io の使い捨て共有ページ。
+  上段で特徴を示し、左でファイル/文字列を送信、右で結果と使い方を確認する。
+-->
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>File.io 使い捨て共有</title>
+  <style>
+    :root {
+      --bg: #07111f;
+      --line: rgba(167, 193, 255, 0.18);
+      --text: #edf4ff;
+      --muted: #a8b7d7;
+      --accent: #5ac8fa;
+      --accent-2: #7df5c7;
+      --danger: #ff7a90;
+      --shadow: 0 26px 80px rgba(0, 0, 0, 0.35);
+      --radius: 24px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: "Segoe UI", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(90, 200, 250, 0.22), transparent 32%),
+        radial-gradient(circle at 85% 15%, rgba(125, 245, 199, 0.16), transparent 24%),
+        linear-gradient(145deg, #050b15 0%, var(--bg) 48%, #09182a 100%);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
+    }
+
+    a { color: inherit; }
+    .shell { width: min(1220px, calc(100% - 28px)); margin: 0 auto; padding: 24px 0 40px; }
+    .hero, .panel, .note { background: linear-gradient(180deg, rgba(17, 29, 54, 0.94), rgba(10, 18, 35, 0.92)); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); backdrop-filter: blur(14px); }
+    .hero { padding: 24px; display: grid; gap: 18px; grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr); align-items: end; animation: rise 0.5s ease both; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 10px; padding: 7px 12px; border-radius: 999px; background: rgba(90, 200, 250, 0.12); color: #bfeaff; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+    h1 { margin: 12px 0 10px; font-size: clamp(30px, 4vw, 52px); line-height: 1.04; letter-spacing: -0.03em; }
+    .lead { margin: 0; color: var(--muted); line-height: 1.8; max-width: 68ch; }
+    .hero aside { display: grid; gap: 12px; }
+    .metric { padding: 16px 18px; border-radius: 18px; border: 1px solid rgba(255, 255, 255, 0.08); background: rgba(255, 255, 255, 0.03); }
+    .metric strong { display: block; font-size: 18px; margin-bottom: 6px; }
+    .metric span { color: var(--muted); line-height: 1.6; font-size: 14px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr); gap: 18px; margin-top: 18px; }
+    .panel { padding: 20px; }
+    .panel-head { display: flex; justify-content: space-between; align-items: start; gap: 12px; margin-bottom: 16px; }
+    .panel-head h2 { margin: 0; font-size: 20px; }
+    .panel-head p { margin: 6px 0 0; color: var(--muted); line-height: 1.7; font-size: 14px; }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+    .badge { padding: 8px 10px; border-radius: 999px; background: rgba(255, 255, 255, 0.05); color: #d7e6ff; border: 1px solid rgba(255, 255, 255, 0.08); font-size: 12px; }
+    .field-grid { display: grid; gap: 14px; }
+    label { display: grid; gap: 8px; font-size: 13px; color: #dce7ff; }
+    .hint { color: var(--muted); font-size: 12px; line-height: 1.5; }
+    input[type="text"], input[type="number"], textarea, select { width: 100%; border: 1px solid rgba(255, 255, 255, 0.10); border-radius: 16px; background: rgba(4, 10, 20, 0.68); color: var(--text); padding: 13px 14px; font: inherit; outline: none; transition: border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease; }
+    textarea { min-height: 120px; resize: vertical; }
+    input:focus, textarea:focus, select:focus { border-color: rgba(90, 200, 250, 0.7); box-shadow: 0 0 0 4px rgba(90, 200, 250, 0.12); }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    button { border: 0; border-radius: 14px; padding: 12px 16px; font: inherit; font-weight: 700; cursor: pointer; transition: transform 0.18s ease, opacity 0.18s ease, background 0.18s ease; }
+    button:hover { transform: translateY(-1px); }
+    button:disabled { cursor: progress; opacity: 0.65; transform: none; }
+    .primary { color: #03111d; background: linear-gradient(135deg, #7df5c7, #5ac8fa); box-shadow: 0 12px 30px rgba(90, 200, 250, 0.22); }
+    .ghost { color: var(--text); background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.09); }
+    .status { margin-top: 14px; padding: 14px 16px; border-radius: 16px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); line-height: 1.7; color: var(--muted); min-height: 58px; white-space: pre-wrap; }
+    .status.is-ok { color: #d9ffef; border-color: rgba(125, 245, 199, 0.22); }
+    .status.is-error { color: #ffd5dd; border-color: rgba(255, 122, 144, 0.22); }
+    .result-grid { display: grid; gap: 14px; }
+    .result-card { padding: 16px; border-radius: 18px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); }
+    .result-card h3 { margin: 0 0 8px; font-size: 15px; }
+    .result-card p, .result-card li { color: var(--muted); line-height: 1.7; margin: 0; }
+    .result-card ul { margin: 0; padding-left: 18px; display: grid; gap: 8px; }
+    .codebox { margin-top: 10px; padding: 14px; border-radius: 16px; background: rgba(2, 7, 15, 0.75); border: 1px solid rgba(255, 255, 255, 0.08); color: #d9e8ff; overflow: auto; font: 13px/1.7 Consolas, "SFMono-Regular", Monaco, monospace; white-space: pre-wrap; word-break: break-word; }
+    .footer { margin-top: 18px; padding: 14px 16px 0; color: var(--muted); display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; font-size: 13px; }
+    .footer a { color: #bde9ff; text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+    @media (max-width: 960px) { .hero, .layout { grid-template-columns: 1fr; } .badge-row { justify-content: flex-start; } }
+    @keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <!-- 概要 -->
+    <section class="hero">
+      <div>
+        <div class="eyebrow">Disposable file handoff / file.io</div>
+        <h1>使い捨ての共有リンクを、<br>その場で作って渡す。</h1>
+        <p class="lead">file.io は、1回ダウンロードされたら消える一時共有サービスです。ファイルだけでなく短文も送れるので、一時的なパスワードやメモの受け渡しにも使えます。</p>
+      </div>
+      <aside>
+        <div class="metric"><strong>1回で消える共有</strong><span>ダウンロード後は自動削除。期限も追加できます。</span></div>
+        <div class="metric"><strong>ファイル/短文の両対応</strong><span>ファイルを選ぶか、短いテキストを直接送信できます。</span></div>
+      </aside>
+    </section>
+
+    <section class="layout">
+      <!-- 操作 -->
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>共有リンクを作る</h2>
+            <p>ファイルを選ぶか、短文を入力してアップロードします。</p>
+          </div>
+          <div class="badge-row">
+            <span class="badge">no login</span>
+            <span class="badge">auto delete</span>
+            <span class="badge">REST API</span>
+          </div>
+        </div>
+
+        <div class="field-grid">
+          <label>
+            1. ファイルを選ぶ
+            <input id="fileInput" type="file">
+            <span class="hint">ファイルが未選択の場合は、下の短文入力を送信します。</span>
+          </label>
+
+          <label>
+            2. 短文を直接送る
+            <textarea id="textInput" placeholder="たとえば、一時的なパスワードや受け渡し用メモ"></textarea>
+          </label>
+
+          <label>
+            3. 保存期限
+            <select id="expiryInput">
+              <option value="">14 days (default)</option>
+              <option value="1">1 day</option>
+              <option value="3">3 days</option>
+              <option value="1w">1 week</option>
+              <option value="1m">1 month</option>
+              <option value="1y">1 year</option>
+            </select>
+            <span class="hint">file.io の `expires` をそのまま送ります。</span>
+          </label>
+        </div>
+
+        <div class="actions">
+          <button id="uploadButton" class="primary">共有リンクを生成</button>
+          <button id="sampleButton" class="ghost" type="button">サンプル文を入れる</button>
+          <button id="copyButton" class="ghost" type="button">リンクをコピー</button>
+        </div>
+
+        <div id="status" class="status">ファイルか短文を送信すると、ここに共有リンクが表示されます。</div>
+      </section>
+
+      <!-- 結果 -->
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>返却データ</h2>
+            <p>成功時は共有キー、リンク、期限を表示します。</p>
+          </div>
+        </div>
+
+        <div class="result-grid">
+          <div class="result-card">
+            <h3>見どころ</h3>
+            <ul>
+              <li>ファイルはダウンロード1回で削除される</li>
+              <li>短文でも一時共有リンクに変換できる</li>
+              <li>期限を付けて自動削除を早められる</li>
+            </ul>
+          </div>
+
+          <div class="result-card">
+            <h3>APIドキュメント</h3>
+            <p><a href="https://www.file.io/" target="_blank" rel="noreferrer">https://www.file.io/</a></p>
+            <div class="codebox" id="responseBox">ここに API 応答の要点が表示されます。</div>
+          </div>
+
+          <div class="result-card">
+            <h3>参考コマンド</h3>
+            <div class="codebox">curl -F "file=@test.txt" https://file.io/?expires=1w
+curl --data "text=temporary note" https://file.io</div>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <div class="footer">
+      <span>送信に失敗した場合は、CORS 制約や一時的な API 停止を疑ってください。</span>
+      <span><a href="https://www.file.io/" target="_blank" rel="noreferrer">official site</a></span>
+    </div>
+  </main>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const textInput = document.getElementById('textInput');
+    const expiryInput = document.getElementById('expiryInput');
+    const uploadButton = document.getElementById('uploadButton');
+    const sampleButton = document.getElementById('sampleButton');
+    const copyButton = document.getElementById('copyButton');
+    const status = document.getElementById('status');
+    const responseBox = document.getElementById('responseBox');
+
+    let lastLink = '';
+
+    function setStatus(kind, message) {
+      status.className = `status ${kind ? `is-${kind}` : ''}`.trim();
+      status.textContent = message;
+    }
+
+    function prettyPayload(data) {
+      if (!data || typeof data !== 'object') return String(data ?? '');
+      const lines = [];
+      for (const key of ['success', 'key', 'link', 'expiry', 'error', 'message']) {
+        if (Object.prototype.hasOwnProperty.call(data, key)) {
+          lines.push(`${key}: ${typeof data[key] === 'object' ? JSON.stringify(data[key]) : data[key]}`);
+        }
+      }
+      return lines.length ? lines.join('\n') : JSON.stringify(data, null, 2);
+    }
+
+    async function copyLink() {
+      if (!lastLink) {
+        setStatus('error', 'まだコピーするリンクがありません。先に共有リンクを生成してください。');
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(lastLink);
+        setStatus('ok', `リンクをコピーしました。\n${lastLink}`);
+      } catch {
+        window.prompt('コピーしてください', lastLink);
+      }
+    }
+
+    async function upload() {
+      const file = fileInput.files && fileInput.files[0];
+      const text = textInput.value.trim();
+      if (!file && !text) {
+        setStatus('error', 'ファイルまたは短文のどちらかを入力してください。');
+        return;
+      }
+
+      uploadButton.disabled = true;
+      uploadButton.textContent = '送信中...';
+      setStatus('', 'file.io に送信中です…');
+
+      try {
+        const endpoint = new URL('https://file.io/');
+        if (expiryInput.value) endpoint.searchParams.set('expires', expiryInput.value);
+
+        let response;
+        if (file) {
+          const formData = new FormData();
+          formData.append('file', file);
+          response = await fetch(endpoint, { method: 'POST', body: formData });
+        } else {
+          const body = new URLSearchParams();
+          body.set('text', text);
+          response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+            body,
+          });
+        }
+
+        const rawText = await response.text();
+        let data;
+        try {
+          data = JSON.parse(rawText);
+        } catch {
+          data = { success: response.ok, message: rawText };
+        }
+
+        responseBox.textContent = prettyPayload(data);
+
+        if (!response.ok || data.success === false) {
+          lastLink = '';
+          throw new Error(data.message || data.error || `HTTP ${response.status}`);
+        }
+
+        lastLink = data.link || '';
+        setStatus('ok', `共有リンクを作成しました。\n${data.link || 'link not returned'}`);
+      } catch (error) {
+        lastLink = '';
+        responseBox.textContent = String(error?.message || error);
+        setStatus('error', `送信に失敗しました。\n${String(error?.message || error)}`);
+      } finally {
+        uploadButton.disabled = false;
+        uploadButton.textContent = '共有リンクを生成';
+      }
+    }
+
+    sampleButton.addEventListener('click', () => {
+      textInput.value = 'temporary note: share this once';
+      setStatus('', '短文サンプルを入力しました。');
+    });
+
+    uploadButton.addEventListener('click', upload);
+    copyButton.addEventListener('click', copyLink);
+  </script>
+</body>
+</html>

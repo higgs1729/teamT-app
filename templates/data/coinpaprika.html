@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<!--
+  Coinpaprika API
+  目的: CoinpaprikaのティッカーAPIで暗号資産マーケットデータを表示します。
+  構成: API概要、リクエスト入力、取得結果、失敗時サンプルを1ファイルにまとめた暗号資産API紹介ページ。
+-->
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coinpaprika API</title>
+  <style>
+    :root { --bg:#f4f7fb; --card:#fff; --ink:#14213d; --muted:#64748b; --line:#d8e0ec; --accent:#0f766e; --accent2:#f59e0b; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; font-family:"Yu Gothic","Meiryo",sans-serif; color:var(--ink); background:linear-gradient(180deg,#f8fbff 0%,var(--bg) 100%); }
+    main { width:min(1120px,calc(100% - 28px)); margin:0 auto; padding:28px 0 38px; }
+    .hero { display:grid; grid-template-columns:1.25fr .75fr; gap:18px; margin-bottom:18px; }
+    .panel { background:var(--card); border:1px solid var(--line); border-radius:8px; box-shadow:0 16px 34px rgba(15,23,42,.08); }
+    .intro { padding:26px; border-top:5px solid var(--accent); }
+    .eyebrow { margin:0 0 8px; color:var(--accent); font-size:13px; font-weight:700; letter-spacing:0; }
+    h1 { margin:0 0 12px; font-size:clamp(28px,4vw,42px); line-height:1.12; letter-spacing:0; }
+    p { margin:0; color:var(--muted); line-height:1.8; }
+    .meta { display:grid; gap:10px; padding:18px; }
+    .meta div { border:1px solid var(--line); border-radius:8px; padding:12px; background:#fbfdff; }
+    .meta strong { display:block; margin-bottom:4px; font-size:12px; color:var(--muted); }
+    .meta a { color:var(--accent); overflow-wrap:anywhere; }
+    .controls { padding:20px; margin-bottom:18px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; }
+    label span { display:block; margin-bottom:6px; font-size:13px; font-weight:700; color:#334155; }
+    input, textarea { width:100%; border:1px solid var(--line); border-radius:8px; padding:10px 12px; font:inherit; color:var(--ink); background:#fff; }
+    input { height:42px; }
+    textarea { resize:vertical; font-family:Consolas,"Courier New",monospace; }
+    .wide { grid-column:1 / -1; }
+    .actions { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:16px; }
+    button { min-height:42px; border:0; border-radius:8px; padding:0 18px; font:inherit; font-weight:700; color:#fff; background:var(--accent); cursor:pointer; }
+    button.secondary { background:#e2e8f0; color:#172033; }
+    .status { font-size:14px; color:var(--muted); }
+    .url { margin-top:14px; padding:12px; border-radius:8px; background:#111827; color:#d1fae5; font-family:Consolas,"Courier New",monospace; font-size:13px; overflow-wrap:anywhere; }
+    .results { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px; }
+    .item { padding:16px; border-top:4px solid var(--accent2); }
+    .item time { display:block; margin-bottom:8px; color:var(--accent); font-weight:700; }
+    .item h2 { margin:0 0 8px; font-size:19px; line-height:1.35; letter-spacing:0; }
+    .item pre { max-height:190px; overflow:auto; margin:10px 0 0; padding:10px; border-radius:8px; background:#f1f5f9; font-size:12px; white-space:pre-wrap; }
+    .empty { padding:22px; text-align:center; color:var(--muted); }
+    @media (max-width:760px) { main { width:min(100% - 22px,1120px); padding-top:18px; } .hero { grid-template-columns:1fr; } .intro { padding:20px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div class="panel intro">
+        <p class="eyebrow">Coinpaprika API</p>
+        <h1>Coinpaprika API</h1>
+        <p>CoinpaprikaのティッカーAPIで暗号資産マーケットデータを表示します。</p>
+      </div>
+      <aside class="panel meta">
+        <div><strong>公式URL</strong><a href="https://api.coinpaprika.com" target="_blank" rel="noreferrer">https://api.coinpaprika.com</a></div>
+        <div><strong>リクエスト方式</strong>GET / 公開エンドポイントまたはサンプル表示</div>
+      </aside>
+    </section>
+
+    <section class="panel controls">
+      <div class="grid">
+        <label class="wide">
+          <span>取得URL</span>
+          <input id="endpoint" type="url" value="https://api.coinpaprika.com/v1/tickers?limit=10">
+        </label>
+      </div>
+      <div class="actions">
+        <button id="loadBtn" type="button">取得する</button>
+        <button id="sampleBtn" class="secondary" type="button">サンプル表示</button>
+        <span id="status" class="status">暗号資産APIを試せます。</span>
+      </div>
+      <div id="requestUrl" class="url">https://api.coinpaprika.com/v1/tickers?limit=10</div>
+    </section>
+
+    <section id="results" class="results" aria-live="polite"></section>
+  </main>
+
+  <script>
+    const sampleItems = [
+      {
+            "name": "btc-bitcoin",
+            "date": "ticker",
+            "note": "quotes.USD.price"
+      }
+];
+    const method = "GET";
+    const needsKey = false;
+
+    function render(items, message) {
+      document.getElementById("status").textContent = message;
+      const box = document.getElementById("results");
+      if (!items.length) {
+        box.innerHTML = '<div class="panel empty">結果が空でした。URLやキーを確認してください。</div>';
+        return;
+      }
+      box.innerHTML = items.map((item) => `
+        <article class="panel item">
+          <time>${escapeHtml(item.date || "crypto")}</time>
+          <h2>${escapeHtml(item.name || "結果")}</h2>
+          <p>${escapeHtml(item.note || "詳細はJSONを確認してください。")}</p>
+          <pre>${escapeHtml(JSON.stringify(item.raw || item, null, 2))}</pre>
+        </article>
+      `).join("");
+    }
+
+    function normalize(data) {
+      if (Array.isArray(data)) return data.slice(0, 24).map(toItem);
+      if (data && Array.isArray(data.data)) return data.data.slice(0, 24).map(toItem);
+      if (data && Array.isArray(data.assets)) return data.assets.slice(0, 24).map(toItem);
+      if (data && Array.isArray(data.coins)) return data.coins.slice(0, 24).map(toItem);
+      if (data && data.bpi) return Object.entries(data.bpi).map(([key, value]) => toItem({ symbol:key, ...value }));
+      if (data && data.paths) return Object.keys(data.paths).slice(0, 24).map((path) => toItem({ name:path, note:"OpenAPI path" }));
+      if (data && typeof data === "object") return Object.entries(data).slice(0, 24).map(([key, value]) => toItem({ name:key, note: typeof value === "object" ? JSON.stringify(value).slice(0, 140) : value, raw:value }));
+      if (typeof data === "string") return [{ name:data.slice(0, 80), date:"text", note:data.slice(0, 180), raw:data }];
+      return [];
+    }
+
+    function toItem(item) {
+      const quote = item.quotes && (item.quotes.USD || item.quotes.usd);
+      return {
+        name: item.name || item.id || item.symbol || item.pair || item.market || item.code || item.title || "結果",
+        date: item.rank || item.price_usd || item.priceUsd || item.last || (quote && quote.price) || item.currency || "",
+        note: item.note || item.market_cap_usd || item.marketCapUsd || item.volume_usd || item.percent_change_24h || item.description || item.url || "",
+        raw: item.raw || item
+      };
+    }
+
+    async function loadData() {
+      const endpoint = document.getElementById("endpoint").value.trim();
+      document.getElementById("requestUrl").textContent = endpoint;
+      document.getElementById("status").textContent = "取得中...";
+      try {
+        const headers = new Headers();
+        if (needsKey) {
+          const key = document.getElementById("apiKey").value.trim();
+          if (key) {
+            headers.set("Authorization", "Bearer " + key);
+            headers.set("x-api-key", key);
+            headers.set("x-messari-api-key", key);
+          }
+        }
+        let options = { method, headers };
+        if (method === "POST") {
+          headers.set("Content-Type", "application/json");
+          options.body = document.getElementById("body").value;
+        }
+        const response = await fetch(endpoint, options);
+        if (!response.ok) throw new Error("HTTP " + response.status);
+        const contentType = response.headers.get("content-type") || "";
+        const data = contentType.includes("json") ? await response.json() : await response.text();
+        render(normalize(data), "取得できました。");
+      } catch (error) {
+        render(sampleItems, "取得に失敗したためサンプルを表示しています: " + error.message);
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      }[char]));
+    }
+
+    document.getElementById("loadBtn").addEventListener("click", loadData);
+    document.getElementById("sampleBtn").addEventListener("click", () => render(sampleItems, "サンプルを表示しています。"));
+    render(sampleItems, "サンプルを表示しています。");
+  </script>
+</body>
+</html>

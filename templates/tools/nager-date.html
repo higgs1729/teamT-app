@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<!--
+  Nager.Date 世界祝日
+  目的: 国コードと年を指定して、世界各国の祝日一覧を取得します。
+  構成: 入力フォーム、取得状態、結果カード、公式リンクを1ファイルにまとめた自己完結HTML。
+-->
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nager.Date 世界祝日</title>
+  <style>
+    :root { --accent: #dc2626; --ink: #172033; --muted: #64748b; --line: #dbe3ef; --bg: #f5f7fb; --card: #ffffff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; font-family: "Yu Gothic", "Meiryo", sans-serif; color: var(--ink); background: var(--bg); }
+    main { width: min(1080px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 36px; }
+    .hero { display: grid; grid-template-columns: 1.2fr .8fr; gap: 20px; align-items: stretch; margin-bottom: 18px; }
+    .panel { background: var(--card); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 14px 32px rgba(15, 23, 42, .08); }
+    .intro { padding: 26px; border-top: 5px solid var(--accent); }
+    .eyebrow { margin: 0 0 8px; color: var(--accent); font-size: 13px; font-weight: 700; letter-spacing: 0; }
+    h1 { margin: 0 0 12px; font-size: clamp(28px, 4vw, 42px); line-height: 1.15; letter-spacing: 0; }
+    p { margin: 0; line-height: 1.8; color: var(--muted); }
+    .meta { display: grid; gap: 10px; padding: 20px; }
+    .meta div { padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: #fbfdff; }
+    .meta strong { display: block; margin-bottom: 4px; font-size: 12px; color: var(--muted); }
+    .meta a { color: var(--accent); overflow-wrap: anywhere; }
+    .controls { padding: 20px; margin-bottom: 18px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+    label span { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 700; color: #334155; }
+    input { width: 100%; height: 42px; border: 1px solid var(--line); border-radius: 8px; padding: 0 12px; font: inherit; background: #fff; color: var(--ink); }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 16px; }
+    button { min-height: 42px; border: 0; border-radius: 8px; padding: 0 18px; background: var(--accent); color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+    button.secondary { background: #e2e8f0; color: #172033; }
+    .status { color: var(--muted); font-size: 14px; }
+    .url { margin-top: 14px; padding: 12px; border-radius: 8px; background: #0f172a; color: #dbeafe; font-family: Consolas, monospace; font-size: 13px; overflow-wrap: anywhere; }
+    .results { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+    .item { padding: 16px; border-top: 4px solid var(--accent); }
+    .item time { display: block; color: var(--accent); font-weight: 700; margin-bottom: 8px; }
+    .item h2 { margin: 0 0 8px; font-size: 19px; line-height: 1.35; letter-spacing: 0; }
+    .item pre { max-height: 180px; overflow: auto; margin: 10px 0 0; padding: 10px; border-radius: 8px; background: #f1f5f9; font-size: 12px; white-space: pre-wrap; }
+    .empty { padding: 22px; text-align: center; color: var(--muted); }
+    @media (max-width: 760px) { main { width: min(100% - 22px, 1080px); padding-top: 18px; } .hero { grid-template-columns: 1fr; } .intro { padding: 20px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div class="panel intro">
+        <p class="eyebrow">Nager.Date</p>
+        <h1>Nager.Date 世界祝日</h1>
+        <p>国コードと年を指定して、世界各国の祝日一覧を取得します。</p>
+      </div>
+      <aside class="panel meta">
+        <div><strong>公式URL</strong><a href="https://date.nager.at" target="_blank" rel="noreferrer">https://date.nager.at</a></div>
+        <div><strong>認証</strong>ページ内に秘密情報は保存しません</div>
+      </aside>
+    </section>
+
+    <section class="panel controls">
+      <div class="grid">
+          <label>
+            <span>国コード</span>
+            <input id="country" type="text" value="JP" placeholder="JP">
+          </label>
+          <label>
+            <span>年</span>
+            <input id="year" type="number" value="2026" placeholder="2026">
+          </label>
+      </div>
+      <div class="actions">
+        <button id="loadBtn" type="button">取得する</button>
+        <button id="sampleBtn" class="secondary" type="button">サンプル表示</button>
+        <span id="status" class="status">入力して取得できます。</span>
+      </div>
+      <div id="requestUrl" class="url"></div>
+    </section>
+
+    <section id="results" class="results" aria-live="polite"></section>
+  </main>
+
+  <script>
+    const fallbackItems = [
+      {
+            "date": "2026-01-01",
+            "name": "New Year's Day",
+            "note": "Nager.Date形式のサンプル"
+      }
+];
+    const fields = ["country","year"];
+
+    function getValues() {
+      return Object.fromEntries(fields.map((id) => [id, document.getElementById(id).value.trim()]));
+    }
+
+    function buildRequestUrl(values) {
+      return "https://date.nager.at/api/v4/Holidays/" + (values.country || "JP").toUpperCase() + "/" + (values.year || new Date().getFullYear());
+    }
+
+    function normalize(data, values) {
+      
+      if (Array.isArray(data)) return data.slice(0, 24).map(normalizeItem);
+      if (data && Array.isArray(data.events)) return data.events.slice(0, 24).map(normalizeItem);
+      if (data && Array.isArray(data.items)) return data.items.slice(0, 24).map(normalizeItem);
+      if (data && typeof data === "object") return Object.entries(data).slice(0, 24).map(([key, value]) => normalizeItem({ name: key, note: value }));
+      if (typeof data === "string") return [{ date: "", name: data.slice(0, 80), note: data }];
+      return [];
+    }
+
+    function normalizeItem(item) {
+      return {
+        date: item.date || item.start || item.day || item.hebrew || "",
+        name: item.name || item.localName || item.title || item.memo || item.namedays || item.hd || "結果",
+        note: item.note || item.countryCode || item.type || item.description || item.dateKind || item.url || "",
+        raw: item
+      };
+    }
+
+    function render(items, message) {
+      document.getElementById("status").textContent = message;
+      const box = document.getElementById("results");
+      if (!items.length) {
+        box.innerHTML = '<div class="panel empty">結果が空でした。条件を変えてもう一度試してください。</div>';
+        return;
+      }
+      box.innerHTML = items.map((item) => `
+        <article class="panel item">
+          <time>${escapeHtml(item.date || "日付なし")}</time>
+          <h2>${escapeHtml(String(item.name))}</h2>
+          <p>${escapeHtml(String(item.note || "詳細はJSONを確認してください。"))}</p>
+          <pre>${escapeHtml(JSON.stringify(item.raw || item, null, 2))}</pre>
+        </article>
+      `).join("");
+    }
+
+    function renderSample() {
+      render(fallbackItems, "サンプルを表示しています。");
+    }
+
+    async function loadData() {
+      const values = getValues();
+      const url = buildRequestUrl(values);
+      document.getElementById("requestUrl").textContent = url;
+      document.getElementById("status").textContent = "取得中...";
+      try {
+        const headers = new Headers();
+        
+        const response = await fetch(url, { headers });
+        if (!response.ok) throw new Error("HTTP " + response.status);
+        let data;
+        data = await response.json();
+        render(normalize(data, values), "取得できました。");
+      } catch (error) {
+        render(fallbackItems, "取得に失敗したためサンプルを表示しています: " + error.message);
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      }[char]));
+    }
+
+    document.getElementById("loadBtn").addEventListener("click", loadData);
+    document.getElementById("sampleBtn").addEventListener("click", renderSample);
+    document.getElementById("requestUrl").textContent = buildRequestUrl(getValues());
+    renderSample();
+  </script>
+</body>
+</html>

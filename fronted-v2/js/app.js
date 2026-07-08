@@ -434,7 +434,8 @@
     });
 
     if (recommendHead) {
-      recommendHead.addEventListener("click", () => {
+      recommendHead.addEventListener("click", (event) => {
+        event.stopPropagation();
         const section = recommendHead.closest(".recommend-section");
         const closed = section.classList.toggle("closed");
         recommendHead.setAttribute("aria-expanded", String(!closed));

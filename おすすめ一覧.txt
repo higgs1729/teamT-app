@@ -11,7 +11,7 @@ yasuda
 
 
 shizuka
-
-
-
+anime.html
+sindan.html
+Poke.html
 banba

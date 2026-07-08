@@ -106,7 +106,7 @@
       button.dataset.id = item.id;
       button.innerHTML =
         `<i class="ti ${item.icon}"></i>` +
-        `<span>${item.title}</span>` +
+        `<span class="recommend-item-label">${item.title}</span>` +
         `<i class="ti ti-chevron-right recommend-item-arrow"></i>`;
       button.addEventListener("click", () => select(item.id, true));
       recommendList.appendChild(button);
@@ -192,10 +192,7 @@
           const item = document.createElement("div");
           item.className = "nav-item" + (t.id === currentId ? " active" : "");
           item.dataset.id = t.id;
-          item.innerHTML =
-            `<i class="ti ${t.icon}"></i>` +
-            `<span>${t.title}</span>` +
-            `<i class="ti ti-chevron-right nav-item-arrow"></i>`;
+          item.innerHTML = `<i class="ti ${t.icon}"></i><span class="nav-item-label">${t.title}</span><i class="ti ti-chevron-right nav-item-arrow"></i>`;
           item.addEventListener("click", () => select(t.id, true));
           subbody.appendChild(item);
         });

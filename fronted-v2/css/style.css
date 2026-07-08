@@ -103,17 +103,18 @@ a { color: inherit; }
 .sidebar-scroll { flex: 1; min-height: 0; overflow-y: auto; }
 
 /* カテゴリ別ナビ（app.js が描画） */
-/* おすすめ一覧: 検索直下に固定表示し、初回利用時の入口を作る。見出しは大見出しのみ（開閉ボタンなし） */
+/* おすすめ一覧: 検索直下に配置。「おすすめ一覧 ＞」→ カテゴリ見出し ＞ → 各HTML の
+   折りたたみツリー。カテゴリ見出し/最内アイテムは nav-* のクラスを再利用して見た目を統一する */
 .recommend-section {
-  padding: 12px 0 10px;
-  margin-bottom: 6px;
+  padding: 8px 0 6px;
+  margin-bottom: 2px;
 }
-.recommend-heading {
-  padding: 8px 10px 4px;
-  color: var(--text-primary);
-  font-size: 17px; font-weight: 800;
-}
-.recommend-list { display: grid; gap: 2px; padding: 6px 4px 0; }
+/* トップ「おすすめ一覧」の見出しは入口として少し目立たせる（星アイコンをアクセント色に） */
+.recommend-group-head { font-size: 14.5px; font-weight: 800; color: var(--text-primary); }
+.recommend-group-head .nav-group-icon { color: var(--accent); }
+[data-theme="dark"] .recommend-group-head .nav-group-icon { color: var(--accent-mid); }
+
+/* おすすめ一覧の最内アイテム（個々のHTML）。＞は付けず「アイコン 文字」のみ */
 .recommend-item {
   display: flex; align-items: center; gap: 10px; width: 100%;
   padding: 8px 10px; border-radius: 10px; border: 1px solid transparent;
@@ -149,6 +150,8 @@ a { color: inherit; }
 .nav-group:first-child .nav-group-head { border-top: 0; }   /* 先頭は検索欄直下なので線なし */
 .nav-group-head:hover { color: var(--accent); }
 [data-theme="dark"] .nav-group-head:hover { color: var(--accent-mid); }
+/* カテゴリ見出し先頭のアイコン（「アイコン 文字 ＞」の先頭） */
+.nav-group-icon { font-size: 17px; width: 20px; text-align: center; flex-shrink: 0; }
 /* カテゴリ行末の ＞。開閉状態に関わらず常に右向き固定（回転させない） */
 .nav-group-caret { font-size: 16px; color: var(--text-muted); flex-shrink: 0; }
 .nav-group-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -166,6 +169,8 @@ a { color: inherit; }
 .nav-subgroup:not(.closed) > .nav-subgroup-head { color: var(--text-primary); }
 .nav-subgroup-head:hover { color: var(--accent); }
 [data-theme="dark"] .nav-subgroup-head:hover { color: var(--accent-mid); }
+/* 小分類見出し先頭のアイコン */
+.nav-subgroup-icon { font-size: 15px; width: 18px; text-align: center; flex-shrink: 0; }
 /* 小分類行末の ＞ も常に右向き固定 */
 .nav-subgroup-caret { font-size: 13px; color: var(--text-muted); flex-shrink: 0; }
 .nav-subgroup-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

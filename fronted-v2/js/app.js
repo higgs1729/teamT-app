@@ -16,7 +16,7 @@
 
   /* ---- よく使う DOM 参照 ---- */
   const navList     = document.getElementById("nav-list");
-  const recommendList = document.getElementById("recommend-list");
+  const recommendRoot = document.getElementById("recommend-root");
   const searchInput = document.getElementById("search");
   const preview     = document.getElementById("preview");
   const welcome     = document.getElementById("welcome");
@@ -47,6 +47,17 @@
   function getCategoryLabel(name) {
     return String(name).replace(/系$/, "");
   }
+
+  // カテゴリ見出し（最上位カテゴリ）の先頭アイコン。未定義カテゴリは汎用フォルダ
+  const CATEGORY_ICONS = {
+    "画像・ビジュアル系": "ti-photo",
+    "データ・検索系":     "ti-database",
+    "為替・ツール系":     "ti-tool",
+    "エンタメ・おもしろ系": "ti-mood-smile",
+  };
+  const CATEGORY_ICON_FALLBACK = "ti-folder";       // 未定義の最上位カテゴリ
+  const SUBCATEGORY_ICON       = "ti-folder-open";  // 小分類見出しの先頭アイコン
+  function getCategoryIcon(name) { return CATEGORY_ICONS[name] || CATEGORY_ICON_FALLBACK; }
 
   const RECOMMEND_FILE = "../おすすめ一覧.txt";  // 各メンバーが推薦するテンプレートのファイル名一覧（1行1ファイル名）
   let recommendedItems = [];                    // 起動時に一度読み込み・突き合わせてキャッシュ
@@ -88,29 +99,93 @@
     renderRecommendations(searchInput.value);
   }
 
-  // おすすめ一覧はキャッシュ済みの recommendedItems を対象に、検索中は一致するおすすめだけ残す。
-  function renderRecommendations(keyword) {
-    if (!recommendList) return;
-    const items = recommendedItems.filter(item => matchesKeyword(item, keyword));
+  /* ============================================================
+     おすすめ一覧の描画 — 「おすすめ一覧 ＞」を開くとカテゴリ見出し、
+     さらに各カテゴリを開くと個々のHTML(推薦API)が出る折りたたみ構造。
+       - トップ(recommendOpen)・各カテゴリ(openRecCats)の開閉状態を保持
+       - 見出しは「アイコン 文字 ＞」（＞は右向き固定）、最内アイテムは「アイコン 文字」
+       - 検索中(kw)はトップ・カテゴリを自動展開して一致項目を見せる
+     ============================================================ */
+  let recommendOpen = false;              // 「おすすめ一覧」トップの開閉
+  const openRecCats = new Set();          // 開いているおすすめ内カテゴリ名
 
-    recommendList.innerHTML = "";
+  function renderRecommendations(keyword) {
+    if (!recommendRoot) return;
+    const kw = (keyword || "").trim().toLowerCase();
+    const items = recommendedItems.filter(item => matchesKeyword(item, kw));
+
+    recommendRoot.innerHTML = "";
+
+    // トップ「おすすめ一覧」グループ（開閉可能）。検索中は強制展開
+    const topOpen = kw ? true : recommendOpen;
+    const group = document.createElement("div");
+    group.className = "nav-group recommend-group" + (topOpen ? "" : " closed");
+
+    const head = document.createElement("div");
+    head.className = "nav-group-head recommend-group-head";
+    head.innerHTML =
+      `<i class="ti ti-star nav-group-icon"></i>` +
+      `<span class="nav-group-title">おすすめ一覧</span>` +
+      `<i class="ti ti-chevron-right nav-group-caret"></i>`;
+    head.addEventListener("click", () => {
+      recommendOpen = !recommendOpen;
+      group.classList.toggle("closed", !recommendOpen);
+    });
+    group.appendChild(head);
+
+    const body = document.createElement("div");
+    body.className = "nav-group-body";
+
     if (items.length === 0) {
-      recommendList.innerHTML = '<div class="recommend-empty">一致するおすすめはありません</div>';
-      return;
+      body.innerHTML = '<div class="recommend-empty">一致するおすすめはありません</div>';
+    } else {
+      // 最上位カテゴリ(path[0])単位でグルーピング（CATALOG の並び順を尊重）
+      const cats = [];
+      const idx  = new Map();
+      items.forEach(it => {
+        const cat = getCategoryPath(it)[0] || "その他";
+        if (!idx.has(cat)) { idx.set(cat, cats.length); cats.push({ cat, items: [] }); }
+        cats[idx.get(cat)].items.push(it);
+      });
+
+      cats.forEach(c => {
+        const catOpen = kw ? true : openRecCats.has(c.cat);
+        const cg = document.createElement("div");
+        cg.className = "nav-group recommend-cat" + (catOpen ? "" : " closed");
+
+        const chead = document.createElement("div");
+        chead.className = "nav-group-head";
+        chead.innerHTML =
+          `<i class="ti ${getCategoryIcon(c.cat)} nav-group-icon"></i>` +
+          `<span class="nav-group-title">${getCategoryLabel(c.cat)}</span>` +
+          `<i class="ti ti-chevron-right nav-group-caret"></i>`;
+        chead.addEventListener("click", () => {
+          if (openRecCats.has(c.cat)) openRecCats.delete(c.cat); else openRecCats.add(c.cat);
+          cg.classList.toggle("closed", !openRecCats.has(c.cat));
+        });
+        cg.appendChild(chead);
+
+        const cbody = document.createElement("div");
+        cbody.className = "nav-group-body";
+        c.items.forEach(it => {
+          const item = document.createElement("button");
+          item.type = "button";
+          item.className = "recommend-item" + (it.id === currentId ? " active" : "");
+          item.dataset.id = it.id;
+          // 最内アイテムは「アイコン 文字」のみ（＞なし）
+          item.innerHTML =
+            `<i class="ti ${it.icon}"></i>` +
+            `<span class="recommend-item-label">${it.title}</span>`;
+          item.addEventListener("click", () => select(it.id, true));
+          cbody.appendChild(item);
+        });
+        cg.appendChild(cbody);
+        body.appendChild(cg);
+      });
     }
 
-    items.forEach(item => {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "recommend-item" + (item.id === currentId ? " active" : "");
-      button.dataset.id = item.id;
-      // おすすめ一覧の項目は最内アイテムなので ＞ は付けない（アイコン + 文字のみ）
-      button.innerHTML =
-        `<i class="ti ${item.icon}"></i>` +
-        `<span class="recommend-item-label">${item.title}</span>`;
-      button.addEventListener("click", () => select(item.id, true));
-      recommendList.appendChild(button);
-    });
+    group.appendChild(body);
+    recommendRoot.appendChild(group);
   }
 
   function renderList(keyword) {
@@ -161,6 +236,7 @@
       const head = document.createElement("div");
       head.className = "nav-group-head";
       head.innerHTML =
+        `<i class="ti ${getCategoryIcon(g.category)} nav-group-icon"></i>` +
         `<span class="nav-group-title">${getCategoryLabel(g.category)}</span>` +
         `<i class="ti ti-chevron-right nav-group-caret"></i>`;
       head.addEventListener("click", () => toggleGroup(g.key, group));
@@ -179,6 +255,7 @@
         subhead.className = "nav-subgroup-head";
         // 小分類も最内でない行なので「文字 件数 ＞」の形式（＞は行末で右向き固定）
         subhead.innerHTML =
+          `<i class="ti ${SUBCATEGORY_ICON} nav-subgroup-icon"></i>` +
           `<span class="nav-subgroup-title">${getCategoryLabel(child.category)}</span>` +
           `<span class="nav-subgroup-count">${child.items.length}</span>` +
           `<i class="ti ti-chevron-right nav-subgroup-caret"></i>`;
@@ -251,8 +328,8 @@
     expandCategoryOf(id);
     navList.querySelectorAll(".nav-item").forEach(el =>
       el.classList.toggle("active", el.dataset.id === id));
-    if (recommendList) {
-      recommendList.querySelectorAll(".recommend-item").forEach(el =>
+    if (recommendRoot) {
+      recommendRoot.querySelectorAll(".recommend-item").forEach(el =>
         el.classList.toggle("active", el.dataset.id === id));
     }
 

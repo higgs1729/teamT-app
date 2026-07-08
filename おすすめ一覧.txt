@@ -1,4 +1,4 @@
-nakayama
+//nakayama
 3D.html
 dance-proto.html
 hipum.html
@@ -7,7 +7,9 @@ ohuzake.html
 oto.html
 QR.html
 YesNo.html
-kanou
+
+
+//kanou
 Cars.html
 Jikan.html
 OpenTrivia.html
@@ -16,6 +18,7 @@ seibetu.html
 Uselse.html
 Waifu.html
 Yugio.html
+
 
 yasuda
 

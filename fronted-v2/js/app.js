@@ -17,7 +17,6 @@
   /* ---- よく使う DOM 参照 ---- */
   const navList     = document.getElementById("nav-list");
   const recommendList = document.getElementById("recommend-list");
-  const recommendHead = document.getElementById("recommend-heading");
   const searchInput = document.getElementById("search");
   const preview     = document.getElementById("preview");
   const welcome     = document.getElementById("welcome");
@@ -49,14 +48,8 @@
     return String(name).replace(/系$/, "");
   }
 
-  const RECOMMENDED_IDS = [
-    "dog-api",
-    "cat-api",
-    "nasa",
-    "weather",
-    "coingecko",
-    "open-food-facts"
-  ];
+  const RECOMMEND_FILE = "../おすすめ一覧.txt";  // 各メンバーが推薦するテンプレートのファイル名一覧（1行1ファイル名）
+  let recommendedItems = [];                    // 起動時に一度読み込み・突き合わせてキャッシュ
 
   function matchesKeyword(item, keyword) {
     const kw = (keyword || "").trim().toLowerCase();
@@ -66,13 +59,39 @@
       .includes(kw);
   }
 
-  // おすすめ一覧はCATALOGの実在項目だけを抜粋し、検索中は一致するおすすめだけ残す。
+  /* ============================================================
+     おすすめ一覧.txt を読み込み、行末が .html の行だけをファイル名として
+     取り出し、CATALOG の file（ディレクトリ抜きの basename・大小無視）と
+     突き合わせて表示対象を決める。メンバー名やコメント行はそのまま無視される。
+     ============================================================ */
+  async function loadRecommendations() {
+    try {
+      const res = await fetch(RECOMMEND_FILE);
+      const text = await res.text();
+      const wanted = new Set(
+        text.split(/\r?\n/)
+          .map(line => line.trim())
+          .filter(line => /\.html$/i.test(line))
+          .map(line => line.toLowerCase())
+      );
+
+      const seen = new Set();
+      recommendedItems = CATALOG.filter(item => {
+        const basename = item.file.split("/").pop().toLowerCase();
+        if (!wanted.has(basename) || seen.has(item.id)) return false;
+        seen.add(item.id);
+        return true;
+      });
+    } catch (err) {
+      recommendedItems = [];
+    }
+    renderRecommendations(searchInput.value);
+  }
+
+  // おすすめ一覧はキャッシュ済みの recommendedItems を対象に、検索中は一致するおすすめだけ残す。
   function renderRecommendations(keyword) {
     if (!recommendList) return;
-    const items = RECOMMENDED_IDS
-      .map(id => CATALOG.find(item => item.id === id))
-      .filter(Boolean)
-      .filter(item => matchesKeyword(item, keyword));
+    const items = recommendedItems.filter(item => matchesKeyword(item, keyword));
 
     recommendList.innerHTML = "";
     if (items.length === 0) {
@@ -85,14 +104,10 @@
       button.type = "button";
       button.className = "recommend-item" + (item.id === currentId ? " active" : "");
       button.dataset.id = item.id;
-
-      const icon = document.createElement("i");
-      icon.className = "ti " + item.icon;
-      const text = document.createElement("span");
-      text.textContent = item.title;
-
-      button.appendChild(icon);
-      button.appendChild(text);
+      button.innerHTML =
+        `<i class="ti ${item.icon}"></i>` +
+        `<span class="recommend-item-label">${item.title}</span>` +
+        `<i class="ti ti-chevron-right recommend-item-arrow"></i>`;
       button.addEventListener("click", () => select(item.id, true));
       recommendList.appendChild(button);
     });
@@ -177,7 +192,7 @@
           const item = document.createElement("div");
           item.className = "nav-item" + (t.id === currentId ? " active" : "");
           item.dataset.id = t.id;
-          item.innerHTML = `<i class="ti ${t.icon}"></i><span>${t.title}</span>`;
+          item.innerHTML = `<i class="ti ${t.icon}"></i><span class="nav-item-label">${t.title}</span><i class="ti ti-chevron-right nav-item-arrow"></i>`;
           item.addEventListener("click", () => select(t.id, true));
           subbody.appendChild(item);
         });
@@ -421,7 +436,7 @@
     initSettingsSearch();
     const apiCount = document.getElementById("settings-api-count");
     if (apiCount) apiCount.textContent = CATALOG.length;
-    renderRecommendations("");
+    loadRecommendations();
     renderList("");
 
     // narrow 幅では初期状態でサイドバー（ドロワー）を閉じておく
@@ -432,15 +447,6 @@
       renderRecommendations(e.target.value);
       renderList(e.target.value);
     });
-
-    if (recommendHead) {
-      recommendHead.addEventListener("click", (event) => {
-        event.stopPropagation();
-        const section = recommendHead.closest(".recommend-section");
-        const closed = section.classList.toggle("closed");
-        recommendHead.setAttribute("aria-expanded", String(!closed));
-      });
-    }
 
     // Esc キーで設定モーダルを閉じる
     document.addEventListener("keydown", (e) => {

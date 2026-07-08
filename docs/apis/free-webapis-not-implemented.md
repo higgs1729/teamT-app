@@ -141,14 +141,14 @@
 | [API Grátis](https://apigratis.com.br/) | Multiples services and public APIs | Yes | Unknown | implemented with fallback: `templates/data/api-gratis.html` |
 | [ApicAgent](https://www.apicagent.com) | Extract device details from user-agent string | Yes | Yes | implemented with fallback: `templates/data/apicagent.html` |
 | [APIs.guru](https://apis.guru/api-doc/) | Wikipedia for Web APIs, OpenAPI/Swagger specs for public APIs | Yes | Unknown | implemented: `templates/data/apis-guru.html` |
-| [Beeceptor](https://beeceptor.com/) | Build a mock Rest API endpoint in seconds | Yes | Yes | implemented: `templates/tools/beeceptor-echo.html` |
+| [Beeceptor](https://beeceptor.com/) | Build a mock Rest API endpoint in seconds | Yes | Yes | implemented: `templates/tools/beeceptor.html` |
 | [Bored](https://www.boredapi.com/) | Find random activities to fight boredom | Yes | Unknown | implemented with fallback: `templates/fun/bored.html` |
 | [BrewPage](https://brewpage.app) | Free hosting for HTML, JSON, key-value, files, multi-file sites with short URLs and TTL retention | Yes | No | implemented with CORS fallback: `templates/tools/brewpage.html` |
 | [CDNJS](https://api.cdnjs.com/libraries/jquery) | Library info on CDNJS | Yes | Unknown | implemented: `templates/data/cdnjs.html` |
-| [Changelogs.md](https://changelogs.md) | Structured changelog metadata from open source projects | Yes | Unknown | implemented with fallback: `templates/data/changelogs-md.html` |
+| [Changelogs.md](https://changelogs.md) | Structured changelog metadata from open source projects | Yes | Unknown | implemented with fallback: `templates/tools/changelogs-md.html` |
 | [Ciprand](https://github.com/polarspetroll/ciprand) | Secure random string generator | Yes | No | implemented with Web Crypto fallback: `templates/tools/ciprand.html` |
 | [Cloudflare Trace](https://github.com/fawazahmed0/cloudflare-trace-api) | Get IP Address, Timestamp, User Agent, Country Code, IATA, HTTP Version, TLS/SSL Version & More | Yes | Yes | implemented: `templates/data/cloudflare-trace.html` |
-| [Codex](https://github.com/Jaagrav/CodeX) | Online Compiler for Various Languages | Yes | Unknown | implemented with request fallback: `templates/tools/codex-compiler.html` |
+| [Codex](https://github.com/Jaagrav/CodeX) | Online Compiler for Various Languages | Yes | Unknown | implemented with request fallback: `templates/tools/codex.html` |
 | [CORS Proxy](https://github.com/burhanuday/cors-proxy) | Get around the dreaded CORS error by using this proxy as a middle man | Yes | Yes | implemented: `templates/tools/cors-proxy.html` |
 | [CountAPI](https://countapi.xyz) | Free and simple counting service. You can use it to track page hits and specific events | Yes | Yes | implemented: `templates/tools/countapi.html` |
 | [DigitalOcean Status](https://status.digitalocean.com/api) | Status of all DigitalOcean services | Yes | Unknown | implemented: `templates/data/digitalocean-status.html` |

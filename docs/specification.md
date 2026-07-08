@@ -153,14 +153,9 @@
 | data | urlhaus | URLhaus API | URLhaus の recent URLs / payloads を Auth-Key 付きで閲覧 |
 | data | seibetu | Genderize.io | 名前から性別と確率を推定 |
 | data | agify | Agify.io | 名前から推定年齢と参照件数を取得 |
-| data | apicagent | ApicAgent | User-Agent文字列を解析してブラウザ・OS・端末情報を表示 |
-| data | apis-guru | APIs.guru Directory API | OpenAPIディレクトリのメトリクス・プロバイダ一覧を検索 |
-| data | cdnjs | CDNJS API | ライブラリ情報とCDN URLを検索 |
-| data | changelogs-md | Changelogs.md | OSSライブラリのchangelog検索結果を取得 |
 | data | weather | 気象庁 予報JSON | 都道府県ごとの天気予報を取得 |
 | data | 24-pull-requests | 24 Pull Requests API | OSS貢献促進サービスのプロジェクト一覧やPR統計を取得 |
 | data | api-gratis | API Grátis | 公式URLの到達状況と仕様確認メモを表示 |
-| data | cloudflare-trace | Cloudflare Trace API | IP・国・HTTP/TLS情報を取得 |
 | data | digitalocean-status | DigitalOcean Status API | DigitalOceanの全体状態とコンポーネント状態を取得 |
 | data | domainsdb | DomainDb Info | キーワードを含むドメイン名を検索 |
 | data | downstatus | DownStatus | 外部サービスの稼働状況確認API候補を表示 |

@@ -30,9 +30,13 @@ weather.html
 zipcode.html
 
 shizuka
+anime.html
+sindan.html
+Poke.html
 
 
 
 banba
-
-
+tenmon.html
+Cars.html
+OpenTrivia.html

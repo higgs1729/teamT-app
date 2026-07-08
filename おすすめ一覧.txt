@@ -3,8 +3,14 @@ nakayama
 
 
 kanou
-
-
+Cars.html
+Jikan.html
+OpenTrivia.html
+password.html
+seibetu.html
+Uselse.html
+Waifu.html
+Yugio.html
 
 yasuda
 

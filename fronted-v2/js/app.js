@@ -104,10 +104,10 @@
       button.type = "button";
       button.className = "recommend-item" + (item.id === currentId ? " active" : "");
       button.dataset.id = item.id;
+      // おすすめ一覧の項目は最内アイテムなので ＞ は付けない（アイコン + 文字のみ）
       button.innerHTML =
         `<i class="ti ${item.icon}"></i>` +
-        `<span class="recommend-item-label">${item.title}</span>` +
-        `<i class="ti ti-chevron-right recommend-item-arrow"></i>`;
+        `<span class="recommend-item-label">${item.title}</span>`;
       button.addEventListener("click", () => select(item.id, true));
       recommendList.appendChild(button);
     });
@@ -156,12 +156,13 @@
       group.className = "nav-group" + (isOpen ? "" : " closed");
       group.dataset.categoryKey = g.key;
 
-      // 見出し（クリックで開閉）。表示名は末尾の「系」を省く + 開閉キャレット
+      // 見出し（クリックで開閉）。表示名は末尾の「系」を省く。
+      // 最内でない行（カテゴリ）は「文字 ＞」の形式：＞は行末に固定で右向き（回転しない）
       const head = document.createElement("div");
       head.className = "nav-group-head";
       head.innerHTML =
-        `<i class="ti ti-chevron-down nav-group-caret"></i>` +
-        `<span class="nav-group-title">${getCategoryLabel(g.category)}</span>`;
+        `<span class="nav-group-title">${getCategoryLabel(g.category)}</span>` +
+        `<i class="ti ti-chevron-right nav-group-caret"></i>`;
       head.addEventListener("click", () => toggleGroup(g.key, group));
       group.appendChild(head);
 
@@ -176,10 +177,11 @@
 
         const subhead = document.createElement("div");
         subhead.className = "nav-subgroup-head";
+        // 小分類も最内でない行なので「文字 件数 ＞」の形式（＞は行末で右向き固定）
         subhead.innerHTML =
-          `<i class="ti ti-chevron-down nav-subgroup-caret"></i>` +
           `<span class="nav-subgroup-title">${getCategoryLabel(child.category)}</span>` +
-          `<span class="nav-subgroup-count">${child.items.length}</span>`;
+          `<span class="nav-subgroup-count">${child.items.length}</span>` +
+          `<i class="ti ti-chevron-right nav-subgroup-caret"></i>`;
         subhead.addEventListener("click", (event) => {
           event.stopPropagation();
           toggleGroup(child.key, subgroup);
@@ -192,7 +194,8 @@
           const item = document.createElement("div");
           item.className = "nav-item" + (t.id === currentId ? " active" : "");
           item.dataset.id = t.id;
-          item.innerHTML = `<i class="ti ${t.icon}"></i><span class="nav-item-label">${t.title}</span><i class="ti ti-chevron-right nav-item-arrow"></i>`;
+          // 最内アイテム（個々のAPI）は ＞ を付けない（アイコン + 文字のみ）
+          item.innerHTML = `<i class="ti ${t.icon}"></i><span class="nav-item-label">${t.title}</span>`;
           item.addEventListener("click", () => select(t.id, true));
           subbody.appendChild(item);
         });

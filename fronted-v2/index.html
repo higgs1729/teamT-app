@@ -39,15 +39,19 @@
       <input type="text" id="search" class="search-input" placeholder="API を検索…" autocomplete="off">
     </div>
 
-    <!-- カテゴリ別ナビ（app.js が CATALOG から描画） -->
-    <!-- おすすめ一覧: ../おすすめ一覧.txt（各メンバーの推薦ファイル一覧）をもとにCATALOGから抜粋して表示 -->
-    <section class="recommend-section" aria-label="おすすめ一覧">
-      <h2 class="recommend-heading">おすすめ一覧</h2>
-      <div class="recommend-list" id="recommend-list"></div>
-    </section>
+    <!-- スクロール領域: おすすめ一覧 + ジャンル別一覧をまとめて縦スクロールさせる。
+         ブランド・検索は上部に、アカウント等のフッターは下部に固定したまま、中央だけが動く -->
+    <div class="sidebar-scroll">
+      <!-- カテゴリ別ナビ（app.js が CATALOG から描画） -->
+      <!-- おすすめ一覧: ../おすすめ一覧.txt（各メンバーの推薦ファイル一覧）をもとにCATALOGから抜粋して表示 -->
+      <section class="recommend-section" aria-label="おすすめ一覧">
+        <h2 class="recommend-heading">おすすめ一覧</h2>
+        <div class="recommend-list" id="recommend-list"></div>
+      </section>
 
-    <div class="nav-section-label">ジャンルごとに探す</div>
-    <nav class="nav-scroll" id="nav-list"></nav>
+      <div class="nav-section-label">ジャンルごとに探す</div>
+      <nav class="nav-scroll" id="nav-list"></nav>
+    </div>
 
     <!-- サイドバー下部: アカウント（設定へのアクセスは設定モーダル内のナビに集約） -->
     <div class="sidebar-foot">

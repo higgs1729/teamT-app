@@ -89,10 +89,14 @@
       const icon = document.createElement("i");
       icon.className = "ti " + item.icon;
       const text = document.createElement("span");
+      text.className = "recommend-item-label";
       text.textContent = item.title;
+      const arrow = document.createElement("i");
+      arrow.className = "ti ti-chevron-right recommend-item-arrow";
 
       button.appendChild(icon);
       button.appendChild(text);
+      button.appendChild(arrow);
       button.addEventListener("click", () => select(item.id, true));
       recommendList.appendChild(button);
     });
@@ -177,7 +181,7 @@
           const item = document.createElement("div");
           item.className = "nav-item" + (t.id === currentId ? " active" : "");
           item.dataset.id = t.id;
-          item.innerHTML = `<i class="ti ${t.icon}"></i><span>${t.title}</span>`;
+          item.innerHTML = `<i class="ti ${t.icon}"></i><span class="nav-item-label">${t.title}</span><i class="ti ti-chevron-right nav-item-arrow"></i>`;
           item.addEventListener("click", () => select(t.id, true));
           subbody.appendChild(item);
         });

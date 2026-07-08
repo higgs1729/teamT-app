@@ -40,13 +40,9 @@
     </div>
 
     <!-- カテゴリ別ナビ（app.js が CATALOG から描画） -->
-    <!-- おすすめ一覧: 初めて開いた人がすぐ試せるAPIをCATALOGから抜粋して表示 -->
-    <section class="recommend-section closed" aria-labelledby="recommend-heading">
-      <button class="recommend-head" id="recommend-heading" type="button" aria-expanded="false">
-        <i class="ti ti-star recommend-leading-icon"></i>
-        <span>おすすめ一覧</span>
-        <i class="ti ti-chevron-right recommend-caret"></i>
-      </button>
+    <!-- おすすめ一覧: ../おすすめ一覧.txt（各メンバーの推薦ファイル一覧）をもとにCATALOGから抜粋して表示 -->
+    <section class="recommend-section" aria-label="おすすめ一覧">
+      <h2 class="recommend-heading">おすすめ一覧</h2>
       <div class="recommend-list" id="recommend-list"></div>
     </section>
 

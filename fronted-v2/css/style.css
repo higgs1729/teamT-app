@@ -99,24 +99,17 @@ a { color: inherit; }
 .search-input::placeholder { color: var(--text-muted); }
 
 /* カテゴリ別ナビ（app.js が描画） */
-/* おすすめ一覧: 検索直下に固定表示し、初回利用時の入口を作る */
+/* おすすめ一覧: 検索直下に固定表示し、初回利用時の入口を作る。見出しは大見出しのみ（開閉ボタンなし） */
 .recommend-section {
   padding: 12px 0 10px;
   margin-bottom: 6px;
 }
-.recommend-head {
-  display: flex; align-items: center; gap: 8px; width: 100%;
-  padding: 8px 10px; border: 0; background: transparent; color: var(--text-primary);
-  font-family: inherit; font-size: 16px; font-weight: 800;
-  cursor: pointer; text-align: left; transition: border-color 0.15s, color 0.15s;
+.recommend-heading {
+  padding: 8px 10px 4px;
+  color: var(--text-primary);
+  font-size: 17px; font-weight: 800;
 }
-.recommend-head:hover { color: var(--accent); }
-[data-theme="dark"] .recommend-head:hover { color: var(--accent-mid); }
-.recommend-head span { flex: 1; }
-.recommend-caret { font-size: 15px; color: var(--text-muted); transition: transform 0.18s; flex-shrink: 0; }
-.recommend-section.closed .recommend-caret { transform: rotate(-90deg); }
 .recommend-list { display: grid; gap: 2px; padding: 6px 4px 0; }
-.recommend-section.closed .recommend-list { display: none; }
 .recommend-item {
   display: flex; align-items: center; gap: 10px; width: 100%;
   padding: 8px 10px; border-radius: 10px; border: 1px solid transparent;
@@ -125,7 +118,8 @@ a { color: inherit; }
   transition: background 0.15s, color 0.15s;
 }
 .recommend-item i { font-size: 17px; width: 20px; text-align: center; flex-shrink: 0; }
-.recommend-item span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.recommend-item span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.recommend-item-arrow { font-size: 15px !important; width: auto !important; color: var(--text-hint); }
 .recommend-item:hover { background: var(--bg-card); color: var(--text-primary); }
 .recommend-item.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
 [data-theme="dark"] .recommend-item.active { color: var(--accent-mid); }
@@ -184,7 +178,8 @@ a { color: inherit; }
   border: 1px solid transparent; transition: background 0.15s, color 0.15s;
 }
 .nav-item i { font-size: 18px; width: 20px; text-align: center; flex-shrink: 0; }
-.nav-item span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nav-item span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nav-item-arrow { font-size: 15px !important; width: auto !important; color: var(--text-hint); }
 .nav-item:hover { background: var(--bg-card); color: var(--text-primary); }
 .nav-item.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
 [data-theme="dark"] .nav-item.active { color: var(--accent-mid); }

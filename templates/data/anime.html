@@ -191,24 +191,38 @@ async function searchAnime(){
     document.getElementById("status").textContent =
         "検索中...";
 
-    const res = await fetch(
-        `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(keyword)}&limit=20`
-    );
+    try{
 
-    const data = await res.json();
+        const res = await fetch(
+            `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(keyword)}&limit=20`
+        );
 
-    if(!data.data.length){
+        if(!res.ok){
+            throw new Error("APIエラー");
+        }
+
+        const data = await res.json();
+
+        if(data.data.length===0){
+            document.getElementById("status").textContent =
+                "見つかりませんでした";
+            return;
+        }
+
+        displayAnime(data.data);
+
         document.getElementById("status").textContent =
-            "見つかりませんでした";
-        return;
+            `${data.data.length}件見つかりました`;
+
+    }catch(error){
+
+        console.error(error);
+
+        document.getElementById("status").textContent =
+            "検索に失敗しました。しばらく待ってから再度お試しください。";
+
     }
-
-    displayAnime(data.data);
-
-    document.getElementById("status").textContent =
-        `${data.data.length}件見つかりました`;
 }
-
 async function loadPopular(){
 
     const res = await fetch(

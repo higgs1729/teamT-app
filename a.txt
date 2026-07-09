@@ -4,7 +4,9 @@ https://www.fishwatch.gov/api/species
 https://www.movebank.org/movebank/service/public/json?entity_type=study
 RescueGroups API
 https://xeno-canto.org/api/2/recordings?query=cnt:japan
-高評価ゲーム一覧（アプリ内表示が）
+
+以下アプリ内の表示
+高評価ゲーム一覧
 Autochess VNG　図鑑
 NASA 今日の天体
 DownStatus Monitor

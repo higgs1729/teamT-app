@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>🧩 スライドパズル</title>
+
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+
+    <h1>🧩 スライドパズル</h1>
+    <div class="controls">
+        <div class="controls">
+
+        <label>難易度：</label>
+
+        <select id="sizeSelect">
+            <option value="3">3×3</option>
+            <option value="4">4×4</option>
+            <option value="5">5×5</option>
+        </select>
+
+        <button id="shuffleBtn">シャッフル</button>
+
+    </div>
+
+
+    <h2>
+    ⏱️ 経過時間：
+    <span id="timer">0</span>秒
+    </h2>
+    
+    <div id="board"></div>
+
+</body>
+</html>

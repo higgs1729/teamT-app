@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>簡易RPG</title>
+
+<style>
+
+body{
+    background:#222;
+    color:white;
+    font-family:"Meiryo";
+}
+
+h1{
+    text-align:center;
+}
+
+#game{
+    width:850px;
+    margin:auto;
+}
+
+.statusArea{
+    display:flex;
+    justify-content:space-between;
+    gap:20px;
+}
+
+.card{
+    flex:1;
+    background:#333;
+    border:2px solid white;
+    border-radius:10px;
+    padding:15px;
+}
+
+.bar{
+    width:100%;
+    height:24px;
+    background:#555;
+    border-radius:20px;
+    overflow:hidden;
+    margin:8px 0;
+}
+
+.fill{
+    height:100%;
+    width:100%;
+    transition:.4s;
+}
+
+.hp{
+    background:#28c840;
+}
+
+.exp{
+    background:#00aaff;
+}
+
+button{
+    padding:12px 25px;
+    margin:10px;
+    font-size:18px;
+    cursor:pointer;
+    border:none;
+    border-radius:8px;
+}
+
+button:hover{
+    transform:scale(1.05);
+}
+
+#buttons{
+    text-align:center;
+}
+
+#log{
+    margin-top:20px;
+    height:220px;
+    overflow-y:auto;
+    background:black;
+    color:white;
+    border:2px solid white;
+    padding:10px;
+    font-size:18px;
+    line-height:1.8;
+}
+
+.logAttack{
+    color:skyblue;
+}
+
+.logEnemy{
+    color:#ff6666;
+}
+
+.logHeal{
+    color:lime;
+}
+
+.logLevel{
+    color:gold;
+    font-weight:bold;
+}
+
+.inventoryArea{
+    margin-top:20px;
+    background:#333;
+    border:2px solid white;
+    border-radius:10px;
+    padding:15px;
+}
+
+.inventoryTitle{
+    margin:0 0 10px;
+}
+
+.inventoryList{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+}
+
+.itemCard{
+    min-width:220px;
+    flex:1;
+    background:#444;
+    border:1px solid #777;
+    border-radius:8px;
+    padding:10px;
+}
+
+.itemName{
+    font-weight:bold;
+    margin-bottom:6px;
+}
+
+.itemEffect{
+    font-size:16px;
+    line-height:1.5;
+    margin-bottom:8px;
+}
+
+.itemButton{
+    width:100%;
+    margin:0;
+    font-size:16px;
+    padding:10px 12px;
+}
+
+.emptyInventory{
+    color:#bbb;
+    font-size:16px;
+}
+
+</style>
+</head>
+<body>
+
+<div id="game">
+
+<h1>⚔ 簡易RPG ⚔</h1>
+
+<div class="statusArea">
+
+<div class="card">+
+
+<h2>🧙 勇者</h2>
+
+HP
+
+<div class="bar">
+<div id="playerHPBar" class="fill hp"></div>
+</div>
+
+<div id="playerHPText"></div>
+
+EXP
+
+<div class="bar">
+<div id="playerEXPBar" class="fill exp"></div>
+</div>
+
+<div id="playerInfo"></div>
+
+</div>
+
+<div class="card">
+
+<h2 id="enemyName"></h2>
+
+HP
+
+<div class="bar">
+<div id="enemyHPBar" class="fill hp"></div>
+</div>
+
+<div id="enemyInfo"></div>
+
+</div>
+
+</div>
+
+<div id="buttons">
+<button onclick="attack()">⚔ 攻撃</button>
+<button onclick="heal()">💚 回復</button>
+<button onclick="restart()">🔄 最初から</button>
+</div>
+
+<div class="inventoryArea">
+<h2 class="inventoryTitle">🎒 持ち物</h2>
+<div id="inventoryList" class="inventoryList"></div>
+</div>
+
+<div id="log"></div>
+
+</div>
+
+<script>
+
+let player={
+    hp:180,
+    maxHp:180,
+    baseAtk:20,
+    atk:35,
+    level:1,
+    exp:0,
+    inventory:[],
+    activeBuffs:[]
+};
+
+let enemy={};
+
+const enemyList = [
+    {name:"👹 スライム", hp:50, atk:10,enemy:"../GAME/img/suraimu.jpg"},
+    {name:"🐺 オオカミ", hp:70, atk:15,enemy:"../GAME/img/ookami.jpg"},
+    {name:"🧟 ゾンビ", hp:90, atk:18,enemy:"../GAME/img/zonbie.jpg"},
+    {name:"🦇 コウモリ", hp:40, atk:12,enemy:"../GAME/img/bat.jpg"},
+    {name:"🦂 サソリ", hp:80, atk:20,enemy:"../GAME/img-scorpion.jpg"},
+    {name:"🐍 大蛇", hp:100, atk:22,enemy:"../GAME/img/snake.jpg"},
+    {name:"🦁 ライオン", hp:120, atk:25,enemy:"../GAME/img/lion.jpg"},
+    {name:"👺 オーガ", hp:150, atk:30,enemy:"../GAME/img/hero.jpg"},
+    {name:"🐉 ドラゴン", hp:220, atk:40,enemy:"../GAME/img/doragon.jpg"},
+    {name:"👿 魔王", hp:350, atk:55,enemy:"../GAME/img/maou.jpg"}
+];
+
+let itemIdCount=0;
+
+const ATTACK_BUFF_TURNS=3;
+
+const itemPool=[
+    {
+        name:"鉄の剣",
+        effect:"attack",
+        value:5,
+        description:"攻撃力 +5"
+    },
+    {
+        name:"鋭い短剣",
+        effect:"attack",
+        value:8,
+        description:"攻撃力 +8"
+    },
+    {
+        name:"英雄の剣",
+        effect:"attack",
+        value:12,
+        description:"攻撃力 +12"
+    },
+    {
+        name:"回復ポーション",
+        effect:"heal",
+        value:40,
+        description:"HPを40回復"
+    }
+];
+
+function createEnemy(){
+
+    let e;
+
+    // レベルによって出現する敵を増やす
+    if(player.level <= 2){
+        e = enemyList[Math.floor(Math.random()*3)];
+    }
+    else if(player.level <= 4){
+        e = enemyList[Math.floor(Math.random()*6)];
+    }
+    else if(player.level <= 7){
+        e = enemyList[Math.floor(Math.random()*8)];
+    }
+    else{
+        e = enemyList[Math.floor(Math.random()*10)];
+    }
+
+    enemy={
+        name:e.name+" Lv."+player.level,
+        hp:e.hp+player.level*10,
+        maxHp:e.hp+player.level*10,
+        atk:e.atk+player.level*3
+    };
+
+}
+
+createEnemy();
+
+function setBar(id,value,max){
+
+let per=value/max*100;
+
+let bar=document.getElementById(id);
+
+bar.style.width=per+"%";
+
+if(per>60){
+    bar.style.background="#28c840";
+}
+else if(per>30){
+    bar.style.background="orange";
+}
+else{
+    bar.style.background="red";
+}
+
+}
+
+function draw(){
+
+updateAttackPower();
+
+setBar("playerHPBar",player.hp,player.maxHp);
+setBar("enemyHPBar",enemy.hp,enemy.maxHp);
+
+document.getElementById("playerEXPBar").style.width=(player.exp/30*100)+"%";
+
+document.getElementById("playerHPText").innerHTML=
+player.hp+" / "+player.maxHp;
+
+document.getElementById("playerInfo").innerHTML=
+"Lv : "+player.level+
+"<br>攻撃 : "+player.atk+
+"<br>EXP : "+player.exp+"/30"+
+"<br>強化 : "+getAttackBuffText();
+
+document.getElementById("enemyName").innerHTML=enemy.name;
+
+document.getElementById("enemyInfo").innerHTML=
+"HP : "+enemy.hp+" / "+enemy.maxHp+
+"<br>攻撃 : "+enemy.atk;
+
+drawInventory();
+
+}
+
+function drawInventory(){
+
+let list=document.getElementById("inventoryList");
+
+if(player.inventory.length===0){
+    list.innerHTML="<div class='emptyInventory'>まだアイテムはありません。</div>";
+    return;
+}
+
+list.innerHTML=player.inventory.map(item=>
+    "<div class='itemCard'>"+
+    "<div class='itemName'>"+item.name+"</div>"+
+    "<div class='itemEffect'>"+item.description+"</div>"+
+    "<button class='itemButton' onclick='useItem("+item.id+")'>使う</button>"+
+    "</div>"
+).join("");
+
+}
+
+function log(text){
+
+let area=document.getElementById("log");
+
+area.innerHTML+=text+"<br>";
+
+area.scrollTop=area.scrollHeight;
+
+}
+
+function updateAttackPower(){
+
+player.atk=player.baseAtk+getActiveAttackBuffTotal();
+
+}
+
+function getActiveAttackBuffTotal(){
+
+return player.activeBuffs.reduce((sum,item)=>sum+item.value,0);
+
+}
+
+function getAttackBuffText(){
+
+let activeBuffs=player.activeBuffs;
+
+if(activeBuffs.length===0){
+    return "なし";
+}
+
+return activeBuffs.map(item=>item.name+" 残り"+item.turnsLeft+"T").join(", ");
+
+}
+
+function advanceTurns(){
+
+let changed=false;
+
+player.activeBuffs.forEach(item=>{
+
+    item.turnsLeft--;
+
+    if(item.turnsLeft<=0){
+        changed=true;
+        log("<span class='logLevel'>⏳ "+item.name+" の効果が切れた！</span>");
+    }
+});
+
+if(changed){
+    player.activeBuffs=player.activeBuffs.filter(item=>item.turnsLeft>0);
+}
+
+updateAttackPower();
+
+}
+
+function createItem(){
+
+let baseItem=itemPool[Math.floor(Math.random()*itemPool.length)];
+
+return {
+    id:++itemIdCount,
+    name:baseItem.name,
+    effect:baseItem.effect,
+    value:baseItem.value,
+    description:baseItem.description
+};
+
+}
+
+function obtainItem(){
+
+let item=createItem();
+
+player.inventory.push(item);
+
+log("<span class='logLevel'>🎁 アイテム入手！ "+item.name+"</span>");
+
+draw();
+
+}
+
+function useItem(itemId){
+
+let index=player.inventory.findIndex(item=>item.id===itemId);
+
+if(index===-1)return;
+
+let item=player.inventory[index];
+
+if(item.effect==="attack"){
+    player.activeBuffs.push({
+        id:item.id,
+        name:item.name,
+        effect:item.effect,
+        value:item.value,
+        description:item.description,
+        turnsLeft:ATTACK_BUFF_TURNS
+    });
+
+    log("<span class='logLevel'>✨ "+item.name+" を使った！ 攻撃力が "+item.value+" 上がった！</span>");
+}
+else if(item.effect==="heal"){
+    player.hp+=item.value;
+
+    if(player.hp>player.maxHp){
+        player.hp=player.maxHp;
+    }
+
+    log("<span class='logHeal'>💊 "+item.name+" を使った！ HPが "+item.value+" 回復した！</span>");
+}
+
+player.inventory.splice(index,1);
+
+advanceTurns();
+
+draw();
+
+}
+
+function attack(){
+
+let damage=Math.floor(Math.random()*15)+player.atk;
+
+enemy.hp-=damage;
+
+if(enemy.hp<0)enemy.hp=0;
+
+log("<span class='logAttack'>⚔ 勇者の攻撃！ "+damage+" ダメージ！</span>");
+
+draw();
+
+if(enemy.hp<=0){
+
+log("<span class='logLevel'>🎉 敵を倒した！</span>");
+
+player.exp+=10;
+
+if(Math.random()<0.7){
+    obtainItem();
+}
+
+if(player.exp>=30){
+
+player.exp=0;
+player.level++;
+player.maxHp+=30;
+player.hp=player.maxHp;
+player.atk+=8;
+
+log("<span class='logLevel'>⭐ レベルアップ！ Lv."+player.level+"</span>");
+
+}
+
+createEnemy();
+
+advanceTurns();
+
+draw();
+
+return;
+
+}
+
+enemyAttack();
+
+advanceTurns();
+
+}
+
+function enemyAttack(){
+
+let damage=Math.floor(Math.random()*5)+enemy.atk;
+
+player.hp-=damage;
+
+if(player.hp<0)player.hp=0;
+
+log("<span class='logEnemy'>👹 "+enemy.name+" の攻撃！ "+damage+" ダメージ！</span>");
+
+draw();
+
+if(player.hp<=0){
+
+setTimeout(()=>{
+alert("ゲームオーバー");
+},100);
+
+}
+
+}
+
+function heal(){
+
+let heal=Math.floor(Math.random()*30)+30;
+
+player.hp+=heal;
+
+if(player.hp>player.maxHp)
+player.hp=player.maxHp;
+
+log("<span class='logHeal'>💚 "+heal+" 回復した！</span>");
+
+draw();
+
+enemyAttack();
+
+}
+
+function restart(){
+
+player={
+hp:100,
+maxHp:100,
+baseAtk:20,
+atk:20,
+level:1,
+exp:0,
+inventory:[],
+activeBuffs:[]
+};
+
+itemIdCount=0;
+
+createEnemy();
+
+document.getElementById("log").innerHTML="";
+
+draw();
+
+}
+
+draw();
+
+</script>
+
+</body>
+</html>

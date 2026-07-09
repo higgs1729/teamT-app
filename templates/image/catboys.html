@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catboys Image & Fact</title>
+  <style>
+    /* Catboys の画像とファクトを並べて見せるキャラクター画像ページ */
+    :root{--bg:#07131c;--panel:#0f1d2b;--border:rgba(173,204,255,.16);--text:#eef6ff;--muted:#a4bad8;--accent:#85d0ff;--accent2:#e0f4ff;--shadow:0 24px 70px rgba(0,0,0,.34)}*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:"Segoe UI",Meiryo,sans-serif;color:var(--text);background:radial-gradient(circle at top left,rgba(133,208,255,.2),transparent 26%),linear-gradient(155deg,#051018,#0b1724 50%,#05070a)}.wrap{width:min(1120px,calc(100% - 32px));margin:0 auto;padding:28px 0 42px}.hero,.panel{background:rgba(10,18,28,.84);border:1px solid var(--border);border-radius:24px;box-shadow:var(--shadow);backdrop-filter:blur(14px)}.hero{padding:28px;margin-bottom:18px;display:grid;gap:18px;grid-template-columns:1.25fr .9fr}.eyebrow{display:inline-flex;gap:8px;align-items:center;padding:7px 12px;border-radius:999px;background:rgba(133,208,255,.12);color:var(--accent2);font-size:12px;letter-spacing:.12em;text-transform:uppercase}.dot{width:8px;height:8px;border-radius:50%;background:#66f0b5}h1{margin:16px 0 10px;font-size:clamp(30px,4vw,50px);line-height:1.06}.lead{margin:0;color:var(--muted);line-height:1.8}.meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.pill{padding:9px 12px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:13px;color:#d9ebff}.panel{padding:24px;display:grid;gap:16px}.controls{display:flex;flex-wrap:wrap;gap:10px}.btn,a.btn{appearance:none;border:none;text-decoration:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 15px;border-radius:14px;font:inherit;font-weight:700}.primary{background:linear-gradient(135deg,var(--accent2),var(--accent));color:#06101a}.secondary{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:var(--text)}.content{display:grid;grid-template-columns:minmax(260px,.9fr) 1.1fr;gap:18px}.image{border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.08);min-height:320px;background:#07121b;display:grid;place-items:center}.image img{width:100%;height:100%;object-fit:cover;display:none}.placeholder{color:#7088aa;padding:18px;text-align:center}.status{display:flex;justify-content:space-between;gap:12px;align-items:center;color:var(--muted);font-size:13px;flex-wrap:wrap}.fact{padding:16px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}.fact small{display:block;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}.fact strong{font-size:16px;line-height:1.7}.footer{display:flex;justify-content:space-between;gap:12px;align-items:center;color:var(--muted);font-size:13px;flex-wrap:wrap}.footer a{color:var(--accent2);text-decoration:none}.footer a:hover{text-decoration:underline}@media (max-width:860px){.hero,.content{grid-template-columns:1fr}.footer{flex-direction:column;align-items:flex-start}}
+  </style>
+</head>
+<body>
+  <!-- 構成: 画像取得 / fact 取得 / キャラ情報 / フォールバック表示。Catboys の2エンドポイントをまとめて使う。 -->
+  <main class="wrap">
+    <section class="hero">
+      <div>
+        <div class="eyebrow"><span class="dot"></span> catboys api</div>
+        <h1>画像も fact も、1画面でまとめる。</h1>
+        <p class="lead">Catboys の画像 API と fact API を並べて表示します。画像だけでも成立しますが、fact が取れたらちょっと得した気分になります。</p>
+        <div class="meta"><div class="pill">Image: /img</div><div class="pill">Fact: /fact</div><div class="pill">No auth demo</div></div>
+      </div>
+      <div class="panel">
+        <strong>補足</strong>
+        <div style="color:var(--muted);line-height:1.8;">API の応答が不安定な場合は、画像枠をプレースホルダーに切り替え、fact だけでも読める状態を保ちます。</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="controls">
+        <button id="reload" class="btn primary" type="button">再取得</button>
+        <button id="copy" class="btn secondary" type="button">情報をコピー</button>
+        <a class="btn secondary" href="https://catboys.com/api" target="_blank" rel="noreferrer">Docs を開く</a>
+      </div>
+      <div class="status"><span id="statusText">待機中</span><b id="metaText"></b></div>
+      <div class="content">
+        <div class="image"><img id="image" alt="catboys result"><div id="placeholder" class="placeholder">画像を取得するとここに表示されます。</div></div>
+        <div style="display:grid;gap:12px;align-content:start;">
+          <div class="fact"><small>fact</small><strong id="fact">取得ボタンを押してください。</strong></div>
+          <div class="fact"><small>image url</small><strong id="imageUrl">-</strong></div>
+          <div class="fact"><small>artist / source</small><strong id="artist">-</strong></div>
+          <div class="footer"><span id="note">画像と fact の両方を取得します。</span><span>API: <a href="https://catboys.com/api" target="_blank" rel="noreferrer">catboys.com/api</a></span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const IMAGE_URL = 'https://api.catboys.com/img';
+    const FACT_URL = 'https://api.catboys.com/fact';
+    const FALLBACK = { fact:'Catboys API が取得できない時は、画像の雰囲気だけで楽しみます。', url:'', artist:'fallback / local sample' };
+    const $ = (id) => document.getElementById(id);
+
+    function showImage(url) {
+      if (url) { $('image').src = url; $('image').style.display = 'block'; $('placeholder').style.display = 'none'; } else { $('image').style.display = 'none'; $('placeholder').style.display = 'grid'; }
+    }
+
+    async function loadData() {
+      $('reload').disabled = $('copy').disabled = true;
+      $('statusText').textContent = 'loading...';
+      try {
+        const [imgRes, factRes] = await Promise.all([fetch(IMAGE_URL, { cache:'no-store' }), fetch(FACT_URL, { cache:'no-store' })]);
+        if (!imgRes.ok) throw new Error(`img HTTP ${imgRes.status}`);
+        if (!factRes.ok) throw new Error(`fact HTTP ${factRes.status}`);
+        const imgJson = await imgRes.json();
+        const factJson = await factRes.json();
+        const url = imgJson.url || imgJson.image || imgJson.img || '';
+        const fact = factJson.fact || factJson.text || factJson.message || 'No fact returned.';
+        $('fact').textContent = fact;
+        $('imageUrl').textContent = url || '-';
+        $('artist').textContent = [imgJson.artist, imgJson.source, factJson.source].filter(Boolean).join(' / ') || '-';
+        $('metaText').textContent = 'live';
+        $('statusText').textContent = '取得完了';
+        $('note').textContent = 'Catboys の画像と fact を同時に取得しました。';
+        showImage(url);
+      } catch (error) {
+        console.error(error);
+        $('fact').textContent = FALLBACK.fact;
+        $('imageUrl').textContent = FALLBACK.url || '-';
+        $('artist').textContent = FALLBACK.artist;
+        $('metaText').textContent = 'fallback';
+        $('statusText').textContent = '取得失敗';
+        $('note').textContent = 'ライブ取得に失敗したため、テキストだけを表示しています。';
+        showImage('');
+      } finally {
+        $('reload').disabled = $('copy').disabled = false;
+      }
+    }
+
+    $('reload').addEventListener('click', loadData);
+    $('copy').addEventListener('click', async () => {
+      const text = `${$('fact').textContent}\n${$('imageUrl').textContent}`;
+      try { await navigator.clipboard.writeText(text); $('note').textContent = '情報をコピーしました。'; } catch { $('note').textContent = 'コピーに失敗しました。'; }
+    });
+    window.addEventListener('load', loadData);
+  </script>
+</body>
+</html>

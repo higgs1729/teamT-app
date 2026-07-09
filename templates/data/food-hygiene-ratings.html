@@ -1,0 +1,458 @@
+<!--
+  目的: UK food hygiene ratings の公開オープンデータを地域別に探索する。
+  構成: ヒーロー / 検索・絞り込み / 統計サマリー / 結果一覧 / 参照リンク。
+-->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>食品衛生レーティング</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07111f;
+      --bg2: #122033;
+      --card: rgba(10, 19, 34, 0.82);
+      --card-border: rgba(124, 152, 182, 0.22);
+      --text: #edf3ff;
+      --muted: #a9b7cc;
+      --accent: #f59e0b;
+      --accent-soft: rgba(245, 158, 11, 0.18);
+      --good: #34d399;
+      --warn: #fbbf24;
+      --bad: #f87171;
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(245, 158, 11, 0.18), transparent 36%),
+        radial-gradient(circle at 85% 10%, rgba(52, 211, 153, 0.08), transparent 20%),
+        linear-gradient(135deg, var(--bg), var(--bg2));
+    }
+    .shell {
+      width: min(1200px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    .hero,
+    .panel,
+    .footer-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      border-radius: 24px;
+    }
+    .hero {
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -100px -80px auto;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.38), transparent 68%);
+      pointer-events: none;
+    }
+    .eyebrow {
+      display: inline-flex;
+      gap: 10px;
+      align-items: center;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(245, 158, 11, 0.12);
+      color: #ffd48a;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .title {
+      margin: 18px 0 10px;
+      font-size: clamp(30px, 4vw, 54px);
+      line-height: 1.05;
+    }
+    .lead {
+      margin: 0;
+      max-width: 760px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .pill {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      color: #d9e5f7;
+      font-size: 13px;
+    }
+    .controls,
+    .stats,
+    .results,
+    .footer-card {
+      margin-top: 18px;
+    }
+    .panel {
+      padding: 18px;
+    }
+    .controls-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(140px, 0.5fr) auto;
+      gap: 12px;
+      align-items: center;
+    }
+    .input,
+    .select,
+    .button {
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      background: rgba(8, 15, 26, 0.9);
+      color: var(--text);
+      font: inherit;
+      padding: 14px 16px;
+    }
+    .input::placeholder { color: #8494ab; }
+    .input:focus,
+    .select:focus,
+    .button:focus {
+      outline: 2px solid rgba(245, 158, 11, 0.55);
+      outline-offset: 2px;
+    }
+    .button {
+      background: linear-gradient(135deg, #f59e0b, #fb7185);
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      box-shadow: 0 10px 24px rgba(245, 158, 11, 0.22);
+    }
+    .button:hover { transform: translateY(-1px); }
+    .button.ghost {
+      background: rgba(255, 255, 255, 0.05);
+      box-shadow: none;
+      font-weight: 600;
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .chip {
+      padding: 9px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      color: #dbe7f8;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+    .chip:hover,
+    .chip.active {
+      background: var(--accent-soft);
+      border-color: rgba(245, 158, 11, 0.4);
+      color: #ffe7b7;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .stat {
+      padding: 18px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .stat-label { color: var(--muted); font-size: 13px; }
+    .stat-value { font-size: 26px; font-weight: 800; margin-top: 8px; }
+    .state {
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #dbe7f8;
+      line-height: 1.6;
+    }
+    .state.error { background: rgba(248, 113, 113, 0.12); color: #ffd5d5; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+    .card {
+      padding: 18px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 160px;
+    }
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .card-title {
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(245, 158, 11, 0.12);
+      color: #ffe4af;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .card-desc {
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 14px;
+    }
+    .card-meta {
+      margin-top: auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: #dbe7f8;
+      font-size: 13px;
+    }
+    .footer-card {
+      padding: 18px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+    .link {
+      color: #ffd48a;
+      text-decoration: none;
+    }
+    .link:hover { text-decoration: underline; }
+    @media (max-width: 980px) {
+      .controls-grid,
+      .stats,
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="hero">
+      <div class="eyebrow">Food Standards Agency / Open Data</div>
+      <h1 class="title">食品衛生レーティング</h1>
+      <p class="lead">英国の食品衛生評価データを地域別に追い、公開データの件数や更新日を検索できます。生データ本体は CORS の制約で直読できないため、このページでは公開オープンデータの一覧と代表サンプルを見やすくまとめています。</p>
+      <div class="meta">
+        <span class="pill">API: XML / JSON</span>
+        <span class="pill">認証不要</span>
+        <span class="pill">最新公開: open-data</span>
+      </div>
+    </section>
+
+    <section class="panel controls">
+      <div class="controls-grid">
+        <input id="query" class="input" type="search" placeholder="地域名・事業名・郵便番号で絞り込み">
+        <select id="mode" class="select">
+          <option value="authority">地域一覧</option>
+          <option value="sample">サンプル一覧</option>
+        </select>
+        <button id="reload" class="button">再読み込み</button>
+      </div>
+      <div class="chips" id="chips"></div>
+      <div class="state" id="status">公開データを読み込み中...</div>
+    </section>
+
+    <section class="stats" id="stats"></section>
+    <section class="grid" id="results"></section>
+
+    <section class="footer-card">
+      <div>公式データ: <a class="link" href="https://ratings.food.gov.uk/open-data" target="_blank" rel="noreferrer">https://ratings.food.gov.uk/open-data</a></div>
+      <div>検索画面: <a class="link" href="https://ratings.food.gov.uk/" target="_blank" rel="noreferrer">https://ratings.food.gov.uk/</a></div>
+    </section>
+  </div>
+
+  <script>
+    const OPEN_DATA_URL = "https://ratings.food.gov.uk/open-data";
+    const SAMPLE_ROWS = [
+      { area: "London", updated: "07/07/2026 at 12:32", businesses: 56383, note: "首都圏の公開データ" },
+      { area: "Bristol", updated: "07/07/2026 at 12:35", businesses: 4461, note: "港湾都市の衛生評価" },
+      { area: "Manchester", updated: "07/07/2026 at 12:33", businesses: 6341, note: "大都市圏の件数が多い" },
+      { area: "Edinburgh", updated: "07/07/2026 at 12:33", businesses: 5092, note: "スコットランドの都市データ" },
+      { area: "Cardiff", updated: "07/07/2026 at 12:36", businesses: 3435, note: "ウェールズの公開データ" },
+      { area: "Belfast City", updated: "07/07/2026 at 12:32", businesses: 3169, note: "北アイルランドの都市データ" }
+    ];
+
+    const queryInput = document.getElementById("query");
+    const modeSelect = document.getElementById("mode");
+    const reloadButton = document.getElementById("reload");
+    const chipsNode = document.getElementById("chips");
+    const statusNode = document.getElementById("status");
+    const statsNode = document.getElementById("stats");
+    const resultsNode = document.getElementById("results");
+
+    let rows = [];
+    let activeChip = "all";
+    let sourceMode = "live";
+
+    const formatCount = new Intl.NumberFormat("ja-JP");
+
+    function setStatus(message, isError = false) {
+      statusNode.textContent = message;
+      statusNode.className = isError ? "state error" : "state";
+    }
+
+    function renderStats(list) {
+      const totalBusinesses = list.reduce((sum, row) => sum + (Number(row.businesses) || 0), 0);
+      const latest = list[0]?.updated || "-";
+      statsNode.innerHTML = [
+        { label: "表示件数", value: formatCount.format(list.length) },
+        { label: "総事業者数", value: formatCount.format(totalBusinesses) },
+        { label: "最新更新", value: latest },
+        { label: "データ源", value: sourceMode === "live" ? "live" : "sample" }
+      ].map(({ label, value }) => `
+        <div class="stat">
+          <div class="stat-label">${label}</div>
+          <div class="stat-value">${value}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderChips(list) {
+      const presets = ["All", "London", "Bristol", "Manchester", "Scotland", "Wales"];
+      chipsNode.innerHTML = presets.map((name) => {
+        const value = name.toLowerCase() === "all" ? "all" : name;
+        const isActive = activeChip === value;
+        return `<button class="chip ${isActive ? "active" : ""}" data-chip="${value}" type="button">${name}</button>`;
+      }).join("");
+      chipsNode.querySelectorAll("[data-chip]").forEach((button) => {
+        button.addEventListener("click", () => {
+          activeChip = button.dataset.chip;
+          queryInput.value = activeChip === "all" ? "" : activeChip;
+          render();
+        });
+      });
+    }
+
+    function filterRows() {
+      const term = queryInput.value.trim().toLowerCase();
+      let list = rows;
+      if (modeSelect.value === "sample") {
+        list = SAMPLE_ROWS.map((item) => ({
+          area: item.area,
+          updated: item.updated,
+          businesses: item.businesses,
+          note: item.note,
+          source: OPEN_DATA_URL
+        }));
+      }
+      if (term) {
+        list = list.filter((row) => [row.area, row.updated, String(row.businesses), row.note || ""].join(" ").toLowerCase().includes(term));
+      }
+      if (activeChip !== "all") {
+        list = list.filter((row) => row.area.toLowerCase().includes(activeChip.toLowerCase()));
+      }
+      return list;
+    }
+
+    function renderCards(list) {
+      if (!list.length) {
+        resultsNode.innerHTML = `
+          <div class="card" style="grid-column: 1 / -1;">
+            <div class="card-title">該当結果なし</div>
+            <div class="card-desc">検索語を変えるか、サンプル一覧に切り替えてください。</div>
+          </div>
+        `;
+        return;
+      }
+      resultsNode.innerHTML = list.slice(0, 12).map((row) => `
+        <article class="card">
+          <div class="card-top">
+            <div>
+              <div class="card-title">${row.area}</div>
+              <div class="card-desc">${row.note || "公開データの地域レコード"}</div>
+            </div>
+            <div class="badge">${formatCount.format(row.businesses)} 件</div>
+          </div>
+          <div class="card-meta">
+            <span>更新: ${row.updated || "-"}</span>
+            <span>ソース: open-data</span>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    function render() {
+      const list = filterRows();
+      renderStats(list);
+      renderCards(list);
+    }
+
+    function parseOpenDataHtml(html) {
+      const doc = new DOMParser().parseFromString(html, "text/html");
+      const tableRows = [...doc.querySelectorAll("table tr")].map((tr) => [...tr.querySelectorAll("th,td")].map((cell) => cell.textContent.trim())).filter((cells) => cells.length >= 3);
+      const parsed = tableRows.slice(1).map((cells) => ({
+        area: cells[0],
+        updated: cells[1],
+        businesses: Number(String(cells[2]).replace(/,/g, "")) || 0,
+        note: cells[0].includes("All local authorities") ? "全地域まとめ" : "地域別の公開件数"
+      })).filter((row) => row.area && row.area !== "Local authority" && row.updated && row.updated !== "Last update");
+      return parsed.length ? parsed : SAMPLE_ROWS;
+    }
+
+    async function loadLiveData() {
+      setStatus("公開データを取得しています...");
+      try {
+        const response = await fetch(OPEN_DATA_URL);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        const html = await response.text();
+        rows = parseOpenDataHtml(html);
+        sourceMode = "live";
+        setStatus(`公開オープンデータを読み込みました。${rows.length} 件の地域レコードを表示しています。`);
+      } catch (error) {
+        rows = SAMPLE_ROWS.map((item) => ({ ...item, source: "sample" }));
+        sourceMode = "sample";
+        setStatus("ライブの open-data は CORS で直接読めないため、サンプル地域データを表示しています。", true);
+      }
+      renderChips(rows);
+      render();
+    }
+
+    queryInput.addEventListener("input", () => {
+      activeChip = queryInput.value.trim() ? "all" : activeChip;
+      render();
+    });
+    modeSelect.addEventListener("change", render);
+    reloadButton.addEventListener("click", loadLiveData);
+
+    loadLiveData();
+  </script>
+</body>
+</html>

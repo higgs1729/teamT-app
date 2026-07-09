@@ -1,7 +1,7 @@
 /* ============================================================
    fronted-v2 / app.js
    サイト全体の動作を担うスクリプト。
-     - CATALOG(catalog.js) からサイドバーをカテゴリ別に描画
+     - CATALOG(catalog.js) からサイドバーをカテゴリ階層別に描画
      - 検索ボックスによる絞り込み
      - 一覧クリックで iframe にテンプレートを表示しヘッダーを更新
      - URLハッシュ連携（共有・リロードで選択を復元）
@@ -16,6 +16,7 @@
 
   /* ---- よく使う DOM 参照 ---- */
   const navList     = document.getElementById("nav-list");
+  const recommendRoot = document.getElementById("recommend-root");
   const searchInput = document.getElementById("search");
   const preview     = document.getElementById("preview");
   const welcome     = document.getElementById("welcome");
@@ -26,19 +27,181 @@
   const THEME_KEY    = "fronted-v2-theme";     // localStorage キー（テーマ）
   const ACCENT_KEY   = "fronted-v2-accent";    // localStorage キー（アクセント色）
   let   currentId    = null;                   // 現在選択中テンプレートの id
-  const openCats     = new Set();              // 開いているカテゴリ名（既定は全て閉じる）
+  const openCats     = new Set();              // 開いているカテゴリ階層キー（既定は全て閉じる）
 
   /* ============================================================
-     一覧描画 — CATALOG を category 単位の折りたたみグループとして出力。
+     一覧描画 — CATALOG を categoryPath に沿った2階層グループとして出力。
        - 既定は全カテゴリ閉じた状態。見出しクリックで開閉。
-       - keyword 指定時は title / apiName / description で部分一致フィルタし、
+       - keyword 指定時は title / apiName / description / categoryPath で部分一致フィルタし、
          検索中はヒットを見せるため該当グループを自動展開する。
      ============================================================ */
+  function getCategoryPath(item) {
+    if (Array.isArray(item.categoryPath) && item.categoryPath.length) return item.categoryPath;
+    return [item.category || "その他"];
+  }
+
+  function getCategoryKey(path) {
+    return path.join(" > ");
+  }
+
+  function getCategoryLabel(name) {
+    return String(name).replace(/系$/, "");
+  }
+
+  // カテゴリ見出し（最上位カテゴリ）の先頭アイコン。未定義カテゴリは汎用フォルダ
+  const CATEGORY_ICONS = {
+    "画像・ビジュアル系": "ti-photo",
+    "データ・検索系":     "ti-database",
+    "為替・ツール系":     "ti-tool",
+    "エンタメ・おもしろ系": "ti-mood-smile",
+  };
+  const CATEGORY_ICON_FALLBACK = "ti-folder";       // 未定義の最上位カテゴリ
+  const SUBCATEGORY_ICON       = "ti-folder-open";  // 小分類見出しの先頭アイコン
+  function getCategoryIcon(name) { return CATEGORY_ICONS[name] || CATEGORY_ICON_FALLBACK; }
+
+  const RECOMMEND_FILE = "../おすすめ一覧.txt";  // 各メンバーが推薦するテンプレートのファイル名一覧（1行1ファイル名）
+  let recommendedItems = [];                    // 起動時に一度読み込み・突き合わせてキャッシュ
+
+  function matchesKeyword(item, keyword) {
+    const kw = (keyword || "").trim().toLowerCase();
+    if (!kw) return true;
+    return (item.title + " " + item.apiName + " " + item.description + " " + getCategoryPath(item).join(" "))
+      .toLowerCase()
+      .includes(kw);
+  }
+
+  /* ============================================================
+     おすすめ一覧.txt を読み込み、行末が .html の行だけをファイル名として
+     取り出し、CATALOG の file（ディレクトリ抜きの basename・大小無視）と
+     突き合わせて表示対象を決める。メンバー名やコメント行はそのまま無視される。
+     ============================================================ */
+  async function loadRecommendations() {
+    try {
+      const res = await fetch(RECOMMEND_FILE);
+      const text = await res.text();
+      const wanted = new Set(
+        text.split(/\r?\n/)
+          .map(line => line.trim())
+          .filter(line => /\.html$/i.test(line))
+          .map(line => line.toLowerCase())
+      );
+
+      const seen = new Set();
+      recommendedItems = CATALOG.filter(item => {
+        const basename = item.file.split("/").pop().toLowerCase();
+        if (!wanted.has(basename) || seen.has(item.id)) return false;
+        seen.add(item.id);
+        return true;
+      });
+    } catch (err) {
+      recommendedItems = [];
+    }
+    renderRecommendations(searchInput.value);
+  }
+
+  /* ============================================================
+     おすすめ一覧の描画 — 「おすすめ一覧 ＞」を開くとカテゴリ見出し、
+     さらに各カテゴリを開くと個々のHTML(推薦API)が出る折りたたみ構造。
+       - トップ(recommendOpen)・各カテゴリ(openRecCats)の開閉状態を保持
+       - 見出しは「アイコン 文字 ＞」（＞は右向き固定）、最内アイテムは「アイコン 文字」
+       - 検索中(kw)はトップ・カテゴリを自動展開して一致項目を見せる
+     ============================================================ */
+  let recommendOpen = false;              // 「おすすめ一覧」トップの開閉
+  const openRecCats = new Set();          // 開いているおすすめ内カテゴリ名
+
+  function renderRecommendations(keyword) {
+    if (!recommendRoot) return;
+    const kw = (keyword || "").trim().toLowerCase();
+    const items = recommendedItems.filter(item => matchesKeyword(item, kw));
+
+    recommendRoot.innerHTML = "";
+
+    // トップ「おすすめ一覧」グループ（開閉可能）。検索中は強制展開
+    const topOpen = kw ? true : recommendOpen;
+    const group = document.createElement("div");
+    group.className = "nav-group recommend-group" + (topOpen ? "" : " closed");
+
+    const head = document.createElement("div");
+    head.className = "nav-group-head recommend-group-head";
+    head.innerHTML =
+      `<i class="ti ti-star nav-group-icon"></i>` +
+      `<span class="nav-group-title">おすすめ一覧</span>` +
+      `<i class="ti ${topOpen ? "ti-chevron-down" : "ti-chevron-right"} nav-group-caret"></i>`;
+    head.addEventListener("click", () => {
+      recommendOpen = !recommendOpen;
+      group.classList.toggle("closed", !recommendOpen);
+      // 開閉に合わせて＞を下矢印/右矢印に切替（選択=展開中は下矢印）
+      const caret = head.querySelector(".nav-group-caret");
+      caret.classList.toggle("ti-chevron-right", !recommendOpen);
+      caret.classList.toggle("ti-chevron-down", recommendOpen);
+    });
+    group.appendChild(head);
+
+    const body = document.createElement("div");
+    body.className = "nav-group-body";
+
+    if (items.length === 0) {
+      body.innerHTML = '<div class="recommend-empty">一致するおすすめはありません</div>';
+    } else {
+      // 最上位カテゴリ(path[0])単位でグルーピング（CATALOG の並び順を尊重）
+      const cats = [];
+      const idx  = new Map();
+      items.forEach(it => {
+        const cat = getCategoryPath(it)[0] || "その他";
+        if (!idx.has(cat)) { idx.set(cat, cats.length); cats.push({ cat, items: [] }); }
+        cats[idx.get(cat)].items.push(it);
+      });
+
+      cats.forEach(c => {
+        const catOpen = kw ? true : openRecCats.has(c.cat);
+        const cg = document.createElement("div");
+        cg.className = "nav-group recommend-cat" + (catOpen ? "" : " closed");
+
+        const chead = document.createElement("div");
+        chead.className = "nav-group-head";
+        chead.innerHTML =
+          `<i class="ti ${getCategoryIcon(c.cat)} nav-group-icon"></i>` +
+          `<span class="nav-group-title">${getCategoryLabel(c.cat)}</span>` +
+          `<i class="ti ${catOpen ? "ti-chevron-down" : "ti-chevron-right"} nav-group-caret"></i>`;
+        chead.addEventListener("click", () => {
+          const nowOpen = !openRecCats.has(c.cat);
+          if (nowOpen) openRecCats.add(c.cat); else openRecCats.delete(c.cat);
+          cg.classList.toggle("closed", !nowOpen);
+          // 開閉に合わせて＞を下矢印/右矢印に切替（選択=展開中は下矢印）
+          const caret = chead.querySelector(".nav-group-caret");
+          caret.classList.toggle("ti-chevron-right", !nowOpen);
+          caret.classList.toggle("ti-chevron-down", nowOpen);
+        });
+        cg.appendChild(chead);
+
+        const cbody = document.createElement("div");
+        cbody.className = "nav-group-body";
+        c.items.forEach(it => {
+          const item = document.createElement("button");
+          item.type = "button";
+          item.className = "recommend-item" + (it.id === currentId ? " active" : "");
+          item.dataset.id = it.id;
+          // 最内アイテムは「アイコン 文字」のみ（＞なし）
+          item.innerHTML =
+            `<i class="ti ${it.icon}"></i>` +
+            `<span class="recommend-item-label">${it.title}</span>`;
+          // おすすめ一覧からの選択では、下の「ジャンルごとに探す」側のカテゴリは開かない
+          item.addEventListener("click", () => select(it.id, true, false));
+          cbody.appendChild(item);
+        });
+        cg.appendChild(cbody);
+        body.appendChild(cg);
+      });
+    }
+
+    group.appendChild(body);
+    recommendRoot.appendChild(group);
+  }
+
   function renderList(keyword) {
     const kw = (keyword || "").trim().toLowerCase();
     const items = kw
-      ? CATALOG.filter(t =>
-          (t.title + " " + t.apiName + " " + t.description).toLowerCase().includes(kw))
+      ? CATALOG.filter(t => matchesKeyword(t, kw))
       : CATALOG;
 
     navList.innerHTML = "";
@@ -47,41 +210,84 @@
       return;
     }
 
-    // category 単位にグルーピング（CATALOG の並び順を尊重）
-    const groups = [];                         // [{ category, items: [] }]
-    const index  = new Map();                  // category -> groups内の位置
+    // categoryPath 単位にグルーピング（CATALOG の並び順を尊重）
+    const groups = [];                         // [{ category, key, children: [{ category, key, items: [] }] }]
+    const index  = new Map();                  // 親カテゴリkey -> groups内の位置
     items.forEach(t => {
-      if (!index.has(t.category)) { index.set(t.category, groups.length); groups.push({ category: t.category, items: [] }); }
-      groups[index.get(t.category)].items.push(t);
+      const path = getCategoryPath(t);
+      const parentName = path[0] || "その他";
+      const childName = path[1] || "その他";
+      const parentKey = getCategoryKey([parentName]);
+      const childKey = getCategoryKey([parentName, childName]);
+
+      if (!index.has(parentKey)) {
+        index.set(parentKey, groups.length);
+        groups.push({ category: parentName, key: parentKey, children: [], childIndex: new Map() });
+      }
+
+      const parent = groups[index.get(parentKey)];
+      if (!parent.childIndex.has(childKey)) {
+        parent.childIndex.set(childKey, parent.children.length);
+        parent.children.push({ category: childName, key: childKey, items: [] });
+      }
+      parent.children[parent.childIndex.get(childKey)].items.push(t);
     });
 
     groups.forEach(g => {
       // 検索中(kw あり)は展開、通常時は openCats の状態に従う
-      const isOpen = kw ? true : openCats.has(g.category);
+      const isOpen = kw ? true : openCats.has(g.key);
 
       const group = document.createElement("div");
       group.className = "nav-group" + (isOpen ? "" : " closed");
-      group.dataset.category = g.category;
+      group.dataset.categoryKey = g.key;
 
-      // 見出し（クリックで開閉）。表示名は末尾の「系」を省く + 開閉キャレット
+      // 見出し（クリックで開閉）。表示名は末尾の「系」を省く。
+      // 最内でない行（カテゴリ）は「文字 ＞」の形式：開いている(=選択中)ときは下矢印に変わる
       const head = document.createElement("div");
       head.className = "nav-group-head";
       head.innerHTML =
-        `<i class="ti ti-chevron-down nav-group-caret"></i>` +
-        `<span class="nav-group-title">${g.category.replace(/系$/, "")}</span>`;
-      head.addEventListener("click", () => toggleGroup(g.category, group));
+        `<i class="ti ${getCategoryIcon(g.category)} nav-group-icon"></i>` +
+        `<span class="nav-group-title">${getCategoryLabel(g.category)}</span>` +
+        `<i class="ti ${isOpen ? "ti-chevron-down" : "ti-chevron-right"} nav-group-caret"></i>`;
+      head.addEventListener("click", () => toggleGroup(g.key, group));
       group.appendChild(head);
 
-      // 本体（テンプレート項目）
+      // 本体（小分類 + テンプレート項目）
       const body = document.createElement("div");
       body.className = "nav-group-body";
-      g.items.forEach(t => {
-        const item = document.createElement("div");
-        item.className = "nav-item" + (t.id === currentId ? " active" : "");
-        item.dataset.id = t.id;
-        item.innerHTML = `<i class="ti ${t.icon}"></i><span>${t.title}</span>`;
-        item.addEventListener("click", () => select(t.id, true));
-        body.appendChild(item);
+      g.children.forEach(child => {
+        const childOpen = kw ? true : openCats.has(child.key);
+        const subgroup = document.createElement("div");
+        subgroup.className = "nav-subgroup" + (childOpen ? "" : " closed");
+        subgroup.dataset.categoryKey = child.key;
+
+        const subhead = document.createElement("div");
+        subhead.className = "nav-subgroup-head";
+        // 小分類も最内でない行なので「文字 件数 ＞」の形式（開いている(=選択中)ときは下矢印）
+        subhead.innerHTML =
+          `<i class="ti ${SUBCATEGORY_ICON} nav-subgroup-icon"></i>` +
+          `<span class="nav-subgroup-title">${getCategoryLabel(child.category)}</span>` +
+          `<span class="nav-subgroup-count">${child.items.length}</span>` +
+          `<i class="ti ${childOpen ? "ti-chevron-down" : "ti-chevron-right"} nav-subgroup-caret"></i>`;
+        subhead.addEventListener("click", (event) => {
+          event.stopPropagation();
+          toggleGroup(child.key, subgroup);
+        });
+        subgroup.appendChild(subhead);
+
+        const subbody = document.createElement("div");
+        subbody.className = "nav-subgroup-body";
+        child.items.forEach(t => {
+          const item = document.createElement("div");
+          item.className = "nav-item" + (t.id === currentId ? " active" : "");
+          item.dataset.id = t.id;
+          // 最内アイテム（個々のAPI）は ＞ を付けない（アイコン + 文字のみ）
+          item.innerHTML = `<i class="ti ${t.icon}"></i><span class="nav-item-label">${t.title}</span>`;
+          item.addEventListener("click", () => select(t.id, true));
+          subbody.appendChild(item);
+        });
+        subgroup.appendChild(subbody);
+        body.appendChild(subgroup);
       });
       group.appendChild(body);
 
@@ -89,26 +295,51 @@
     });
   }
 
-  // カテゴリの開閉をトグル（openCats に状態を保持し、DOM の closed を切替）
-  function toggleGroup(category, groupEl) {
-    if (openCats.has(category)) { openCats.delete(category); groupEl.classList.add("closed"); }
-    else { openCats.add(category); groupEl.classList.remove("closed"); }
+  // カテゴリ階層の開閉をトグル（openCats に状態を保持し、DOM の closed を切替）。
+  // 開閉に合わせて見出し行末の＞も下矢印/右矢印に切り替える（選択=展開中は下矢印）。
+  function toggleGroup(categoryKey, groupEl) {
+    const nowOpen = !openCats.has(categoryKey);
+    if (nowOpen) openCats.add(categoryKey); else openCats.delete(categoryKey);
+    groupEl.classList.toggle("closed", !nowOpen);
+    setGroupCaretOpen(groupEl, nowOpen);
+  }
+
+  // groupEl（.nav-group または .nav-subgroup）の直下の見出しにあるキャレットだけを切り替える。
+  // querySelector だと入れ子の小分類のキャレットまで拾ってしまうため :scope で直下の見出しに限定する。
+  function setGroupCaretOpen(groupEl, open) {
+    const caret = groupEl.querySelector(
+      ":scope > .nav-group-head .nav-group-caret, :scope > .nav-subgroup-head .nav-subgroup-caret"
+    );
+    if (!caret) return;
+    caret.classList.toggle("ti-chevron-right", !open);
+    caret.classList.toggle("ti-chevron-down", open);
   }
 
   // 指定 id を含むカテゴリを開く（選択時に項目が隠れないようにする）
   function expandCategoryOf(id) {
     const t = CATALOG.find(x => x.id === id);
     if (!t) return;
-    openCats.add(t.category);
-    const g = navList.querySelector(`.nav-group[data-category="${t.category}"]`);
-    if (g) g.classList.remove("closed");
+    const path = getCategoryPath(t);
+    const parentKey = getCategoryKey([path[0]]);
+    const childKey = getCategoryKey([path[0], path[1] || "その他"]);
+    openCats.add(parentKey);
+    openCats.add(childKey);
+    navList.querySelectorAll(".nav-group, .nav-subgroup").forEach(el => {
+      if (el.dataset.categoryKey === parentKey || el.dataset.categoryKey === childKey) {
+        el.classList.remove("closed");
+        setGroupCaretOpen(el, true);
+      }
+    });
   }
 
   /* ============================================================
      選択 — 指定 id のテンプレートを iframe に表示しヘッダーを更新。
      updateHash=true のときは location.hash も書き換える（共有用）。
      ============================================================ */
-  function select(id, updateHash) {
+  // expandNav: 下の「ジャンルごとに探す」側で選択項目のカテゴリを自動展開するか。
+  // 通常一覧のクリックやハッシュ復元では true のまま、おすすめ一覧からの選択では false を渡す
+  // （おすすめから選んだだけで下の一覧まで連動して開くと、意図せず一覧が広がってしまうため）。
+  function select(id, updateHash, expandNav = true) {
     const t = CATALOG.find(x => x.id === id);
     if (!t) return;
     currentId = id;
@@ -122,9 +353,13 @@
     document.dispatchEvent(new CustomEvent("apipage:shown", { detail: { id } }));
 
     // 選択項目を含むカテゴリを開いてからハイライトを付け替え
-    expandCategoryOf(id);
+    if (expandNav) expandCategoryOf(id);
     navList.querySelectorAll(".nav-item").forEach(el =>
       el.classList.toggle("active", el.dataset.id === id));
+    if (recommendRoot) {
+      recommendRoot.querySelectorAll(".recommend-item").forEach(el =>
+        el.classList.toggle("active", el.dataset.id === id));
+    }
 
     if (updateHash) location.hash = id;
     // narrow 幅のときだけ、選択後にドロワーを閉じる（デスクトップは開いたまま）
@@ -309,13 +544,17 @@
     initSettingsSearch();
     const apiCount = document.getElementById("settings-api-count");
     if (apiCount) apiCount.textContent = CATALOG.length;
+    loadRecommendations();
     renderList("");
 
     // narrow 幅では初期状態でサイドバー（ドロワー）を閉じておく
     if (mobileMQ.matches) setSidebarCollapsed(true);
 
     // 検索入力で再描画
-    searchInput.addEventListener("input", e => renderList(e.target.value));
+    searchInput.addEventListener("input", e => {
+      renderRecommendations(e.target.value);
+      renderList(e.target.value);
+    });
 
     // Esc キーで設定モーダルを閉じる
     document.addEventListener("keydown", (e) => {

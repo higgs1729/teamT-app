@@ -1,0 +1,459 @@
+<!--
+  目的: Interpol 赤手配通知を条件検索して閲覧する。
+  構成: ヒーロー / 検索フォーム / サマリー / 結果カード / 参照リンク。
+-->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interpol 指名手配検索</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg1: #050816;
+      --bg2: #151a31;
+      --card: rgba(9, 14, 28, 0.86);
+      --line: rgba(255, 255, 255, 0.12);
+      --text: #f4f8ff;
+      --muted: #adb8cf;
+      --accent: #e11d48;
+      --accent2: #fb7185;
+      --shadow: 0 26px 78px rgba(0, 0, 0, 0.38);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 14% 14%, rgba(225, 29, 72, 0.2), transparent 28%),
+        radial-gradient(circle at 80% 0%, rgba(251, 113, 133, 0.12), transparent 20%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+    }
+    .wrap {
+      width: min(1220px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+    .hero,
+    .panel,
+    .footer {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+    .hero { padding: 28px; }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 13px;
+      border-radius: 999px;
+      background: rgba(225, 29, 72, 0.12);
+      color: #ffc8d0;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 16px 0 10px;
+      font-size: clamp(30px, 4vw, 54px);
+      line-height: 1.05;
+    }
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 820px;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .pill {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      color: #e7efff;
+      font-size: 13px;
+    }
+    .panel {
+      margin-top: 18px;
+      padding: 18px;
+    }
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .label {
+      font-size: 12px;
+      color: #ced8ea;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .input,
+    .button {
+      width: 100%;
+      padding: 13px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(8, 15, 26, 0.92);
+      color: var(--text);
+      font: inherit;
+    }
+    .input::placeholder { color: #92a3bd; }
+    .button {
+      cursor: pointer;
+      font-weight: 700;
+      background: linear-gradient(135deg, #e11d48, #fb7185);
+      box-shadow: 0 12px 28px rgba(225, 29, 72, 0.24);
+      transition: transform 0.18s ease;
+      align-self: end;
+    }
+    .button:hover { transform: translateY(-1px); }
+    .button.ghost {
+      background: rgba(255, 255, 255, 0.06);
+      box-shadow: none;
+      font-weight: 600;
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .chip {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.05);
+      color: #dbe8ff;
+      padding: 8px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+    .chip.active,
+    .chip:hover {
+      background: rgba(225, 29, 72, 0.16);
+      border-color: rgba(225, 29, 72, 0.38);
+      color: #ffd7dd;
+    }
+    .status {
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #dfe8f5;
+      line-height: 1.65;
+    }
+    .status.error {
+      background: rgba(248, 113, 113, 0.12);
+      color: #ffd3d3;
+    }
+    .stats {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .stat {
+      padding: 18px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .stat-label { color: var(--muted); font-size: 13px; }
+    .stat-value { font-size: 26px; font-weight: 800; margin-top: 8px; }
+    .grid {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .card {
+      padding: 18px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .name { font-size: 18px; font-weight: 800; line-height: 1.35; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(225, 29, 72, 0.14);
+      color: #ffd5dc;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .desc { color: var(--muted); line-height: 1.65; font-size: 14px; }
+    .meta-row {
+      margin-top: auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: #dce6f8;
+      font-size: 13px;
+    }
+    .footer {
+      margin-top: 18px;
+      padding: 18px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+    a { color: #ffc8d0; }
+    img.thumb {
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      object-fit: cover;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.05);
+    }
+    @media (max-width: 1040px) {
+      .controls,
+      .stats,
+      .grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (max-width: 720px) {
+      .controls,
+      .stats,
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="eyebrow">Interpol Notices API</div>
+      <h1>Interpol 指名手配検索</h1>
+      <p class="lead">赤手配の公開データを条件検索して表示します。名前・国籍コード・自由文で絞り込み、最新ページでは顔写真や詳細リンクも確認できます。</p>
+      <div class="meta">
+        <span class="pill">no key</span>
+        <span class="pill">JSON</span>
+        <span class="pill">red notices</span>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="controls">
+        <div class="field">
+          <span class="label">Forename</span>
+          <input id="forename" class="input" type="text" placeholder="ANASTASIIA">
+        </div>
+        <div class="field">
+          <span class="label">Name</span>
+          <input id="name" class="input" type="text" placeholder="BEREZOVSKA">
+        </div>
+        <div class="field">
+          <span class="label">Nationality</span>
+          <input id="nationality" class="input" type="text" placeholder="UA">
+        </div>
+        <button id="search" class="button">検索</button>
+      </div>
+      <div class="controls" style="grid-template-columns: minmax(0, 1fr) auto auto; margin-top: 12px;">
+        <div class="field">
+          <span class="label">Free text</span>
+          <input id="freeText" class="input" type="text" placeholder="任意キーワード">
+        </div>
+        <button id="reset" class="button ghost">リセット</button>
+        <button id="latest" class="button ghost">最新 9 件</button>
+      </div>
+      <div class="chips" id="chips"></div>
+      <div class="status" id="status">検索条件を読み込み中...</div>
+    </section>
+
+    <section class="stats" id="stats"></section>
+    <section class="grid" id="results"></section>
+
+    <section class="footer">
+      <div>API docs: <a href="https://interpol.api.bund.dev/" target="_blank" rel="noreferrer">interpol.api.bund.dev</a></div>
+      <div>Direct API: <a href="https://ws-public.interpol.int/notices/v1/red" target="_blank" rel="noreferrer">ws-public.interpol.int</a></div>
+    </section>
+  </div>
+
+  <script>
+    const BASE_URL = "https://ws-public.interpol.int/notices/v1/red";
+    const DOC_URL = "https://interpol.api.bund.dev/";
+    const chips = ["UA", "DE", "RU", "BR", "MX", "TR"];
+
+    const forenameInput = document.getElementById("forename");
+    const nameInput = document.getElementById("name");
+    const nationalityInput = document.getElementById("nationality");
+    const freeTextInput = document.getElementById("freeText");
+    const searchButton = document.getElementById("search");
+    const resetButton = document.getElementById("reset");
+    const latestButton = document.getElementById("latest");
+    const chipsNode = document.getElementById("chips");
+    const statusNode = document.getElementById("status");
+    const statsNode = document.getElementById("stats");
+    const resultsNode = document.getElementById("results");
+
+    let lastQuery = { resultPerPage: 9, page: 1 };
+    let currentNotices = [];
+    const formatCount = new Intl.NumberFormat("ja-JP");
+
+    function setStatus(message, isError = false) {
+      statusNode.textContent = message;
+      statusNode.className = isError ? "status error" : "status";
+    }
+
+    function renderChips() {
+      chipsNode.innerHTML = chips.map((code) => `
+        <button class="chip" data-code="${code}" type="button">${code}</button>
+      `).join("");
+      chipsNode.querySelectorAll("[data-code]").forEach((button) => {
+        button.addEventListener("click", () => {
+          nationalityInput.value = button.dataset.code;
+          search();
+        });
+      });
+    }
+
+    function buildUrl(params) {
+      const url = new URL(BASE_URL);
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== "") {
+          url.searchParams.set(key, value);
+        }
+      });
+      return url.toString();
+    }
+
+    function renderStats() {
+      const countries = new Set(currentNotices.flatMap((item) => item.nationalities || [])).size;
+      const people = currentNotices.length;
+      const first = currentNotices[0];
+      statsNode.innerHTML = [
+        ["結果件数", formatCount.format(Number(lastQuery.resultPerPage) || people)],
+        ["表示中", formatCount.format(people)],
+        ["国籍数", formatCount.format(countries)],
+        ["先頭", first ? `${first.forename || ""} ${first.name || ""}`.trim() : "-" ]
+      ].map(([label, value]) => `
+        <div class="stat">
+          <div class="stat-label">${label}</div>
+          <div class="stat-value">${value}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderResults() {
+      if (!currentNotices.length) {
+        resultsNode.innerHTML = `
+          <div class="card" style="grid-column: 1 / -1;">
+            <div class="name">該当なし</div>
+            <div class="desc">条件を変えて再検索してください。</div>
+          </div>
+        `;
+        renderStats();
+        return;
+      }
+      resultsNode.innerHTML = currentNotices.map((item) => {
+        const fullName = `${item.forename || ""} ${item.name || ""}`.trim();
+        const nationalityText = (item.nationalities || []).join(", ") || "-";
+        const detailUrl = item._links?.self?.href || "#";
+        const imageUrl = item._links?.thumbnail?.href || "";
+        return `
+          <article class="card">
+            <div class="top">
+              <div>
+                <div class="name">${fullName || "Unknown"}</div>
+                <div class="desc">Entity ID: ${item.entity_id || "-"}</div>
+              </div>
+              <div class="badge">${nationalityText}</div>
+            </div>
+            ${imageUrl ? `<img class="thumb" src="${imageUrl}" alt="${fullName || "Interpol notice"}">` : ""}
+            <div class="desc">
+              生年月日: ${item.date_of_birth || "-"}<br>
+              国籍コード: ${nationalityText}
+            </div>
+            <div class="meta-row">
+              <span><a href="${detailUrl}" target="_blank" rel="noreferrer">詳細を見る</a></span>
+              <span><a href="${DOC_URL}" target="_blank" rel="noreferrer">API docs</a></span>
+            </div>
+          </article>
+        `;
+      }).join("");
+      renderStats();
+    }
+
+    async function search(customParams = {}) {
+      const params = {
+        page: 1,
+        resultPerPage: 9,
+        forename: forenameInput.value.trim(),
+        name: nameInput.value.trim(),
+        nationality: nationalityInput.value.trim(),
+        freeText: freeTextInput.value.trim(),
+        ...customParams
+      };
+      lastQuery = params;
+      setStatus("Interpol の赤手配データを検索中...");
+      try {
+        const response = await fetch(buildUrl(params));
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        const json = await response.json();
+        currentNotices = json._embedded?.notices || [];
+        setStatus(`全 ${formatCount.format(json.total || currentNotices.length)} 件中、${formatCount.format(currentNotices.length)} 件を表示しています。`);
+        renderResults();
+      } catch (error) {
+        currentNotices = [];
+        setStatus(`検索に失敗しました: ${error.message}`, true);
+        renderResults();
+      }
+    }
+
+    searchButton.addEventListener("click", () => search());
+    latestButton.addEventListener("click", () => search({ page: 1, resultPerPage: 9, forename: "", name: "", nationality: "", freeText: "" }));
+    resetButton.addEventListener("click", () => {
+      forenameInput.value = "";
+      nameInput.value = "";
+      nationalityInput.value = "";
+      freeTextInput.value = "";
+      search({ page: 1, resultPerPage: 9, forename: "", name: "", nationality: "", freeText: "" });
+    });
+
+    [forenameInput, nameInput, nationalityInput, freeTextInput].forEach((input) => {
+      input.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          search();
+        }
+      });
+    });
+
+    renderChips();
+    search();
+  </script>
+</body>
+</html>

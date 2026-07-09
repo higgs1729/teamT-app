@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<!--
+  API Gratis紹介ページ
+  目的: API Grátisの公開サービス候補を紹介し、公式URLの到達状況を確認する。
+  構成: URLビルダー / 到達チェック / 仕様取得不可時のフォールバック説明。
+-->
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Grátis チェッカー</title>
+  <style>
+    :root { --bg:#f5f5f4; --panel:#fff; --ink:#22252b; --muted:#68707f; --line:#dfe3ea; --accent:#1f8a70; --soft:#e8f6f2; --warn:#b66a00; --danger:#c43d3d; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; font-family:"BIZ UDPGothic","Meiryo UI",sans-serif; background:linear-gradient(135deg,#f5f5f4,#eef8f4); color:var(--ink); }
+    main { width:min(980px,100%); margin:0 auto; padding:34px 18px; }
+    header { display:flex; justify-content:space-between; gap:18px; margin-bottom:18px; }
+    h1 { margin:0 0 8px; font-size:clamp(24px,4vw,38px); letter-spacing:0; }
+    p { margin:0; color:var(--muted); line-height:1.75; }
+    a { color:var(--accent); }
+    .badge { padding:8px 12px; border-radius:999px; background:var(--soft); color:var(--accent); font-weight:700; height:max-content; white-space:nowrap; }
+    .grid { display:grid; grid-template-columns:340px 1fr; gap:16px; }
+    .panel { background:rgba(255,255,255,.94); border:1px solid var(--line); border-radius:15px; padding:18px; box-shadow:0 16px 34px rgba(44,67,58,.08); }
+    label { display:block; font-size:13px; font-weight:700; margin:14px 0 7px; }
+    input { width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:10px; font:inherit; }
+    button { width:100%; margin-top:16px; border:0; border-radius:10px; padding:12px 14px; background:var(--accent); color:#fff; font:inherit; font-weight:700; cursor:pointer; }
+    .status { margin-bottom:12px; font-weight:700; color:var(--muted); }
+    .status.warn { color:var(--warn); }
+    .status.error { color:var(--danger); }
+    .box { padding:14px; border-radius:12px; background:#f8faf9; border:1px solid var(--line); line-height:1.7; color:var(--muted); }
+    .url { margin-top:12px; padding:11px; border-radius:10px; background:var(--soft); color:var(--accent); word-break:break-all; font-size:12px; font-weight:700; }
+    ul { margin:10px 0 0; padding-left:20px; color:var(--muted); line-height:1.8; }
+    @media (max-width:760px){ header,.grid{display:grid; grid-template-columns:1fr;} .badge{width:max-content;} }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>API Grátis チェッカー</h1>
+        <p>API Grátis は複数の公開APIをまとめるサービスとして登録されている候補です。現在の公式トップは仕様ページではなく nginx 応答になる場合があるため、到達確認と候補URLのメモを中心に紹介します。</p>
+      </div>
+      <span class="badge">Directory / Fallback</span>
+    </header>
+
+    <section class="grid">
+      <form class="panel" id="check-form">
+        <p>公式ドメイン配下のパスを入力して、ブラウザから取得を試します。CORSにより失敗してもURL確認用として使えます。</p>
+        <label for="path">確認するパス</label>
+        <input id="path" value="/" autocomplete="off">
+        <button type="submit">到達チェック</button>
+        <div class="url" id="url">https://apigratis.com.br/</div>
+        <p style="margin-top:12px;font-size:12px;">Docs: <a href="https://apigratis.com.br/" target="_blank" rel="noreferrer">https://apigratis.com.br/</a></p>
+      </form>
+
+      <section class="panel">
+        <div class="status warn" id="status">公式仕様の取得待ちです。</div>
+        <div class="box" id="result">
+          <b>HTML化メモ</b>
+          <ul>
+            <li>Public APIs の候補では「複数サービスと公開API」として掲載。</li>
+            <li>現在のトップページは nginx の初期ページになる可能性があります。</li>
+            <li>実運用ページ化する場合は、利用したい個別エンドポイントと無料条件を再確認してください。</li>
+          </ul>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById("check-form");
+    const urlEl = document.getElementById("url");
+    const statusEl = document.getElementById("status");
+    const resultEl = document.getElementById("result");
+
+    function buildUrl() {
+      const raw = document.getElementById("path").value.trim() || "/";
+      const path = raw.startsWith("/") ? raw : `/${raw}`;
+      return `https://apigratis.com.br${path}`;
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const url = buildUrl();
+      urlEl.textContent = url;
+      statusEl.className = "status";
+      statusEl.textContent = "取得中...";
+      try {
+        const res = await fetch(url);
+        const text = await res.text();
+        statusEl.textContent = `HTTP ${res.status}: レスポンスを取得しました。`;
+        resultEl.textContent = text.slice(0, 1200) || "本文なし";
+      } catch (error) {
+        statusEl.className = "status error";
+        statusEl.textContent = "ブラウザから取得できませんでした。CORSまたは公式サイト状態の可能性があります。";
+        resultEl.innerHTML = `<b>フォールバック</b><ul><li>試行URL: ${url}</li><li>理由: ${error.message}</li><li>公式URLを直接開いて現在の仕様を確認してください。</li></ul>`;
+      }
+    });
+  </script>
+</body>
+</html>

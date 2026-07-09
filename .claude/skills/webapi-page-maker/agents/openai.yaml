@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "WebAPI Page Maker"
+  short_description: "URLからWebAPI紹介HTMLとカタログ更新を作る"
+  default_prompt: "$webapi-page-maker https://example.com/api-docs"

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>APIs.guru Directory Explorer</title>
+  <style>
+    :root { --bg:#0f1220; --panel:#1a1f33; --line:#2e3554; --text:#ecf0ff; --sub:#aab3d1; --accent:#60a5fa; --ok:#34d399; --warn:#f59e0b; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:"Segoe UI",sans-serif; background:linear-gradient(160deg,#0f1220,#171d30); color:var(--text); }
+    .wrap { max-width:980px; margin:0 auto; padding:24px 16px 42px; }
+    .card { background:#1a1f33; border:1px solid var(--line); border-radius:14px; padding:16px; margin-bottom:14px; }
+    h1 { margin:0 0 8px; font-size:1.5rem; }
+    p { color:var(--sub); line-height:1.6; }
+    .row { display:flex; gap:10px; flex-wrap:wrap; }
+    input, button, select { border-radius:10px; border:1px solid var(--line); padding:10px; background:#11172a; color:var(--text); }
+    input { min-width:280px; flex:1; }
+    button { cursor:pointer; font-weight:700; background:linear-gradient(90deg,#2563eb,#0ea5e9); border:none; color:#041225; }
+    ul { margin:10px 0 0; padding-left:18px; }
+    .status { color:var(--sub); margin-top:8px; }
+    .metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; }
+    .metric { background:#11172a; border:1px solid var(--line); border-radius:10px; padding:10px; }
+    .metric .k { color:#8ea0d6; font-size:.85rem; }
+    .metric .v { margin-top:4px; font-weight:700; font-size:1.1rem; }
+    code { background:#11172a; border-radius:6px; padding:2px 5px; }
+  </style>
+</head>
+<body>
+  <!--
+    概要: APIs.guru のディレクトリAPI(list/providers/provider)を参照する検索ページ。
+    構成: メトリクス表示 / プロバイダ検索 / API一覧プレビュー。
+  -->
+  <div class="wrap">
+    <div class="card">
+      <h1>APIs.guru Directory Explorer</h1>
+      <p>OpenAPIディレクトリの件数や、プロバイダ単位のAPI一覧を確認できます。</p>
+      <div class="row">
+        <button id="loadMetricsBtn">メトリクス読み込み</button>
+        <a href="https://apis.guru/api-doc/" target="_blank" rel="noreferrer" style="align-self:center;color:#93c5fd;">公式APIドキュメント</a>
+      </div>
+      <div id="metrics" class="metrics" style="margin-top:12px;"></div>
+      <div id="status" class="status">操作を選択してください。</div>
+    </div>
+
+    <div class="card">
+      <h2>プロバイダ検索</h2>
+      <div class="row">
+        <input id="providerInput" placeholder="例: googleapis.com / apis.guru" />
+        <button id="providerBtn">API一覧取得</button>
+      </div>
+      <div id="providerStatus" class="status"></div>
+      <ul id="apiList"></ul>
+    </div>
+  </div>
+
+  <script>
+    const metricsEl = document.getElementById('metrics');
+    const statusEl = document.getElementById('status');
+    const providerStatusEl = document.getElementById('providerStatus');
+    const apiListEl = document.getElementById('apiList');
+
+    function metricItem(k, v) {
+      return `<div class="metric"><div class="k">${k}</div><div class="v">${v}</div></div>`;
+    }
+
+    async function loadMetrics() {
+      statusEl.textContent = 'メトリクス取得中...';
+      try {
+        const res = await fetch('https://api.apis.guru/v2/metrics.json');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const m = await res.json();
+        metricsEl.innerHTML = [
+          metricItem('API数', m.numAPIs),
+          metricItem('エンドポイント数', m.numEndpoints),
+          metricItem('プロバイダ数', m.numProviders),
+          metricItem('仕様数', m.numSpecs),
+          metricItem('更新(今週)', `${m.thisWeek?.updated ?? 0}`),
+          metricItem('追加(今週)', `${m.thisWeek?.added ?? 0}`)
+        ].join('');
+        statusEl.textContent = 'メトリクスを表示しました。';
+      } catch (e) {
+        statusEl.textContent = `取得失敗: ${e.message}`;
+      }
+    }
+
+    async function loadProviderApis() {
+      const provider = document.getElementById('providerInput').value.trim();
+      if (!provider) {
+        providerStatusEl.textContent = 'プロバイダ名を入力してください。';
+        return;
+      }
+      providerStatusEl.textContent = '一覧取得中...';
+      apiListEl.innerHTML = '';
+      try {
+        const res = await fetch(`https://api.apis.guru/v2/${encodeURIComponent(provider)}.json`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        const keys = Object.keys(data).slice(0, 50);
+        if (!keys.length) {
+          providerStatusEl.textContent = 'APIは見つかりませんでした。';
+          return;
+        }
+        apiListEl.innerHTML = keys.map(k => `<li><code>${k}</code></li>`).join('');
+        providerStatusEl.textContent = `${keys.length}件表示中（先頭50件まで）。`;
+      } catch (e) {
+        providerStatusEl.textContent = `取得失敗: ${e.message}`;
+      }
+    }
+
+    document.getElementById('loadMetricsBtn').addEventListener('click', loadMetrics);
+    document.getElementById('providerBtn').addEventListener('click', loadProviderApis);
+  </script>
+</body>
+</html>

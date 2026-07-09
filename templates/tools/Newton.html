@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Newton API 計算機</title>
+
+<style>
+body{
+    margin:0;
+    min-height:100vh;
+    font-family:Arial,sans-serif;
+
+    background:
+        radial-gradient(circle at top,
+            rgba(59,130,246,0.35),
+            transparent 45%),
+        linear-gradient(
+            160deg,
+            #020617,
+            #0f172a,
+            #1e3a8a,
+            #2563eb
+        );
+
+    background-attachment: fixed;
+
+    color:white;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.container{
+    max-width:700px;
+    margin:auto;
+    background:#334155;
+    padding:30px;
+    border-radius:15px;
+}
+
+input{
+    width:80%;
+    padding:12px;
+    font-size:18px;
+    border:none;
+    border-radius:8px;
+    margin:15px 0;
+}
+
+button{
+    padding:12px 25px;
+    font-size:18px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#38bdf8;
+    color:white;
+}
+
+button:hover{
+    background:#0ea5e9;
+}
+
+#result{
+    margin-top:30px;
+    font-size:28px;
+    font-weight:bold;
+    background:#0f172a;
+    padding:20px;
+    border-radius:10px;
+    min-height:40px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🧮 Newton API 計算機</h1>
+
+<p>例：2+3、2*(5+3)、sqrt(16)</p>
+
+<input
+id="expression"
+placeholder="数式を入力">
+
+<br>
+
+<button onclick="calculate()">
+計算する
+</button>
+
+<div id="result">
+結果がここに表示されます
+</div>
+
+</div>
+
+<script>
+
+async function calculate(){
+
+    const exp = document.getElementById("expression").value.trim();
+
+    if(exp===""){
+        alert("数式を入力してください");
+        return;
+    }
+
+    const result = document.getElementById("result");
+    result.textContent = "計算中...";
+
+    try{
+
+        const encoded = encodeURIComponent(exp);
+
+        const url = `https://newton.now.sh/api/v2/simplify/${encoded}`;
+
+        const res = await fetch(url);
+
+        const data = await res.json();
+
+        // resultだけ表示
+        if(data.result){
+            result.textContent = data.result;
+        }else{
+            result.textContent = "結果を取得できませんでした";
+        }
+
+    }catch(e){
+
+        result.textContent = "エラーが発生しました";
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>

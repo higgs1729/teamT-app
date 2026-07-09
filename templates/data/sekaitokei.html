@@ -3,31 +3,50 @@
 <head>
 <meta charset="UTF-8">
 <title>世界時計</title>
+
 <style>
-body {
-    font-family: sans-serif;
-    background: #0f172a;
-    color: white;
-    text-align: center;
-    padding: 30px;
+body{
+    font-family:sans-serif;
+    background:#0f172a;
+    color:white;
+    text-align:center;
+    padding:30px;
 }
 
-select, button {
-    padding: 10px;
-    font-size: 16px;
-    margin: 10px;
+select,
+button{
+    padding:10px;
+    font-size:16px;
+    margin:10px;
+    border:none;
+    border-radius:8px;
 }
 
-.clock {
-    margin-top: 20px;
-    font-size: 22px;
-    background: #1e293b;
-    padding: 15px;
-    border-radius: 10px;
-    display: inline-block;
-    min-width: 300px;
+button{
+    cursor:pointer;
+}
+
+.clock{
+    margin:20px auto;
+    font-size:22px;
+    background:#1e293b;
+    padding:15px;
+    border-radius:10px;
+    width:320px;
+}
+
+.deleteBtn{
+    margin-top:15px;
+    background:#ef4444;
+    color:white;
+    padding:8px 15px;
+}
+
+.deleteBtn:hover{
+    background:#dc2626;
 }
 </style>
+
 </head>
 <body>
 
@@ -39,7 +58,6 @@ select, button {
     <option value="Europe/London">ロンドン</option>
     <option value="Asia/Shanghai">上海</option>
     <option value="Australia/Sydney">シドニー</option>
-    
 </select>
 
 <button onclick="addClock()">追加</button>
@@ -49,41 +67,75 @@ select, button {
 <script>
 const clocks = [];
 
-function formatTime(timeZone) {
-    return new Date().toLocaleString("ja-JP", {
-        timeZone: timeZone,
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit"
+const cityNames = {
+    "Asia/Tokyo":"東京",
+    "America/New_York":"ニューヨーク",
+    "Europe/London":"ロンドン",
+    "Asia/Shanghai":"上海",
+    "Australia/Sydney":"シドニー"
+};
+
+function formatTime(timeZone){
+    return new Date().toLocaleString("ja-JP",{
+        timeZone:timeZone,
+        year:"numeric",
+        month:"2-digit",
+        day:"2-digit",
+        hour:"2-digit",
+        minute:"2-digit",
+        second:"2-digit"
     });
 }
 
-function addClock() {
-    const tz = document.getElementById("city").value;
+function addClock(){
 
-    const div = document.createElement("div");
-    div.className = "clock";
+    const tz=document.getElementById("city").value;
 
-    clocks.push({ tz, div });
+    const div=document.createElement("div");
+    div.className="clock";
+
+    const obj={tz,div};
+
+    clocks.push(obj);
 
     document.getElementById("clocks").appendChild(div);
-    updateClocks();
+
+    updateClock(obj);
 }
 
-function updateClocks() {
-    clocks.forEach(c => {
-        c.div.innerHTML = `
-            <strong>${c.tz}</strong><br>
-            🕒 ${formatTime(c.tz)}
-        `;
-    });
+function updateClock(clock){
+
+    clock.div.innerHTML=`
+        <strong>${cityNames[clock.tz]}</strong><br><br>
+        🌎 ${clock.tz}<br><br>
+        🕒 ${formatTime(clock.tz)}<br>
+
+        <button class="deleteBtn" onclick="removeClock(this)">
+            🗑 削除
+        </button>
+    `;
 }
 
-// 1秒ごとに更新
-setInterval(updateClocks, 1000);
+function updateClocks(){
+    clocks.forEach(updateClock);
+}
+
+function removeClock(button){
+
+    const clockDiv=button.parentElement;
+
+    const index=clocks.findIndex(c=>c.div===clockDiv);
+
+    if(index!==-1){
+        clocks.splice(index,1);
+    }
+
+    clockDiv.remove();
+}
+
+// 1秒ごと更新
+setInterval(updateClocks,1000);
+
 </script>
 
 </body>

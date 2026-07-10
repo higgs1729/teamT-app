@@ -124,6 +124,38 @@
             font-size:30px;
 
         }
+
+        #scoreBoard{
+
+            margin:25px auto;
+            width:320px;
+
+            background:#334155;
+
+            padding:15px;
+
+            border-radius:10px;
+
+        }
+
+        #ranking{
+
+            text-align:left;
+
+            margin-top:10px;
+
+        }
+
+        #ranking li{
+
+            margin:8px 0;
+
+        }
+
+        #resetScore{
+
+            margin-top:15px;
+        }
     </style>
 
     <link rel="stylesheet" href="style.css">
@@ -152,14 +184,36 @@
     ⏱️ 経過時間：
     <span id="timer">0</span>秒
     </h2>
+
+    <h2>
+    👆 移動回数：
+    <span id="moveCount">0</span>回
+    </h2>
+
+    <div id="scoreBoard">
+
+    <h2>🏆 ベストスコア</h2>
+
+    <ol id="ranking">
+    </ol>
+
+    <button id="resetScore">
+    ランキングをリセット
+    </button>
+
+    </div>
     
     <div id="board"></div>
 <script>
-    const board = document.getElementById("board");
+const board = document.getElementById("board");
 const shuffleBtn = document.getElementById("shuffleBtn");
 const sizeSelect = document.getElementById("sizeSelect");
 const timer = document.getElementById("timer");
+const moveLabel = document.getElementById("moveCount");
+const ranking = document.getElementById("ranking");
+const resetScore = document.getElementById("resetScore");
 
+let moveCount = 0;
 
 let size = 3;
 let tiles = [];
@@ -188,6 +242,11 @@ function createBoard(){
     board.style.height = `${size*80 + (size-1)*3}px`;
 
     draw();
+
+    moveCount = 0;
+    moveLabel.textContent = 0;
+
+    loadRanking();
 
 }
 
@@ -236,6 +295,10 @@ function move(index){
     if(Math.abs(row-erow)+Math.abs(col-ecol)===1){
 
         [tiles[index],tiles[empty]]=[tiles[empty],tiles[index]];
+
+        moveCount++;
+
+        moveLabel.textContent = moveCount;
 
         draw();
 
@@ -295,11 +358,15 @@ function checkClear(){
 
     stopTimer();
 
-    alert(
-    "🎉クリア！！\n\n"+
-    "タイム："+time+"秒"
-    );
+    saveScore();
 
+    alert(
+    `🎉クリア！
+
+    タイム：${time}秒
+
+    移動回数：${moveCount}回`
+    );
 }
 
 //----------------------
@@ -360,6 +427,88 @@ function resetTimer(){
     time=0;
 
     timer.textContent=0;
+
+}
+
+function saveScore(){
+
+    const key = "slidePuzzle"+size;
+
+    let scores =
+        JSON.parse(localStorage.getItem(key)) || [];
+
+    scores.push({
+
+        time:time,
+
+        moves:moveCount
+
+    });
+
+    scores.sort((a,b)=>{
+
+        if(a.time===b.time){
+
+            return a.moves-b.moves;
+
+        }
+
+        return a.time-b.time;
+
+    });
+
+    scores = scores.slice(0,3);
+
+    localStorage.setItem(
+        key,
+        JSON.stringify(scores)
+    );
+
+    loadRanking();
+
+}
+
+function loadRanking(){
+
+    const key = "slidePuzzle"+size;
+
+    const scores =
+        JSON.parse(localStorage.getItem(key)) || [];
+
+    ranking.innerHTML="";
+
+    if(scores.length===0){
+
+        ranking.innerHTML="<li>まだ記録がありません</li>";
+
+        return;
+
+    }
+
+    scores.forEach(score=>{
+
+        const li=document.createElement("li");
+
+        li.textContent=
+        `${score.time}秒　${score.moves}回`;
+
+        ranking.appendChild(li);
+
+    });
+
+}
+
+resetScore.onclick=function(){
+
+    if(confirm("ランキングを削除しますか？")){
+
+        localStorage.removeItem(
+            "slidePuzzle"+size
+        );
+
+        loadRanking();
+
+    }
 
 }
 </script>

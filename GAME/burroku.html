@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>シンプルブロック崩し</title>
+
+<style>
+
+body{
+    margin:0;
+    background:#1e293b;
+    font-family:sans-serif;
+    overflow:hidden;
+}
+
+.game-container{
+    text-align:center;
+}
+
+h1{
+    color:white;
+    margin-bottom:20px;
+    font-size:42px;
+    letter-spacing:4px;
+    text-shadow:
+        0 0 10px #38bdf8,
+        0 0 20px #38bdf8,
+        0 0 30px #38bdf8;
+}
+
+canvas{
+    background:#0f172a;
+    border:4px solid white;
+    display:block;
+}
+
+.buttons{
+    margin-bottom:15px;
+}
+
+button{
+    padding:12px 28px;
+    font-size:18px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    margin:0 8px;
+    transition:.2s;
+}
+
+#startBtn{
+    background:#22c55e;
+    color:white;
+}
+
+#startBtn:hover{
+    background:#16a34a;
+    transform:scale(1.05);
+}
+
+#resetBtn{
+    background:#ef4444;
+    color:white;
+}
+
+#resetBtn:hover{
+    background:#dc2626;
+    transform:scale(1.05);
+}
+
+#scoreBoard{
+    color:white;
+    font-size:24px;
+    font-weight:bold;
+    margin:15px 0;
+}
+
+#ranking{
+
+    position:fixed;
+
+    top:20px;
+    right:20px;
+
+    width:260px;
+
+    background:#1f2937;
+    color:white;
+
+    border:2px solid white;
+    border-radius:10px;
+
+    padding:15px;
+
+    z-index:1000;
+
+}
+
+#ranking h2{
+    margin-top:0;
+}
+
+#ranking ol{
+
+    font-size:18px;
+
+    line-height:1.6;
+
+}
+
+#clearRanking{
+    margin-top:10px;
+    padding:8px 16px;
+    background:#ef4444;
+    color:white;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+#clearRanking:hover{
+    background:#dc2626;
+}
+
+.game-container{
+    width:100%;
+    text-align:center;
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+
+    height:100vh;
+}
+</style>
+
+</head>
+<body>
+
+<div class="game-container">
+    <h1>🧱 ブロック崩し</h1>
+    <div id="scoreBoard">
+        スコア：<span id="score">0</span>
+    </div>
+    <div id="ranking">
+    <h2>🏆 スコアボード TOP3</h2>
+
+        <ol id="rankingList">
+            <li>---</li>
+            <li>---</li>
+            <li>---</li>
+        </ol>
+        <button id="clearRanking">
+            🗑 スコアボードリセット
+        </button>
+    </div>
+    <div class="buttons">
+    <button id="startBtn">▶ スタート</button>
+    <button id="resetBtn">🔄 リセット</button>
+</div>
+    <label for="difficulty">難易度：</label>
+
+    <select id="difficulty">
+        <option value="easy">🟢 イージー</option>
+        <option value="normal" selected>🟡 ノーマル</option>
+        <option value="hard">🔴 ハード</option>
+    </select>
+    <canvas id="game" width="800" height="600"></canvas>
+</div>
+
+<script>
+
+let difficultyName = "";
+let score = 0;
+let blockPoint = 1;
+let gameRunning = false;
+let gameOver = false;
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+//=====================
+// パドル
+//=====================
+const paddle={
+    width:120,
+    height:15,
+    x:340,
+    y:560,
+    speed:8
+};
+
+//=====================
+// ボール
+//=====================
+const ball={
+    x:400,
+    y:400,
+    r:10,
+    dx:4,
+    dy:-4
+};
+
+//=====================
+// キー入力
+//=====================
+let right=false;
+let left=false;
+
+document.addEventListener("keydown",e=>{
+    if(e.key==="ArrowRight") right=true;
+    if(e.key==="ArrowLeft") left=true;
+});
+
+document.addEventListener("keyup",e=>{
+    if(e.key==="ArrowRight") right=false;
+    if(e.key==="ArrowLeft") left=false;
+});
+
+//=====================
+// ブロック
+//=====================
+let rows;
+let cols;
+
+const blockWidth=70;
+const blockHeight=25;
+
+const padding=8;
+const offsetTop=50;
+let offsetLeft = 0;
+
+let blocks = [];
+
+function createBlocks(){
+
+    // ブロック全体の横幅
+    const totalWidth =
+        cols * blockWidth + (cols - 1) * padding;
+
+    // キャンバス中央に配置
+    offsetLeft = (canvas.width - totalWidth) / 2;
+
+    blocks = [];
+
+    for(let r = 0; r < rows; r++){
+
+        blocks[r] = [];
+
+        for(let c = 0; c < cols; c++){
+
+            blocks[r][c] = {
+                x:0,
+                y:0,
+                alive:true
+            };
+
+        }
+
+    }
+
+}
+
+//=====================
+// 描画
+//=====================
+
+function drawBall(){
+
+    ctx.beginPath();
+    ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2);
+    ctx.fillStyle="orange";
+    ctx.fill();
+    ctx.closePath();
+
+}
+
+function drawPaddle(){
+
+    ctx.fillStyle="#38bdf8";
+    ctx.fillRect(
+        paddle.x,
+        paddle.y,
+        paddle.width,
+        paddle.height
+    );
+
+}
+
+function drawBlocks(){
+
+    for(let r=0;r<rows;r++){
+
+        for(let c=0;c<cols;c++){
+
+            if(blocks[r][c].alive){
+
+                let x=
+                c*(blockWidth+padding)+offsetLeft;
+
+                let y=
+                r*(blockHeight+padding)+offsetTop;
+
+                blocks[r][c].x=x;
+                blocks[r][c].y=y;
+
+                ctx.fillStyle=
+                `hsl(${r*60},80%,60%)`;
+
+                ctx.fillRect(
+                    x,
+                    y,
+                    blockWidth,
+                    blockHeight
+                );
+
+            }
+
+        }
+
+    }
+
+}
+
+//=====================
+// 当たり判定
+//=====================
+
+function collision(){
+
+    let remain=0;
+
+    for(let r=0;r<rows;r++){
+
+        for(let c=0;c<cols;c++){
+
+            const b=blocks[r][c];
+
+            if(!b.alive) continue;
+
+            remain++;
+
+            if(
+                ball.x>b.x &&
+                ball.x<b.x+blockWidth &&
+                ball.y>b.y &&
+                ball.y<b.y+blockHeight
+            ){
+
+                ball.dy*=-1;
+                b.alive=false;
+
+                score += blockPoint;
+                document.getElementById("score").textContent = score;
+
+            }
+
+        }
+
+    }
+
+    if(remain===0){
+
+        saveScore();
+
+        alert("クリア！！");
+
+        document.location.reload();
+
+    }
+
+}
+
+//=====================
+// 更新
+//=====================
+
+function update(){
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    drawBlocks();
+    drawBall();
+    drawPaddle();
+
+    collision();
+
+    //壁
+    if(ball.x+ball.dx>canvas.width-ball.r||
+       ball.x+ball.dx<ball.r){
+
+        ball.dx*=-1;
+
+    }
+
+    if(ball.y+ball.dy<ball.r){
+
+        ball.dy*=-1;
+
+    }
+
+    //パドル
+    if(
+        ball.y+ball.dy>paddle.y-ball.r &&
+        ball.x>paddle.x &&
+        ball.x<paddle.x+paddle.width
+    ){
+
+        ball.dy=-Math.abs(ball.dy);
+
+    }
+
+    //落下
+    if(ball.y > canvas.height){
+
+        gameRunning = false;
+
+        alert("ゲームオーバー");
+
+        location.reload();
+
+        return;
+
+    }
+
+    //移動
+    if(right && paddle.x<canvas.width-paddle.width){
+
+        paddle.x+=paddle.speed;
+
+    }
+
+    if(left && paddle.x>0){
+
+        paddle.x-=paddle.speed;
+
+    }
+
+    ball.x+=ball.dx;
+    ball.y+=ball.dy;
+
+    if(gameRunning){
+        requestAnimationFrame(update);
+    }
+}
+
+document.getElementById("startBtn").onclick = () => {
+
+    if(gameRunning) return;
+
+    const level = document.getElementById("difficulty").value;
+
+    switch(level){
+
+        case "easy":
+            rows = 3;
+            cols = 6;
+            ball.dx = 3;
+            ball.dy = -3;
+            blockPoint = 1;
+            difficultyName = "Easy";
+            break;
+
+        case "normal":
+            rows = 5;
+            cols = 10;
+            ball.dx = 5;
+            ball.dy = -5;
+            blockPoint = 2;
+            difficultyName = "Normal";
+            break;
+
+        case "hard":
+            rows = 7;
+            cols = 12;
+            ball.dx = 7;
+            ball.dy = -7;
+            blockPoint = 3;
+            difficultyName = "Hard";
+            break;
+    }
+
+    createBlocks();
+
+    gameRunning = true;
+
+    score = 0;
+    document.getElementById("score").textContent = score;
+
+    update();
+
+};
+
+document.getElementById("resetBtn").onclick = () => {
+
+    location.reload();
+
+};
+
+document.getElementById("clearRanking").onclick = () => {
+
+    localStorage.removeItem("ranking");
+
+    showRanking();
+
+};
+
+function showRanking(){
+
+    const list =
+        document.getElementById("rankingList");
+
+    let ranking =
+        JSON.parse(localStorage.getItem("ranking")) || [];
+
+    list.innerHTML="";
+
+    for(let i=0;i<3;i++){
+
+        const li=document.createElement("li");
+
+        if(ranking[i]){
+
+            li.textContent =
+                `${ranking[i].score} 点 (${ranking[i].difficulty})`;
+
+        }else{
+
+            li.textContent="---";
+
+        }
+
+        list.appendChild(li);
+
+    }
+
+}
+
+showRanking();
+</script>
+
+</body>
+</html>

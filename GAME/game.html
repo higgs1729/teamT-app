@@ -71,6 +71,12 @@ button:hover{
     transform:scale(1.05);
 }
 
+button:disabled{
+    opacity:.5;
+    cursor:not-allowed;
+    transform:none;
+}
+
 #buttons{
     text-align:center;
 }
@@ -85,6 +91,53 @@ button:hover{
     padding:10px;
     font-size:18px;
     line-height:1.8;
+}
+
+.screenOverlay{
+    position:fixed;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,0,0,.82);
+    z-index:1000;
+    padding:20px;
+}
+
+.screenOverlay.isVisible{
+    display:flex;
+}
+
+.screenPanel{
+    width:min(640px,100%);
+    background:linear-gradient(180deg,#3a2a00,#191919);
+    border:3px solid #ffd24a;
+    border-radius:18px;
+    padding:34px 28px;
+    text-align:center;
+    box-shadow:0 0 40px rgba(255,210,74,.35);
+}
+
+.screenPanel h2{
+    margin:0 0 12px;
+    font-size:44px;
+}
+
+.screenPanel p{
+    margin:0 0 22px;
+    font-size:20px;
+    line-height:1.7;
+}
+
+.screenPanel .screenActions{
+    display:flex;
+    justify-content:center;
+    gap:12px;
+    flex-wrap:wrap;
+}
+
+.screenPanel .screenActions button{
+    margin:0;
 }
 
 .logAttack{
@@ -217,13 +270,23 @@ HP
 
 </div>
 
+<div id="clearOverlay" class="screenOverlay" aria-hidden="true">
+<div class="screenPanel">
+<h2>🎉 ゲームクリア</h2>
+<p>魔王を倒した！<br>勇者の冒険はここで完結だ。</p>
+<div class="screenActions">
+<button onclick="restart()">もう一度遊ぶ</button>
+</div>
+</div>
+</div>
+
 <script>
 
 let player={
     hp:180,
     maxHp:180,
-    baseAtk:20,
-    atk:35,
+    baseAtk:35,
+    atk:50,
     level:1,
     exp:0,
     inventory:[],
@@ -231,6 +294,8 @@ let player={
 };
 
 let enemy={};
+
+let gameCleared=false;
 
 const enemyList = [
     {name:"👹 スライム", hp:50, atk:10,enemy:"../GAME/img/suraimu.jpg"},
@@ -271,8 +336,8 @@ const itemPool=[
     {
         name:"回復ポーション",
         effect:"heal",
-        value:40,
-        description:"HPを40回復"
+        value:80,
+        description:"HPを80回復"
     }
 ];
 
@@ -327,6 +392,24 @@ else{
 
 function draw(){
 
+if(gameCleared){
+    setBar("playerHPBar",player.hp,player.maxHp);
+    document.getElementById("playerEXPBar").style.width=(player.exp/30*100)+"%";
+    document.getElementById("playerHPText").innerHTML=
+    player.hp+" / "+player.maxHp;
+    document.getElementById("playerInfo").innerHTML=
+    "Lv : "+player.level+
+    "<br>攻撃 : "+player.atk+
+    "<br>EXP : "+player.exp+"/30"+
+    "<br>強化 : "+getAttackBuffText();
+    document.getElementById("enemyName").innerHTML=enemy.name;
+    document.getElementById("enemyInfo").innerHTML=
+    "HP : "+enemy.hp+" / "+enemy.maxHp+
+    "<br>攻撃 : "+enemy.atk;
+    drawInventory();
+    return;
+}
+
 updateAttackPower();
 
 setBar("playerHPBar",player.hp,player.maxHp);
@@ -366,7 +449,7 @@ list.innerHTML=player.inventory.map(item=>
     "<div class='itemCard'>"+
     "<div class='itemName'>"+item.name+"</div>"+
     "<div class='itemEffect'>"+item.description+"</div>"+
-    "<button class='itemButton' onclick='useItem("+item.id+")'>使う</button>"+
+    "<button class='itemButton'"+(gameCleared?" disabled":" onclick='useItem("+item.id+")'")+">使う</button>"+
     "</div>"
 ).join("");
 
@@ -379,6 +462,32 @@ let area=document.getElementById("log");
 area.innerHTML+=text+"<br>";
 
 area.scrollTop=area.scrollHeight;
+
+}
+
+function showClearScreen(){
+
+gameCleared=true;
+
+document.getElementById("clearOverlay").classList.add("isVisible");
+document.getElementById("clearOverlay").setAttribute("aria-hidden","false");
+
+document.querySelectorAll("#buttons button, .itemButton").forEach(button=>{
+    button.disabled=true;
+});
+
+draw();
+
+}
+
+function hideClearScreen(){
+
+document.getElementById("clearOverlay").classList.remove("isVisible");
+document.getElementById("clearOverlay").setAttribute("aria-hidden","true");
+
+document.querySelectorAll("#buttons button, .itemButton").forEach(button=>{
+    button.disabled=false;
+});
 
 }
 
@@ -494,6 +603,10 @@ draw();
 
 function attack(){
 
+if(gameCleared){
+    return;
+}
+
 let damage=Math.floor(Math.random()*15)+player.atk;
 
 enemy.hp-=damage;
@@ -526,6 +639,16 @@ log("<span class='logLevel'>⭐ レベルアップ！ Lv."+player.level+"</span>
 
 }
 
+if(enemy.name.indexOf("魔王")!==-1){
+
+log("<span class='logLevel'>👑 魔王を倒した！世界に平和が戻った！</span>");
+
+showClearScreen();
+
+return;
+
+}
+
 createEnemy();
 
 advanceTurns();
@@ -543,6 +666,10 @@ advanceTurns();
 }
 
 function enemyAttack(){
+
+if(gameCleared){
+    return;
+}
 
 let damage=Math.floor(Math.random()*5)+enemy.atk;
 
@@ -566,6 +693,10 @@ alert("ゲームオーバー");
 
 function heal(){
 
+if(gameCleared){
+    return;
+}
+
 let heal=Math.floor(Math.random()*30)+30;
 
 player.hp+=heal;
@@ -584,10 +715,10 @@ enemyAttack();
 function restart(){
 
 player={
-hp:100,
-maxHp:100,
+hp:180,
+maxHp:180,
 baseAtk:20,
-atk:20,
+atk:35,
 level:1,
 exp:0,
 inventory:[],
@@ -595,6 +726,9 @@ activeBuffs:[]
 };
 
 itemIdCount=0;
+gameCleared=false;
+
+hideClearScreen();
 
 createEnemy();
 

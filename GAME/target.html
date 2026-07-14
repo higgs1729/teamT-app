@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>🎯 的当てゲーム</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:sans-serif;
+}
+
+body{
+    background:linear-gradient(#4facfe,#00f2fe);
+    text-align:center;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+}
+
+
+h1{
+    margin-top:20px;
+    color:white;
+}
+
+#info{
+    margin:15px;
+    font-size:22px;
+    color:white;
+    
+}
+
+
+#game{
+    position:relative;
+    flex:1;
+    width:100%;
+    min-height:300px;
+    overflow:hidden;
+}
+
+#target{
+    width:80px;
+    height:80px;
+    border-radius:50%;
+    position:absolute;
+    cursor:pointer;
+    display:none;
+
+    background:
+    radial-gradient(circle,red 0%,red 20%,white 20%,white 40%,red 40%,red 60%,white 60%,white 80%,red 80%);
+
+    box-shadow:0 0 20px red;
+
+    animation:pop .3s;
+}
+
+@keyframes pop{
+
+0%{
+transform:scale(0);
+}
+
+70%{
+transform:scale(1.2);
+}
+
+100%{
+transform:scale(1);
+}
+
+}
+
+button{
+
+padding:12px 30px;
+font-size:20px;
+border:none;
+border-radius:10px;
+cursor:pointer;
+background:#ff9800;
+color:white;
+margin-bottom:20px;
+
+}
+
+button:hover{
+background:#fb8c00;
+}
+
+#result{
+
+font-size:32px;
+color:white;
+margin-top:20px;
+
+}
+
+#scoreBoard{
+    position:absolute;
+    top:20px;
+    right:20px;
+
+    width:220px;
+
+    background:white;
+    border-radius:12px;
+    padding:15px;
+
+    box-shadow:0 0 15px rgba(0,0,0,.3);
+
+    color:#333;
+}
+
+#scoreBoard h2{
+    margin:0 0 15px 0;
+    text-align:center;
+    color:#333;
+    font-size:24px;
+}
+
+#ranking{
+    padding-left:30px;
+    font-size:22px;
+    text-align:left;
+}
+
+#ranking li{
+    margin:8px 0;
+}
+
+button{
+    padding:12px 30px;
+    font-size:20px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    color:white;
+    margin:10px;
+}
+
+button:first-of-type{
+    background:#ff9800;
+}
+
+button:first-of-type:hover{
+    background:#fb8c00;
+}
+
+button:last-of-type{
+    background:#f44336;
+}
+
+button:last-of-type:hover{
+    background:#d32f2f;
+}
+
+#rankingResetBtn{
+    margin-top:15px;
+    padding:8px 15px;
+    font-size:15px;
+    background:#f44336;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+#rankingResetBtn:hover{
+    background:#c62828;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>🎯 的当てゲーム</h1>
+
+<div id="info">
+スコア：<span id="score">0</span>
+
+残り時間：<span id="time">30</span>秒
+
+ミス：<span id="miss">0</span>
+
+コンボ：<span id="combo">0</span>
+</div>
+
+<label for="difficulty">難易度：</label>
+
+<select id="difficulty">
+    <option value="normal">ノーマル</option>
+    <option value="hard">ハード</option>
+    <option value="veryhard">ベリーハード</option>
+</select>
+
+<button onclick="startGame()">ゲームスタート</button>
+<button onclick="resetGame()">リセット</button>
+
+<div id="game">
+<div id="target"></div>
+</div>
+
+<div id="result"></div>
+
+<div id="scoreBoard">
+
+    <h2>🏆 ハイスコア</h2>
+
+    <ol id="ranking">
+        <li>---</li>
+        <li>---</li>
+        <li>---</li>
+    </ol>
+
+    <button onclick="resetRanking()" id="rankingResetBtn">
+        🗑 スコアボードをリセット
+    </button>
+</div>
+
+<script>
+
+const target=document.getElementById("target");
+const game=document.getElementById("game");
+
+let score=0;
+let time=30;
+let timer;
+let size=80;
+let miss = 0;
+
+let disappearTime = 1200;
+let baseDisappearTime = 1200;
+
+let gameOver = false;
+
+let hideTimer;
+
+let point = 1;
+let targetType = "red";
+
+let currentDifficulty = "ノーマル";
+
+let combo = 0;
+
+function randomTarget(){
+
+if(gameOver) return;
+
+clearTimeout(hideTimer);
+
+const x=Math.random()*(game.clientWidth-size);
+const y=Math.random()*(game.clientHeight-size);
+
+target.style.left=x+"px";
+target.style.top=y+"px";
+
+const r=Math.random();
+
+if(r<0.7){
+
+// 赤 70%
+target.style.background=
+"radial-gradient(circle,red 0%,red 20%,white 20%,white 40%,red 40%,red 60%,white 60%,white 80%,red 80%)";
+
+target.style.boxShadow="0 0 20px red";
+point = 1;
+targetType = "red";
+
+}else if(r<0.9){
+
+// 金 20%
+target.style.background=
+"radial-gradient(circle,gold 0%,gold 20%,white 20%,white 40%,gold 40%,gold 60%,white 60%,white 80%,gold 80%)";
+
+target.style.boxShadow="0 0 20px gold";
+point = 5;
+targetType = "gold";
+
+}else{
+
+// 黒 10%
+target.style.background=
+"radial-gradient(circle,#222 0%,#222 20%,white 20%,white 40%,#222 40%,#222 60%,white 60%,white 80%,#222 80%)";
+
+target.style.boxShadow="0 0 20px black";
+point = -3;
+targetType = "black";
+}
+
+target.style.display="block";
+
+hideTimer=setTimeout(targetMiss,disappearTime);
+
+}
+
+function targetMiss(){
+
+    if(gameOver) return;
+
+    target.style.display = "none";
+
+    if(targetType !== "black"){
+
+        combo = 0;
+        document.getElementById("combo").textContent = combo;
+
+        miss++;
+        document.getElementById("miss").textContent = miss;
+
+        score--;
+        document.getElementById("score").textContent = score;
+    }
+
+    if(disappearTime > 500){
+        disappearTime -= 20;
+    }
+
+    setTimeout(randomTarget,250);
+
+}
+
+function startGame(){
+
+clearInterval(timer);
+clearTimeout(hideTimer);
+
+gameOver = false;
+
+const difficulty = document.getElementById("difficulty").value;
+
+switch(difficulty){
+
+    case "normal":
+        baseDisappearTime = 1700;
+        currentDifficulty = "ノーマル";
+        break;
+
+    case "hard":
+        baseDisappearTime = 1400;
+        currentDifficulty = "ハード";
+        break;
+
+    case "veryhard":
+        baseDisappearTime = 600;
+        currentDifficulty = "ベリーハード";
+        break;
+
+}
+
+disappearTime = baseDisappearTime;
+
+score=0;
+time=30;
+size=80;
+miss=0;
+combo=0; 
+
+document.getElementById("score").textContent = score;
+document.getElementById("time").textContent = time;
+document.getElementById("miss").textContent = miss;
+document.getElementById("combo").textContent = combo;
+document.getElementById("result").textContent = "";
+
+randomTarget();
+
+timer = setInterval(() => {
+
+    time--;
+
+    document.getElementById("time").textContent = time;
+
+    if(time <= 0){
+
+        // ゲーム終了
+        gameOver = true;
+
+        // カウントダウン停止
+        clearInterval(timer);
+
+        // 的が消えるタイマーも停止
+        clearTimeout(hideTimer);
+
+        // 的を非表示
+        target.style.display = "none";
+
+        // ランキング保存
+        saveRanking(score);
+
+        // 結果表示
+        document.getElementById("result").innerHTML =
+        "🎉 ゲーム終了！<br>あなたのスコアは <b>" + score + "</b> 点でした！";
+
+    }
+
+}, 1000);
+
+}
+
+
+
+target.onclick=(event)=>{
+
+event.stopPropagation();
+
+if(gameOver) return;
+
+clearTimeout(hideTimer);
+
+if(targetType === "black"){
+
+    combo = 0;
+
+    score += point;
+
+}else{
+
+    combo++;
+
+    const bonus = Math.floor(combo / 10);
+
+    score += point + bonus;
+
+}
+
+document.getElementById("combo").textContent = combo;
+document.getElementById("score").textContent = score;
+document.getElementById("score").textContent=score;
+
+// 小さくなる
+if(size>40){
+
+size--;
+
+}
+
+target.style.width=size+"px";
+target.style.height=size+"px";
+
+// 少し速くする
+if(disappearTime>500){
+
+disappearTime-=10;
+
+}
+
+randomTarget();
+
+}
+
+game.onclick = function(){
+
+    // ゲーム終了なら何もしない
+    if(gameOver) return;
+
+    // 的をクリックした場合は target.onclick が処理するので終了
+    if(event.target === target){
+        return;
+    }
+
+    // 的が表示されていないなら何もしない
+    if(target.style.display === "none"){
+        return;
+    }
+
+    // 現在の的を消すタイマーを停止
+    clearTimeout(hideTimer);
+
+    combo = 0;
+    document.getElementById("combo").textContent = combo;
+
+    // ミス
+    miss++;
+    document.getElementById("miss").textContent = miss;
+
+    // スコア-1
+    score = Math.max(0, score - 1);
+    document.getElementById("score").textContent = score;
+
+    // 的を消す
+    target.style.display = "none";
+
+    // 次の的を出す
+    setTimeout(randomTarget,250);
+
+};
+
+function loadRanking(){
+
+    let ranking = JSON.parse(localStorage.getItem("ranking")) || [];
+
+    const list = document.getElementById("ranking");
+
+    list.innerHTML="";
+
+    for(let i=0;i<3;i++){
+
+        const li=document.createElement("li");
+
+        if(ranking[i]){
+
+            li.textContent =
+                `${ranking[i].score} 点（${ranking[i].difficulty}）`;
+
+        }else{
+
+            li.textContent = "---";
+
+        }
+        
+        list.appendChild(li);
+
+    }
+
+}
+
+function saveRanking(score){
+
+    let ranking = JSON.parse(localStorage.getItem("ranking")) || [];
+
+    ranking.push({
+        score: score,
+        difficulty: currentDifficulty
+    });
+    ranking.sort((a,b)=>b.score-a.score);
+
+    ranking = ranking.slice(0,3);
+
+    localStorage.setItem("ranking",JSON.stringify(ranking));
+
+    loadRanking();
+
+}
+
+score=0;
+miss=0;
+size=80;
+disappearTime=1200;
+
+document.getElementById("miss").textContent=0;
+
+
+loadRanking();
+
+function resetGame(){
+
+    // ゲーム終了状態にする
+    gameOver = true;
+
+    // タイマー停止
+    clearInterval(timer);
+    clearTimeout(hideTimer);
+
+    // 初期値に戻す
+    score = 0;
+    miss = 0;
+    combo = 0;
+    time = 30;
+    size = 80;
+
+    const difficulty = document.getElementById("difficulty").value;
+
+    switch(difficulty){
+
+        case "normal":
+            baseDisappearTime = 1700;
+            break;
+
+        case "hard":
+            baseDisappearTime = 1400;
+            break;
+
+        case "veryhard":
+            baseDisappearTime = 600;
+            break;
+
+    }
+
+    disappearTime = baseDisappearTime;
+
+    // 的を初期サイズに戻す
+    target.style.width = size + "px";
+    target.style.height = size + "px";
+
+    // 的を消す
+    target.style.display = "none";
+
+    // 表示更新
+    document.getElementById("score").textContent = score;
+    document.getElementById("miss").textContent = miss;
+    document.getElementById("time").textContent = time;
+
+    // 結果表示を消す
+    document.getElementById("result").textContent = "";
+}
+
+function resetRanking(){
+
+    const result = confirm("スコアボードをリセットしますか？");
+
+    if(!result){
+        return;
+    }
+
+    localStorage.removeItem("ranking");
+
+    loadRanking();
+
+}
+
+</script>
+
+</body>
+</html>

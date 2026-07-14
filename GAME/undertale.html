@@ -102,7 +102,7 @@ button{
 <body>
 
 <div id="ui">
-<div>HP：<span id="hp">20</span></div>
+<div>HP：<span id="hp">5</span></div>
 <div>TIME：<span id="time">0</span></div>
 </div>
 
@@ -122,7 +122,7 @@ let py=430;
 
 const speed=4;
 
-let hp=20;
+let hp=5;
 let time=0;
 
 let keys={};
@@ -208,6 +208,9 @@ case 0:
     bone.vx=0;
     bone.vy=4;
 
+    bone.angle = 0;
+    bone.rotateSpeed = Math.random() * 6 + 2;
+
 break;
 
 case 1:
@@ -217,6 +220,9 @@ case 1:
 
     bone.vx=0;
     bone.vy=-4;
+
+    bone.angle = 0;
+    bone.rotateSpeed = Math.random() * 6 + 2;
 
 break;
 
@@ -228,6 +234,9 @@ case 2:
     bone.vx=4;
     bone.vy=0;
 
+    bone.angle = 0;
+    bone.rotateSpeed = Math.random() * 6 + 2;
+
 break;
 
 case 3:
@@ -237,6 +246,9 @@ case 3:
 
     bone.vx=-4;
     bone.vy=0;
+
+    bone.angle = 0;
+    bone.rotateSpeed = Math.random() * 6 + 2;
 
 break;
 
@@ -262,6 +274,11 @@ b.x+=b.vx;
 
 b.style.left=b.x+"px";
 b.style.top=b.y+"px";
+
+b.angle += b.rotateSpeed;
+
+b.style.transform =
+`rotate(${b.angle}deg)`;
 
 if(hit(b)){
 hp--;
@@ -347,7 +364,7 @@ bones.forEach(b=>b.remove());
 
 bones=[];
 
-hp=20;
+hp=5;
 
 time=0;
 

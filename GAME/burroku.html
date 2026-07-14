@@ -158,6 +158,7 @@ button{
     <div class="buttons">
     <button id="startBtn">▶ スタート</button>
     <button id="resetBtn">🔄 リセット</button>
+    <button id="endGame" onclick="endGame()">🎮 ゲーム終了</button>
 </div>
     <label for="difficulty">難易度：</label>
 
@@ -361,14 +362,41 @@ function collision(){
 
     if(remain===0){
 
-        saveScore();
-
-        alert("クリア！！");
-
-        document.location.reload();
+        clearGame();
+        endGame();
 
     }
 
+}
+
+function clearGame(){
+
+    gameRunning = false;
+
+    // ランキング更新
+    let ranking =
+        JSON.parse(localStorage.getItem("ranking")) || [];
+
+    ranking.push({
+        score:score,
+        difficulty:difficultyName
+    });
+
+    ranking.sort((a,b)=>b.score-a.score);
+
+    ranking = ranking.slice(0,3);
+
+    localStorage.setItem(
+        "ranking",
+        JSON.stringify(ranking)
+    );
+
+    showRanking();
+
+}
+function endGame() {
+    alert("ゲーム終了");
+    window.parent.postMessage({ type: 'game:ended' }, '*');
 }
 
 //=====================

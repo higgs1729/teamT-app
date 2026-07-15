@@ -47,14 +47,14 @@
     // GAME/ 内のプレイ可能ゲーム一覧。playCost はゲームごとの消費コイン（現状は全ゲーム1枚）。
     // reward は一覧表示用のラベル
     games: [
-      { file: "Tilegame.html",   title: "Triple Tile",       icon: "ti-cat",             difficulty: "易", reward: "1",   playCost: 1 },
-      { file: "target.html",     title: "的あてゲーム",      icon: "ti-target-arrow",    difficulty: "選択式", reward: "1〜3", playCost: 1 },
-      { file: "pazuru.html",     title: "スライドパズル",    icon: "ti-puzzle",          difficulty: "普", reward: "2",   playCost: 1 },
-      { file: "picross.html",    title: "ピクロス",          icon: "ti-grid-dots",       difficulty: "普", reward: "2",   playCost: 1 },
-      { file: "undertale.html",  title: "骨よけサバイバル",  icon: "ti-bone",            difficulty: "普", reward: "2",   playCost: 1 },
-      { file: "burroku.html",    title: "ブロック崩し",      icon: "ti-wall",            difficulty: "選択式", reward: "1〜3", playCost: 1 },
-      { file: "game.html",       title: "勇者RPG",           icon: "ti-sword",           difficulty: "難", reward: "3",   playCost: 1 },
-      { file: "syuuthingu.html", title: "ゾンビシューター",  icon: "ti-crosshair",       difficulty: "難", reward: "3",   playCost: 1 },
+      { file: "Tilegame.html",   title: "トリプルタイルマスター",       icon: "ti-cat",             difficulty: "易", reward: "1",   playCost: 1 },
+      { file: "target.html",     title: "ねらえ！ターゲット",      icon: "ti-target-arrow",    difficulty: "選択式", reward: "1〜3", playCost: 2 },
+      { file: "pazuru.html",     title: "スライドパズルチャレンジ",    icon: "ti-puzzle",          difficulty: "普", reward: "2",   playCost: 1 },
+      { file: "picross.html",    title: "ひらめきピクロス",          icon: "ti-grid-dots",       difficulty: "普", reward: "2",   playCost: 1 },
+      { file: "undertale.html",  title: "ホネホネサバイバル",  icon: "ti-bone",            difficulty: "普", reward: "2",   playCost: 1 },
+      { file: "burroku.html",    title: "ブロッククラッシュ",      icon: "ti-wall",            difficulty: "選択式", reward: "1〜3", playCost: 2 },
+      { file: "game.html",       title: "勇者伝説",           icon: "ti-sword",           difficulty: "難", reward: "3",   playCost: 3 },
+      { file: "syuuthingu.html", title: "ゾンビハンター",  icon: "ti-crosshair",       difficulty: "難", reward: "3",   playCost: 3 },
     ],
   };
 
@@ -186,7 +186,7 @@
           <div class="game-card-meta">難易度: ${g.difficulty} ／ 報酬: ${g.reward}枚</div>
         </div>
         <button class="game-btn game-play-btn" data-game="${i}" ${short ? "disabled" : ""}>
-          <i class="ti ti-coins"></i> ${g.playCost}枚
+          <div class="cost"><i class="ti ti-coins"></i> ${g.playCost}枚</div>
         </button>
       </div>`;
     }).join("");

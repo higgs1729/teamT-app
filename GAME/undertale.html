@@ -356,6 +356,14 @@ time++;
 
 document.getElementById("time").textContent=time;
 
+if(time >= 30){
+
+    playing = false;
+
+    alert("🎉 CLEAR!\n30秒生き残りました！");
+
+}
+
 },1000);
 
 function restart(){
@@ -375,6 +383,8 @@ playing=true;
 
 document.getElementById("hp").textContent=hp;
 document.getElementById("time").textContent=time;
+
+player.style.display = "block";
 
 }
 

@@ -15,6 +15,7 @@ body{
     align-items:center;
     height:100vh;
     flex-direction:column;
+    user-select: none;
 }
 
 #ui{
@@ -38,6 +39,7 @@ body{
     position:absolute;
     width:24px;
     height:24px;
+    transition: filter 0.1s ease;
 }
 
 /* ハート本体 */
@@ -61,6 +63,11 @@ body{
     left:0;
     transform:rotate(45deg);
     transform-origin:100% 100%;
+}
+
+/* ダメージ時の無敵点滅エフェクト用 */
+.invincible {
+    opacity: 0.5;
 }
 
 .bone{
@@ -91,10 +98,25 @@ body{
     margin-left:-2px;
 }
 
+/* カラーバー（オレンジ & ブルー） */
+.color-bar {
+    position: absolute;
+    box-shadow: 0 0 15px rgba(255,255,255,0.5);
+}
+.color-bar.orange {
+    background: #ffa500;
+    box-shadow: 0 0 15px #ffa500;
+}
+.color-bar.blue {
+    background: #00bfff;
+    box-shadow: 0 0 15px #00bfff;
+}
+
 button{
     margin-top:15px;
     padding:10px 20px;
     font-size:18px;
+    cursor: pointer;
 }
 
 .blaster{
@@ -209,10 +231,18 @@ let time=0;
 let keys={};
 
 let bones=[];
+let colorBars=[]; // オレンジ・ブルーの線を管理する配列
 
 let playing=true;
 let blasterStarted = false;
 let beamInterval = null;
+let colorBarInterval = null; // カラーバー生成用のインターバル
+
+// プレイヤーの移動状態フラグ
+let isMoving = false;
+
+// 無敵時間フラグ（多段ヒット防止用）
+let isInvincible = false;
 
 document.addEventListener("keydown",e=>{
     keys[e.key]=true;
@@ -223,12 +253,21 @@ document.addEventListener("keyup",e=>{
 });
 
 function updatePlayer(){
-    if(keys["ArrowLeft"]||keys["a"]||keys["A"]) px-=speed;
-    if(keys["ArrowRight"]||keys["d"]||keys["D"]) px+=speed;
-    if(keys["ArrowUp"]||keys["w"]||keys["W"]) py-=speed;
-    if(keys["ArrowDown"]||keys["s"]||keys["S"]) py+=speed;
+    let dx = 0;
+    let dy = 0;
 
-    px=Math.max(0,Math.min(476,px)); // ハートのサイズ(24px)に合わせて調整
+    if(keys["ArrowLeft"]||keys["a"]||keys["A"]) dx -= speed;
+    if(keys["ArrowRight"]||keys["d"]||keys["D"]) dx += speed;
+    if(keys["ArrowUp"]||keys["w"]||keys["W"]) dy -= speed;
+    if(keys["ArrowDown"]||keys["s"]||keys["S"]) dy += speed;
+
+    px += dx;
+    py += dy;
+
+    // 実際に位置が動いたかどうか
+    isMoving = (dx !== 0 || dy !== 0);
+
+    px=Math.max(0,Math.min(476,px));
     py=Math.max(0,Math.min(476,py));
 
     player.style.left=px+"px";
@@ -304,7 +343,66 @@ function spawnBone(){
     bones.push(bone);
 }
 
+// オレンジ・ブルーの線を生成する
+function spawnColorBar(){
+    const bar = document.createElement("div");
+    const type = Math.random() > 0.5 ? "orange" : "blue";
+    bar.className = `color-bar ${type}`;
+    
+    // 0: 上から下へ、1: 左から右へ
+    const dir = Math.random() > 0.5 ? 0 : 1;
+    
+    if (dir === 0) {
+        // 横書きの線が縦に動く
+        bar.style.width = "500px";
+        bar.style.height = "15px";
+        bar.x = 0;
+        bar.y = -20;
+        bar.vx = 0;
+        bar.vy = 3; // スライドスピード
+    } else {
+        // 縦書きの線が横に動く
+        bar.style.width = "15px";
+        bar.style.height = "500px";
+        bar.x = -20;
+        bar.y = 0;
+        bar.vx = 3;
+        bar.vy = 0;
+    }
+    
+    bar.type = type;
+    bar.dir = dir;
+    
+    bar.style.left = bar.x + "px";
+    bar.style.top = bar.y + "px";
+    
+    game.appendChild(bar);
+    colorBars.push(bar);
+}
+
+// プレイヤーにダメージを与える汎用関数
+function takeDamage(amount) {
+    if (isInvincible || !playing) return;
+    
+    hp -= amount;
+    if (hp < 0) hp = 0;
+    document.getElementById("hp").textContent = Math.ceil(hp);
+    
+    if (hp <= 0) {
+        gameOver();
+    } else {
+        // ダメージ時に一瞬無敵状態にする（多段ヒットによる即死を防ぐ）
+        isInvincible = true;
+        player.classList.add("invincible");
+        setTimeout(() => {
+            isInvincible = false;
+            player.classList.remove("invincible");
+        }, 500); // 0.5秒の無敵時間
+    }
+}
+
 function updateBones(){
+    // 骨の更新
     for(let i=bones.length-1;i>=0;i--){
         const b=bones[i];
 
@@ -318,15 +416,9 @@ function updateBones(){
         b.style.transform = `rotate(${b.angle}deg)`;
 
         if(hit(b)){
-            hp--;
-            document.getElementById("hp").textContent=hp;
-
+            takeDamage(1);
             game.removeChild(b);
             bones.splice(i,1);
-
-            if(hp<=0){
-                gameOver();
-            }
             continue;
         }
 
@@ -336,7 +428,44 @@ function updateBones(){
         }
     }
 
-    // ビームの当たり判定
+    // カラーバー（オレンジ / ブルー）の更新と判定
+    for(let i=colorBars.length-1;i>=0;i--){
+        const cb = colorBars[i];
+        cb.x += cb.vx;
+        cb.y += cb.vy;
+        
+        cb.style.left = cb.x + "px";
+        cb.style.top = cb.y + "px";
+        
+        // 当たり判定
+        const cbWidth = cb.dir === 0 ? 500 : 15;
+        const cbHeight = cb.dir === 0 ? 15 : 500;
+        
+        const isColliding = (
+            px + 24 > cb.x &&
+            px < cb.x + cbWidth &&
+            py + 24 > cb.y &&
+            py < cb.y + cbHeight
+        );
+        
+        if (isColliding) {
+            if (cb.type === "orange" && !isMoving) {
+                // オレンジ：止まっているとダメージ
+                takeDamage(1);
+            } else if (cb.type === "blue" && isMoving) {
+                // ブルー：動いているとダメージ
+                takeDamage(1);
+            }
+        }
+        
+        // 画面外に出たら削除
+        if (cb.x > 520 || cb.y > 520) {
+            cb.remove();
+            colorBars.splice(i, 1);
+        }
+    }
+
+    // ガスターブラスタービームの当たり判定
     document.querySelectorAll(".beam").forEach(beam=>{
         const rect = beam.getBoundingClientRect();
         const gameRect = game.getBoundingClientRect();
@@ -352,13 +481,7 @@ function updateBones(){
             py + 24 > by &&
             py < by + bh
         ){
-            hp -= 0.1; // ビームは多段ヒットするためダメージを微調整
-            if(hp < 0) hp = 0;
-            document.getElementById("hp").textContent = Math.ceil(hp);
-
-            if(hp<=0){
-                gameOver();
-            }
+            takeDamage(0.5); // ビーム用の微小ダメージ
         }
     });
 }
@@ -377,6 +500,7 @@ function hit(b){
 function gameOver(){
     playing=false;
     clearInterval(beamInterval);
+    clearInterval(colorBarInterval);
     alert("GAME OVER\n生存時間："+time+"秒");
 }
 
@@ -400,16 +524,25 @@ setInterval(()=>{
     time++;
     document.getElementById("time").textContent=time;
 
+    // 10秒後から：カラーバー（オレンジ・ブルー）の攻撃開始
+    if(time >= 10 && !colorBarInterval){
+        colorBarInterval = setInterval(()=>{
+            if(playing) spawnColorBar();
+        }, 1500); // 1.5秒に一回流れてくる
+    }
+
+    // 20秒後から：ブラスターの同時攻撃開始
     if(time >= 20 && !blasterStarted){
         blasterStarted = true;
         beamInterval = setInterval(()=>{
             if(playing) startBlasterAttack();
-        },1200); // 難易度調整のため少し間隔を広げました
+        },1200);
     }
 
     if(time >= 30){
         playing = false;
         clearInterval(beamInterval);
+        clearInterval(colorBarInterval);
         alert("🎉 CLEAR!\n30秒生き残りました！");
     }
 },1000);
@@ -418,10 +551,14 @@ function restart(){
     // 既存のオブジェクトを全削除
     bones.forEach(b=>b.remove());
     bones=[];
+    colorBars.forEach(cb=>cb.remove());
+    colorBars=[];
+    
     document.querySelectorAll(".blaster").forEach(b=>b.remove());
     document.querySelectorAll(".beam").forEach(b=>b.remove());
 
     if(beamInterval) clearInterval(beamInterval);
+    if(colorBarInterval) clearInterval(colorBarInterval);
 
     hp=5;
     time=0;
@@ -429,6 +566,9 @@ function restart(){
     py=430;
     playing=true;
     blasterStarted = false;
+    isInvincible = false;
+    isMoving = false;
+    player.classList.remove("invincible");
 
     document.getElementById("hp").textContent=hp;
     document.getElementById("time").textContent=time;
@@ -441,7 +581,7 @@ restart();
 
 function startBlasterAttack(){
     const sides = ["top", "bottom", "left", "right"];
-    // 4方向からランダムに2つ選んで発射（全方向同時は回避不可能なため）
+    // 4方向からランダムに2つ選んで発射
     const chosenSides = sides.sort(() => 0.5 - Math.random()).slice(0, 2);
     chosenSides.forEach(side => createBlaster(side));
 }
@@ -489,8 +629,9 @@ function createBlaster(side){
 
     game.appendChild(skull);
 
-    // 登場演出（少し内側に入り込む）
+    // 登場演出
     setTimeout(() => {
+        if(!playing) return;
         skull.style.transition = "all 0.3s ease";
         skull.style.left = targetLeft + "px";
         skull.style.top = targetTop + "px";
@@ -500,10 +641,8 @@ function createBlaster(side){
     setTimeout(()=>{
         if(!playing) { skull.remove(); return; }
         
-        // 目を光らせる演出
         skull.querySelectorAll(".eye").forEach(e => e.style.backgroundColor = "cyan");
 
-        // ビームを発射（位置情報を引数で引き渡す）
         fireBeam(side, targetLeft, targetTop);
 
         setTimeout(()=>{
@@ -516,10 +655,9 @@ function fireBeam(side, blasterLeft, blasterTop){
     const beam = document.createElement("div");
     beam.className = "beam " + side;
 
-    // ブラスターの口の位置に合わせてビームの初期位置を決定
     switch(side){
         case "top":
-            beam.style.left = (blasterLeft + 30) + "px"; // 中央寄せ
+            beam.style.left = (blasterLeft + 30) + "px";
             beam.style.top = "0px";
             break;
         case "bottom":

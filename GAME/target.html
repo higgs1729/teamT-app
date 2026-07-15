@@ -225,6 +225,19 @@ button:last-of-type:hover{
 
 <script>
 
+/* ===== コイン連携（fronted-v2 のゲーム画面から起動される想定） =====
+   開始処理: 消費コインは COIN_COST（消費処理は親側 game.js が行う）
+   終了処理: 制限時間終了時に親へ game:ended を通知。
+             スコア1点以上ならクリア（報酬は選択難易度に応じる）、0点以下はゲームオーバー
+   (本番ビルド時は '*' を具体的なURLに差し替える) */
+const COIN_COST = 1;  // 1プレイの消費コイン
+const COIN_REWARD_BY_DIFFICULTY = { normal: 1, hard: 2, veryhard: 3 };
+let coinReward = 1;   // startGame で選択難易度に応じて更新
+
+function notifyGameEnded(coin){
+window.parent.postMessage({ type: 'game:ended', coin: coin }, '*');
+}
+
 const target=document.getElementById("target");
 const game=document.getElementById("game");
 
@@ -353,6 +366,8 @@ switch(difficulty){
 
 }
 
+coinReward = COIN_REWARD_BY_DIFFICULTY[difficulty] || 1;
+
 disappearTime = baseDisappearTime;
 
 score=0;
@@ -395,6 +410,8 @@ timer = setInterval(() => {
         // 結果表示
         document.getElementById("result").innerHTML =
         "🎉 ゲーム終了！<br>あなたのスコアは <b>" + score + "</b> 点でした！";
+
+        notifyGameEnded(score > 0 ? coinReward : 0);
 
     }
 

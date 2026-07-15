@@ -114,6 +114,18 @@ button{
 
 <script>
 
+/* ===== コイン連携（fronted-v2 のゲーム画面から起動される想定） =====
+   開始処理: 消費コインは COIN_COST（消費処理は親側 game.js が行う）
+   終了処理: 30秒生存(クリア)/HP0(ゲームオーバー)時に親へ game:ended を通知
+             coin 0 = ゲームオーバー / 1以上 = クリア報酬
+   (本番ビルド時は '*' を具体的なURLに差し替える) */
+const COIN_COST = 1;    // 1プレイの消費コイン
+const COIN_REWARD = 2;  // クリア報酬（難易度: 普）
+
+function notifyGameEnded(coin){
+window.parent.postMessage({ type: 'game:ended', coin: coin }, '*');
+}
+
 const game=document.getElementById("game");
 const player=document.getElementById("player");
 
@@ -294,6 +306,8 @@ playing=false;
 
 alert("GAME OVER\n生存時間："+time+"秒");
 
+notifyGameEnded(0);
+
 }
 
 continue;
@@ -361,6 +375,8 @@ if(time >= 30){
     playing = false;
 
     alert("🎉 CLEAR!\n30秒生き残りました！");
+
+    notifyGameEnded(COIN_REWARD);
 
 }
 

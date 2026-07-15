@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API一覧</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f4f4;
+    margin:0;
+}
+
+header{
+    background:#1565c0;
+    color:white;
+    text-align:center;
+    padding:20px;
+}
+
+.container{
+    display:flex;
+    gap:20px;
+    width:95%;
+    max-width:1400px;
+    margin:auto;
+    padding:20px;
+}
+
+.left{
+    width:40%;
+}
+
+.right{
+    width:60%;
+    position:sticky;
+    top:20px;
+    height:fit-content;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    margin-bottom:15px;
+    border-radius:10px;
+    box-shadow:0 2px 8px rgba(0,0,0,.2);
+}
+
+pre{
+    background:#222;
+    color:#00ff99;
+    padding:15px;
+    border-radius:8px;
+    overflow:auto;
+    max-height:500px;
+}
+
+button{
+    background:#1565c0;
+    color:white;
+    border:none;
+    padding:10px 20px;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#0d47a1;
+}
+
+.url{
+    color:#1565c0;
+    word-break:break-all;
+}
+
+
+</style>
+
+</head>
+<body>
+
+<header>
+    <h1>API一覧</h1>
+</header>
+
+<div class="container">
+
+    <!-- 左側 -->
+    <div class="left">
+
+        <input
+            type="text"
+            id="search"
+            placeholder="API名で検索..."
+            onkeyup="searchAPI()">
+        <button onclick="showAllAPIs()">
+    表示
+</button>
+        <div id="apiList"></div>
+        
+
+    </div>
+
+    <!-- 右側 -->
+    <div class="right">
+
+        <div id="detail" class="card" style="display:none;">
+
+            <h2 id="apiName"></h2>
+
+            <p>
+                <strong>APIの説明</strong><br>
+                <span id="apiDescription"></span>
+            </p>
+
+            <p>
+                <strong>URL</strong><br>
+                <span id="apiURL" class="url"></span>
+            </p>
+
+            <hr>
+
+            <h3>レスポンス(JSON)</h3>
+
+            <pre id="responseData">
+まだ取得していません
+            </pre>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+// API一覧
+const apis = [
+
+{
+    name:"ジョークAPI",
+    description:"ランダムなジョークを取得します。",
+    url:"https://official-joke-api.appspot.com/random_joke"
+},
+
+{
+    name:"年齢予測API",
+    description:"名前から年齢を予測します。",
+    url:"https://api.agify.io/?name=taro"
+},
+
+{
+    name:"性別予測API",
+    description:"名前から性別を予測します。",
+    url:"https://api.genderize.io/?name=taro"
+},
+
+{
+    name:"猫の豆知識API",
+    description:"猫に関する豆知識を取得します。",
+    url:"https://catfact.ninja/fact"
+}
+
+];
+
+// 一覧表示
+function displayAPIs(list){
+
+    const apiList = document.getElementById("apiList");
+
+    apiList.innerHTML = "";
+
+    list.forEach(api=>{
+
+        apiList.innerHTML += `
+
+        <div class="card">
+
+            <h2>${api.name}</h2>
+
+        </div>
+
+        `;
+
+    });
+
+}
+
+// 検索
+function searchAPI(){
+
+    const keyword=document
+        .getElementById("search")
+        .value
+        .toLowerCase();
+
+    const result=apis.filter(api=>
+        api.name.toLowerCase().includes(keyword)
+    );
+
+    displayAPIs(result);
+
+}
+
+// API詳細とレスポンス表示
+async function showAllAPIs(){
+
+    document.getElementById("detail").style.display = "block";
+
+    let html = "";
+
+    for(const api of apis){
+
+        try{
+
+            const response = await fetch(api.url);
+            const data = await response.json();
+
+            html += `
+                <h2>${api.name}</h2>
+
+                <p><strong>APIの説明</strong><br>${api.description}</p>
+
+                <p><strong>URL</strong><br>${api.url}</p>
+
+                <h3>レスポンス(JSON)</h3>
+
+                <pre>${JSON.stringify(data, null, 4)}</pre>
+
+                <hr>
+            `;
+
+        }catch(error){
+
+            html += `
+                <h2>${api.name}</h2>
+
+                <p>取得に失敗しました。</p>
+
+                <hr>
+            `;
+
+        }
+
+    }
+
+    document.getElementById("detail").innerHTML = html;
+
+}
+
+// 初期表示
+displayAPIs(apis);
+
+</script>
+
+</body>
+</html>

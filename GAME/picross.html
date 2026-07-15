@@ -1,0 +1,281 @@
+    <!DOCTYPE html>
+    <html lang="ja">
+    <head>
+    <meta charset="UTF-8">
+    <title>ピクロス完成版</title>
+
+    <style>
+    body {
+        font-family: sans-serif;
+        text-align:center;
+        background: linear-gradient(180deg,#1a1a2e,#16213e);
+        color:white;
+    }
+
+    .grid {
+        display:grid;
+        gap:4px;
+        justify-content:center;
+        margin-top:10px;
+    }
+
+    .cell {
+        width:32px;height:32px;
+        background:#e0e0e0;
+        cursor:pointer;
+        border-radius:6px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        transition:.2s;
+    }
+
+    .cell:hover { transform:scale(1.1); }
+
+    .cell.fill {
+        background:linear-gradient(145deg,#000,#333);
+        box-shadow: inset 0 0 5px #000;
+        animation:pop .2s;
+    }
+
+    @keyframes pop {
+        from{transform:scale(0.5);}
+        to{transform:scale(1);}
+    }
+
+    .error { animation:shake .2s; }
+    @keyframes shake {
+        0%,100%{transform:translateX(0);}
+        50%{transform:translateX(-4px);}
+    }
+
+    .topHint { font-size:11px; }
+    .leftHint { font-size:11px; text-align:right; padding-right:5px;}
+    .dim { opacity:0.3; }
+
+    #status {
+        margin:10px;
+        font-size:18px;
+        background:#0008;
+        padding:8px;
+        border-radius:10px;
+        display:inline-block;
+    }
+
+    button {
+        margin:5px;
+        padding:8px 15px;
+        border:none;
+        border-radius:8px;
+        background:#0f3460;
+        color:white;
+        cursor:pointer;
+    }
+    button:hover { background:#1f4e8c; }
+
+    /* ポップアップ */
+    #popup {
+        position:fixed;
+        top:0;left:0;
+        width:100%;height:100%;
+        background:rgba(0,0,0,0.7);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-size:30px;
+        display:none;
+    }
+
+    .popupBox {
+        background:#333;
+        padding:30px;
+        border-radius:10px;
+        animation:zoom .3s;
+    }
+
+    @keyframes zoom {
+        from{transform:scale(0);}
+        to{transform:scale(1);}
+    }
+
+    /* ミス時フラッシュ */
+    body.flash {
+        animation:flashRed .2s;
+    }
+    @keyframes flashRed {
+        from{background:#400;}
+        to{background:#1a1a2e;}
+    }
+    </style>
+    </head>
+
+    <body>
+
+    <h2>🎮 ピクロス</h2>
+    <button onclick="reset()">リセット</button>
+
+    <div id="status">ミス：0 / 5</div>
+    <div id="game"></div>
+
+    <div id="popup">
+    <div class="popupBox" id="popupText"></div>
+    </div>
+
+    <script>
+    const SIZE=10;
+    const MAX_MISS=5;
+    let miss=0;
+    let stage=0;
+
+    const puzzles=[
+    [[0,1,1,0,0,0,0,1,1,0],[1,1,1,1,0,0,1,1,1,1],[1,1,1,1,0,0,1,1,1,1],[0,1,1,1,1,1,1,1,1,0],[0,0,1,1,1,1,1,1,0,0],[0,0,0,1,1,1,1,0,0,0],[0,0,0,0,1,1,0,0,0,0],[0,0,0,0,1,1,0,0,0,0],[0,0,0,0,1,1,0,0,0,0],[0,0,0,0,0,0,0,0,0,0]],
+
+    [[0,0,1,1,1,1,1,1,0,0],[0,1,1,0,0,0,0,1,1,0],[1,1,0,0,0,0,0,0,1,1],[1,0,0,1,0,0,1,0,0,1],[1,0,0,0,1,1,0,0,0,1],[1,0,0,1,0,0,1,0,0,1],[1,1,0,0,0,0,0,0,1,1],[0,1,1,0,0,0,0,1,1,0],[0,0,1,1,1,1,1,1,0,0],[0,0,0,0,0,0,0,0,0,0]],
+
+    ...Array(8).fill([
+    [0,0,1,1,1,1,1,1,0,0],
+    [0,1,1,0,0,0,0,1,1,0],
+    [1,1,0,0,0,0,0,0,1,1],
+    [1,0,0,1,0,0,1,0,0,1],
+    [1,0,0,0,1,1,0,0,0,1],
+    [1,0,0,1,0,0,1,0,0,1],
+    [1,1,0,0,0,0,0,0,1,1],
+    [0,1,1,0,0,0,0,1,1,0],
+    [0,0,1,1,1,1,1,1,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    ])
+    ];
+
+    let board;
+
+    function getHints(line){
+        let res=[],c=0;
+        for(let v of line){
+            if(v===1)c++; else if(c){res.push(c);c=0;}
+        }
+        if(c)res.push(c);
+        return res.length?res:[0];
+    }
+
+    function isRowComplete(y){
+        return puzzles[stage][y].every((v,x)=>v===0||board[y][x]===1);
+    }
+    function isColComplete(x){
+        return puzzles[stage].every((row,y)=>row[x]===0||board[y][x]===1);
+    }
+
+    const game=document.getElementById("game");
+    const status=document.getElementById("status");
+
+    function draw(){
+        game.innerHTML="";
+        const sol=puzzles[stage];
+
+        const colHints=[];
+        for(let x=0;x<SIZE;x++){
+            colHints.push(getHints(sol.map(r=>r[x])));
+        }
+
+        const top=document.createElement("div");
+        top.className="grid";
+        top.style.gridTemplateColumns="50px repeat(10,32px)";
+        top.appendChild(document.createElement("div"));
+
+        colHints.forEach((h,x)=>{
+            let d=document.createElement("div");
+            d.className="topHint";
+            if(isColComplete(x)) d.classList.add("dim");
+            d.innerHTML=h.join("<br>");
+            top.appendChild(d);
+        });
+
+        game.appendChild(top);
+
+        const main=document.createElement("div");
+        main.className="grid";
+        main.style.gridTemplateColumns="50px repeat(10,32px)";
+
+        sol.forEach((row,y)=>{
+            let h=document.createElement("div");
+            h.className="leftHint";
+            if(isRowComplete(y)) h.classList.add("dim");
+            h.textContent=getHints(row).join(" ");
+            main.appendChild(h);
+
+            row.forEach((_,x)=>{
+                let cell=document.createElement("div");
+                cell.className="cell";
+
+                if(board[y][x]===1) cell.classList.add("fill");
+
+                cell.onclick=()=>{
+                    if(sol[y][x]===1){
+                        board[y][x]=1;
+                        draw();
+                        check();
+                    }else{
+                        miss++;
+                        status.textContent=`ミス：${miss} / ${MAX_MISS}`;
+
+                        document.body.classList.add("flash");
+                        setTimeout(()=>document.body.classList.remove("flash"),200);
+
+                        cell.classList.add("error");
+
+                        if(miss>=MAX_MISS){
+                            showPopup("💀 GAME OVER");
+                        }
+                    }
+                };
+
+                main.appendChild(cell);
+            });
+        });
+
+        game.appendChild(main);
+    }
+
+    function check(){
+        const sol=puzzles[stage];
+        for(let y=0;y<SIZE;y++){
+            for(let x=0;x<SIZE;x++){
+                if(sol[y][x]===1 && board[y][x]!==1) return;
+            }
+        }
+
+        showPopup("🎉 CLEAR!");
+
+        setTimeout(()=>{
+            // 🎮 ゲーム終了画面
+            document.body.innerHTML = `
+            <div style="margin-top:100px">
+                <h1>🏆 GAME COMPLETE!</h1>
+                <p>プレイありがとう！</p>
+                <button onclick="location.reload()">もう一度プレイ</button>
+            </div>
+            `;
+        },1500);
+    }
+
+    function showPopup(text){
+        const p=document.getElementById("popup");
+        const t=document.getElementById("popupText");
+        t.textContent=text;
+        p.style.display="flex";
+    }
+
+    function reset(){
+        stage = Math.floor(Math.random()*puzzles.length);
+
+        board=Array(SIZE).fill().map(()=>Array(SIZE).fill(0));
+        miss=0;
+        status.textContent=`ミス：0 / ${MAX_MISS}`;
+        document.getElementById("popup").style.display="none";
+        draw();
+    }
+
+    reset();
+    </script>
+
+    </body>
+    </html>

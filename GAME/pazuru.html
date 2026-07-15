@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>🧩 スライドパズル</title>
+
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+            font-family:sans-serif;
+            background:#1e293b;
+            color:white;
+            text-align:center;
+            min-height:100vh;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+        }
+
+        h1{
+            margin-top:25px;
+            margin-bottom:20px;
+        }
+
+        #board{
+
+            width:306px;
+            height:306px;
+
+            display:grid;
+            grid-template-columns:repeat(3,100px);
+            grid-template-rows:repeat(3,100px);
+
+            gap:3px;
+
+        }
+
+        .tile{
+
+            background:#3b82f6;
+            border-radius:10px;
+
+            display:flex;
+            justify-content:center;
+            align-items:center;
+
+            font-size:34px;
+            font-weight:bold;
+
+            cursor:pointer;
+            user-select:none;
+
+            transition:.2s;
+
+        }
+
+        .tile:hover{
+
+            background:#2563eb;
+            transform:scale(1.05);
+
+        }
+
+        .empty{
+
+            background:#111827;
+            cursor:default;
+
+        }
+
+        button{
+
+            margin-top:25px;
+
+            padding:12px 25px;
+
+            border:none;
+            border-radius:8px;
+
+            font-size:18px;
+
+            cursor:pointer;
+
+            background:#10b981;
+            color:white;
+
+            transition:.2s;
+
+        }
+
+        button:hover{
+
+            background:#059669;
+
+        }
+
+        .controls{
+            margin-bottom:20px;
+        }
+
+        select{
+            padding:8px 15px;
+            font-size:18px;
+            margin-right:10px;
+        }
+
+        h2{
+
+            font-size:22px;
+            margin:10px;
+
+        }
+
+        #timer{
+
+            color:#10b981;
+            font-size:30px;
+
+        }
+
+        #scoreBoard{
+
+            margin:25px auto;
+            width:320px;
+
+            background:#334155;
+
+            padding:15px;
+
+            border-radius:10px;
+
+        }
+
+        #ranking{
+
+            text-align:left;
+
+            margin-top:10px;
+
+        }
+
+        #ranking li{
+
+            margin:8px 0;
+
+        }
+
+        #resetScore{
+
+            margin-top:15px;
+        }
+    </style>
+
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+
+    <h1>🧩 スライドパズル</h1>
+    <div class="controls">
+        <div class="controls">
+
+        <label>難易度：</label>
+
+        <select id="sizeSelect">
+            <option value="3">3×3</option>
+            <option value="4">4×4</option>
+            <option value="5">5×5</option>
+        </select>
+
+        <button id="shuffleBtn">シャッフル</button>
+
+    </div>
+
+
+    <h2>
+    ⏱️ 経過時間：
+    <span id="timer">0</span>秒
+    </h2>
+
+    <h2>
+    👆 移動回数：
+    <span id="moveCount">0</span>回
+    </h2>
+
+    <div id="scoreBoard">
+
+    <h2>🏆 ベストスコア</h2>
+
+    <ol id="ranking">
+    </ol>
+
+    <button id="resetScore">
+    ランキングをリセット
+    </button>
+
+    </div>
+    
+    <div id="board"></div>
+<script>
+const board = document.getElementById("board");
+const shuffleBtn = document.getElementById("shuffleBtn");
+const sizeSelect = document.getElementById("sizeSelect");
+const timer = document.getElementById("timer");
+const moveLabel = document.getElementById("moveCount");
+const ranking = document.getElementById("ranking");
+const resetScore = document.getElementById("resetScore");
+
+let moveCount = 0;
+
+let size = 3;
+let tiles = [];
+
+
+// タイマー用
+let time = 0;
+let timerId = null;
+//----------------------
+// 盤面作成
+//----------------------
+function createBoard(){
+
+    tiles = [];
+
+    for(let i=1;i<size*size;i++){
+        tiles.push(i);
+    }
+
+    tiles.push(0);
+
+    board.style.gridTemplateColumns = `repeat(${size},80px)`;
+    board.style.gridTemplateRows = `repeat(${size},80px)`;
+
+    board.style.width = `${size*80 + (size-1)*3}px`;
+    board.style.height = `${size*80 + (size-1)*3}px`;
+
+    draw();
+
+    moveCount = 0;
+    moveLabel.textContent = 0;
+
+    loadRanking();
+
+}
+
+//----------------------
+// 描画
+//----------------------
+function draw(){
+
+    board.innerHTML="";
+
+    tiles.forEach((num,index)=>{
+
+        const tile=document.createElement("div");
+
+        if(num===0){
+
+            tile.className="tile empty";
+
+        }else{
+
+            tile.className="tile";
+            tile.textContent=num;
+            tile.onclick=()=>move(index);
+
+        }
+
+        board.appendChild(tile);
+
+    });
+
+}
+
+//----------------------
+// 移動
+//----------------------
+function move(index){
+
+    const empty=tiles.indexOf(0);
+
+    const row=Math.floor(index/size);
+    const col=index%size;
+
+    const erow=Math.floor(empty/size);
+    const ecol=empty%size;
+
+    if(Math.abs(row-erow)+Math.abs(col-ecol)===1){
+
+        [tiles[index],tiles[empty]]=[tiles[empty],tiles[index]];
+
+        moveCount++;
+
+        moveLabel.textContent = moveCount;
+
+        draw();
+
+        checkClear();
+
+    }
+
+}
+
+//----------------------
+// シャッフル
+//----------------------
+function shuffle(){
+
+    for(let i=0;i<500;i++){
+
+        const empty=tiles.indexOf(0);
+
+        const row=Math.floor(empty/size);
+        const col=empty%size;
+
+        const moves=[];
+
+        if(row>0)moves.push(empty-size);
+        if(row<size-1)moves.push(empty+size);
+        if(col>0)moves.push(empty-1);
+        if(col<size-1)moves.push(empty+1);
+
+        const random=moves[Math.floor(Math.random()*moves.length)];
+
+        [tiles[empty],tiles[random]]=[tiles[random],tiles[empty]];
+
+    }
+
+    draw();
+
+    resetTimer();
+
+    startTimer();
+
+}
+
+//----------------------
+// クリア判定
+//----------------------
+function checkClear(){
+
+    for(let i=0;i<tiles.length-1;i++){
+
+        if(tiles[i]!==i+1){
+
+            return;
+
+        }
+
+    }
+
+    stopTimer();
+
+    saveScore();
+
+    alert(
+    `🎉クリア！
+
+    タイム：${time}秒
+
+    移動回数：${moveCount}回`
+    );
+}
+
+//----------------------
+// イベント
+//----------------------
+
+shuffleBtn.onclick=shuffle;
+
+sizeSelect.onchange=function(){
+
+    size=parseInt(this.value);
+
+    resetTimer();
+
+    createBoard();
+
+};
+
+//----------------------
+// タイマー開始
+//----------------------
+function startTimer(){
+
+    if(timerId !== null){
+        return;
+    }
+
+    timerId=setInterval(()=>{
+
+        time++;
+
+        timer.textContent=time;
+
+    },1000);
+
+}
+
+
+//----------------------
+// タイマー停止
+//----------------------
+function stopTimer(){
+
+    clearInterval(timerId);
+
+    timerId=null;
+
+}
+
+
+//----------------------
+// タイマーリセット
+//----------------------
+function resetTimer(){
+
+    stopTimer();
+
+    time=0;
+
+    timer.textContent=0;
+
+}
+
+function saveScore(){
+
+    const key = "slidePuzzle"+size;
+
+    let scores =
+        JSON.parse(localStorage.getItem(key)) || [];
+
+    scores.push({
+
+        time:time,
+
+        moves:moveCount
+
+    });
+
+    scores.sort((a,b)=>{
+
+        if(a.time===b.time){
+
+            return a.moves-b.moves;
+
+        }
+
+        return a.time-b.time;
+
+    });
+
+    scores = scores.slice(0,3);
+
+    localStorage.setItem(
+        key,
+        JSON.stringify(scores)
+    );
+
+    loadRanking();
+
+}
+
+function loadRanking(){
+
+    const key = "slidePuzzle"+size;
+
+    const scores =
+        JSON.parse(localStorage.getItem(key)) || [];
+
+    ranking.innerHTML="";
+
+    if(scores.length===0){
+
+        ranking.innerHTML="<li>まだ記録がありません</li>";
+
+        return;
+
+    }
+
+    scores.forEach(score=>{
+
+        const li=document.createElement("li");
+
+        li.textContent=
+        `${score.time}秒　${score.moves}回`;
+
+        ranking.appendChild(li);
+
+    });
+
+}
+
+resetScore.onclick=function(){
+
+    if(confirm("ランキングを削除しますか？")){
+
+        localStorage.removeItem(
+            "slidePuzzle"+size
+        );
+
+        loadRanking();
+
+    }
+
+}
+</script>
+</body>
+</html>

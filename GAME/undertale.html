@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Undertale風 回避ゲーム</title>
+
+<style>
+body{
+    margin:0;
+    background:#111;
+    color:white;
+    font-family:Arial;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    flex-direction:column;
+}
+
+#ui{
+    width:500px;
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:10px;
+    font-size:20px;
+}
+
+#game{
+    width:500px;
+    height:500px;
+    border:6px solid white;
+    background:black;
+    position:relative;
+    overflow:hidden;
+}
+
+#player{
+    position:absolute;
+    width:24px;
+    height:24px;
+}
+
+/* ハート本体 */
+#player::before,
+#player::after{
+    content:"";
+    position:absolute;
+    width:14px;
+    height:22px;
+    background:#ff2020;
+    border-radius:14px 14px 0 0;
+}
+
+#player::before{
+    left:10px;
+    transform:rotate(-45deg);
+    transform-origin:0 100%;
+}
+
+#player::after{
+    left:0;
+    transform:rotate(45deg);
+    transform-origin:100% 100%;
+}
+
+.bone{
+    position:absolute;
+    display:flex;
+    align-items:center;
+    height:20px;
+}
+
+.boneBody{
+    background:white;
+    height:10px;
+    flex:1;
+}
+
+.boneHead{
+    width:14px;
+    height:20px;
+    background:white;
+    border-radius:5px;
+}
+
+.boneHead.left{
+    margin-right:-2px;
+}
+
+.boneHead.right{
+    margin-left:-2px;
+}
+
+button{
+    margin-top:15px;
+    padding:10px 20px;
+    font-size:18px;
+}
+
+.blaster{
+    position:absolute;
+    width:80px;
+    height:70px;
+    background:white;
+    border-radius:50% 50% 45% 45%;
+    border:3px solid #ddd;
+    box-sizing:border-box;
+    z-index: 10;
+}
+
+.beam{
+    position:absolute;
+    background:#00ffff;
+    z-index: 5;
+}
+.beam.top{
+    width:20px;
+    height:500px;
+}
+
+.beam.bottom{
+    width:20px;
+    height:500px;
+}
+
+.beam.left,
+.beam.right{
+    width:500px;
+    height:20px;
+}
+.eye{
+    position:absolute;
+    width:14px;
+    height:18px;
+    background:black;
+    border-radius:50%;
+    top:18px;
+}
+
+.eye.left{
+    left:18px;
+}
+
+.eye.right{
+    right:18px;
+}
+.nose{
+    position:absolute;
+    width:10px;
+    height:8px;
+    background:black;
+    left:32px;
+    top:34px;
+    clip-path:polygon(50% 100%,0 0,100% 0);
+}
+.mouth{
+    position:absolute;
+    width:40px;
+    height:8px;
+    background:black;
+    left:17px;
+    bottom:12px;
+    border-radius:4px;
+}
+.mouth::before{
+    content:"";
+    position:absolute;
+    left:4px;
+    top:0;
+    width:3px;
+    height:8px;
+    background:white;
+    box-shadow:
+        6px 0 white,
+        12px 0 white,
+        18px 0 white,
+        24px 0 white,
+        30px 0 white;
+}
+</style>
+
+</head>
+<body>
+
+<div id="ui">
+<div>HP：<span id="hp">5</span></div>
+<div>TIME：<span id="time">0</span></div>
+</div>
+
+<div id="game">
+<div id="player"></div>
+</div>
+
+<button onclick="restart()">リスタート</button>
+
+<script>
+
+const game=document.getElementById("game");
+const player=document.getElementById("player");
+
+let px=240;
+let py=430;
+
+const speed=4;
+
+let hp=5;
+let time=0;
+
+let keys={};
+
+let bones=[];
+
+let playing=true;
+let blasterStarted = false;
+let beamInterval = null;
+
+document.addEventListener("keydown",e=>{
+    keys[e.key]=true;
+});
+
+document.addEventListener("keyup",e=>{
+    keys[e.key]=false;
+});
+
+function updatePlayer(){
+    if(keys["ArrowLeft"]||keys["a"]||keys["A"]) px-=speed;
+    if(keys["ArrowRight"]||keys["d"]||keys["D"]) px+=speed;
+    if(keys["ArrowUp"]||keys["w"]||keys["W"]) py-=speed;
+    if(keys["ArrowDown"]||keys["s"]||keys["S"]) py+=speed;
+
+    px=Math.max(0,Math.min(476,px)); // ハートのサイズ(24px)に合わせて調整
+    py=Math.max(0,Math.min(476,py));
+
+    player.style.left=px+"px";
+    player.style.top=py+"px";
+}
+
+function spawnBone(){
+    const dir = Math.floor(Math.random() * 4); // 0=上 1=下 2=左 3=右
+
+    const bone=document.createElement("div");
+    bone.className="bone";
+
+    bone.innerHTML=`
+    <div class="boneHead left"></div>
+    <div class="boneBody"></div>
+    <div class="boneHead right"></div>
+    `;
+
+    const length = 60 + Math.random()*120;
+
+    if(dir<=1){
+        bone.style.width=length+"px";
+        bone.style.height="20px";
+        bone.querySelector(".boneBody").style.width=(length-28)+"px";
+    }else{
+        bone.style.width="20px";
+        bone.style.height=length+"px";
+        bone.style.flexDirection="column";
+        const body=bone.querySelector(".boneBody");
+        body.style.width="10px";
+        body.style.height=(length-28)+"px";
+    }
+
+    switch(dir){
+        case 0:
+            bone.x=Math.random()*(500-length);
+            bone.y=-20;
+            bone.vx=0;
+            bone.vy=4;
+            bone.angle = 0;
+            bone.rotateSpeed = Math.random() * 6 + 2;
+            break;
+        case 1:
+            bone.x=Math.random()*(500-length);
+            bone.y=520;
+            bone.vx=0;
+            bone.vy=-4;
+            bone.angle = 0;
+            bone.rotateSpeed = Math.random() * 6 + 2;
+            break;
+        case 2:
+            bone.x=-20;
+            bone.y=Math.random()*(500-length);
+            bone.vx=4;
+            bone.vy=0;
+            bone.angle = 0;
+            bone.rotateSpeed = Math.random() * 6 + 2;
+            break;
+        case 3:
+            bone.x=520;
+            bone.y=Math.random()*(500-length);
+            bone.vx=-4;
+            bone.vy=0;
+            bone.angle = 0;
+            bone.rotateSpeed = Math.random() * 6 + 2;
+            break;
+    }
+
+    bone.style.left=bone.x+"px";
+    bone.style.top=bone.y+"px";
+
+    game.appendChild(bone);
+    bones.push(bone);
+}
+
+function updateBones(){
+    for(let i=bones.length-1;i>=0;i--){
+        const b=bones[i];
+
+        b.y+=b.vy;
+        b.x+=b.vx;
+
+        b.style.left=b.x+"px";
+        b.style.top=b.y+"px";
+
+        b.angle += b.rotateSpeed;
+        b.style.transform = `rotate(${b.angle}deg)`;
+
+        if(hit(b)){
+            hp--;
+            document.getElementById("hp").textContent=hp;
+
+            game.removeChild(b);
+            bones.splice(i,1);
+
+            if(hp<=0){
+                gameOver();
+            }
+            continue;
+        }
+
+        if(b.x<-250 || b.x>520 || b.y<-250 || b.y>520){
+            game.removeChild(b);
+            bones.splice(i,1);
+        }
+    }
+
+    // ビームの当たり判定
+    document.querySelectorAll(".beam").forEach(beam=>{
+        const rect = beam.getBoundingClientRect();
+        const gameRect = game.getBoundingClientRect();
+
+        const bx = rect.left - gameRect.left;
+        const by = rect.top - gameRect.top;
+        const bw = rect.width;
+        const bh = rect.height;
+
+        if(
+            px + 24 > bx &&
+            px < bx + bw &&
+            py + 24 > by &&
+            py < by + bh
+        ){
+            hp -= 0.1; // ビームは多段ヒットするためダメージを微調整
+            if(hp < 0) hp = 0;
+            document.getElementById("hp").textContent = Math.ceil(hp);
+
+            if(hp<=0){
+                gameOver();
+            }
+        }
+    });
+}
+
+function hit(b){
+    const bw = b.offsetWidth;
+    const bh = b.offsetHeight;
+    return (
+        px + 24 > b.x &&
+        px < b.x + bw &&
+        py + 24 > b.y &&
+        py < b.y + bh
+    );
+}
+
+function gameOver(){
+    playing=false;
+    clearInterval(beamInterval);
+    alert("GAME OVER\n生存時間："+time+"秒");
+}
+
+// メインループ
+setInterval(()=>{
+    if(!playing)return;
+    updatePlayer();
+    updateBones();
+},16);
+
+// 骨の生成
+setInterval(()=>{
+    if(!playing)return;
+    spawnBone();
+},600);
+
+// タイマーと進行管理
+setInterval(()=>{
+    if(!playing)return;
+
+    time++;
+    document.getElementById("time").textContent=time;
+
+    if(time >= 20 && !blasterStarted){
+        blasterStarted = true;
+        beamInterval = setInterval(()=>{
+            if(playing) startBlasterAttack();
+        },1200); // 難易度調整のため少し間隔を広げました
+    }
+
+    if(time >= 30){
+        playing = false;
+        clearInterval(beamInterval);
+        alert("🎉 CLEAR!\n30秒生き残りました！");
+    }
+},1000);
+
+function restart(){
+    // 既存のオブジェクトを全削除
+    bones.forEach(b=>b.remove());
+    bones=[];
+    document.querySelectorAll(".blaster").forEach(b=>b.remove());
+    document.querySelectorAll(".beam").forEach(b=>b.remove());
+
+    if(beamInterval) clearInterval(beamInterval);
+
+    hp=5;
+    time=0;
+    px=240;
+    py=430;
+    playing=true;
+    blasterStarted = false;
+
+    document.getElementById("hp").textContent=hp;
+    document.getElementById("time").textContent=time;
+    player.style.left=px+"px";
+    player.style.top=py+"px";
+}
+
+// 初期化実行
+restart();
+
+function startBlasterAttack(){
+    const sides = ["top", "bottom", "left", "right"];
+    // 4方向からランダムに2つ選んで発射（全方向同時は回避不可能なため）
+    const chosenSides = sides.sort(() => 0.5 - Math.random()).slice(0, 2);
+    chosenSides.forEach(side => createBlaster(side));
+}
+
+function createBlaster(side){
+    const skull = document.createElement("div");
+    skull.className = "blaster " + side;
+
+    skull.innerHTML = `
+        <div class="eye left"></div>
+        <div class="eye right"></div>
+        <div class="nose"></div>
+        <div class="mouth"></div>
+    `;
+
+    let targetLeft = 0;
+    let targetTop = 0;
+
+    switch(side){
+        case "top":
+            targetLeft = Math.random()*420;
+            targetTop = 0;
+            skull.style.left = targetLeft + "px";
+            skull.style.top = "-70px";
+            break;
+        case "bottom":
+            targetLeft = Math.random()*420;
+            targetTop = 430;
+            skull.style.left = targetLeft + "px";
+            skull.style.top = "500px";
+            break;
+        case "left":
+            targetLeft = 0;
+            targetTop = Math.random()*420;
+            skull.style.left = "-80px";
+            skull.style.top = targetTop + "px";
+            break;
+        case "right":
+            targetLeft = 420;
+            targetTop = Math.random()*420;
+            skull.style.left = "500px";
+            skull.style.top = targetTop + "px";
+            break;
+    }
+
+    game.appendChild(skull);
+
+    // 登場演出（少し内側に入り込む）
+    setTimeout(() => {
+        skull.style.transition = "all 0.3s ease";
+        skull.style.left = targetLeft + "px";
+        skull.style.top = targetTop + "px";
+    }, 50);
+
+    // 1秒後にレーザー発射
+    setTimeout(()=>{
+        if(!playing) { skull.remove(); return; }
+        
+        // 目を光らせる演出
+        skull.querySelectorAll(".eye").forEach(e => e.style.backgroundColor = "cyan");
+
+        // ビームを発射（位置情報を引数で引き渡す）
+        fireBeam(side, targetLeft, targetTop);
+
+        setTimeout(()=>{
+            skull.remove();
+        }, 600);
+    }, 1000);
+}
+
+function fireBeam(side, blasterLeft, blasterTop){
+    const beam = document.createElement("div");
+    beam.className = "beam " + side;
+
+    // ブラスターの口の位置に合わせてビームの初期位置を決定
+    switch(side){
+        case "top":
+            beam.style.left = (blasterLeft + 30) + "px"; // 中央寄せ
+            beam.style.top = "0px";
+            break;
+        case "bottom":
+            beam.style.left = (blasterLeft + 30) + "px";
+            beam.style.top = "0px";
+            break;
+        case "left":
+            beam.style.left = "0px";
+            beam.style.top = (blasterTop + 25) + "px";
+            break;
+        case "right":
+            beam.style.left = "0px";
+            beam.style.top = (blasterTop + 25) + "px";
+            break;
+    }
+
+    game.appendChild(beam);
+
+    setTimeout(()=>{
+        beam.remove();
+    }, 400);
+}
+</script>
+
+</body>
+</html>

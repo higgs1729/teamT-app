@@ -60,6 +60,8 @@
 
 機能名 : 説明
 
+- 簡易RPG: `GAME/game.html` で魔王を倒すとゲームクリア画面を表示し、再挑戦できる。
+
 
 ---
 
@@ -84,45 +86,29 @@
 | ジャンル | ページ | 外部API | 用途 |
 |----------|--------|---------|------|
 | image | dog-api | Dog API (dog.ceo) | 犬の画像・犬種一覧 |
-| image | axolotl | Axolotl API | ウーパールーパーの写真と豆知識を表示 |
-| data | cat-facts-legacy | Cat Facts | 猫に関する豆知識をランダム表示 |
 | data | catfact-ninja | CatFact Ninja | 猫の豆知識を取得 |
 | image | cataas | Cataas | 猫画像をランダム表示 |
-| data | dog-facts-duke | Dog Facts API | 犬の豆知識をランダム表示 |
 | data | dog-facts-kinduff | Dog API | 犬に関する豆知識を取得 |
-| data | fishwatch | FishWatch | 魚種情報と画像を表示 |
 | image | http-dog | HTTP Dog | HTTPステータスコードを犬画像で表示 |
 | data | meowfacts | MeowFacts | 猫の豆知識を取得 |
-| data | movebank | Movebank API | 動物の移動研究データAPIを紹介 |
 | image | placebear | PlaceBear | クマ画像プレースホルダーを表示 |
 | image | placedog | PlaceDog | 犬画像プレースホルダーを表示 |
 | image | randomdog | RandomDog | 犬画像・動画URLをランダム表示 |
-| data | rescuegroups | RescueGroups API | 保護動物・里親募集データAPIの概要 |
-| image | shibe-online | Shibe.Online | 柴犬・猫・鳥のランダム画像を表示 |
-| data | xeno-canto | xeno-canto | 野鳥の録音データを検索して再生 |
 | image | 3D | Three.js GLTF サンプル | ランダムな3Dモデルを読み込み・閲覧 |
 | image | dance-proto | Three.js GLTF サンプル | 3Dモデルのダンスアニメーション再生・切替 |
-| image | oto | Three.js / Web Speech API | 3Dアバターのダンス再生と音声読み上げ |
 | image | cat-api | The Cat API | 猫の画像・猫種データ |
 | image | Fox | RandomFox | キツネ画像 |
 | image | neko | HTTP Cat | HTTPステータスを猫画像で表示 |
-| image | Necos | Nekos.best | ネコミミ画像 |
 | image | Waifu | Waifu.im | アニメキャラ画像 |
-| image | catboys | Catboys API | 画像と fact を取得 |
-| image | waifu-pics | Waifu.pics | SFW の waifu / neko 画像をランダム表示 |
 | image | kamo | Random-d.uk | アヒル画像 |
 | image | food | Wikipedia API | 料理名で画像検索 |
-| image | artic | Art Institute of Chicago API | シカゴ美術館の公開作品を検索して画像付きで表示 |
 | image | colormind | Colormind | AIカラーパレットを生成して配色を確認 |
-| image | colourlovers | ColourLovers | 人気パレットの色見本を表示 |
 | image | dummyimage | DummyImage | サイズと色を指定してダミー画像を生成 |
 | image | emojihub | EmojiHub | カテゴリ付きの絵文字データをランダム取得 |
-| image | icon-horse | Icon Horse | ドメイン名からファビコンを取得 |
 | image | icons8 | Icons8 | Icons8 CDN のアイコンURLを組み立てて表示 |
 | image | lordicon | Lordicon | アニメーションアイコンをプレビュー |
 | image | metmuseum | Metropolitan Museum of Art Collection API | メトロポリタン美術館の作品を検索して表示 |
 | image | php-noise | PHP-Noise | ノイズ背景のパターンを生成して確認 |
-| image | pixel-encounter | Pixel Encounter | ピクセル風モンスターSVGをランダム生成 |
 | image | xcolors | xColors | ランダムカラーと補色系の配色を取得 || data | anime / Jikan | Jikan API | アニメ検索・一覧 |
 | data | anime-news-network | Anime News Network Encyclopedia API | ANN のアニメ記事・レポート見出し一覧 |
 | data | ghibli | Studio Ghibli API | ジブリ作品一覧・詳細 |
@@ -135,41 +121,27 @@
 | data | countrySearch | CountriesNow API | 国名から人口・首都を検索 |
 | data | ziptastic | Ziptastic API | 米国ZIPコードから国・州・都市を検索 |
 | data | domainsdb | DomainsDB API | 登録済みドメイン名をキーワード検索 |
-| data | markerapi | MarkerAPI | USPTO商標データを認証情報入力式で検索 |
-| data | pick-an-agency | Pick an Agency API | サービスと地域からマーケティング代理店を検索 |
-| data | tenders-guru-hu | Tenders Guru API | ハンガリーの公共調達データを取得 |
-| data | tenders-guru-pl | Tenders Guru API | ポーランドの公共調達データを取得 |
-| data | tenders-guru-ro | Tenders Guru API | ルーマニアの公共調達データを取得 |
-| data | tenders-guru-es | Tenders Guru API | スペインの公共調達データを取得 |
-| data | tenders-guru-ua | Tenders Guru API | ウクライナの公共調達データを取得 |
 | data | ip | ローカルサンプルデータ | IPジオロケーション情報の表示サンプル |
 | data | brasilapi | BrasilAPI | CEP(郵便番号)とDDD(市外局番)からブラジルの住所・地域情報を検索 |
 | data | food-hygiene-ratings | Food Hygiene Ratings API | 食品衛生評価の公開データを地域別に探索 |
 | data | open-food-facts | Open Food Facts | 商品名で世界の食品データベースを検索してNutri-Score等を表示 |
 | data | inei-portal | INEI 統計ポータル | INEI のテーマ別統計リンクを検索・参照 |
 | data | bank-negara-malaysia-open-data | Bank Negara Malaysia Open Data | マレーシア中央銀行の公開データポータルを用途別に探索 |
-| data | world-bank | World Bank Indicators API | 国と指標を選んで人口・GDP・平均寿命などの年次推移を取得 |
 | data | interpol-red-notices | Interpol Notices API | Interpol赤手配の人物を条件検索して表示 |
 | data | ibb-open-data | İBB Open Data Portal | İBB公開データをキーワードとカテゴリで検索 |
 | data | kabu | Alpha Vantage | 銘柄コードで株価・騰落率を検索 |
 | data | chainlink | Chainlink Data Feeds | Data Feeds種別と利用イメージを表示 |
 | data | chainpoint | Chainpoint | ハッシュを使ったブロックチェーン証明フローを表示 |
-| data | helium | Helium API | Heliumネットワーク情報APIの取得イメージを表示 |
 | data | steem | Steem JSON-RPC API | Steem内部マーケット情報を取得 |
-| data | twzrd-agent-intel | TWZRD Agent Intel | Solana上のAIエージェント信頼スコア取得をキー入力式で試す |
-| data | walltime | Walltime API | 市場情報APIのレスポンスをカード形式で表示 |
-| data | nasa | NASA APOD | 今日の天体写真 |
 | data | radar | OpenSky Network API | 上空の航空機データを地図に表示 |
 | data | saiba- | Shodan API | IPの公開アセット情報・ポート調査 |
 | data | urlhaus | URLhaus API | URLhaus の recent URLs / payloads を Auth-Key 付きで閲覧 |
-| data | seibetu | Genderize.io | 名前から性別と確率を推定 |
 | data | agify | Agify.io | 名前から推定年齢と参照件数を取得 |
 | data | weather | 気象庁 予報JSON | 都道府県ごとの天気予報を取得 |
 | data | wttr-in | wttr.in | 世界の都市名で現在天気と3日間予報を取得 |
 | data | 24-pull-requests | 24 Pull Requests API | OSS貢献促進サービスのプロジェクト一覧やPR統計を取得 |
 | data | api-gratis | API Grátis | 公式URLの到達状況と仕様確認メモを表示 |
 | data | digitalocean-status | DigitalOcean Status API | DigitalOceanの全体状態とコンポーネント状態を取得 |
-| data | downstatus | DownStatus | 外部サービスの稼働状況確認API候補を表示 |
 | data | host-t-dns | host-t.com | HTTP GETでDNS問い合わせURLを作成し取得を試行 |
 | data | icanhazip | Icanhazip | アクセス元のグローバルIPアドレスを取得 |
 | data | ip-fast | ip-fast.com | IPアドレス・国・都市情報を取得 |
@@ -193,11 +165,9 @@
 | data | utyu | NASA NeoWs | 近地天体(NEO)観測データ |
 | data | wakusei | ローカルデータ(サンプル) | 太陽系の惑星情報 |
 | data | burogu | JSONPlaceholder | ダミー記事のランダム表示 |
-| data | game | RAWG API | 高評価ゲーム一覧 |
 | data | amiibo | AmiiboAPI | Amiibo検索 |
 | data | animal-crossing-new-horizons | Animal Crossing: New Horizons API | 住民や魚・虫・化石の図鑑 |
 | data | astroworld | Astroworld API | Minecraft系データの検索 |
-| data | autochess-vng | Autochess VNG API | 英雄・クラス・種族の図鑑 |
 | data | magic-the-gathering | Magic The Gathering API | MTGカード検索 |
 | data | minecraft-server-status | Minecraft Server Status API | Minecraftサーバーの状態確認 |
 | data | mmo-games | MMOBomb MMO Games API | MMOゲーム・ニュース・配布情報 |
@@ -207,66 +177,42 @@
 | data | bhagavad-gita | Bhagavad Gita telugu API | バガヴァッド・ギーターの詩節をテルグ語・オディア語で検索表示 |
 | data | index | Random User Generator | ランダムなプロフィール生成 |
 | data | Cars | NHTSA Vehicle API / Wikipedia API / Argos Translate | メーカーとモデルを選んで車両情報と画像を検索 |
-| data | Yugio | YGOPRODeck API / MyMemory Translation API | 遊戯王カードを検索して詳細表示 |
-| data | zero-x | 0x API | DEXの価格見積もりやスワップAPIをAPIキー入力式で確認 |
-| data | one-inch | 1inch API | DEX集約APIをBearerキー入力式で確認 |
 | data | alpha-mossland | Alpha by Mossland | 韓国暗号資産チャンネル由来の正規化データを表示 |
-| data | bitcambio | Bitcambio API | ブラジル取引所の公開アセット情報を確認 |
-| data | bitcoincharts | BitcoinCharts | BitcoinChartsのマーケット一覧JSONを表示 |
 | data | block-lottos | Block Lottos | オンチェーン抽選サービスのOpenAPI定義を表示 |
 | data | btcnode-uk | btcnode.uk | Bitcoinデータとx402課金エンドポイントのURLを確認 |
-| data | coincap | CoinCap | 暗号資産の価格・時価総額・取引所データを取得 |
-| data | coindesk-bpi | CoinDesk BPI | Bitcoin Price Index系JSONを確認 |
 | data | coingecko | CoinGecko API | BTC/ETHの複数通貨建て価格を取得 |
 | data | coinlore | CoinLore | 公開ティッカーAPIから価格・出来高を一覧表示 |
 | data | coinpaprika | Coinpaprika | 暗号資産マーケットデータをティッカー形式で表示 |
-| data | coinstats | CoinStats | 暗号資産トラッカーAPIをキー入力式で確認 |
 | data | cryptapi | CryptAPI | 暗号資産決済APIの公開情報エンドポイントを確認 |
 | data | cryptingup | CryptingUp | 取引ペアやマーケットデータを取得 |
-| data | cryptocompare | CryptoCompare | BTC/ETHの価格を複数通貨で比較 |
-| data | cryptonator | Cryptonator | 暗号資産為替レートAPIを確認 |
 | data | gemini | Gemini REST API | Gemini取引所の公開マーケットデータを取得 |
-| data | localbitcoins | LocalBitcoins | 旧P2P取引API資料とサンプルデータを確認 |
 | data | mempool-space | Mempool.space | Bitcoinの推奨手数料を取得 |
 | data | mercado-bitcoin | Mercado Bitcoin | BTC/BRLの公開ティッカーを確認 |
-| data | messari | Messari API | Messariの暗号資産データAPIをキー入力式で確認 |
 | data | nexchange | Nexchange | 自動暗号資産交換サービスの通貨情報を確認 |
 | data | solana-json-rpc | Solana JSON RPC | Solana JSON-RPCへPOSTしてヘルスチェック |
-| data | zmok-ethereum-rpc | ZMOK | Ethereum JSON-RPCプロバイダーURLを入力して確認 |
 | data | ai-dev-jobs | AI Dev Jobs | AI/MLエンジニア求人APIのOpenAPI定義を確認 |
 | data | arbeitnow | Arbeitnow | Europe/Remote求人をキーワードで絞り込んで表示 |
 | data | devitjobs-uk | DevITjobs UK | UK開発者求人のXMLフィードを読み込んで表示 |
-| data | graphql-jobs | GraphQL Jobs | GraphQL求人APIへクエリをPOSTして確認 |
-| data | open-skills | Open Skills | 職種名やスキル名の候補を検索 |
 | data | deepcode-ai | DeepCode AI | AIコードレビューサービスの公開情報を確認 |
-| data | exude-api | EXUDE-API | 英文テキストのストップワード除去を試す |
 | data | not-human-search | Not Human Search | AIツール探索APIのOpenAPI定義を確認 |
-| data | openvisionapi | OpenVisionAPI | 画像URLを渡すコンピュータビジョンAPIを確認 |
 | data | tensorfeed | TensorFeed | AIニュース・モデル情報・サービス状態を取得 |
 | tools | currency_converter | ExchangeRate-API | 通貨換算 |
 | tools | calendar | Public Holidays API | 祝日付きカレンダー表示 |
-| tools | caldays | CalDays API | APIキー入力式の祝日APIリクエスト確認 |
 | tools | church-calendar | Church Calendar API | カトリック典礼暦の日付情報表示 |
-| tools | czech-namedays | Svátky API | チェコ語・スロバキア語の名前日検索 |
 | tools | hebcal-converter | Hebcal Developer APIs | グレゴリオ暦からヘブライ暦への変換 |
 | tools | lectserve | LectServe | プロテスタント系朗読暦の見出し表示 |
 | tools | nager-date | Nager.Date | 国コードと年から世界各国の祝日一覧を取得 |
-| tools | namedays-calendar | International Nameday API | 国別の名前日を月日から検索 |
 | tools | icsdb-non-working-days | icsdb | GitHub上の非稼働日ICSファイル候補を一覧 |
-| tools | isdayoff | isDayOff | 稼働日・休日・短縮日のコード判定 |
 | tools | russian-calendar | work-calendar | ロシア稼働日判定サービス実装例の確認 |
-| tools | the-calendar-api | The Calendar | カレンダーJSONのURL組み立てと取得確認 |
 | tools | uk-bank-holidays | GOV.UK Bank Holidays | 英国地域別バンクホリデーJSON表示 |
 | tools | time | ローカル時刻 | 現在時刻の表示 |
 | tools | kawase | exchangerate.host | 為替レート |
-| tools | QR | QR Server (goQR) | QRコード生成 |
 | tools | file-io | file.io | ファイルや短文の一時共有リンク生成 |
 | tools | fileup | FileUp | 期限と閲覧回数を指定したファイル共有 |
 | tools | pantry | Pantry | JSONをクラウドのバスケットに保存・取得 |
 | tools | null-pointer | The Null Pointer (0x0.st) | ファイルやURLの使い捨て共有リンク生成 |
 | tools | apicagent-checker | ApicAgent | User-Agent文字列から端末情報を解析 |
 | tools | apis-guru-catalog | APIs.guru | 公開API定義の検索・一覧取得 |
-| tools | beeceptor | Beeceptor | モックAPIの送受信テスト |
 | tools | bored-tools | Bored | ランダムな退屈しのぎ提案 |
 | tools | cdnjs-finder | CDNJS | CDN上のライブラリ情報検索 |
 | tools | changelogs-md-checker | Changelogs.md | changelogメタデータの到達性確認 |
@@ -274,20 +220,12 @@
 | tools | codex | CodeX | オンラインコンパイラの公開情報確認 |
 | tools | genngohonnyaku | ローカル辞書(サンプル) | 日本語↔英語の簡易翻訳 |
 | tools | tizu | Leaflet / OpenStreetMap | 地図表示とクリック位置マーカー追加 |
-| tools | zipcode | ZipCloud API | 郵便番号から住所検索 |
 | tools | postman-echo | Postman Echo | GETパラメータを返すテストAPIでリクエスト検証 |
 | tools | purgomalum | PurgoMalum | 入力テキストの不適切語を検出・置換 |
 | tools | beeceptor-echo | Beeceptor HTTP Echo | HTTPリクエストを送信しエコー内容を確認 |
 | tools | brewpage | BrewPage API | HTML投稿で共有URLを取得（失敗時はcurl手順を表示） |
-| tools | ciprand | Ciprand | セキュアなランダム文字列をAPIまたはWeb Cryptoで生成 |
 | tools | passwordinator | Passwordinator | 条件を指定してランダムパスワードを生成 |
-| tools | codex-compiler | CodeX | オンラインコンパイラAPIへのリクエスト形状を確認 |
-| tools | cors-proxy | CORS Proxy | CORS回避用プロキシURLを生成し取得を試行 |
-| tools | countapi | CountAPI | 名前空間とキーでシンプルなカウンターを操作 |
-| tools | extendsclass-json-storage | ExtendsClass JSON Storage | JSON保存API候補を試し、失敗時はlocalStorageに保存 |
-| tools | http2-pro | HTTP2.Pro | 指定URLのHTTP/2対応チェックAPI候補を試行 |
 | tools | httpbin | Httpbin | HTTPリクエスト/レスポンス検証用APIを試す |
-| tools | httpbin-cloudflare | Httpbin Cloudflare | Cloudflare版Httpbin互換API候補でGET echoを確認 |
 | tools | icanhazepoch | Icanhazepoch | 現在のUnix epoch秒を表示 |
 | tools | ifttt-connect | IFTTT Connect API | 認証が必要なConnect APIのリクエスト構造を確認 |
 | tools | image-charts | Image-Charts | URLパラメータで棒グラフ画像を生成 |
@@ -298,7 +236,6 @@
 | tools | quickchart | QuickChart | Chart.js設定からグラフ画像を生成 |
 | tools | json2jsonp | JSON 2 JSONP | JSON URLをJSONP呼び出し用URLへ変換 |
 | tools | keyvalue | Keyvalue | 簡易key-valueストレージAPI候補を試す |
-| tools | kroki | Kroki | Mermaidなどのテキスト図を画像化 |
 | tools | lua-decompiler | Lua Decompiler | Lua 5.1デコンパイラAPI候補のリクエスト形状を確認 |
 | tools | serialif-color | Serialif Color | 色変換・補色・コントラストAPI候補を紹介 |
 | tools | statically | Statically | GitHubや画像URLをCDN配信用URLへ変換 |

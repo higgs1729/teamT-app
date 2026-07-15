@@ -4,7 +4,6 @@ dance-proto.html
 hipum.html
 joke.html
 ohuzake.html
-oto.html
 QR.html
 YesNo.html
 
@@ -18,7 +17,6 @@ password.html
 seibetu.html
 Uselse.html
 Waifu.html
-Yugio.html
 
 
 yasuda

@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>Undertale風 回避ゲーム</title>
+<title>Undertale風 回避ゲーム - 裏ステージ搭載版</title>
 
 <style>
 body{
@@ -15,6 +15,7 @@ body{
     align-items:center;
     height:100vh;
     flex-direction:column;
+    user-select: none;
 }
 
 #ui{
@@ -23,6 +24,15 @@ body{
     justify-content:space-between;
     margin-bottom:10px;
     font-size:20px;
+}
+
+#stage-title {
+    font-weight: bold;
+    color: #fff;
+}
+#stage-title.ura {
+    color: #ff33ff;
+    text-shadow: 0 0 10px #ff33ff;
 }
 
 #game{
@@ -38,6 +48,7 @@ body{
     position:absolute;
     width:24px;
     height:24px;
+    transition: filter 0.1s;
 }
 
 /* ハート本体 */
@@ -63,11 +74,32 @@ body{
     transform-origin:100% 100%;
 }
 
+/* 重力警告テキスト */
+#gravity-warning {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    top: 200px;
+    font-size: 28px;
+    color: #ff3333;
+    font-weight: bold;
+    text-shadow: 0 0 10px #ff0000;
+    display: none;
+    z-index: 20;
+    animation: blink 0.5s infinite alternate;
+}
+
+@keyframes blink {
+    0% { opacity: 0.2; }
+    100% { opacity: 1; }
+}
+
 .bone{
     position:absolute;
     display:flex;
     align-items:center;
     height:20px;
+    transform-origin: center center; 
 }
 
 .boneBody{
@@ -91,10 +123,172 @@ body{
     margin-left:-2px;
 }
 
-button{
-    margin-top:15px;
-    padding:10px 20px;
-    font-size:18px;
+/* 💀 リザルト画面（ゲームオーバー & クリア） */
+#result-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+#result-screen.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+#result-title {
+    font-size: 36px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    letter-spacing: 2px;
+}
+
+#result-title.gameover {
+    color: #ff3333;
+    text-shadow: 0 0 15px #ff0000;
+}
+
+#result-title.clear {
+    color: #ffff33;
+    text-shadow: 0 0 15px #ffff00;
+}
+
+#result-details {
+    font-size: 18px;
+    margin-bottom: 30px;
+    color: #ccc;
+}
+
+.retry-btn {
+    padding: 12px 30px;
+    font-size: 18px;
+    font-weight: bold;
+    color: black;
+    background: white;
+    border: 3px solid white;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.retry-btn:hover {
+    background: black;
+    color: white;
+    border-color: white;
+    box-shadow: 0 0 10px white;
+}
+
+/* 通常ブラスター */
+.blaster{
+    position:absolute;
+    width:80px;
+    height:70px;
+    background:white;
+    border-radius:50% 50% 45% 45%;
+    border:3px solid #ddd;
+    box-sizing:border-box;
+    z-index: 10;
+}
+
+/* 回転発狂ブラスター用 */
+.circle-blaster {
+    position: absolute;
+    width: 60px;
+    height: 50px;
+    background: white;
+    border-radius: 50% 50% 45% 45%;
+    border: 2px solid #ddd;
+    box-sizing: border-box;
+    z-index: 10;
+}
+.circle-blaster .eye { width: 10px; height: 13px; top: 12px; }
+.circle-blaster .eye.left { left: 13px; }
+.circle-blaster .eye.right { right: 13px; }
+.circle-blaster .nose { width: 8px; height: 6px; left: 24px; top: 25px; }
+.circle-blaster .mouth { width: 30px; height: 6px; left: 13px; bottom: 8px; }
+.circle-blaster .mouth::before { box-shadow: 4px 0 white, 8px 0 white, 12px 0 white, 16px 0 white, 20px 0 white; }
+
+/* 自由角度ビーム */
+.custom-beam {
+    position: absolute;
+    background: #00ffff;
+    z-index: 5;
+    transform-origin: center left;
+    box-shadow: 0 0 15px #00ffff;
+}
+
+.beam{
+    position:absolute;
+    background:#00ffff;
+    z-index: 5;
+}
+.beam.top, .beam.bottom{ width:20px; height:500px; }
+.beam.left, .beam.right{ width:500px; height:20px; }
+
+.eye{
+    position:absolute;
+    width:14px;
+    height:18px;
+    background:black;
+    border-radius:50%;
+    top:18px;
+}
+.eye.left{ left:18px; }
+.eye.right{ right:18px; }
+.nose{
+    position:absolute;
+    width:10px;
+    height:8px;
+    background:black;
+    left:32px;
+    top:34px;
+    clip-path:polygon(50% 100%,0 0,100% 0);
+}
+.mouth{
+    position:absolute;
+    width:40px;
+    height:8px;
+    background:black;
+    left:17px;
+    bottom:12px;
+    border-radius:4px;
+}
+.mouth::before{
+    content:"";
+    position:absolute;
+    left:4px;
+    top:0;
+    width:3px;
+    height:8px;
+    background:white;
+    box-shadow: 6px 0 white, 12px 0 white, 18px 0 white, 24px 0 white, 30px 0 white;
+}
+
+/* スライドするカラーレーザー線 */
+.color-line {
+    position: absolute;
+    width: 15px;
+    height: 500px;
+    top: 0;
+    z-index: 4;
+    box-shadow: 0 0 15px currentColor;
+}
+.color-line.orange {
+    background: #ff9900;
+    color: #ff9900;
+}
+.color-line.blue {
+    background: #0066ff;
+    color: #0066ff;
 }
 </style>
 
@@ -102,310 +296,676 @@ button{
 <body>
 
 <div id="ui">
+<div id="stage-title">NORMAL STAGE</div>
 <div>HP：<span id="hp">5</span></div>
 <div>TIME：<span id="time">0</span></div>
 </div>
 
 <div id="game">
+<div id="gravity-warning">WARNING: GRAVITY CHANGE</div>
 <div id="player"></div>
+
+<!-- 🏆 リザルト画面（通常非表示、決着時に表示） -->
+<div id="result-screen">
+    <div id="result-title">GAME OVER</div>
+    <div id="result-details">通常ステージ: 0秒生存</div>
+    <button class="retry-btn" onclick="restart()">もう一度挑戦する</button>
+</div>
 </div>
 
-<button onclick="restart()">リスタート</button>
-
 <script>
-
-/* ===== コイン連携（fronted-v2 のゲーム画面から起動される想定） =====
-   開始処理: 消費コインは COIN_COST（消費処理は親側 game.js が行う）
-   終了処理: 30秒生存(クリア)/HP0(ゲームオーバー)時に親へ game:ended を通知
-             coin 0 = ゲームオーバー / 1以上 = クリア報酬
-   (本番ビルド時は '*' を具体的なURLに差し替える) */
-const COIN_COST = 1;    // 1プレイの消費コイン
-const COIN_REWARD = 2;  // クリア報酬（難易度: 普）
-
-function notifyGameEnded(coin){
-window.parent.postMessage({ type: 'game:ended', coin: coin }, '*');
-}
+// ========================================================
+// 🔧 ゲーム設定エリア
+// ========================================================
+const INITIAL_HP = 100;      // 初期HP
+const PLAYER_SPEED = 4;    // プレイヤーの通常移動速度
+// ========================================================
 
 const game=document.getElementById("game");
 const player=document.getElementById("player");
+const gravityWarning=document.getElementById("gravity-warning");
+const resultScreen=document.getElementById("result-screen");
+const resultTitle=document.getElementById("result-title");
+const resultDetails=document.getElementById("result-details");
 
 let px=240;
 let py=430;
+const speed=PLAYER_SPEED;
 
-const speed=4;
-
-let hp=5;
+let hp=INITIAL_HP;
 let time=0;
 
 let keys={};
-
 let bones=[];
+let colorLines=[];
 
 let playing=true;
+let isUraStage = false; 
+let clearNormal = false; 
+let lastSpaceTime = 0;   
 
-document.addEventListener("keydown",e=>{
-keys[e.key]=true;
-});
+let blasterStarted = false;
+let beamInterval = null;
+let colorLineInterval = null;
+let madnessInterval = null; 
 
-document.addEventListener("keyup",e=>{
-keys[e.key]=false;
+// 重力ギミック用変数
+let hasGravity = false;
+let vy = 0;              
+const GRAVITY = 0.4;     
+const JUMP_FORCE = -7.5; 
+let isGrounded = false;  
+
+// プレイヤーが現在動いているかのフラグ
+let isMoving = false;
+
+document.addEventListener("keydown",e=>{ 
+    // リザルト表示中、またはゲームオーバー中はスペースキーによる挙動をカット
+    if(!playing && !clearNormal) return;
+
+    keys[e.key]=true; 
+    
+    // スペースキー2回で裏ステージ開始
+    if(e.key === " " || e.key === "Spacebar"){
+        if(clearNormal && !isUraStage){
+            const now = Date.now();
+            if(now - lastSpaceTime < 1000){ 
+                startUraStage();
+            }
+            lastSpaceTime = now;
+        }
+    }
 });
+document.addEventListener("keyup",e=>{ keys[e.key]=false; });
 
 function updatePlayer(){
+    if(!playing) return; // プレイ中以外は動かさない
 
-if(keys["ArrowLeft"]||keys["a"])
-px-=speed;
+    let moved = false;
 
-if(keys["ArrowRight"]||keys["d"])
-px+=speed;
+    if (!hasGravity) {
+        if(keys["ArrowLeft"]||keys["a"]||keys["A"]) { px-=speed; moved = true; }
+        if(keys["ArrowRight"]||keys["d"]||keys["D"]) { px+=speed; moved = true; }
+        if(keys["ArrowUp"]||keys["w"]||keys["W"]) { py-=speed; moved = true; }
+        if(keys["ArrowDown"]||keys["s"]||keys["S"]) { py+=speed; moved = true; }
+        py=Math.max(0,Math.min(476,py));
+    } else {
+        if(keys["ArrowLeft"]||keys["a"]||keys["A"]) { px-=speed; moved = true; }
+        if(keys["ArrowRight"]||keys["d"]||keys["D"]) { px+=speed; moved = true; }
 
-if(keys["ArrowUp"]||keys["w"])
-py-=speed;
+        if((keys["ArrowUp"]||keys["w"]||keys["W"]) && isGrounded){
+            vy = JUMP_FORCE;
+            isGrounded = false;
+        }
 
-if(keys["ArrowDown"]||keys["s"])
-py+=speed;
+        vy += GRAVITY;
+        py += vy;
 
-px=Math.max(0,Math.min(482,px));
-py=Math.max(0,Math.min(482,py));
+        if(py >= 476){
+            py = 476;
+            vy = 0;
+            isGrounded = true;
+        }
+    }
 
-player.style.left=px+"px";
-player.style.top=py+"px";
+    isMoving = moved;
+    px=Math.max(0,Math.min(476,px));
 
+    player.style.left=px+"px";
+    player.style.top=py+"px";
+}
+
+function spawnColorLine() {
+    const line = document.createElement("div");
+    const type = Math.random() > 0.5 ? "orange" : "blue";
+    line.className = `color-line ${type}`;
+    
+    const fromLeft = Math.random() > 0.5;
+    line.x = fromLeft ? -20 : 500;
+    line.vx = fromLeft ? 5 : -5;
+    line.type = type;
+    line.hasHit = false;
+
+    line.style.left = line.x + "px";
+    game.appendChild(line);
+    colorLines.push(line);
+}
+
+function updateBonesAndLines(){
+    for(let i=bones.length-1;i>=0;i--){
+        const b=bones[i];
+        b.y+=b.vy; b.x+=b.vx;
+        b.style.left=b.x+"px"; b.style.top=b.y+"px";
+        
+        if (!b.isGravityBone) {
+            b.angle += b.rotateSpeed;
+            b.style.transform = `rotate(${b.angle}deg)`;
+        }
+
+        if(hit(b)){
+            hp--;
+            document.getElementById("hp").textContent=hp;
+            game.removeChild(b);
+            bones.splice(i,1);
+            if(hp<=0) gameOver();
+            continue;
+        }
+        if(b.x<-250 || b.x>520 || b.y<-250 || b.y>520){
+            game.removeChild(b);
+            bones.splice(i,1);
+        }
+    }
+
+    for(let i=colorLines.length-1; i>=0; i--){
+        const line = colorLines[i];
+        line.x += line.vx;
+        line.style.left = line.x + "px";
+
+        const lineWidth = 15;
+        if(px + 24 > line.x && px < line.x + lineWidth) {
+            if(!line.hasHit) {
+                if((line.type === "orange" && !isMoving) || (line.type === "blue" && isMoving)) {
+                    hp -= 1;
+                    line.hasHit = true;
+                    if(hp < 0) hp = 0;
+                    document.getElementById("hp").textContent = hp;
+                    if(hp<=0) gameOver();
+                }
+            }
+        }
+
+        if(line.x < -40 || line.x > 540) {
+            line.remove();
+            colorLines.splice(i, 1);
+        }
+    }
+
+    document.querySelectorAll(".beam").forEach(beam=>{
+        if(beam.hasHit) return;
+
+        const rect = beam.getBoundingClientRect();
+        const gameRect = game.getBoundingClientRect();
+        const bx = rect.left - gameRect.left;
+        const by = rect.top - gameRect.top;
+        const bw = rect.width;
+        const bh = rect.height;
+
+        if(px + 24 > bx && px < bx + bw && py + 24 > by && py < by + bh){
+            hp -= 1;
+            beam.hasHit = true;
+            if(hp < 0) hp = 0;
+            document.getElementById("hp").textContent = hp;
+            if(hp<=0) gameOver();
+        }
+    });
+
+    document.querySelectorAll(".custom-beam").forEach(beam => {
+        if (beam.hasHit) return;
+
+        const bx = parseFloat(beam.style.left);
+        const by = parseFloat(beam.style.top);
+        const angle = beam.angle; 
+        const rad = (angle * Math.PI) / 180;
+        const beamLength = 700; 
+
+        const ax = bx;
+        const ay = by;
+        const x2 = bx + Math.cos(rad) * beamLength;
+        const y2 = by + Math.sin(rad) * beamLength;
+
+        const pcx = px + 12;
+        const pcy = py + 12;
+
+        const abx = x2 - ax;
+        const aby = y2 - ay;
+        const apx = pcx - ax;
+        const apy = pcy - ay;
+
+        const abLenSq = abx * abx + aby * aby;
+        let t = 0;
+        if (abLenSq > 0) {
+            t = (apx * abx + apy * aby) / abLenSq;
+        }
+        t = Math.max(0, Math.min(1, t));
+
+        const closestX = ax + t * abx;
+        const closestY = ay + t * aby;
+
+        const dx = pcx - closestX;
+        const dy = pcy - closestY;
+        const distSq = dx * dx + dy * dy;
+
+        if (distSq < 18 * 18) {
+            hp -= 1;
+            beam.hasHit = true;
+            if(hp < 0) hp = 0;
+            document.getElementById("hp").textContent = hp;
+            if(hp<=0) gameOver();
+        }
+    });
 }
 
 function spawnBone(){
+    const dir = Math.floor(Math.random() * 4);
+    const bone=document.createElement("div");
+    bone.className="bone";
+    bone.innerHTML=`<div class="boneHead left"></div><div class="boneBody"></div><div class="boneHead right"></div>`;
     
-const dir = Math.floor(Math.random() * 4);
-// 0=上 1=下 2=左 3=右
+    const length = 60 + Math.random()*120;
+    bone.length = length;
 
-const bone=document.createElement("div");
-bone.className="bone";
+    if(dir<=1){
+        bone.isHorizontal = true;
+        bone.style.width=length+"px"; bone.style.height="20px";
+        bone.querySelector(".boneBody").style.width=(length-28)+"px";
+    }else{
+        bone.isHorizontal = false;
+        bone.style.width="20px"; bone.style.height=length+"px";
+        bone.style.flexDirection="column";
+        const body=bone.querySelector(".boneBody");
+        body.style.width="10px"; body.style.height=(length-28)+"px";
+    }
 
-bone.innerHTML=`
-<div class="boneHead left"></div>
-<div class="boneBody"></div>
-<div class="boneHead right"></div>
-`;
+    switch(dir){
+        case 0: bone.x=Math.random()*(500-length); bone.y=-20; bone.vx=0; bone.vy=4; break;
+        case 1: bone.x=Math.random()*(500-length); bone.y=520; bone.vx=0; bone.vy=-4; break;
+        case 2: bone.x=-20; bone.y=Math.random()*(500-length); bone.vx=4; bone.vy=0; break;
+        case 3: bone.x=520; bone.y=Math.random()*(500-length); bone.vx=-4; bone.vy=0; break;
+    }
+    bone.angle = 0;
+    bone.rotateSpeed = Math.random() * 6 + 2;
+    bone.style.left=bone.x+"px"; bone.style.top=bone.y+"px";
+    game.appendChild(bone);
+    bones.push(bone);
+}
 
-const length = 60 + Math.random()*120;
-
-if(dir<=1){
-
-    bone.style.width=length+"px";
-    bone.style.height="20px";
-
-    bone.querySelector(".boneBody").style.width=(length-28)+"px";
-
-}else{
-
-    bone.style.width="20px";
-    bone.style.height=length+"px";
-
+function spawnGravityBone(){
+    const bone=document.createElement("div");
+    bone.className="bone";
+    bone.innerHTML=`<div class="boneHead left"></div><div class="boneBody"></div><div class="boneHead right"></div>`;
+    
+    const length = 80 + Math.random() * 60; 
+    bone.length = length;
+    bone.isHorizontal = false;
+    bone.style.width="20px"; bone.style.height=length+"px";
     bone.style.flexDirection="column";
-
     const body=bone.querySelector(".boneBody");
+    body.style.width="10px"; body.style.height=(length-28)+"px";
 
-    body.style.width="10px";
-    body.style.height=(length-28)+"px";
-
-}
-
-switch(dir){
-
-case 0:
-
-    bone.x=Math.random()*(500-length);
-    bone.y=-20;
-
-    bone.vx=0;
-    bone.vy=4;
-
-    bone.angle = 0;
-    bone.rotateSpeed = Math.random() * 6 + 2;
-
-break;
-
-case 1:
-
-    bone.x=Math.random()*(500-length);
-    bone.y=520;
-
-    bone.vx=0;
-    bone.vy=-4;
-
-    bone.angle = 0;
-    bone.rotateSpeed = Math.random() * 6 + 2;
-
-break;
-
-case 2:
-
-    bone.x=-20;
-    bone.y=Math.random()*(500-length);
-
-    bone.vx=4;
-    bone.vy=0;
-
-    bone.angle = 0;
-    bone.rotateSpeed = Math.random() * 6 + 2;
-
-break;
-
-case 3:
-
-    bone.x=520;
-    bone.y=Math.random()*(500-length);
-
-    bone.vx=-4;
-    bone.vy=0;
-
-    bone.angle = 0;
-    bone.rotateSpeed = Math.random() * 6 + 2;
-
-break;
-
-}
-
-bone.style.left=bone.x+"px";
-bone.style.top=bone.y+"px";
-
-game.appendChild(bone);
-
-bones.push(bone);
-
-}
-
-function updateBones(){
-
-for(let i=bones.length-1;i>=0;i--){
-
-const b=bones[i];
-
-b.y+=b.vy;
-b.x+=b.vx;
-
-b.style.left=b.x+"px";
-b.style.top=b.y+"px";
-
-b.angle += b.rotateSpeed;
-
-b.style.transform =
-`rotate(${b.angle}deg)`;
-
-if(hit(b)){
-hp--;
-
-document.getElementById("hp").textContent=hp;
-
-game.removeChild(b);
-bones.splice(i,1);
-
-if(hp<=0){
-
-playing=false;
-
-alert("GAME OVER\n生存時間："+time+"秒");
-
-notifyGameEnded(0);
-
-}
-
-continue;
-
-}
-
-if(
-    b.x<-250 ||
-    b.x>520 ||
-    b.y<-250 ||
-    b.y>520
-){
-
-    game.removeChild(b);
-    bones.splice(i,1);
-
-}
-
-}
-
+    const fromLeft = Math.random() > 0.5;
+    bone.x = fromLeft ? -50 : 520;
+    bone.y = 500 - length; 
+    bone.vx = fromLeft ? 6 : -6;
+    bone.vy = 0;
+    
+    bone.isGravityBone = true; 
+    bone.style.left=bone.x+"px"; bone.style.top=bone.y+"px";
+    game.appendChild(bone);
+    bones.push(bone);
 }
 
 function hit(b){
+    const pr = 10;
+    const pcx = px + 12;
+    const pcy = py + 12;
 
-    const bw = b.offsetWidth;
-    const bh = b.offsetHeight;
+    const bw = b.isHorizontal ? b.length : 20;
+    const bh = b.isHorizontal ? 20 : b.length;
 
-    return (
-        px + 24 > b.x &&
-        px < b.x + bw &&
-        py + 24 > b.y &&
-        py < b.y + bh
-    );
+    const bcx = b.x + bw / 2;
+    const bcy = b.y + bh / 2;
 
+    const rad = (b.angle * Math.PI) / 180;
+    const halfLen = b.length / 2 - 4;
+
+    let dirX = Math.cos(rad);
+    let dirY = Math.sin(rad);
+    if (!b.isHorizontal) {
+        dirX = -Math.sin(rad);
+        dirY = Math.cos(rad);
+    }
+
+    const ax = bcx - dirX * halfLen;
+    const ay = bcy - dirY * halfLen;
+    const bx = bcx + dirX * halfLen;
+    const by = bcy + dirY * halfLen;
+
+    const abx = bx - ax;
+    const aby = by - ay;
+    const apx = pcx - ax;
+    const apy = pcy - ay;
+
+    const abLenSq = abx * abx + aby * aby;
+    let t = 0;
+    if (abLenSq > 0) {
+        t = (apx * abx + apy * aby) / abLenSq;
+    }
+    t = Math.max(0, Math.min(1, t));
+
+    const closestX = ax + t * abx;
+    const closestY = ay + t * aby;
+
+    const dx = pcx - closestX;
+    const dy = pcy - closestY;
+    const distSq = dx * dx + dy * dy;
+
+    const hitRadius = 8 + pr; 
+    return distSq < (hitRadius * hitRadius);
 }
 
+// 💀 ゲームオーバー画面の表示
+function gameOver(){
+    playing=false;
+    clearInterval(beamInterval);
+    clearInterval(colorLineInterval);
+    clearInterval(madnessInterval);
+    if(uraTimer) clearInterval(uraTimer);
+    if(gravitySpawnInterval) clearInterval(gravitySpawnInterval);
+    
+    const modeText = isUraStage ? "裏ステージ" : "通常ステージ";
+    
+    // リザルト画面のテキスト更新と表示
+    resultTitle.textContent = "GAME OVER";
+    resultTitle.className = "gameover";
+    resultDetails.textContent = `[${modeText}] 生存時間：${time}秒`;
+    resultScreen.classList.add("active");
+}
+
+// 🏆 裏ステージ完全クリア画面の表示
+function gameClear(){
+    playing = false;
+    clearInterval(beamInterval);
+    clearInterval(madnessInterval);
+    clearInterval(uraTimer);
+    
+    resultTitle.textContent = "GAME CLEAR";
+    resultTitle.className = "clear";
+    resultDetails.textContent = "裏ステージを1分間生き延びました！真の勝者です！";
+    resultScreen.classList.add("active");
+}
+
+// メインループ
 setInterval(()=>{
-
-if(!playing)return;
-
-updatePlayer();
-
-updateBones();
-
+    if(!playing)return;
+    updatePlayer();
+    updateBonesAndLines();
 },16);
 
+// 骨の自然生成
 setInterval(()=>{
-
-if(!playing)return;
-
-spawnBone();
-
+    if(!playing)return;
+    if(hasGravity) return; 
+    spawnBone();
 },600);
 
-setInterval(()=>{
+// 通常ステージ用進行管理
+let stageTimer = setInterval(()=>{
+    if(!playing || isUraStage) return; 
 
-if(!playing)return;
+    time++;
+    document.getElementById("time").textContent=time;
 
-time++;
+    if(time === 10) {
+        colorLineInterval = setInterval(()=>{
+            if(playing && !isUraStage) spawnColorLine();
+        }, 1500);
+    }
 
-document.getElementById("time").textContent=time;
+    if(time === 20){
+        clearInterval(colorLineInterval);
+        if(!blasterStarted){
+            blasterStarted = true;
+            beamInterval = setInterval(()=>{
+                if(playing && !isUraStage) startBlasterAttack();
+            }, 1200);
+        }
+    }
 
-if(time >= 30){
+    if(time === 25){
+        clearInterval(beamInterval); 
+        startMadnessCircleAttack(); 
+    }
 
-    playing = false;
-
-    alert("🎉 CLEAR!\n30秒生き残りました！");
-
-    notifyGameEnded(COIN_REWARD);
-
-}
-
+    if(time >= 30){
+        playing = false;
+        clearNormal = true; // スペース2回押しの待機状態
+        clearInterval(beamInterval);
+        clearInterval(colorLineInterval);
+        clearInterval(madnessInterval);
+        
+        // ポップアップは即座に裏ステージに移行できるように短い通知に
+        alert("🎉 NORMAL STAGE CLEAR!");
+    }
 },1000);
 
+
+/* =======================================================
+   🔥 裏ステージ進行ロジック
+======================================================= */
+let uraTimer = null;
+let gravitySpawnInterval = null;
+
+function startUraStage() {
+    isUraStage = true;
+    clearNormal = false; // 裏に入ったらノーマルクリア待機を解除
+    playing = true;
+    time = 0;
+    hp = INITIAL_HP; 
+
+    const stageTitle = document.getElementById("stage-title");
+    stageTitle.textContent = "★ URA STAGE ★";
+    stageTitle.className = "ura";
+    document.getElementById("hp").textContent = hp;
+    document.getElementById("time").textContent = time;
+
+    clearAllEntities();
+
+    blasterStarted = true;
+    beamInterval = setInterval(()=>{
+        if(playing && isUraStage && !hasGravity) startBlasterAttack();
+    }, 1200);
+
+    if(uraTimer) clearInterval(uraTimer);
+    uraTimer = setInterval(()=>{
+        if(!playing) return;
+        time++;
+        document.getElementById("time").textContent = time;
+
+        if(time === 30){
+            clearInterval(beamInterval);
+            clearAllEntities();
+
+            hasGravity = true;
+            gravityWarning.style.display = "block";
+
+            gravitySpawnInterval = setInterval(()=>{
+                if(playing && hasGravity) spawnGravityBone();
+            }, 1200);
+        }
+
+        if(time === 43){
+            hasGravity = false;
+            gravityWarning.style.display = "none";
+            clearInterval(gravitySpawnInterval);
+            clearAllEntities();
+
+            beamInterval = setInterval(()=>{
+                if(playing && isUraStage) startBlasterAttack();
+            }, 1100); 
+        }
+
+        if(time === 50){
+            startMadnessCircleAttack();
+        }
+
+        if(time >= 60){
+            gameClear();
+        }
+
+    }, 1000);
+}
+
+function clearAllEntities() {
+    bones.forEach(b=>b.remove()); bones=[];
+    colorLines.forEach(c=>c.remove()); colorLines=[];
+    document.querySelectorAll(".blaster").forEach(b=>b.remove());
+    document.querySelectorAll(".circle-blaster").forEach(b=>b.remove());
+    document.querySelectorAll(".beam").forEach(b=>b.remove());
+    document.querySelectorAll(".custom-beam").forEach(b=>b.remove());
+    document.querySelectorAll(".color-line").forEach(l=>l.remove());
+}
+
+
 function restart(){
+    // リザルト画面を隠す
+    resultScreen.classList.remove("active");
 
-bones.forEach(b=>b.remove());
+    clearAllEntities();
+    if(beamInterval) clearInterval(beamInterval);
+    if(colorLineInterval) clearInterval(colorLineInterval);
+    if(madnessInterval) clearInterval(madnessInterval);
+    if(uraTimer) clearInterval(uraTimer);
+    if(gravitySpawnInterval) clearInterval(gravitySpawnInterval);
 
-bones=[];
+    hp=INITIAL_HP; time=0; px=240; py=430;
+    playing=true; blasterStarted = false; isMoving = false;
+    isUraStage = false;
+    clearNormal = false;
+    hasGravity = false;
+    gravityWarning.style.display = "none";
 
-hp=5;
+    const stageTitle = document.getElementById("stage-title");
+    stageTitle.textContent = "NORMAL STAGE";
+    stageTitle.className = "";
 
-time=0;
-
-px=240;
-py=430;
-
-playing=true;
-
-document.getElementById("hp").textContent=hp;
-document.getElementById("time").textContent=time;
-
-player.style.display = "block";
-
+    document.getElementById("hp").textContent=hp;
+    document.getElementById("time").textContent=time;
+    player.style.left=px+"px"; player.style.top=py+"px";
 }
 
 restart();
 
+function startBlasterAttack(){
+    const sides = ["top", "bottom", "left", "right"];
+    const chosenSides = sides.sort(() => 0.5 - Math.random()).slice(0, 2);
+    chosenSides.forEach(side => createBlaster(side));
+}
+
+function createBlaster(side){
+    const skull = document.createElement("div");
+    skull.className = "blaster " + side;
+    skull.innerHTML = `<div class="eye left"></div><div class="eye right"></div><div class="nose"></div><div class="mouth"></div>`;
+
+    let targetLeft = 0; let targetTop = 0;
+    switch(side){
+        case "top": targetLeft = Math.random()*420; targetTop = 0; skull.style.left = targetLeft + "px"; skull.style.top = "-70px"; break;
+        case "bottom": targetLeft = Math.random()*420; targetTop = 430; skull.style.left = targetLeft + "px"; skull.style.top = "500px"; break;
+        case "left": targetLeft = 0; targetTop = Math.random()*420; skull.style.left = "-80px"; skull.style.top = targetTop + "px"; break;
+        case "right": targetLeft = 420; targetTop = Math.random()*420; skull.style.left = "500px"; skull.style.top = targetTop + "px"; break;
+    }
+    game.appendChild(skull);
+
+    setTimeout(() => {
+        skull.style.transition = "all 0.3s ease";
+        skull.style.left = targetLeft + "px"; skull.style.top = targetTop + "px";
+    }, 50);
+
+    setTimeout(()=>{
+        if(!playing) { skull.remove(); return; }
+        skull.querySelectorAll(".eye").forEach(e => e.style.backgroundColor = "cyan");
+        fireBeam(side, targetLeft, targetTop);
+        setTimeout(()=>{ skull.remove(); }, 600);
+    }, 1000);
+}
+
+function fireBeam(side, blasterLeft, blasterTop){
+    const beam = document.createElement("div");
+    beam.className = "beam " + side;
+    beam.hasHit = false;
+
+    switch(side){
+        case "top": beam.style.left = (blasterLeft + 30) + "px"; beam.style.top = "0px"; break;
+        case "bottom": beam.style.left = (blasterLeft + 30) + "px"; beam.style.top = "0px"; break;
+        case "left": beam.style.left = "0px"; beam.style.top = (blasterTop + 25) + "px"; break;
+        case "right": beam.style.left = "0px"; beam.style.top = (blasterTop + 25) + "px"; break;
+    }
+    game.appendChild(beam);
+    setTimeout(()=>{ beam.remove(); }, 400);
+}
+
+let currentMadnessAngle = 0;
+
+function startMadnessCircleAttack(){
+    currentMadnessAngle = 0;
+    madnessInterval = setInterval(()=>{
+        if(!playing) return;
+        spawnMadnessBlaster(currentMadnessAngle);
+        currentMadnessAngle += 40; 
+    }, 250);
+}
+
+function spawnMadnessBlaster(angleDegree){
+    const centerGameX = 250;
+    const centerGameY = 250;
+    const radius = 180; 
+
+    const rad = (angleDegree * Math.PI) / 180;
+    const bx = centerGameX + Math.cos(rad) * radius - 30; 
+    const by = centerGameY + Math.sin(rad) * radius - 25; 
+
+    const skull = document.createElement("div");
+    skull.className = "circle-blaster";
+    skull.innerHTML = `<div class="eye left"></div><div class="eye right"></div><div class="nose"></div><div class="mouth"></div>`;
+    
+    const faceAngle = angleDegree + 180;
+    skull.style.transform = `rotate(${faceAngle}deg)`;
+    
+    const spawnDistance = radius + 80;
+    const startX = centerGameX + Math.cos(rad) * spawnDistance - 30;
+    const startY = centerGameY + Math.sin(rad) * spawnDistance - 25;
+
+    skull.style.left = startX + "px";
+    skull.style.top = startY + "px";
+    game.appendChild(skull);
+
+    setTimeout(() => {
+        skull.style.transition = "all 0.2s ease-out";
+        skull.style.left = bx + "px";
+        skull.style.top = by + "px";
+    }, 20);
+
+    setTimeout(()=>{
+        if(!playing) { skull.remove(); return; }
+        skull.querySelectorAll(".eye").forEach(e => e.style.backgroundColor = "cyan");
+
+        fireMadnessBeam(bx + 30, by + 25, faceAngle);
+
+        setTimeout(()=>{
+            skull.style.opacity = "0";
+            skull.style.transform += " scale(0.8)";
+            setTimeout(() => skull.remove(), 200);
+        }, 300);
+    }, 450);
+}
+
+function fireMadnessBeam(fromX, fromY, angleDegree){
+    const beam = document.createElement("div");
+    beam.className = "custom-beam";
+    beam.hasHit = false;
+    beam.angle = angleDegree; 
+
+    beam.style.width = "700px"; 
+    beam.style.height = "16px";
+    beam.style.left = fromX + "px";
+    beam.style.top = (fromY - 8) + "px"; 
+    beam.style.transform = `rotate(${angleDegree}deg)`;
+
+    game.appendChild(beam);
+
+    setTimeout(()=>{
+        beam.remove();
+    }, 300);
+}
 </script>
 
 </body>

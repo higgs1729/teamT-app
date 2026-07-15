@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ダックスフントアドベンチャー</title>
+
+<!-- レトロゲーム風フォント -->
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+<style>
+body {
+    margin:0;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background: linear-gradient(#87ceeb, #e0f7fa);
+    font-family: 'Press Start 2P', cursive;
+}
+
+.container{
+    text-align:center;
+}
+
+h1 {
+    margin:10px 0;
+    font-size:26px;
+    color:#fff;
+    text-shadow:
+        0 0 5px #fff,
+        0 0 10px #ff9800,
+        0 0 20px #ff5722;
+}
+
+.info {
+    font-size:12px;
+    color:#333;
+    margin-bottom:12px;
+}
+
+#game {
+    display:block;
+    margin:10px auto;
+    border-radius:20px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.4);
+    background:#87ceeb;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+    <h1>🐶 のびドッグ</h1>
+    <p class="info">← → ↑ ↓ で移動 / Rでリセット</p>
+    <canvas id="game"></canvas>
+</div>
+
+<script>
+const GRID = 60;
+
+const MAP = [
+"...HWW...G",
+"BBBB.....B",
+"B..B.....B",
+"B....A...B",
+"BBBB...BBB"
+];
+
+const ROWS = MAP.length;
+const COLS = MAP[0].length;
+
+const canvas = document.getElementById("game");
+canvas.width = COLS * GRID;
+canvas.height = ROWS * GRID;
+const ctx = canvas.getContext("2d");
+
+let stage, worm, apple, goal, grow, cleared, gameover;
+let isFalling = false; // 落下中フラグ（落下中の操作を防止）
+let anim = 0;
+
+function init(){
+    stage = Array(ROWS).fill().map(()=>Array(COLS).fill(0));
+    worm = [];
+    grow = 0;
+    cleared = false;
+    gameover = false;
+    isFalling = false;
+
+    for(let y=0;y<ROWS;y++){
+        for(let x=0;x<COLS;x++){
+            let c = MAP[y][x];
+
+            if(c==="B") stage[y][x]=1;
+            if(c==="A") apple={x,y};
+            if(c==="G") goal={x,y};
+
+            if(c==="H"){
+                worm = [
+                    {x:x, y:y},
+                    {x:x-1, y:y},
+                    {x:x-2, y:y}
+                ];
+            }
+        }
+    }
+}
+
+window.addEventListener("keydown",e=>{
+    if(e.key==="r") {
+        init();
+        return;
+    }
+    
+    // ゲームクリア、ゲームオーバー、または落下アニメーション中は操作を受け付けない
+    if(cleared || gameover || isFalling) return;
+
+    let dx=0,dy=0;
+    if(e.key==="ArrowUp") dy=-1;
+    if(e.key==="ArrowDown") dy=1;
+    if(e.key==="ArrowLeft") dx=-1;
+    if(e.key==="ArrowRight") dx=1;
+
+    if(dx||dy) move(dx,dy);
+});
+
+function hitBody(x,y){
+    return worm.some(p=>p.x===x && p.y===y);
+}
+
+function move(dx,dy){
+    let nx = worm[0].x + dx;
+    let ny = worm[0].y + dy;
+
+    if(nx<0||ny<0||nx>=COLS||ny>=ROWS) return;
+    if(stage[ny][nx]===1) return;
+    if(hitBody(nx,ny)) return;
+
+    worm.unshift({x:nx,y:ny});
+
+    if(nx===apple.x && ny===apple.y){
+        apple={x:-1,y:-1};
+        grow += 2;
+    }
+
+    if(grow>0){
+        grow--;
+    }else{
+        worm.pop();
+    }
+
+    // 重力チェックの開始
+    checkGravity();
+
+    if(nx===goal.x && ny===goal.y && !isFalling){
+        cleared=true;
+    }
+}
+
+// 落下チェック
+function checkGravity(){
+    let canFall = true;
+
+    for(let p of worm){
+        // 体がすでに画面外（奈落）に出ていたら、地面判定をスキップ
+        if(p.y >= ROWS){
+            continue;
+        }
+
+        // 下がステージ外の場合は「落ちる」と判定
+        if(p.y + 1 >= ROWS){
+            continue;
+        }
+
+        // 地面、または骨の上なら止まる
+        if(stage[p.y+1][p.x] === 1 || (p.x === apple.x && p.y+1 === apple.y)){
+            canFall = false;
+            break;
+        }
+    }
+
+    if(canFall){
+        isFalling = true;
+        
+        // 1マスの落下に少しウェイト（約100ms）を設けてアニメーションさせる
+        setTimeout(() => {
+            // 全パーツを1段落とす
+            for(let p of worm){
+                p.y++;
+            }
+
+            // すべてのパーツが画面下（ROWS）を超えたらゲームオーバー
+            let allFallen = worm.every(p => p.y >= ROWS);
+            if(allFallen){
+                gameover = true;
+                isFalling = false;
+                return;
+            }
+
+            // さらに落ちるか再帰チェック
+            checkGravity();
+        }, 100);
+    } else {
+        isFalling = false;
+        
+        // 落下が完了した時点でゴールにいればクリア判定
+        if(worm[0].x === goal.x && worm[0].y === goal.y){
+            cleared = true;
+        }
+    }
+}
+
+function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    // 地面
+    ctx.fillStyle="#4caf50";
+    for(let y=0;y<ROWS;y++){
+        for(let x=0;x<COLS;x++){
+            if(stage[y][x]===1){
+                ctx.fillRect(x*GRID,y*GRID,GRID,GRID);
+            }
+        }
+    }
+
+    // 家
+    ctx.fillStyle="#ffccbc";
+    ctx.fillRect(goal.x*GRID+10,goal.y*GRID+20,GRID-20,GRID-15);
+
+    ctx.fillStyle="#ff4081";
+    ctx.beginPath();
+    ctx.moveTo(goal.x*GRID+5,goal.y*GRID+20);
+    ctx.lineTo(goal.x*GRID+GRID/2,goal.y*GRID+5);
+    ctx.lineTo(goal.x*GRID+GRID-5,goal.y*GRID+20);
+    ctx.closePath();
+    ctx.fill();
+
+    // 骨
+    if(apple.x>=0){
+        let offset = Math.sin(anim/10)*5;
+        ctx.fillStyle="white";
+        ctx.fillRect(apple.x*GRID+15,apple.y*GRID+25+offset,30,8);
+        ctx.fillRect(apple.x*GRID+5,apple.y*GRID+20+offset,15,15);
+        ctx.fillRect(apple.x*GRID+40,apple.y*GRID+20+offset,15,15);
+    }
+
+    // 犬
+    worm.forEach((p,i)=>{
+        // 画面外のパーツは描画しない
+        if(p.y >= ROWS) return;
+
+        let bounce = Math.sin((anim+i*5)/10)*3;
+
+        ctx.fillStyle = i===0 ? "#3e2723" : "#8d6e63";
+        ctx.fillRect(p.x*GRID+4,p.y*GRID+4+bounce,GRID-8,GRID-8);
+
+        if(i===0){
+            ctx.fillStyle="white";
+            ctx.beginPath();
+            ctx.arc(p.x*GRID+20,p.y*GRID+20+bounce,7,0,Math.PI*2);
+            ctx.arc(p.x*GRID+40,p.y*GRID+20+bounce,7,0,Math.PI*2);
+            ctx.fill();
+
+            ctx.fillStyle="black";
+            ctx.beginPath();
+            ctx.arc(p.x*GRID+20,p.y*GRID+20+bounce,3,0,Math.PI*2);
+            ctx.arc(p.x*GRID+40,p.y*GRID+20+bounce,3,0,Math.PI*2);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(p.x*GRID+30,p.y*GRID+35+bounce,4,0,Math.PI*2);
+            ctx.fill();
+        }
+    });
+
+    // クリア画面
+    if(cleared){
+        ctx.fillStyle="rgba(0,0,0,0.7)";
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+
+        ctx.fillStyle="#fff";
+        ctx.font="40px 'Press Start 2P'";
+        ctx.textAlign = "center";
+        ctx.fillText("CLEAR!",canvas.width/2,canvas.height/2 + 10);
+    }
+
+    // ゲームオーバー画面
+    if(gameover){
+        ctx.fillStyle="rgba(0,0,0,0.7)";
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+
+        ctx.fillStyle="#f44336";
+        ctx.font="32px 'Press Start 2P'";
+        ctx.textAlign = "center";
+        ctx.fillText("GAME OVER",canvas.width/2,canvas.height/2 - 10);
+
+        ctx.fillStyle="#fff";
+        ctx.font="12px 'Press Start 2P'";
+        ctx.fillText("PRESS 'R' TO RESTART",canvas.width/2,canvas.height/2 + 30);
+    }
+}
+
+function loop(){
+    anim++;
+    draw();
+    requestAnimationFrame(loop);
+}
+
+init();
+loop();
+</script>
+
+</body>
+</html>

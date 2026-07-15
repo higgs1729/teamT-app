@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API Viewer</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#f2f2f2;
+}
+
+/* ヘッダー */
+header{
+    background:#1976d2;
+    color:#fff;
+    text-align:center;
+    padding:15px;
+}
+
+/* 全体 */
+.container{
+    display:flex;
+    height:calc(100vh - 60px);
+}
+
+/*=========================
+  API一覧
+=========================*/
+.sidebar{
+    width:250px;
+    height: 700px;              /* APIを7件表示 */
+    background:#fff;
+    border-right:1px solid #ccc;
+}
+
+.sidebar-content{
+    width:100%;
+    height:100%;
+    overflow-y:auto;
+    overflow-x:hidden;
+}
+
+/* スクロールバー */
+.sidebar-content::-webkit-scrollbar{
+    width:8px;
+}
+
+.sidebar-content::-webkit-scrollbar-track{
+    background:#f1f1f1;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb{
+    background:#888;
+    border-radius:5px;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb:hover{
+    background:#555;
+}
+
+/* API項目 */
+.api-item{
+    height:100px;
+    display:flex;
+    align-items:center;
+    padding:0 20px;
+    font-size:22px;
+    font-weight:bold;
+    border-bottom:1px solid #ddd;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.api-item:hover{
+    background:#1976d2;
+    color:#fff;
+}
+
+/*=========================
+  メイン画面
+=========================*/
+.main{
+    flex:1;
+    display:flex;
+}
+
+/*=========================
+  APIレスポンス
+=========================*/
+.response{
+    flex:1;
+    padding:20px;
+    overflow:auto;
+}
+
+.response h3{
+    margin-bottom:10px;
+}
+
+.response pre{
+    background:#222;
+    color:#00ff66;
+    padding:20px;
+    border-radius:8px;
+    height:calc(100vh - 140px);
+    overflow:auto;
+    font-family:Consolas,monospace;
+    font-size:14px;
+    line-height:1.6;
+}
+
+/*=========================
+  API詳細
+=========================*/
+.detail{
+    width:350px;
+    background:#fff;
+    border-left:1px solid #ccc;
+    padding:20px;
+    overflow-y:auto;
+}
+
+.detail h3{
+    margin-bottom:10px;
+}
+</style>
+
+</head>
+<body>
+
+<header>
+<h2>API一覧</h2>
+</header>
+
+<div class="container">
+
+    <div class="sidebar">
+        <div id="sidebar" class="sidebar-content"></div>
+    </div>
+
+    <div class="main">
+
+        <div class="response">
+            <h3>APIレスポンス</h3>
+            <pre id="json">APIを選択してください。</pre>
+        </div>
+
+        <div class="detail">
+            <h3>API詳細</h3>
+            <div id="detail">
+                APIを選択すると説明が表示されます。
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+const apiList = {
+
+FunFact:{
+url:"https://uselessfacts.jsph.pl/api/v2/facts/random",
+description:"<h2>Fun Fact API</h2><p>ランダムな雑学を取得</p>"
+},
+
+JokeAPI:{
+url:"https://v2.jokeapi.dev/joke/Any",
+description:"<h2>Joke API</h2><p>ランダムジョーク取得</p>"
+},
+
+Imgflip:{
+url:"https://api.imgflip.com/get_memes",
+description:"<h2>Imgflip API</h2><p>ミーム画像一覧取得</p>"
+},
+
+Foodish:{
+url:"https://foodish-api.com/api/",
+description:"<h2>Foodish API</h2><p>ランダムな料理画像取得</p>"
+},
+
+Users:{
+url:"https://jsonplaceholder.typicode.com/users",
+description:"<h2>Users API</h2><p>ユーザー情報取得</p>"
+},
+
+Posts:{
+url:"https://jsonplaceholder.typicode.com/posts",
+description:"<h2>Posts API</h2><p>投稿情報取得</p>"
+},
+
+Todos:{
+url:"https://jsonplaceholder.typicode.com/todos",
+description:"<h2>Todos API</h2><p>Todo情報取得</p>"
+},
+
+Albums:{
+url:"https://jsonplaceholder.typicode.com/albums",
+description:"<h2>Albums API</h2><p>アルバム情報取得</p>"
+},
+
+Photos:{
+url:"https://jsonplaceholder.typicode.com/photos",
+description:"<h2>Photos API</h2><p>写真情報取得</p>"
+},
+
+Comments:{
+url:"https://jsonplaceholder.typicode.com/comments",
+description:"<h2>Comments API</h2><p>コメント情報取得</p>"
+}
+
+};
+// API一覧を作成
+const sidebar=document.getElementById("sidebar");
+
+for(const key in apiList){
+
+    const div=document.createElement("div");
+    div.className="api-item";
+    div.textContent="📄 "+key;
+    div.onclick=function(){
+        loadApi(key);
+    };
+
+    sidebar.appendChild(div);
+}
+
+async function loadApi(name){
+
+    const api=apiList[name];
+
+    document.getElementById("detail").innerHTML=api.description;
+
+    try{
+
+        const res=await fetch(api.url);
+        const json=await res.json();
+
+        document.getElementById("json").textContent=
+        JSON.stringify(json,null,4);
+
+    }catch(e){
+
+        document.getElementById("json").textContent="API取得失敗";
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>

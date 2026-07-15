@@ -173,24 +173,37 @@
   /* ============================================================
      6. UI: ゲーム画面（コイン確認 + ゲーム一覧）
      ============================================================ */
-  function renderGameList() {
-    const grid = document.getElementById("game-list-grid");
-    if (!grid) return;
-    const short = state.coins < CONFIG.playCost;
-    grid.innerHTML = CONFIG.games.map((g, i) => `
-      <div class="game-card">
-        <div class="game-card-icon"><i class="ti ${g.icon}"></i></div>
-        <div class="game-card-body">
-          <div class="game-card-title">${g.title}</div>
-          <div class="game-card-meta">難易度: ${g.difficulty} ／ 報酬: ${g.reward}枚</div>
+/* ============================================================
+   6. UI: ゲーム画面 & ショップ画面（コイン確認 + 一覧表示）
+   ============================================================ */
+
+// 6-1. ゲーム一覧の描画（デザイン刷新版）
+function renderGameList() {
+  const grid = document.getElementById("game-list-grid");
+  if (!grid) return;
+  const short = state.coins < CONFIG.playCost;
+  
+  grid.innerHTML = CONFIG.games.map((g, i) => `
+    <div class="game-card">
+      <div class="game-card-badge">${g.difficulty}</div>
+      <div class="game-card-icon"><i class="ti ${g.icon}"></i></div>
+      <div class="game-card-body">
+        <div class="game-card-title">${g.title}</div>
+        <div class="game-card-meta">
+          <i class="ti ti-gift"></i> 最大 <span>${g.reward}</span> 枚獲得
         </div>
-        <button class="game-btn game-play-btn" data-game="${i}" ${short ? "disabled" : ""}>
-          <i class="ti ti-coins"></i> ${CONFIG.playCost}枚
-        </button>
-      </div>`).join("");
-    const note = document.getElementById("game-coin-short");
-    if (note) note.style.display = short ? "block" : "none";
-  }
+      </div>
+      <button class="game-btn game-play-btn" data-game="${i}" ${short ? "disabled" : ""}>
+        <span>START</span>
+        <span class="btn-cost"><i class="ti ti-coins"></i>${CONFIG.playCost}</span>
+      </button>
+    </div>`).join("");
+    
+  const note = document.getElementById("game-coin-short");
+  if (note) note.style.display = short ? "block" : "none";
+}
+
+
 
   function openGameScreen() {
     renderCoins();

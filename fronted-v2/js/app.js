@@ -574,3 +574,5 @@
 
   init();
 })();
+
+localStorage.clear();

@@ -1,0 +1,342 @@
+    <!DOCTYPE html>
+    <html lang="ja">
+    <head>
+    <meta charset="UTF-8">
+    <title>Triple Tile 完成版</title>
+
+    <style>
+    body{
+    font-family:sans-serif;
+    text-align:center;
+    background:linear-gradient(135deg,#89f7fe,#66a6ff);
+    }
+
+    /* メイン枠 */
+    #game{
+    width:420px;
+    height:420px;
+    margin:20px auto;
+    position:relative;
+    border-radius:15px;
+    background:rgba(255,255,255,0.15);
+    backdrop-filter:blur(10px);
+    border:2px solid rgba(255,255,255,0.3);
+    overflow:hidden;
+    }
+
+    /* タイル */
+    .tile{
+    width:50px;
+    height:50px;
+    font-size:24px;
+    position:absolute;
+    cursor:pointer;
+    border-radius:10px;
+
+    background:linear-gradient(145deg,#ffffff,#dcdcdc);
+    box-shadow:4px 4px 10px rgba(0,0,0,0.2),
+                -2px -2px 6px rgba(255,255,255,0.5);
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    transition:0.2s;
+    }
+
+    .tile.active{
+    transform:scale(1.2);
+    }
+
+    .tile.blocked{
+    opacity:0.4;
+    pointer-events:none;
+    }
+
+    /* 手元 */
+    #selected{
+    margin-top:20px;
+    min-height:80px;
+    border:2px dashed rgba(255,255,255,0.6);
+    border-radius:10px;
+    padding:10px;
+    background:rgba(255,255,255,0.1);
+    }
+
+    .selectedTile{
+    width:50px;
+    height:50px;
+    font-size:24px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    margin:5px;
+    border-radius:10px;
+    background:linear-gradient(145deg,#ffffff,#dcdcdc);
+    }
+
+    /* オーバーレイ */
+    .overlay{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.6);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    }
+
+    .hidden{display:none;}
+
+    .popup{
+    padding:30px;
+    border-radius:20px;
+    font-size:30px;
+    color:white;
+    }
+
+    .clear{
+    background:linear-gradient(45deg,#00c9ff,#92fe9d);
+    animation:pop 0.5s;
+    }
+
+    .gameover{
+    background:linear-gradient(45deg,#ff4e50,#8b0000);
+    animation:pop 0.5s;
+    }
+
+    @keyframes pop{
+    0%{transform:scale(0.5);opacity:0;}
+    100%{transform:scale(1);}
+    }
+
+    button{
+    margin:5px;
+    padding:10px 15px;
+    }
+    </style>
+    </head>
+
+    <body>
+
+    <h2>🐾 Triple Tile 🐾</h2>
+
+    <div id="game"></div>
+
+    <div id="selected"></div>
+
+    <button id="shuffleBtn" onclick="shuffle()">🔄シャッフル</button>
+    <button id="undoBtn" onclick="undo()">↩戻す</button>
+
+    <!-- クリア -->
+    <div id="clear" class="overlay hidden">
+    <div class="popup clear">
+        🎉 CLEAR 🎉<br>
+        <button onclick="restart()">次へ</button>
+    </div>
+    </div>
+
+    <!-- ゲームオーバー -->
+    <div id="gameover" class="overlay hidden">
+    <div class="popup gameover">
+        💀 GAME OVER 💀<br>
+        <button onclick="restart()">リトライ</button>
+    </div>
+    </div>
+
+    <script>
+    const icons=["🐶","🐱","🐰","🦊","🐻","🐼","🍎","🍌","🍇","🍓"];
+
+    let tiles=[];
+    let selected=[];
+    let history=[];
+
+    let shuffleUsed=false;
+    let undoUsed=false;
+
+    /* 初期化 */
+    function init(){
+    const game=document.getElementById("game");
+    game.innerHTML="";
+    tiles=[];
+    selected=[];
+    history=[];
+    shuffleUsed=false;
+    undoUsed=false;
+
+    document.getElementById("shuffleBtn").disabled=false;
+    document.getElementById("undoBtn").disabled=false;
+
+    let list=[];
+
+    // ★30タイル
+    for(let i=0;i<10;i++){
+        let icon=icons[i%icons.length];
+        list.push(icon,icon,icon);
+    }
+
+    list.sort(()=>Math.random()-0.5);
+
+    list.forEach((icon,i)=>{
+        let tile=document.createElement("div");
+        tile.className="tile";
+        tile.textContent=icon;
+
+        let layer=Math.floor(i/10);
+
+        tile.style.left=(Math.random()*300 + layer*10)+"px";
+        tile.style.top =(Math.random()*300 + layer*10)+"px";
+        tile.style.zIndex=layer;
+
+        tile.onclick=()=>clickTile(tile);
+
+        game.appendChild(tile);
+        tiles.push(tile);
+    });
+
+    updateBlock();
+    }
+
+    /* 重なり判定 */
+    function updateBlock(){
+    tiles.forEach(a=>{
+        a.classList.remove("blocked");
+
+        tiles.forEach(b=>{
+        if(b!==a && b.style.zIndex>a.style.zIndex){
+
+            let ax=a.offsetLeft;
+            let ay=a.offsetTop;
+            let bx=b.offsetLeft;
+            let by=b.offsetTop;
+
+            if(
+            ax < bx + 45 &&
+            ax + 45 > bx &&
+            ay < by + 45 &&
+            ay + 45 > by
+            ){
+            a.classList.add("blocked");
+            }
+        }
+        });
+    });
+    }
+
+    /* クリック */
+    function clickTile(tile){
+    if(tile.classList.contains("blocked")) return;
+
+    history.push({
+        selected:[...selected],
+        tile:{
+        icon:tile.textContent,
+        left:tile.style.left,
+        top:tile.style.top,
+        z:tile.style.zIndex
+        }
+    });
+
+    tile.classList.add("active");
+    setTimeout(()=>tile.classList.remove("active"),200);
+
+    selected.push(tile.textContent);
+    tile.remove();
+    tiles=tiles.filter(t=>t!==tile);
+
+    updateSelected();
+    checkMatch();
+    updateBlock();
+
+    if(selected.length>=7){
+        document.getElementById("gameover").classList.remove("hidden");
+    }
+    }
+
+    /* 手元 */
+    function updateSelected(){
+    let area=document.getElementById("selected");
+    area.innerHTML="";
+    selected.forEach(i=>{
+        let d=document.createElement("div");
+        d.className="selectedTile";
+        d.textContent=i;
+        area.appendChild(d);
+    });
+    }
+
+    /* 揃った */
+    function checkMatch(){
+    let count={};
+    selected.forEach(i=>count[i]=(count[i]||0)+1);
+
+    for(let k in count){
+        if(count[k]>=3){
+        selected=selected.filter(i=>i!==k);
+        updateSelected();
+
+        if(tiles.length===0){
+            document.getElementById("clear").classList.remove("hidden");
+        }
+        }
+    }
+    }
+
+    /* シャッフル（1回） */
+    function shuffle(){
+    if(shuffleUsed) return;
+    shuffleUsed=true;
+
+    tiles.forEach(t=>{
+        t.style.left=(Math.random()*300)+"px";
+        t.style.top =(Math.random()*300)+"px";
+    });
+
+    updateBlock();
+    document.getElementById("shuffleBtn").disabled=true;
+    }
+
+    /* 戻す（元位置復元） */
+    function undo(){
+    if(undoUsed) return;
+    if(history.length===0) return;
+
+    undoUsed=true;
+
+    let last=history.pop();
+
+    selected=last.selected;
+    updateSelected();
+
+    let tile=document.createElement("div");
+    tile.className="tile";
+    tile.textContent=last.tile.icon;
+
+    tile.style.left=last.tile.left;
+    tile.style.top =last.tile.top;
+    tile.style.zIndex=last.tile.z;
+
+    tile.onclick=()=>clickTile(tile);
+
+    document.getElementById("game").appendChild(tile);
+    tiles.push(tile);
+
+    updateBlock();
+
+    document.getElementById("undoBtn").disabled=true;
+    }
+
+    /* リスタート */
+    function restart(){
+    document.getElementById("clear").classList.add("hidden");
+    document.getElementById("gameover").classList.add("hidden");
+    init();
+    }
+
+    init();
+    </script>
+
+    </body>
+    </html>

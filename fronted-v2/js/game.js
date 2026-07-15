@@ -434,14 +434,65 @@
       openOverlay("char-overlay");
     });
 
-    // ステージのクリア（現在ステージのセルクリック）
+    //　ステージクリックで対応するゲームをゲーム用iframeに読み込む。ハッシュ更新で履歴に残す。
+    // ゲーム用iframeはステージ画面の上に重ねて表示する。ゲーム終了後はステージ画面に戻る。
+    //ゲームは 現在は固定でburroku.html を読み込む。
+    function renderGame(stageNum) {
+      // ゲームプレビュー用のオーバーレイと iframe を遅延生成（再利用可能）
+      let ov = document.getElementById("game-preview-overlay");
+      if (!ov) {
+        ov = document.createElement("div");
+        ov.id = "game-preview-overlay";
+        ov.className = "game-overlay";
+        ov.innerHTML = `
+          <div class="game-preview-shell" style="position:fixed;inset:0;display:flex;align-items:stretch;justify-content:center;">
+            <button class="game-close" data-close="game-preview-overlay" style="position:absolute;top:12px;right:12px;z-index:1010"><i class="ti ti-x"></i></button>
+            <iframe id="game-preview-iframe" style="flex:1;width:100%;height:100%;border:0;background:#fff;" title="Game Preview"></iframe>
+          </div>`;
+        document.body.appendChild(ov);
+
+        // 閉じる操作をフックしてゲーム終了処理（ステージクリア）を行う
+        let handledClose = false;
+        const iframe = () => document.getElementById("game-preview-iframe");
+        function handleGameClosed() {
+          if (handledClose) return; handledClose = true;
+          const ifr = iframe(); if (ifr) ifr.src = "";
+          const rune = clearCurrentStage();
+          renderStages();
+          renderCharacterButton();
+          if (rune) showRuneReward(rune);
+        }
+
+        // iframe 側から postMessage で終了通知できるよう対応
+        window.addEventListener("message", (ev) => {
+          try {
+            if (ev && ev.data && ev.data.type === "game:ended") {
+              ov.classList.remove("open");
+              handleGameClosed();
+            }
+          } catch (e) { /* ignore */ }
+        });
+      }
+
+      // iframe にステージに対応するゲームを読み込む（現状は固定）
+      const ifr = document.getElementById("game-preview-iframe");
+      if (ifr) ifr.src = "../GAME/burroku.html";
+      ov.classList.add("open");
+
+      // ハッシュに残して履歴に残す（戻る操作で閉じることを想定）ことはせずゲームクリアかゲームオーバーで戻す
+      // try { location.hash = `#game-${stageNum}`; } catch (e) { /* ignore */ }
+    }
+
+    // ステージのセルクリック
     document.getElementById("stage-grid").addEventListener("click", (e) => {
       const cell = e.target.closest("[data-stage]");
       if (!cell) return;
-      const rune = clearCurrentStage();
-      renderStages();
-      renderCharacterButton();
-      if (rune) showRuneReward(rune);
+      renderGame(cell.dataset.stage);
+    
+      // const rune = clearCurrentStage();
+      // renderStages();
+      // renderCharacterButton();
+      // if (rune) showRuneReward(rune);
     });
 
     // ルーン獲得: 枠クリックで装備 / 受け取らない

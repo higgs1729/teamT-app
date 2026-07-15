@@ -27,7 +27,13 @@
       "PowerShell(\\(Get-Command npm -ErrorAction SilentlyContinue\\).Source; \\(Get-Command node -ErrorAction SilentlyContinue\\).Source)",
       "PowerShell(Get-ChildItem \"C:\\\\Program Files\\\\nodejs\" -ErrorAction SilentlyContinue | Select-Object -First 3; Get-ChildItem \"$env:APPDATA\\\\npm\" -ErrorAction SilentlyContinue | Select-Object -First 3; Get-ChildItem \"C:\\\\Program Files \\(x86\\)\\\\nodejs\" -ErrorAction SilentlyContinue | Select-Object -First 3)",
       "PowerShell($env:PATH = [System.Environment]::GetEnvironmentVariable\\(\"PATH\",\"Machine\"\\) + \";\" + [System.Environment]::GetEnvironmentVariable\\(\"PATH\",\"User\"\\); node -v; npm -v)",
-      "Bash(npx --version)"
+      "Bash(npx --version)",
+      "Bash(ls docs/)",
+      "Bash(grep -n -c \"\" README.md)",
+      "Bash(node \"C:/Users/253207/AppData/Local/Temp/claude/C--Users-253207-Desktop-teamT-app/9dce1570-e5e1-42c3-ac49-0770dc3ff3e3/scratchpad/del.js\")",
+      "Bash(node \"C:/Users/253207/AppData/Local/Temp/claude/C--Users-253207-Desktop-teamT-app/9dce1570-e5e1-42c3-ac49-0770dc3ff3e3/scratchpad/spec.js\")",
+      "Bash(node -e \"global.window={}; require\\('./fronted-v2/js/catalog.js'\\); const c=window.CATALOG; console.log\\('entries:',c.length\\); const dead=['axolotl','coincap','kroki','qr','beeceptor','open-skills','nasa','zipcode'].filter\\(id=>c.some\\(e=>e.id===id\\)\\); console.log\\('still-present\\(should be empty\\):',dead\\); const ids=c.map\\(e=>e.id\\); console.log\\('dup ids:', ids.filter\\(\\(v,i\\)=>ids.indexOf\\(v\\)!==i\\)\\);\")",
+      "Bash(node -e \"global.window={}; require\\('./fronted-v2/js/catalog.js'\\); const c=window.CATALOG; console.log\\('entries:',c.length\\); console.log\\('present:', ['oto','yugio'].filter\\(id=>c.some\\(e=>e.id===id\\)\\)\\);\")"
     ]
   }
 }

@@ -147,18 +147,6 @@
     </div>
 
     <script>
-    /* ===== コイン連携（fronted-v2 のゲーム画面から起動される想定） =====
-       開始処理: 消費コインは COIN_COST（消費処理は親側 game.js が行う）
-       終了処理: クリア/ゲームオーバー時に親へ game:ended を通知
-                 coin 0 = ゲームオーバー / 1以上 = クリア報酬
-       (本番ビルド時は '*' を具体的なURLに差し替える) */
-    const COIN_COST = 1;    // 1プレイの消費コイン
-    const COIN_REWARD = 1;  // クリア報酬（難易度: 易）
-
-    function notifyGameEnded(coin){
-    window.parent.postMessage({ type: 'game:ended', coin: coin }, '*');
-    }
-
     const icons=["🐶","🐱","🐰","🦊","🐻","🐼","🍎","🍌","🍇","🍓"];
 
     let tiles=[];
@@ -264,7 +252,6 @@
 
     if(selected.length>=7){
         document.getElementById("gameover").classList.remove("hidden");
-        notifyGameEnded(0);
     }
     }
 
@@ -292,7 +279,6 @@
 
         if(tiles.length===0){
             document.getElementById("clear").classList.remove("hidden");
-            notifyGameEnded(COIN_REWARD);
         }
         }
     }

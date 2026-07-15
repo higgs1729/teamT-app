@@ -205,18 +205,6 @@
     
     <div id="board"></div>
 <script>
-/* ===== コイン連携（fronted-v2 のゲーム画面から起動される想定） =====
-   開始処理: 消費コインは COIN_COST（消費処理は親側 game.js が行う）
-   終了処理: パズル完成(クリア)時に親へ game:ended を通知
-             ※失敗が存在しないゲームのためゲームオーバー通知(coin 0)は無し
-   (本番ビルド時は '*' を具体的なURLに差し替える) */
-const COIN_COST = 1;    // 1プレイの消費コイン
-const COIN_REWARD = 2;  // クリア報酬（難易度: 普）
-
-function notifyGameEnded(coin){
-    window.parent.postMessage({ type: 'game:ended', coin: coin }, '*');
-}
-
 const board = document.getElementById("board");
 const shuffleBtn = document.getElementById("shuffleBtn");
 const sizeSelect = document.getElementById("sizeSelect");
@@ -379,8 +367,6 @@ function checkClear(){
 
     移動回数：${moveCount}回`
     );
-
-    notifyGameEnded(COIN_REWARD);
 }
 
 //----------------------

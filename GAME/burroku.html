@@ -172,18 +172,6 @@ button{
 
 <script>
 
-/* ===== コイン連携（fronted-v2 のゲーム画面から起動される想定） =====
-   開始処理: 消費コインは COIN_COST（消費処理は親側 game.js が行う）
-   終了処理: クリア/ゲームオーバー/手動終了時に親へ game:ended を通知
-             coin 0 = ゲームオーバー / 1以上 = クリア報酬（選択難易度に応じる）
-   (本番ビルド時は '*' を具体的なURLに差し替える) */
-const COIN_COST = 1;  // 1プレイの消費コイン
-const COIN_REWARD_BY_DIFFICULTY = { Easy: 1, Normal: 2, Hard: 3 };
-
-function notifyGameEnded(coin){
-    window.parent.postMessage({ type: 'game:ended', coin: coin }, '*');
-}
-
 let difficultyName = "";
 let score = 0;
 let blockPoint = 1;
@@ -375,6 +363,7 @@ function collision(){
     if(remain===0){
 
         clearGame();
+        endGame();
 
     }
 
@@ -404,13 +393,10 @@ function clearGame(){
 
     showRanking();
 
-    notifyGameEnded(COIN_REWARD_BY_DIFFICULTY[difficultyName] || 1);
-
 }
-// 「ゲーム終了」ボタンからの手動終了はゲームオーバー扱い（coin 0）
 function endGame() {
     alert("ゲーム終了");
-    notifyGameEnded(0);
+    window.parent.postMessage({ type: 'game:ended' }, '*');
 }
 
 //=====================
@@ -458,8 +444,6 @@ function update(){
         gameRunning = false;
 
         alert("ゲームオーバー");
-
-        notifyGameEnded(0);
 
         location.reload();
 

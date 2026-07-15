@@ -1,21 +1,28 @@
 /* ============================================================
    fronted-v2 / game.css
-   ログイン中に遊べるゲーム要素のスタイル（本体ロジックは js/game.js）。
+   ゲーム要素（コイン制）のスタイル（本体ロジックは js/game.js）。
    既存の style.css のテーマ変数（--accent 等）をそのまま利用する。
 
    index:
-     1. ヘッダーの進捗バー（APIページ内のクリックで経験値を貯める）
-     2. サイドバーのキャラクターボタン
+     1. ヘッダー（コイン表示・進捗バー）
+     2. サイドバーのゲームボタン
      3. 汎用オーバーレイ / モーダル（ゲーム用）
-     4. 経験値・レベルアップ ポップアップ
-     5. キャラクター画面（ステータス / ルーン）
-     6. ステージ画面
-     7. ルーン獲得ポップアップ
+     4. コイン獲得・結果ポップアップ
+     5. ゲーム画面（コイン確認 + ゲーム一覧）
    ============================================================ */
 
 /* ============================================================
-   1. ヘッダーの進捗バー
+   1. ヘッダー（コイン表示・進捗バー）
    ============================================================ */
+.hdr-coin {
+  display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;
+  padding: 4px 12px; border-radius: 999px;
+  font-size: 12.5px; font-weight: 700;
+  color: var(--accent); background: var(--accent-soft);
+}
+.hdr-coin i { font-size: 15px; }
+[data-theme="dark"] .hdr-coin { color: var(--accent-mid); }
+
 .hdr-progress { display: none; align-items: center; gap: 10px; flex: 1; max-width: 360px; margin-left: 4px; }
 .hdr-progress.show { display: flex; }
 .hdr-progress-label { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
@@ -28,22 +35,16 @@
 }
 
 /* ============================================================
-   2. サイドバーのキャラクターボタン（アカウントボタンの上）
+   2. サイドバーのゲームボタン（アカウントボタンの上）
    ============================================================ */
-.character-btn {
+.game-open-btn {
   display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
   padding: 9px 10px; border-radius: 10px; border: 1px solid transparent;
   background: transparent; color: var(--text-secondary); cursor: pointer;
   font-family: inherit; font-size: 13px; transition: background 0.15s, color 0.15s;
 }
-.character-btn:hover { background: var(--bg-card); color: var(--text-primary); }
-.character-btn i { font-size: 18px; width: 20px; text-align: center; flex-shrink: 0; }
-.character-btn span:not(.char-lv) { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.character-btn .char-lv {
-  margin-left: auto; flex-shrink: 0; font-size: 10.5px; font-weight: 700;
-  color: var(--accent); background: var(--accent-soft); padding: 2px 8px; border-radius: 999px;
-}
-[data-theme="dark"] .character-btn .char-lv { color: var(--accent-mid); }
+.game-open-btn:hover { background: var(--bg-card); color: var(--text-primary); }
+.game-open-btn i { font-size: 18px; width: 20px; text-align: center; flex-shrink: 0; }
 
 /* ============================================================
    3. 汎用オーバーレイ / モーダル（ゲーム用）
@@ -79,113 +80,54 @@
 .game-btn.ghost:hover { color: var(--text-primary); border-color: var(--text-muted); opacity: 1; }
 
 /* ============================================================
-   4. 経験値・レベルアップ ポップアップ
+   4. コイン獲得・結果ポップアップ
    ============================================================ */
-.xp-modal { text-align: center; width: 420px; }
-.xp-icon {
+.coin-modal { text-align: center; width: 420px; }
+.coin-icon {
   width: 66px; height: 66px; margin: 4px auto 16px; border-radius: 18px;
   display: flex; align-items: center; justify-content: center; font-size: 34px;
   color: var(--accent); background: var(--accent-soft);
 }
-[data-theme="dark"] .xp-icon { color: var(--accent-mid); }
-.xp-gain { font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
-.xp-levelup {
-  display: none; font-size: 20px; font-weight: 800; color: var(--accent); margin: 6px 0 2px;
-  letter-spacing: 0.04em;
-}
-.xp-levelup.show { display: block; animation: xp-pop 0.5s ease; }
-[data-theme="dark"] .xp-levelup { color: var(--accent-mid); }
-@keyframes xp-pop { 0%{transform:scale(0.6);opacity:0} 60%{transform:scale(1.15)} 100%{transform:scale(1);opacity:1} }
-.xp-lv-row { display: flex; align-items: center; justify-content: space-between; margin: 18px 0 6px; font-size: 12.5px; color: var(--text-secondary); }
-.xp-lv-badge { font-weight: 700; color: var(--text-primary); }
-.xp-bar-track { height: 12px; border-radius: 7px; background: var(--border-color); overflow: hidden; }
-.xp-bar-fill { height: 100%; width: 0; border-radius: 7px; background: var(--accent); transition: width 0.6s ease; }
-.xp-bar-val { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+[data-theme="dark"] .coin-icon { color: var(--accent-mid); }
+.coin-gain { font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+.coin-gain-sub { font-size: 12.5px; color: var(--text-muted); }
+.coin-gain-total { font-size: 13px; font-weight: 600; color: var(--accent); margin-top: 10px; }
+[data-theme="dark"] .coin-gain-total { color: var(--accent-mid); }
 
 /* ============================================================
-   5. キャラクター画面（ステータス / ルーン）
+   5. ゲーム画面（コイン確認 + ゲーム一覧）
    ============================================================ */
-.char-name-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-.char-avatar {
-  width: 52px; height: 52px; border-radius: 14px; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center; font-size: 26px;
-  color: #fff; background: var(--accent);
+.game-coin-row {
+  display: flex; align-items: baseline; gap: 6px; margin: 6px 0 2px;
+  color: var(--accent); font-weight: 800;
 }
-[data-theme="dark"] .char-avatar { color: var(--bg-base); }
-.char-name-input {
-  flex: 1; background: var(--bg-base); border: 1px solid var(--border-color); border-radius: 9px;
-  padding: 9px 12px; color: var(--text-primary); font-family: inherit; font-size: 14px; font-weight: 600; outline: none;
+[data-theme="dark"] .game-coin-row { color: var(--accent-mid); }
+.game-coin-row i { font-size: 22px; align-self: center; }
+.game-coin-count { font-size: 28px; }
+.game-coin-unit { font-size: 13px; color: var(--text-secondary); font-weight: 600; }
+
+.game-list-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.game-card {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px;
+  padding: 12px;
 }
-.char-name-input:focus { border-color: var(--accent); }
-.char-lv-tag { flex-shrink: 0; font-size: 12px; font-weight: 700; color: var(--accent); }
-[data-theme="dark"] .char-lv-tag { color: var(--accent-mid); }
-
-.stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-.stat-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 14px; }
-.stat-label { font-size: 11.5px; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
-.stat-label i { font-size: 15px; color: var(--accent); }
-[data-theme="dark"] .stat-label i { color: var(--accent-mid); }
-.stat-value { font-size: 20px; font-weight: 800; color: var(--text-primary); margin-top: 5px; }
-.stat-bonus { font-size: 11px; color: var(--accent); margin-top: 2px; min-height: 14px; }
-[data-theme="dark"] .stat-bonus { color: var(--accent-mid); }
-
-.section-label { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
-.rune-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
-.rune-slot {
-  aspect-ratio: 1 / 1; border-radius: 12px; border: 1px dashed var(--border-color);
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
-  background: var(--bg-base); text-align: center; padding: 6px;
-}
-.rune-slot.filled { border-style: solid; border-color: var(--accent); background: var(--accent-soft); }
-[data-theme="dark"] .rune-slot.filled { border-color: var(--accent-mid); }
-.rune-slot i { font-size: 22px; color: var(--text-hint); }
-.rune-slot.filled i { color: var(--accent); }
-[data-theme="dark"] .rune-slot.filled i { color: var(--accent-mid); }
-.rune-stat { font-size: 11px; font-weight: 700; color: var(--text-primary); }
-.rune-pct { font-size: 11px; color: var(--accent); font-weight: 700; }
-[data-theme="dark"] .rune-pct { color: var(--accent-mid); }
-.rune-empty-txt { font-size: 10px; color: var(--text-hint); }
-
-/* ============================================================
-   6. ステージ画面
-   ============================================================ */
-.stage-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 8px; }
-.stage-cell {
-  position: relative; aspect-ratio: 1 / 1; border-radius: 12px; cursor: default;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
-  background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-secondary);
-  font-family: inherit; transition: border-color 0.15s, background 0.15s;
-}
-.stage-cell .stage-no { font-size: 18px; font-weight: 800; color: var(--text-primary); }
-.stage-cell .stage-tag { font-size: 10px; }
-.stage-cell.cleared { border-color: var(--accent); background: var(--accent-soft); }
-[data-theme="dark"] .stage-cell.cleared { border-color: var(--accent-mid); }
-.stage-cell.cleared .stage-check { color: var(--accent); font-size: 15px; }
-[data-theme="dark"] .stage-cell.cleared .stage-check { color: var(--accent-mid); }
-.stage-cell.current { cursor: pointer; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
-.stage-cell.current:hover { background: var(--accent-soft); }
-.stage-cell.locked { opacity: 0.5; }
-.stage-cell.boss { border-style: dashed; }
-.stage-cell.boss .stage-no { color: var(--accent); }
-[data-theme="dark"] .stage-cell.boss .stage-no { color: var(--accent-mid); }
-.stage-boss-mark { position: absolute; top: 5px; right: 6px; font-size: 13px; color: var(--accent); }
-[data-theme="dark"] .stage-boss-mark { color: var(--accent-mid); }
-.stage-complete { font-size: 13px; font-weight: 700; color: var(--accent); text-align: center; padding: 8px 0; }
-[data-theme="dark"] .stage-complete { color: var(--accent-mid); }
-
-/* ============================================================
-   7. ルーン獲得ポップアップ
-   ============================================================ */
-.rune-reward { text-align: center; }
-.rune-reward-icon {
-  width: 64px; height: 64px; margin: 4px auto 14px; border-radius: 16px;
-  display: flex; align-items: center; justify-content: center; font-size: 32px;
+.game-card-icon {
+  width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 22px;
   color: var(--accent); background: var(--accent-soft);
 }
-[data-theme="dark"] .rune-reward-icon { color: var(--accent-mid); }
-.rune-reward-desc { font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
-.rune-reward-sub { font-size: 12.5px; color: var(--text-muted); margin-bottom: 18px; }
-.rune-reward-slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 8px; }
-.rune-reward-slots .rune-slot { cursor: pointer; }
-.rune-reward-slots .rune-slot:hover { border-color: var(--accent); }
-.rune-reward-actions { display: flex; justify-content: center; gap: 10px; margin-top: 14px; }
+[data-theme="dark"] .game-card-icon { color: var(--accent-mid); }
+.game-card-body { flex: 1; min-width: 0; }
+.game-card-title {
+  font-size: 13px; font-weight: 700; color: var(--text-primary);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.game-card-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.game-play-btn { flex-shrink: 0; padding: 8px 12px; font-size: 12px; }
+
+.game-coin-short { font-size: 12px; color: var(--text-muted); margin-top: 12px; }
+
+@media (max-width: 600px) {
+  .game-list-grid { grid-template-columns: 1fr; }
+}

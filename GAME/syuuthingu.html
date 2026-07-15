@@ -176,6 +176,18 @@
     </div>
 
     <script>
+        /* ===== コイン連携（fronted-v2 のゲーム画面から起動される想定） =====
+           開始処理: 消費コインは COIN_COST（消費処理は親側 game.js が行う）
+           終了処理: 生存クリア/死亡(ゲームオーバー)時に親へ game:ended を通知
+                     coin 0 = ゲームオーバー / 1以上 = クリア報酬
+           (本番ビルド時は '*' を具体的なURLに差し替える) */
+        const COIN_COST = 1;    // 1プレイの消費コイン
+        const COIN_REWARD = 3;  // クリア報酬（難易度: 難）
+
+        function notifyGameEnded(coin) {
+            window.parent.postMessage({ type: 'game:ended', coin: coin }, '*');
+        }
+
         // --- ゲーム状態管理 ---
         let gameActive = false;
         let hp = 100;
@@ -608,6 +620,8 @@
             startMenu.style.display = 'none';
             resultsMenu.style.display = 'block';
             overlay.style.display = 'flex';
+
+            notifyGameEnded(isClear ? COIN_REWARD : 0);
         }
 
         // --- メインゲームループ ---

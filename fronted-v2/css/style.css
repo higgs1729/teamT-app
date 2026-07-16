@@ -404,6 +404,87 @@ button { font-family: inherit; }
 .opt-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; border: 1px solid rgb(125 125 125 / 0.35); }
 
 /* ============================================================
+   外観パネル — テーマ/アクセント（react-shadcn studio-portfolio/settings-page.tsx の
+   ThemePreview / AccentPreview 相当）
+   ============================================================ */
+.appearance-block { margin-top: 24px; }
+.appearance-block:first-of-type { margin-top: 0; }
+.appearance-block + .appearance-block { border-top: 1px solid var(--border); padding-top: 20px; }
+.appearance-block-title { font-size: 14px; font-weight: 600; color: var(--foreground); }
+.appearance-block-desc { font-size: 13px; color: var(--muted-foreground); margin-top: 4px; margin-bottom: 4px; line-height: 1.6; }
+
+/* --- テーマ: ミニプレビュー付きカード（ThemePreview相当） --- */
+.theme-preview-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 12px; max-width: 360px; }
+.theme-preview-card {
+  border: 1px solid var(--border); border-radius: var(--radius-md); padding: 8px;
+  background: var(--background); cursor: pointer; text-align: left;
+  transition: border-color 0.15s, background 0.15s;
+}
+.theme-preview-card:hover { background: var(--muted); }
+.theme-preview-card.active {
+  border-color: var(--primary);
+  background: color-mix(in oklab, var(--primary) 5%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--primary) 30%, transparent);
+}
+.theme-preview-swatch {
+  position: relative; display: block; height: 80px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); overflow: hidden;
+}
+.theme-preview-swatch-light { background: #f4f4f5; }
+.theme-preview-swatch-dark { background: #27272a; }
+.theme-preview-bar { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 56px; height: 4px; border-radius: 999px; background: #a1a1aa; }
+.theme-preview-swatch-dark .theme-preview-bar { background: #52525b; }
+.theme-preview-window { position: absolute; inset: 28px 12px 8px; border-radius: var(--radius-sm); background: #ffffff; }
+.theme-preview-swatch-dark .theme-preview-window { background: #f4f4f5; }
+.theme-preview-line { position: absolute; left: 20px; height: 4px; border-radius: 999px; background: color-mix(in oklab, var(--muted-foreground) 30%, transparent); }
+.theme-preview-line-1 { top: 36px; width: 36px; }
+.theme-preview-line-2 { top: 48px; width: 56px; }
+.theme-preview-label { display: block; margin-top: 8px; text-align: center; font-size: 13px; font-weight: 500; color: var(--foreground); }
+
+/* --- アクセント: 選択チップ列 --- */
+.accent-chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.accent-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 32px; padding: 0 14px; border-radius: var(--radius-md); cursor: pointer;
+  font-family: inherit; font-size: 12.5px; font-weight: 500;
+  color: var(--foreground); background: var(--background); border: 1px solid var(--border);
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+}
+.accent-chip:hover { background: var(--muted); }
+.accent-chip.active { color: var(--primary-foreground); background: var(--primary); border-color: var(--primary); }
+.accent-chip-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+
+/* --- アクセント: 反映プレビュー（AccentPreview相当）。色は --primary から自動追従 --- */
+.accent-preview-card {
+  margin-top: 20px; max-width: 420px;
+  border: 1px solid var(--border); border-radius: var(--radius-md);
+  background: var(--background); overflow: hidden;
+}
+.accent-preview-head { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--border); }
+.accent-preview-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); flex-shrink: 0; }
+.accent-preview-bar { height: 8px; width: 80px; border-radius: 999px; background: var(--muted); }
+.accent-preview-bar-sm { width: 32px; margin-left: auto; }
+.accent-preview-body { display: grid; grid-template-columns: 80px 1fr; }
+.accent-preview-side {
+  display: flex; flex-direction: column; gap: 8px; padding: 12px;
+  border-right: 1px solid var(--border);
+  background: color-mix(in oklab, var(--muted) 40%, transparent);
+}
+.accent-preview-line { height: 8px; border-radius: 999px; background: color-mix(in oklab, var(--muted-foreground) 25%, transparent); }
+.accent-preview-line-active { background: var(--primary); }
+.accent-preview-main { display: flex; flex-direction: column; gap: 12px; padding: 12px; }
+.accent-preview-row { display: flex; align-items: center; justify-content: space-between; }
+.accent-preview-col { display: flex; flex-direction: column; gap: 6px; }
+.accent-preview-title-bar { height: 8px; width: 96px; border-radius: 999px; background: color-mix(in oklab, var(--foreground) 70%, transparent); }
+.accent-preview-sub-bar { height: 6px; width: 144px; border-radius: 999px; background: color-mix(in oklab, var(--muted-foreground) 25%, transparent); }
+.accent-preview-button { height: 20px; width: 56px; border-radius: var(--radius-sm); background: var(--primary); }
+.accent-preview-input {
+  height: 28px; border-radius: var(--radius-sm); border: 1px solid var(--primary);
+  background: color-mix(in oklab, var(--primary) 10%, transparent);
+}
+.accent-preview-caption { padding: 8px 12px; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted-foreground); }
+
+/* ============================================================
    8. サイドバー開閉 / レスポンシブ
       JS は .app-window に .sidebar-collapsed を付け外しするだけ（変更禁止）。
       デスクトップ: offcanvas — サイドバーを左へスライドさせ、メインが全幅に

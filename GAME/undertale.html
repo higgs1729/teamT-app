@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>Undertale風 回避ゲーム - 裏ステージ搭載版</title>
+<title>Undertale風 回避ゲーム - 四隅安置完全対策版</title>
 
 <style>
 body{
@@ -94,6 +94,32 @@ body{
     100% { opacity: 1; }
 }
 
+/* ⏱ カウントダウン表示 */
+#countdown-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 80px;
+    font-weight: bold;
+    color: #ffff33;
+    text-shadow: 0 0 20px #ffaa00;
+    z-index: 90;
+    pointer-events: none;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+}
+
+#countdown-overlay.show {
+    opacity: 1;
+    transform: scale(1);
+}
+
 .bone{
     position:absolute;
     display:flex;
@@ -123,7 +149,7 @@ body{
     margin-left:-2px;
 }
 
-/* 💀 リザルト画面（ゲームオーバー & クリア） */
+/* 🏆 シンプルなリザルト画面 */
 #result-screen {
     position: absolute;
     top: 0;
@@ -138,7 +164,7 @@ body{
     z-index: 100;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.5s ease;
+    transition: opacity 0.4s ease;
 }
 
 #result-screen.active {
@@ -147,9 +173,9 @@ body{
 }
 
 #result-title {
-    font-size: 36px;
+    font-size: 38px;
     font-weight: bold;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
     letter-spacing: 2px;
 }
 
@@ -164,9 +190,9 @@ body{
 }
 
 #result-details {
-    font-size: 18px;
-    margin-bottom: 30px;
-    color: #ccc;
+    font-size: 20px;
+    margin-bottom: 35px;
+    color: #eee;
 }
 
 .retry-btn {
@@ -187,7 +213,7 @@ body{
     box-shadow: 0 0 10px white;
 }
 
-/* 通常ブラスター */
+/* 通常・斜めブラスター（顔を共通規格化して崩れを防ぐ） */
 .blaster{
     position:absolute;
     width:80px;
@@ -217,7 +243,7 @@ body{
 .circle-blaster .mouth { width: 30px; height: 6px; left: 13px; bottom: 8px; }
 .circle-blaster .mouth::before { box-shadow: 4px 0 white, 8px 0 white, 12px 0 white, 16px 0 white, 20px 0 white; }
 
-/* 自由角度ビーム */
+/* 自由角度ビーム (斜め攻撃・発狂用) */
 .custom-beam {
     position: absolute;
     background: #00ffff;
@@ -226,13 +252,15 @@ body{
     box-shadow: 0 0 15px #00ffff;
 }
 
+/* 通常のビーム (幅を55pxから半分の「28px」に調整) */
 .beam{
     position:absolute;
     background:#00ffff;
     z-index: 5;
+    box-shadow: 0 0 15px #00ffff;
 }
-.beam.top, .beam.bottom{ width:20px; height:500px; }
-.beam.left, .beam.right{ width:500px; height:20px; }
+.beam.top, .beam.bottom{ width:28px; height:500px; }
+.beam.left, .beam.right{ width:500px; height:28px; }
 
 .eye{
     position:absolute;
@@ -303,13 +331,14 @@ body{
 
 <div id="game">
 <div id="gravity-warning">WARNING: GRAVITY CHANGE</div>
+<div id="countdown-overlay"></div>
 <div id="player"></div>
 
-<!-- 🏆 リザルト画面（通常非表示、決着時に表示） -->
+<!-- 🏆 シンプルなリザルト画面 -->
 <div id="result-screen">
     <div id="result-title">GAME OVER</div>
-    <div id="result-details">通常ステージ: 0秒生存</div>
-    <button class="retry-btn" onclick="restart()">もう一度挑戦する</button>
+    <div id="result-details">0秒生存</div>
+    <button class="retry-btn" onclick="triggerRestart()">もう一度挑戦する</button>
 </div>
 </div>
 
@@ -317,29 +346,35 @@ body{
 // ========================================================
 // 🔧 ゲーム設定エリア
 // ========================================================
-const INITIAL_HP = 100;      // 初期HP
-const PLAYER_SPEED = 4;    // プレイヤーの通常移動速度
+const NORMAL_HP = 5;       
+const NORMAL_SPEED = 4;    
+
+const URA_HP = 15;          
+const URA_SPEED = 5;       
 // ========================================================
 
 const game=document.getElementById("game");
 const player=document.getElementById("player");
 const gravityWarning=document.getElementById("gravity-warning");
+const countdownOverlay=document.getElementById("countdown-overlay");
 const resultScreen=document.getElementById("result-screen");
 const resultTitle=document.getElementById("result-title");
 const resultDetails=document.getElementById("result-details");
 
+// プレイヤー位置と速度管理
 let px=240;
 let py=430;
-const speed=PLAYER_SPEED;
+let currentSpeed = NORMAL_SPEED; 
 
-let hp=INITIAL_HP;
+let hp=NORMAL_HP;
 let time=0;
 
 let keys={};
 let bones=[];
 let colorLines=[];
 
-let playing=true;
+let playing=false;        
+let isCountingDown=false;  
 let isUraStage = false; 
 let clearNormal = false; 
 let lastSpaceTime = 0;   
@@ -352,25 +387,26 @@ let madnessInterval = null;
 // 重力ギミック用変数
 let hasGravity = false;
 let vy = 0;              
-const GRAVITY = 0.4;     
-const JUMP_FORCE = -7.5; 
+const GRAVITY = 0.45;     
+const JUMP_FORCE = -4.7; 
+const MAX_JUMP_HOLD = 18; 
+let jumpHoldTimer = 0;
 let isGrounded = false;  
 
 // プレイヤーが現在動いているかのフラグ
 let isMoving = false;
 
 document.addEventListener("keydown",e=>{ 
-    // リザルト表示中、またはゲームオーバー中はスペースキーによる挙動をカット
+    if(isCountingDown) return; 
     if(!playing && !clearNormal) return;
 
     keys[e.key]=true; 
     
-    // スペースキー2回で裏ステージ開始
     if(e.key === " " || e.key === "Spacebar"){
         if(clearNormal && !isUraStage){
             const now = Date.now();
             if(now - lastSpaceTime < 1000){ 
-                startUraStage();
+                triggerUraStage();
             }
             lastSpaceTime = now;
         }
@@ -379,23 +415,31 @@ document.addEventListener("keydown",e=>{
 document.addEventListener("keyup",e=>{ keys[e.key]=false; });
 
 function updatePlayer(){
-    if(!playing) return; // プレイ中以外は動かさない
+    if(!playing || isCountingDown) return; 
 
     let moved = false;
 
     if (!hasGravity) {
-        if(keys["ArrowLeft"]||keys["a"]||keys["A"]) { px-=speed; moved = true; }
-        if(keys["ArrowRight"]||keys["d"]||keys["D"]) { px+=speed; moved = true; }
-        if(keys["ArrowUp"]||keys["w"]||keys["W"]) { py-=speed; moved = true; }
-        if(keys["ArrowDown"]||keys["s"]||keys["S"]) { py+=speed; moved = true; }
+        if(keys["ArrowLeft"]||keys["a"]||keys["A"]) { px-=currentSpeed; moved = true; }
+        if(keys["ArrowRight"]||keys["d"]||keys["D"]) { px+=currentSpeed; moved = true; }
+        if(keys["ArrowUp"]||keys["w"]||keys["W"]) { py-=currentSpeed; moved = true; }
+        if(keys["ArrowDown"]||keys["s"]||keys["S"]) { py+=currentSpeed; moved = true; }
         py=Math.max(0,Math.min(476,py));
     } else {
-        if(keys["ArrowLeft"]||keys["a"]||keys["A"]) { px-=speed; moved = true; }
-        if(keys["ArrowRight"]||keys["d"]||keys["D"]) { px+=speed; moved = true; }
+        if(keys["ArrowLeft"]||keys["a"]||keys["A"]) { px-=currentSpeed; moved = true; }
+        if(keys["ArrowRight"]||keys["d"]||keys["D"]) { px+=currentSpeed; moved = true; }
 
-        if((keys["ArrowUp"]||keys["w"]||keys["W"]) && isGrounded){
-            vy = JUMP_FORCE;
-            isGrounded = false;
+        if((keys["ArrowUp"]||keys["w"]||keys["W"])){
+            if(isGrounded){
+                vy = JUMP_FORCE;
+                isGrounded = false;
+                jumpHoldTimer = MAX_JUMP_HOLD; 
+            } else if(jumpHoldTimer > 0) {
+                vy -= 0.42; 
+                jumpHoldTimer--;
+            }
+        } else {
+            jumpHoldTimer = 0;
         }
 
         vy += GRAVITY;
@@ -405,6 +449,7 @@ function updatePlayer(){
             py = 476;
             vy = 0;
             isGrounded = true;
+            jumpHoldTimer = 0;
         }
     }
 
@@ -480,6 +525,7 @@ function updateBonesAndLines(){
         }
     }
 
+    // 💥 通常ビーム(幅28px)の当たり判定
     document.querySelectorAll(".beam").forEach(beam=>{
         if(beam.hasHit) return;
 
@@ -499,6 +545,7 @@ function updateBonesAndLines(){
         }
     });
 
+    // 斜め/カスタムビーム用の当たり判定
     document.querySelectorAll(".custom-beam").forEach(beam => {
         if (beam.hasHit) return;
 
@@ -535,7 +582,8 @@ function updateBonesAndLines(){
         const dy = pcy - closestY;
         const distSq = dx * dx + dy * dy;
 
-        if (distSq < 18 * 18) {
+        // 当たり判定の広さ
+        if (distSq < 20 * 20) {
             hp -= 1;
             beam.hasHit = true;
             if(hp < 0) hp = 0;
@@ -580,34 +628,77 @@ function spawnBone(){
 }
 
 function spawnGravityBone(){
-    const bone=document.createElement("div");
-    bone.className="bone";
-    bone.innerHTML=`<div class="boneHead left"></div><div class="boneBody"></div><div class="boneHead right"></div>`;
-    
-    const length = 80 + Math.random() * 60; 
-    bone.length = length;
-    bone.isHorizontal = false;
-    bone.style.width="20px"; bone.style.height=length+"px";
-    bone.style.flexDirection="column";
-    const body=bone.querySelector(".boneBody");
-    body.style.width="10px"; body.style.height=(length-28)+"px";
-
     const fromLeft = Math.random() > 0.5;
-    bone.x = fromLeft ? -50 : 520;
-    bone.y = 500 - length; 
-    bone.vx = fromLeft ? 6 : -6;
-    bone.vy = 0;
-    
-    bone.isGravityBone = true; 
-    bone.style.left=bone.x+"px"; bone.style.top=bone.y+"px";
-    game.appendChild(bone);
-    bones.push(bone);
+    const startX = fromLeft ? -50 : 520;
+    const speedX = fromLeft ? 5 : -5;
+
+    const gapHeight = 85; 
+    const gapY = 320 + Math.random() * 80; 
+
+    // 1. 上側の骨
+    const topBoneLength = gapY;
+    const topBone = document.createElement("div");
+    topBone.className = "bone";
+    topBone.innerHTML = `<div class="boneHead left"></div><div class="boneBody"></div><div class="boneHead right"></div>`;
+    topBone.length = topBoneLength;
+    topBone.isHorizontal = false;
+    topBone.style.width = "20px";
+    topBone.style.height = topBoneLength + "px";
+    topBone.style.flexDirection = "column";
+    topBone.querySelector(".boneBody").style.width = "10px";
+    topBone.querySelector(".boneBody").style.height = (topBoneLength - 28) + "px";
+    topBone.x = startX;
+    topBone.y = 0;
+    topBone.vx = speedX;
+    topBone.vy = 0;
+    topBone.isGravityBone = true;
+    topBone.style.left = topBone.x + "px";
+    topBone.style.top = topBone.y + "px";
+    game.appendChild(topBone);
+    bones.push(topBone);
+
+    // 2. 下側の骨
+    const bottomBoneLength = 500 - (gapY + gapHeight);
+    const bottomBone = document.createElement("div");
+    bottomBone.className = "bone";
+    bottomBone.innerHTML = `<div class="boneHead left"></div><div class="boneBody"></div><div class="boneHead right"></div>`;
+    bottomBone.length = bottomBoneLength;
+    bottomBone.isHorizontal = false;
+    bottomBone.style.width = "20px";
+    bottomBone.style.height = bottomBoneLength + "px";
+    bottomBone.style.flexDirection = "column";
+    bottomBone.querySelector(".boneBody").style.width = "10px";
+    bottomBone.querySelector(".boneBody").style.height = (bottomBoneLength - 28) + "px";
+    bottomBone.x = startX;
+    bottomBone.y = 500 - bottomBoneLength;
+    bottomBone.vx = speedX;
+    bottomBone.vy = 0;
+    bottomBone.isGravityBone = true;
+    bottomBone.style.left = bottomBone.x + "px";
+    bottomBone.style.top = bottomBone.y + "px";
+    game.appendChild(bottomBone);
+    bones.push(bottomBone);
 }
 
+// 🎯 当たり判定関数
 function hit(b){
     const pr = 10;
     const pcx = px + 12;
     const pcy = py + 12;
+
+    if (b.isGravityBone) {
+        const bw = 20;
+        const bh = b.length;
+
+        const closestX = Math.max(b.x, Math.min(pcx, b.x + bw));
+        const closestY = Math.max(b.y, Math.min(pcy, b.y + bh));
+
+        const dx = pcx - closestX;
+        const dy = pcy - closestY;
+        const distSq = dx * dx + dy * dy;
+
+        return distSq < (pr * pr);
+    }
 
     const bw = b.isHorizontal ? b.length : 20;
     const bh = b.isHorizontal ? 20 : b.length;
@@ -653,7 +744,6 @@ function hit(b){
     return distSq < (hitRadius * hitRadius);
 }
 
-// 💀 ゲームオーバー画面の表示
 function gameOver(){
     playing=false;
     clearInterval(beamInterval);
@@ -664,50 +754,56 @@ function gameOver(){
     
     const modeText = isUraStage ? "裏ステージ" : "通常ステージ";
     
-    // リザルト画面のテキスト更新と表示
     resultTitle.textContent = "GAME OVER";
     resultTitle.className = "gameover";
-    resultDetails.textContent = `[${modeText}] 生存時間：${time}秒`;
+    resultDetails.textContent = `生存時間：${time}秒 (${modeText})`;
     resultScreen.classList.add("active");
 }
 
-// 🏆 裏ステージ完全クリア画面の表示
-function gameClear(){
+function gameClear(isPerfect = false){
     playing = false;
     clearInterval(beamInterval);
+    clearInterval(colorLineInterval);
     clearInterval(madnessInterval);
-    clearInterval(uraTimer);
+    if(uraTimer) clearInterval(uraTimer);
+    if(gravitySpawnInterval) clearInterval(gravitySpawnInterval);
     
-    resultTitle.textContent = "GAME CLEAR";
+    resultTitle.textContent = "STAGE CLEAR!";
     resultTitle.className = "clear";
-    resultDetails.textContent = "裏ステージを1分間生き延びました！真の勝者です！";
+    
+    if(isPerfect) {
+        resultDetails.textContent = "おめでとうございます！裏ステージを1分間完走しました！";
+    } else {
+        resultDetails.textContent = "生存時間：30秒 (通常ステージクリア！)";
+    }
+    
     resultScreen.classList.add("active");
 }
 
 // メインループ
 setInterval(()=>{
-    if(!playing)return;
+    if(!playing || isCountingDown)return;
     updatePlayer();
     updateBonesAndLines();
 },16);
 
 // 骨の自然生成
 setInterval(()=>{
-    if(!playing)return;
+    if(!playing || isCountingDown)return;
     if(hasGravity) return; 
     spawnBone();
 },600);
 
 // 通常ステージ用進行管理
 let stageTimer = setInterval(()=>{
-    if(!playing || isUraStage) return; 
+    if(!playing || isUraStage || isCountingDown) return; 
 
     time++;
     document.getElementById("time").textContent=time;
 
     if(time === 10) {
         colorLineInterval = setInterval(()=>{
-            if(playing && !isUraStage) spawnColorLine();
+            if(playing && !isUraStage && !isCountingDown) spawnColorLine();
         }, 1500);
     }
 
@@ -716,7 +812,7 @@ let stageTimer = setInterval(()=>{
         if(!blasterStarted){
             blasterStarted = true;
             beamInterval = setInterval(()=>{
-                if(playing && !isUraStage) startBlasterAttack();
+                if(playing && !isUraStage && !isCountingDown) startBlasterAttack();
             }, 1200);
         }
     }
@@ -727,16 +823,44 @@ let stageTimer = setInterval(()=>{
     }
 
     if(time >= 30){
-        playing = false;
-        clearNormal = true; // スペース2回押しの待機状態
-        clearInterval(beamInterval);
-        clearInterval(colorLineInterval);
-        clearInterval(madnessInterval);
-        
-        // ポップアップは即座に裏ステージに移行できるように短い通知に
-        alert("🎉 NORMAL STAGE CLEAR!");
+        clearNormal = true; 
+        gameClear(false);
     }
 },1000);
+
+
+/* =======================================================
+   ⏱ カウントダウン制御システム
+======================================================= */
+function runCountdown(callback) {
+    isCountingDown = true;
+    playing = false;
+    let count = 3;
+
+    countdownOverlay.textContent = count;
+    countdownOverlay.classList.add("show");
+
+    const timer = setInterval(() => {
+        count--;
+        if (count > 0) {
+            countdownOverlay.textContent = count;
+            countdownOverlay.classList.remove("show");
+            void countdownOverlay.offsetWidth; 
+            countdownOverlay.classList.add("show");
+        } else if (count === 0) {
+            countdownOverlay.textContent = "START!";
+            countdownOverlay.classList.remove("show");
+            void countdownOverlay.offsetWidth;
+            countdownOverlay.classList.add("show");
+        } else {
+            clearInterval(timer);
+            countdownOverlay.classList.remove("show");
+            isCountingDown = false;
+            playing = true;
+            callback(); 
+        }
+    }, 1000);
+}
 
 
 /* =======================================================
@@ -745,12 +869,23 @@ let stageTimer = setInterval(()=>{
 let uraTimer = null;
 let gravitySpawnInterval = null;
 
+function triggerUraStage() {
+    resultScreen.classList.remove("active");
+    clearAllEntities();
+    
+    runCountdown(() => {
+        startUraStage();
+    });
+}
+
 function startUraStage() {
     isUraStage = true;
-    clearNormal = false; // 裏に入ったらノーマルクリア待機を解除
+    clearNormal = false; 
     playing = true;
     time = 0;
-    hp = INITIAL_HP; 
+    
+    hp = URA_HP; 
+    currentSpeed = URA_SPEED;
 
     const stageTitle = document.getElementById("stage-title");
     stageTitle.textContent = "★ URA STAGE ★";
@@ -758,16 +893,14 @@ function startUraStage() {
     document.getElementById("hp").textContent = hp;
     document.getElementById("time").textContent = time;
 
-    clearAllEntities();
-
     blasterStarted = true;
     beamInterval = setInterval(()=>{
-        if(playing && isUraStage && !hasGravity) startBlasterAttack();
+        if(playing && isUraStage && !hasGravity && !isCountingDown) startBlasterAttack();
     }, 1200);
 
     if(uraTimer) clearInterval(uraTimer);
     uraTimer = setInterval(()=>{
-        if(!playing) return;
+        if(!playing || isCountingDown) return;
         time++;
         document.getElementById("time").textContent = time;
 
@@ -779,8 +912,8 @@ function startUraStage() {
             gravityWarning.style.display = "block";
 
             gravitySpawnInterval = setInterval(()=>{
-                if(playing && hasGravity) spawnGravityBone();
-            }, 1200);
+                if(playing && hasGravity && !isCountingDown) spawnGravityBone();
+            }, 1250); 
         }
 
         if(time === 43){
@@ -790,7 +923,7 @@ function startUraStage() {
             clearAllEntities();
 
             beamInterval = setInterval(()=>{
-                if(playing && isUraStage) startBlasterAttack();
+                if(playing && isUraStage && !isCountingDown) startBlasterAttack();
             }, 1100); 
         }
 
@@ -799,7 +932,7 @@ function startUraStage() {
         }
 
         if(time >= 60){
-            gameClear();
+            gameClear(true); 
         }
 
     }, 1000);
@@ -815,20 +948,28 @@ function clearAllEntities() {
     document.querySelectorAll(".color-line").forEach(l=>l.remove());
 }
 
-
-function restart(){
-    // リザルト画面を隠す
+function triggerRestart() {
     resultScreen.classList.remove("active");
-
     clearAllEntities();
+    resetStateOnly();
+
+    runCountdown(() => {
+        playing = true;
+    });
+}
+
+function resetStateOnly(){
     if(beamInterval) clearInterval(beamInterval);
     if(colorLineInterval) clearInterval(colorLineInterval);
     if(madnessInterval) clearInterval(madnessInterval);
     if(uraTimer) clearInterval(uraTimer);
     if(gravitySpawnInterval) clearInterval(gravitySpawnInterval);
 
-    hp=INITIAL_HP; time=0; px=240; py=430;
-    playing=true; blasterStarted = false; isMoving = false;
+    hp=NORMAL_HP; 
+    currentSpeed=NORMAL_SPEED;
+    
+    time=0; px=240; py=430;
+    blasterStarted = false; isMoving = false;
     isUraStage = false;
     clearNormal = false;
     hasGravity = false;
@@ -841,14 +982,24 @@ function restart(){
     document.getElementById("hp").textContent=hp;
     document.getElementById("time").textContent=time;
     player.style.left=px+"px"; player.style.top=py+"px";
+    keys = {}; 
 }
 
-restart();
+resetStateOnly();
+playing = true; 
 
+// 💥 ブラスター攻撃（縦横ブラスター2門 ＆ 常時、斜めブラスター1〜2門を同時に生成）
 function startBlasterAttack(){
+    // 1. 通常の縦横ブラスターを2つ生成
     const sides = ["top", "bottom", "left", "right"];
     const chosenSides = sides.sort(() => 0.5 - Math.random()).slice(0, 2);
     chosenSides.forEach(side => createBlaster(side));
+
+    // 2. 斜めブラスターを常時1〜2個、セットで確定出現させる
+    const diagCount = Math.random() > 0.5 ? 2 : 1; 
+    for(let i = 0; i < diagCount; i++) {
+        spawnDiagonalCornerBlaster(i);
+    }
 }
 
 function createBlaster(side){
@@ -858,10 +1009,10 @@ function createBlaster(side){
 
     let targetLeft = 0; let targetTop = 0;
     switch(side){
-        case "top": targetLeft = Math.random()*420; targetTop = 0; skull.style.left = targetLeft + "px"; skull.style.top = "-70px"; break;
-        case "bottom": targetLeft = Math.random()*420; targetTop = 430; skull.style.left = targetLeft + "px"; skull.style.top = "500px"; break;
-        case "left": targetLeft = 0; targetTop = Math.random()*420; skull.style.left = "-80px"; skull.style.top = targetTop + "px"; break;
-        case "right": targetLeft = 420; targetTop = Math.random()*420; skull.style.left = "500px"; skull.style.top = targetTop + "px"; break;
+        case "top": targetLeft = Math.random()*400; targetTop = 0; skull.style.left = targetLeft + "px"; skull.style.top = "-70px"; break;
+        case "bottom": targetLeft = Math.random()*400; targetTop = 430; skull.style.left = targetLeft + "px"; skull.style.top = "500px"; break;
+        case "left": targetLeft = 0; targetTop = Math.random()*400; skull.style.left = "-80px"; skull.style.top = targetTop + "px"; break;
+        case "right": targetLeft = 420; targetTop = Math.random()*400; skull.style.left = "500px"; skull.style.top = targetTop + "px"; break;
     }
     game.appendChild(skull);
 
@@ -871,26 +1022,71 @@ function createBlaster(side){
     }, 50);
 
     setTimeout(()=>{
-        if(!playing) { skull.remove(); return; }
+        if(!playing || isCountingDown) { skull.remove(); return; }
         skull.querySelectorAll(".eye").forEach(e => e.style.backgroundColor = "cyan");
         fireBeam(side, targetLeft, targetTop);
         setTimeout(()=>{ skull.remove(); }, 600);
     }, 1000);
 }
 
+// 💥 ビームを射出 (幅を28pxに抑えて避けやすく調整)
 function fireBeam(side, blasterLeft, blasterTop){
     const beam = document.createElement("div");
     beam.className = "beam " + side;
     beam.hasHit = false;
 
+    // ビーム（28px）のセンタリング調整（中心のズレを防ぐ）
     switch(side){
-        case "top": beam.style.left = (blasterLeft + 30) + "px"; beam.style.top = "0px"; break;
-        case "bottom": beam.style.left = (blasterLeft + 30) + "px"; beam.style.top = "0px"; break;
-        case "left": beam.style.left = "0px"; beam.style.top = (blasterTop + 25) + "px"; break;
-        case "right": beam.style.left = "0px"; beam.style.top = (blasterTop + 25) + "px"; break;
+        case "top": beam.style.left = (blasterLeft + 26) + "px"; beam.style.top = "0px"; break;
+        case "bottom": beam.style.left = (blasterLeft + 26) + "px"; beam.style.top = "0px"; break;
+        case "left": beam.style.left = "0px"; beam.style.top = (blasterTop + 21) + "px"; break;
+        case "right": beam.style.left = "0px"; beam.style.top = (blasterTop + 21) + "px"; break;
     }
     game.appendChild(beam);
     setTimeout(()=>{ beam.remove(); }, 400);
+}
+
+// 🔮 四隅狙い撃ち用の斜めブラスター (バグを修正し、顔パーツのHTMLを100%正しくレンダリング)
+function spawnDiagonalCornerBlaster(offsetIndex = 0) {
+    const corners = [
+        { x: 40, y: 40, bx: -10, by: -10, angle: 45 },
+        { x: 460, y: 40, bx: 430, by: -10, angle: 135 },
+        { x: 40, y: 460, bx: -10, by: 440, angle: -45 },
+        { x: 460, y: 460, bx: 430, by: 440, angle: -135 }
+    ];
+    // 常時出るようにするため、インデックスが被らないように工夫
+    const targetCorner = corners[(Math.floor(Math.random() * corners.length) + offsetIndex) % corners.length];
+
+    const skull = document.createElement("div");
+    // 通常の.blasterクラスと同じサイズと仕様に統一して「顔」が完璧に反映されるように修正！
+    skull.className = "blaster";
+    skull.innerHTML = `<div class="eye left"></div><div class="eye right"></div><div class="nose"></div><div class="mouth"></div>`;
+    
+    // 回転の起点（中心）を整える
+    skull.style.transformOrigin = "center center";
+
+    // 最初は画面外
+    skull.style.left = (targetCorner.bx - Math.cos((targetCorner.angle * Math.PI)/180)*150) + "px";
+    skull.style.top = (targetCorner.by - Math.sin((targetCorner.angle * Math.PI)/180)*150) + "px";
+    skull.style.transform = `rotate(${targetCorner.angle - 90}deg)`; // 向きの調整
+    game.appendChild(skull);
+
+    // 狙う角のラインへスライド移動
+    setTimeout(() => {
+        skull.style.transition = "all 0.3s ease";
+        skull.style.left = targetCorner.bx + "px";
+        skull.style.top = targetCorner.by + "px";
+    }, 50);
+
+    setTimeout(() => {
+        if (!playing || isCountingDown) { skull.remove(); return; }
+        skull.querySelectorAll(".eye").forEach(e => e.style.backgroundColor = "cyan");
+        
+        // 四隅から中央へ突き抜ける斜めビームを射出 (少し太めの24px)
+        fireMadnessBeam(targetCorner.bx + 40, targetCorner.by + 35, targetCorner.angle);
+        
+        setTimeout(() => { skull.remove(); }, 600);
+    }, 1000);
 }
 
 let currentMadnessAngle = 0;
@@ -898,7 +1094,7 @@ let currentMadnessAngle = 0;
 function startMadnessCircleAttack(){
     currentMadnessAngle = 0;
     madnessInterval = setInterval(()=>{
-        if(!playing) return;
+        if(!playing || isCountingDown) return;
         spawnMadnessBlaster(currentMadnessAngle);
         currentMadnessAngle += 40; 
     }, 250);
@@ -935,7 +1131,7 @@ function spawnMadnessBlaster(angleDegree){
     }, 20);
 
     setTimeout(()=>{
-        if(!playing) { skull.remove(); return; }
+        if(!playing || isCountingDown) { skull.remove(); return; }
         skull.querySelectorAll(".eye").forEach(e => e.style.backgroundColor = "cyan");
 
         fireMadnessBeam(bx + 30, by + 25, faceAngle);
@@ -955,9 +1151,9 @@ function fireMadnessBeam(fromX, fromY, angleDegree){
     beam.angle = angleDegree; 
 
     beam.style.width = "700px"; 
-    beam.style.height = "16px";
+    beam.style.height = "24px"; // 斜めビーム
     beam.style.left = fromX + "px";
-    beam.style.top = (fromY - 8) + "px"; 
+    beam.style.top = (fromY - 12) + "px"; 
     beam.style.transform = `rotate(${angleDegree}deg)`;
 
     game.appendChild(beam);

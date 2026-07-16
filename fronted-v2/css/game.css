@@ -2,8 +2,11 @@
    fronted-v2 / game.css
    ゲーム要素（コイン制）のスタイル（本体ロジックは js/game.js）。
    既存の style.css のテーマ変数（--accent 等）をそのまま利用する。
+   ただしコイン本体（アイコン・枚数表示）はユーザーが選んだアクセント色に
+   左右されず、常に金色で表示する（--coin / --coin-mid / --coin-soft）。
 
    index:
+     0. コイン専用カラー（アクセント色に非依存の固定金色）
      1. ヘッダー（コイン表示・進捗バー）
      2. サイドバーのゲームボタン
      3. 汎用オーバーレイ / モーダル（ゲーム用）
@@ -12,16 +15,25 @@
    ============================================================ */
 
 /* ============================================================
+   0. コイン専用カラー — data-accent の値に関わらず常に金色
+   ============================================================ */
+:root {
+  --coin: #b8860b;                       /* ダークゴールデンロッド（ライト背景向け） */
+  --coin-mid: #f2c94c;                   /* 明るい金色（ダーク背景向け） */
+  --coin-soft: rgba(212, 175, 55, 0.16); /* バッジ背景用の淡い金色 */
+}
+
+/* ============================================================
    1. ヘッダー（コイン表示・進捗バー）
    ============================================================ */
 .hdr-coin {
   display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;
   padding: 4px 12px; border-radius: 999px;
   font-size: 12.5px; font-weight: 700;
-  color: var(--accent); background: var(--accent-soft);
+  color: var(--coin); background: var(--coin-soft);
 }
 .hdr-coin i { font-size: 15px; }
-[data-theme="dark"] .hdr-coin { color: var(--accent-mid); }
+[data-theme="dark"] .hdr-coin { color: var(--coin-mid); }
 
 .hdr-progress { display: none; align-items: center; gap: 10px; flex: 1; max-width: 360px; margin-left: 4px; }
 .hdr-progress.show { display: flex; }
@@ -88,22 +100,22 @@
 .coin-icon {
   width: 66px; height: 66px; margin: 4px auto 16px; border-radius: 18px;
   display: flex; align-items: center; justify-content: center; font-size: 34px;
-  color: var(--accent); background: var(--accent-soft);
+  color: var(--coin); background: var(--coin-soft);
 }
-[data-theme="dark"] .coin-icon { color: var(--accent-mid); }
+[data-theme="dark"] .coin-icon { color: var(--coin-mid); }
 .coin-gain { font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
 .coin-gain-sub { font-size: 12.5px; color: var(--text-muted); }
-.coin-gain-total { font-size: 13px; font-weight: 600; color: var(--accent); margin-top: 10px; }
-[data-theme="dark"] .coin-gain-total { color: var(--accent-mid); }
+.coin-gain-total { font-size: 13px; font-weight: 600; color: var(--coin); margin-top: 10px; }
+[data-theme="dark"] .coin-gain-total { color: var(--coin-mid); }
 
 /* ============================================================
    5. ゲーム画面（コイン確認 + ゲーム一覧）
    ============================================================ */
 .game-coin-row {
   display: flex; align-items: baseline; gap: 6px; margin: 6px 0 2px;
-  color: var(--accent); font-weight: 800;
+  color: var(--coin); font-weight: 800;
 }
-[data-theme="dark"] .game-coin-row { color: var(--accent-mid); }
+[data-theme="dark"] .game-coin-row { color: var(--coin-mid); }
 .game-coin-row i { font-size: 22px; align-self: center; }
 .game-coin-count { font-size: 28px; }
 .game-coin-unit { font-size: 13px; color: var(--text-secondary); font-weight: 600; }

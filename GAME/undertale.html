@@ -360,6 +360,7 @@ body{
     <div id="result-title" class="screen-title">GAME OVER</div>
     <div id="result-details">0秒生存</div>
     <button class="menu-btn" onclick="triggerRestart()">もう一度挑戦する</button>
+    <button class="menu-btn" id="back-btn" style="margin-top:12px; display:none;" onclick="pressBackButton()">戻る</button>
 </div>
 </div>
 
@@ -367,12 +368,20 @@ body{
 // ========================================================
 // 🔧 ゲーム設定エリア
 // ========================================================
-const NORMAL_HP = 5;       
-const NORMAL_SPEED = 4;    
+const NORMAL_HP = 5;
+const NORMAL_SPEED = 4;
 
-const URA_HP = 3;          
-const URA_SPEED = 5;       
+const URA_HP = 15;
+const URA_SPEED = 5;
+
+const COIN_REWARD = 2;     // クリア報酬（難易度: 普）
 // ========================================================
+
+// 終了処理: クリア/ゲームオーバー時に親(fronted-v2/js/game.js)へ game:ended を通知
+// coin 0 = ゲームオーバー / 1以上 = クリアで獲得枚数
+function notifyGameEnded(coin) {
+    try { window.parent.postMessage({ type: 'game:ended', coin: coin }, '*'); } catch(e){}
+}
 
 const game=document.getElementById("game");
 const player=document.getElementById("player");
@@ -781,7 +790,9 @@ function gameOver(){
     resultTitle.textContent = "GAME OVER";
     resultTitle.className = "gameover";
     resultDetails.textContent = `生存時間：${time}秒 (${modeText})`;
+    document.getElementById("back-btn").style.display = "none";
     resultScreen.classList.add("active");
+    notifyGameEnded(0);
 }
 
 function gameClear(isPerfect = false){
@@ -801,8 +812,19 @@ function gameClear(isPerfect = false){
     } else {
         resultDetails.textContent = "生存時間：30秒 (通常ステージクリア！)";
     }
-    
+
+    // クリア時は即時に親へ通知せず「戻る」ボタン押下まで待つ
+    // （通常クリア後はスペース2連打で裏ステージへ入れるため）
+    pendingCoin = COIN_REWARD;
+    document.getElementById("back-btn").style.display = "block";
     resultScreen.classList.add("active");
+}
+
+// 「戻る」ボタン: クリア報酬を確定して親の結果画面へ
+let pendingCoin = 0;
+function pressBackButton() {
+    document.getElementById("back-btn").style.display = "none";
+    notifyGameEnded(pendingCoin);
 }
 
 // メインループ

@@ -63,6 +63,7 @@ fix/バグ名         # バグ修正（例：fix/null-pointer-error）
 ```
 # 更新メモ
 
+- fronted-v2 の UI を react-shadcn（`app/dashboard-01` の inset シェル + shadcn/ui デザイントークン）準拠に刷新しました（素の HTML/CSS/JS のまま。詳細は `docs/specification.md`）。
 - fronted-v2 のサイドバーは、検索欄の下におすすめAPI一覧、その下にジャンルごとのAPI一覧、最後に footer を配置します。
 - GAME/game.html に魔王撃破時のゲームクリア画面を追加しました。
 - ゲーム要素をコイン制に変更しました（GAME/README.md の仕様変更に対応）。

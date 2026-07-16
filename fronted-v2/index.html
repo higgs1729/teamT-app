@@ -2,21 +2,25 @@
 <!--
   fronted-v2 / index.html
   templates/ 内の WebAPI 紹介ページを選択して表示するギャラリーサイト。
+  react-shadcn の dashboard-01 と同じ inset シェル構成
+  （サイドバー + 角丸・影付きでカード状に浮いたメイン領域）。
   構成:
-    .app-window
-      ├─ .sidebar  … ブランド / 検索 / カテゴリ別ナビ(JS描画) / テーマ切替
-      └─ .main
-           ├─ .app-header … 選択中ページのタイトル・操作リンク
+    .app-window（sidebar 色の下地）
+      ├─ .sidebar  … ブランド / 検索 / カテゴリ別ナビ(JS描画) / フッター(アカウント)
+      └─ .main（inset カード）
+           ├─ .app-header … サイドバー開閉トリガー・コイン・進捗
            └─ .content    … iframe プレビュー + ウェルカム空状態
+  配色トークンは css/tokens.css、シェルの見た目は css/style.css。
   サイドバーの一覧データは js/catalog.js、描画と操作は js/app.js が担う。
 -->
-<html lang="ja" data-theme="light" data-accent="orange">
+<html lang="ja" data-theme="light" data-accent="indigo">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WebAPI Gallery — teamT</title>
   <!-- Tabler Icons（モックアップと同じアイコンフォント） -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/game.css">
 </head>
@@ -42,15 +46,17 @@
     <!-- スクロール領域: おすすめ一覧 + ジャンル別一覧をまとめて縦スクロールさせる。
          ブランド・検索は上部に、アカウント等のフッターは下部に固定したまま、中央だけが動く -->
     <div class="sidebar-scroll">
-      <!-- カテゴリ別ナビ（app.js が CATALOG から描画） -->
+      <!-- カテゴリ別ナビ（app.js が CATALOG から描画。SidebarGroup相当） -->
       <!-- おすすめ一覧: ../おすすめ一覧.txt（各メンバーの推薦ファイル一覧）をもとにCATALOGから抜粋。
            「おすすめ一覧 ＞」を開くとカテゴリ見出し、さらに開くと各HTMLが出る折りたたみ構造（app.jsが描画） -->
-      <section class="recommend-section" aria-label="おすすめ一覧">
+      <div class="sidebar-group recommend-section" aria-label="おすすめ一覧">
         <div id="recommend-root"></div>
-      </section>
+      </div>
 
-      <div class="nav-section-label">ジャンルごとに探す</div>
-      <nav class="nav-scroll" id="nav-list"></nav>
+      <div class="sidebar-group">
+        <div class="sidebar-group-label">ジャンルごとに探す</div>
+        <nav class="nav-scroll" id="nav-list"></nav>
+      </div>
     </div>
 
     <!-- サイドバー下部: アカウント（設定へのアクセスは設定モーダル内のナビに集約） -->
@@ -67,7 +73,7 @@
       <button class="account-btn" onclick="handleAccountClick()" title="アカウント">
         <span class="avatar" id="account-avatar">G</span>
         <span class="account-name" id="account-name">ゲスト</span>
-        <i class="ti ti-chevron-down account-chevron"></i>
+        <i class="ti ti-dots-vertical account-chevron"></i>
       </button>
     </div>
   </aside>
@@ -81,8 +87,9 @@
       <!-- 左: サイドバーの表示切替（設定・アカウントはサイドバー下部に集約） -->
       <button class="icon-btn" id="sidebar-toggle" onclick="toggleSidebar()"
               aria-label="サイドバーの表示切替" title="サイドバーの表示切替">
-        <i class="ti ti-layout-sidebar-left-collapse"></i>
+        <i class="ti ti-layout-sidebar"></i>
       </button>
+      <div class="hdr-sep"></div>
       <!-- ゲーム: 所持コイン（js/game.js が更新。ゲーム画面でも確認可能） -->
       <span class="hdr-coin" id="hdr-coin" title="所持コイン">
         <i class="ti ti-coins"></i><span id="hdr-coin-count">0</span>

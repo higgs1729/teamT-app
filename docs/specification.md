@@ -7,31 +7,27 @@
 
 ## 1. アプリ概要
 
-- 未定
----
+- WebAPI紹介　＋　ゲーム
 
 ## 2. 使用技術
 
 | 区分 | 技術 |
 |------|------|
 | バックエンド | Java 21 / Spring Boot |
-| フロントエンド | React / Vite |
+| フロントエンド | HTML / JavaScript |
 | ビルドツール | Maven |
-| DB | （未定） |
 
 ---
-
-## 3. 画面一覧
-
-画面名 : 説明 
 
 ### WebAPI紹介サイト（fronted-v2）
 
 - WebAPI Gallery : `templates/`内の各WebAPI紹介ページ(自己完結型HTML)を選択して表示するギャラリー画面
   - 構成: サイドバー（ブランド / 検索 / おすすめ一覧 / ジャンルごとのAPI（階層カテゴリ別一覧） / footer（下部にアカウント・設定ボタン））＋ メイン（最小限のヘッダー=サイドバー表示切替ボタンのみ ＋ iframeビューア）
+  - シェルの見た目: react-shadcn の `app/dashboard-01`（inset レイアウト）を素の CSS で再現。サイドバー色の下地の上に、メイン領域を角丸・影付きのカードとして浮かせる。ヘッダーは高さ3remでトリガー+縦区切り線+コイン/進捗。サイドバー開閉はデスクトップ=横スライド(offcanvas)、narrow幅=固定ドロワー+スクリム（JSの `.sidebar-collapsed` 契約は従来のまま）
+  - ナビツリーのマークアップ: `js/app.js` が描画する「おすすめ一覧」「ジャンルごとのAPI」は react-shadcn の Sidebar コンポーネント群（SidebarGroup/SidebarMenu/SidebarMenuItem/SidebarMenuButton/SidebarMenuSub）相当の `ul.sidebar-menu > li.sidebar-menu-item > button.sidebar-menu-button + ul.sidebar-menu-sub`（さらに子に `li.sidebar-menu-sub-item > button.sidebar-menu-sub-button (+ 入れ子の ul.sidebar-menu-sub.sidebar-menu-sub-nested)`）という3階層の入れ子構造で出力する。開閉は各 `li` の `closed` クラス、選択状態は最内 `button` の `active` クラスで制御（従来どおり）。行末の＞（chevron）は開閉に関わらず常に右向き固定で、開いたときだけ down アイコンに差し替える（CSS回転は使わない、既存仕様のまま）。カテゴリ/小分類の開閉状態を持つ要素は `data-category-key` 属性で、選択中の一覧行は main側 `data-leaf="nav-item"` / おすすめ側 `data-leaf="recommend-item"` 属性で識別する（class名は表示スタイル用、data属性はJSの検索・状態管理用に分離）
   - 設定モーダル: 左ナビ（検索 + アカウント / 外観 / その他）＋ 右コンテンツ。サイドバー下部の「設定」「アカウント」から開く
     - アカウント: 表示名（localStorageに保存、サーバー認証なしのデモ）
-    - 外観: テーマ(ライト/ダーク)とアクセント色(オレンジ/青)を独立して切替（アクセント変更で背景は不変）
+    - 外観: テーマ(ライト/ダーク)とアクセント色(indigo/violet/cyan/emerald/amberの5色、既定indigo)を独立して切替（アクセント変更で背景は不変）。デザイントークンは react-shadcn(globals.css / studio-portfolio/settings-page.tsx) から移植し、`css/tokens.css` に `:root` / `[data-theme="dark"]` / `[data-accent="..."]` として定義
     - その他: 収録API数・サイト情報・設定リセット
   - 一覧クリックで該当HTMLをiframe表示。検索・URLハッシュ復元に対応
   - おすすめ一覧: 検索欄の直下に配置。「おすすめ一覧 ＞」（先頭に星アイコン）を開くと最上位カテゴリ見出しが並び、各カテゴリを開くと個々のHTML（推薦API）が出る折りたたみツリー。トップ・各カテゴリとも既定は閉じた状態で、検索中は一致項目を見せるため自動展開する。表示対象は `../おすすめ一覧.txt`（各メンバーが推薦するテンプレートのファイル名を1行ずつ記載）を起動時に読み込み、`.html`で終わる行だけを`CATALOG`の`file`（ディレクトリを除いたbasename・大小無視）と突き合わせて抽出し、最上位カテゴリ(categoryPath[0])単位でまとめる。名前欄やコメント行、一致しないファイル名は無視される。
@@ -47,7 +43,7 @@
     - 設計判断: プレイ中にオーバーレイを閉じた場合は中断扱いとし、消費済みコインは返却しない。target.html のようなスコア形式のゲームはスコア1点以上をクリア、0点以下をゲームオーバーと判定。pazuru.html は失敗が存在しないためゲームオーバー通知は送らない。旧RPG版の localStorage 保存データ（level/xp/runes等）はコイン制移行時に破棄する
     - 進捗バー: API紹介ページ表示中にヘッダーへ出現。ページ(iframe)内のボタン等をクリックするたびに20%ずつ上昇（専用の操作ボタンは無く、閲覧中の操作を自動検知）、100%でコイン1枚獲得
   - 設計判断: 素のHTML/CSS/JS（ビルド不要）。テンプレートは改変せず`../templates/`をiframe参照（単一の正）。
-    UIは`design-spec-studio`の`ui_mockup.html`のデザインシステムに準拠。一覧データは`fronted-v2/js/catalog.js`に集約。
+    UIは react-shadcn（`app/dashboard-01` の inset シェル + shadcn/ui デザイントークン）に準拠（旧: `design-spec-studio` の `ui_mockup.html`）。React は導入せず、`css/tokens.css`（トークン）と `css/style.css`（シェル）へ素の CSS で移植。`game.css` と JS が参照する旧変数名（`--accent` `--bg-card` 等）は style.css 内で shadcn トークンへの別名として維持。一覧データは`fronted-v2/js/catalog.js`に集約。
   - 分類設計: `category` は後方互換用の大分類、`categoryPath` はサイドバー表示用の階層分類（例: `["データ・検索系", "宇宙・天気"]`）。`categoryPath` が未指定の古い項目は `category` の1階層分類として扱う。
     - 大分類: 画像・ビジュアル系 / データ・検索系 / 為替・ツール系 / エンタメ・おもしろ系
     - 小分類例: 動物画像 / アート・デザイン / 3D・アバター / キャラクター画像 / アニメ・カード / ゲーム・キャラクター / 宇宙・天気 / 乗り物・交通 / ネットワーク・セキュリティ / 企業・公共データ / 金融・マーケット / 求人・スキル / AI・機械学習 / ブロックチェーン・市場 / 人名・属性推定 / 開発・OSS / 辞書・言語 / 日付・時刻 / 通貨・為替 / 地図・住所 / ファイル共有・保存 / 開発・検証 / 翻訳・言語 / 開発・検証 / テキスト検証 / ジョーク・雑学 / クイズ・ゲーム / 意思決定・名言

@@ -1,0 +1,132 @@
+/*
+  fronted-v2 / css/tokens.css
+  react-shadcn (globals.css / studio-portfolio/settings-page.tsx) から移植した
+  デザイントークン定義。style.css より先に読み込み、以降の見た目はここで定義する
+  CSS変数を参照する形に統一する。
+  構成:
+    :root                     … ライトテーマの基準トークン
+    [data-theme="dark"]       … ダークテーマの上書き
+    [data-accent="..."]       … アクセント色5種（既定 indigo）。primary/sidebar系のみ上書き
+    body                      … フォントスタック
+*/
+
+/* ============================== ライトテーマ ============================== */
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.457 0.24 277.023);
+  --primary-foreground: oklch(0.962 0.018 272.314);
+  --secondary: oklch(0.967 0.001 286.375);
+  --secondary-foreground: oklch(0.21 0.006 285.885);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.5 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.55 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --radius: 0.625rem;
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.511 0.262 276.966);
+  --sidebar-primary-foreground: oklch(0.962 0.018 272.314);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+/* ============================== ダークテーマ ============================== */
+/* react-shadcn 側は next-themes が付与する .dark を使うが、
+   fronted-v2 は <html data-theme="dark"> で切替えているためセレクタを読み替え */
+[data-theme="dark"] {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.398 0.195 277.366);
+  --primary-foreground: oklch(0.962 0.018 272.314);
+  --secondary: oklch(0.274 0.006 286.033);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.585 0.233 277.117);
+  --sidebar-primary-foreground: oklch(0.962 0.018 272.314);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+/* ============================== アクセント（5色） ==============================
+   react-shadcn の studio-portfolio/settings-page.tsx accents 配列を移植。
+   primary/sidebar-primary/ring/sidebar-ring のみを上書きし、背景等は変えない
+   （JSでの style.setProperty ではなく data-accent 属性の切替のみで完結させる） */
+[data-accent="indigo"] {
+  --primary: oklch(0.457 0.24 277.023);
+  --sidebar-primary: oklch(0.511 0.262 276.966);
+  --ring: oklch(0.511 0.262 276.966);
+  --sidebar-ring: oklch(0.511 0.262 276.966);
+}
+
+[data-accent="violet"] {
+  --primary: oklch(0.49 0.23 303);
+  --sidebar-primary: oklch(0.55 0.24 303);
+  --ring: oklch(0.55 0.24 303);
+  --sidebar-ring: oklch(0.55 0.24 303);
+}
+
+[data-accent="cyan"] {
+  --primary: oklch(0.5 0.15 220);
+  --sidebar-primary: oklch(0.56 0.16 220);
+  --ring: oklch(0.56 0.16 220);
+  --sidebar-ring: oklch(0.56 0.16 220);
+}
+
+[data-accent="emerald"] {
+  --primary: oklch(0.49 0.14 155);
+  --sidebar-primary: oklch(0.55 0.15 155);
+  --ring: oklch(0.55 0.15 155);
+  --sidebar-ring: oklch(0.55 0.15 155);
+}
+
+[data-accent="amber"] {
+  --primary: oklch(0.58 0.15 80);
+  --sidebar-primary: oklch(0.63 0.16 80);
+  --ring: oklch(0.63 0.16 80);
+  --sidebar-ring: oklch(0.63 0.16 80);
+}
+
+/* ============================== フォントスタック ==============================
+   react-shadcn は next/font で Inter(--font-sans) / Geist Mono(--font-mono) を
+   自前ホストしているが、fronted-v2 はビルド工程がないため相当する
+   システムフォントスタックにフォールバックする */
+:root {
+  --font-sans: Inter, "Segoe UI", Roboto, "Hiragino Sans", "Yu Gothic",
+    Meiryo, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Consolas,
+    "Liberation Mono", monospace;
+}
+
+body {
+  font-family: var(--font-sans);
+}

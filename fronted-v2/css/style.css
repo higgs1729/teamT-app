@@ -1,52 +1,55 @@
 /* ============================================================
    fronted-v2 / style.css
-   WebAPI 紹介サイトのデザインシステム
-   - design-spec-studio の ui_mockup.html のデザイン言語を踏襲
-   - サイト枠（サイドバー/ヘッダー/ビューア）のみに適用。
-     iframe で読み込むテンプレート本体には一切波及しない。
+   WebAPI 紹介サイトのアプリシェル。
+   react-shadcn の app/dashboard-01（SidebarProvider + AppSidebar variant="inset"
+   + SidebarInset + SiteHeader）の見た目を素の CSS で再現する。
+   配色・角丸などの値は css/tokens.css の shadcn トークンを参照。
+   サイト枠（サイドバー/ヘッダー/ビューア）のみに適用し、
+   iframe で読み込むテンプレート本体には一切波及しない。
 
     index:
-     1. THEME VARIABLES … 3テーマ(カプチーノ/ライト/ダーク)の配色トークン
-     2. RESET / BASE   … リセットと基本タイポグラフィ
-     3. LAYOUT         … app-window / sidebar / main の骨格
-     4. SIDEBAR        … ブランド・検索・カテゴリ別ナビ・テーマ切替
-     5. HEADER         … 選択中テンプレートのタイトルと操作リンク
-     6. VIEWER         … iframe プレビューとウェルカム空状態
-     7. THEME DROPDOWN … 表示テーマ選択メニュー
-     8. RESPONSIVE     … narrow 幅でのサイドバー開閉
+     1. COMPAT TOKENS   … 旧変数名 → shadcnトークンの別名（game.css 互換用）
+     2. RESET / BASE    … リセットと基本タイポグラフィ
+     3. LAYOUT          … inset シェル（サイドバー + カード状に浮いたメイン）
+     4. SIDEBAR         … ブランド / 検索 / ナビツリー / フッター(NavUser風)
+     5. HEADER          … SidebarTrigger風ハンバーガー + コイン/進捗
+     6. VIEWER          … iframe プレビューとウェルカム空状態
+     7. SETTINGS MODAL  … shadcn Dialog 風の設定モーダル
+     8. RESPONSIVE      … サイドバー開閉（デスクトップ=offcanvas / narrow=ドロワー）
    ============================================================ */
 
 /* ============================================================
-   1. THEME VARIABLES
-      - テーマ(data-theme): 背景・文字色。ライト(既定)/ダークの2種。
-      - アクセント(data-accent): アクセント色のみ。オレンジ(既定)/青。
-      両者は別の変数群なので、アクセントを変えても背景色は変わらない。
+   1. COMPAT TOKENS
+      game.css（変更禁止）と app.js が生成する動的DOMは旧変数名を参照する。
+      旧変数名を shadcn トークンへの別名として残し、見た目だけ新デザインに揃える。
+      このファイル自身は原則 tokens.css のトークンを直接使い、別名は使わない。
    ============================================================ */
+:root {
+  --bg-base: var(--background);
+  --bg-win: var(--background);
+  --bg-side: var(--sidebar);
+  --bg-card: var(--muted);
+  --bg-header: var(--background);
+  --border-color: var(--border);
+  --border-subtle: var(--border);
+  --text-primary: var(--foreground);
+  --text-secondary: var(--muted-foreground);
+  --text-muted: var(--muted-foreground);
+  --text-hint: color-mix(in oklab, var(--muted-foreground) 55%, transparent);
+  --accent: var(--primary);
+  --accent-mid: var(--sidebar-primary);
+  --accent-soft: color-mix(in oklab, var(--primary) 10%, transparent);
+  --glow: transparent;
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.10), 0 1px 2px -1px rgb(0 0 0 / 0.10);
+  --shadow-pop: 0 10px 15px -3px rgb(0 0 0 / 0.10), 0 4px 6px -4px rgb(0 0 0 / 0.10);
+}
 
-/* --- テーマ: 背景・文字（ライト = 旧カプチーノの配色） --- */
-/* ヘッダーはサイドバーと同色(--bg-side)にして、白すぎず落ち着いた見た目に
-   （ダークと同様、ヘッダーとサイドバーの色差を出さない） */
-:root, [data-theme="light"] {
-  --bg-base:#f4f4f4; --bg-win:#f4f4f4; --bg-side:#e4e4e4; --bg-card:#ffffff; --bg-header:#e4e4e4;
-  --border-color:#dcdcdc; --border-subtle:rgba(0,0,0,0.07);
-  --text-primary:#2a2a2a; --text-secondary:#6f6f6f; --text-muted:#757575; --text-hint:#b3b3b3;
-  --shadow:0 10px 30px rgba(0,0,0,0.10); --shadow-pop:0 10px 26px rgba(0,0,0,0.16);
-}
-/* ダーク: 以前より明るめのソフトダーク（背景が濃すぎない） */
-[data-theme="dark"] {
-  --bg-base:#23232e; --bg-win:#2a2a37; --bg-side:#2a2a37; --bg-card:#31313f; --bg-header:#2a2a37;
-  --border-color:rgba(255,255,255,0.12); --border-subtle:rgba(255,255,255,0.07);
-  --text-primary:#f0eff5; --text-secondary:#b6b3c4; --text-muted:#928fa2; --text-hint:#55536a;
-  --shadow:0 12px 34px rgba(0,0,0,0.40); --shadow-pop:0 12px 30px rgba(0,0,0,0.45);
-}
-
-/* --- アクセント: アクセント色のみ（背景トークンは含めない） --- */
-/* accent-soft は半透明にして、ライト/ダークどちらの背景でも自然に馴染ませる */
-:root, [data-accent="orange"] {
-  --accent:#c96a39; --accent-mid:#ffb290; --accent-soft:rgba(201,106,57,0.15); --glow:rgba(201,106,57,0.16);
-}
-[data-accent="blue"] {
-  --accent:#2f6ef0; --accent-mid:#8bb6fb; --accent-soft:rgba(47,110,240,0.15); --glow:rgba(47,110,240,0.16);
+/* shadcn の inset シェル用にこのファイルが使う寸法（sidebar.tsx の定数） */
+:root {
+  --sidebar-width: 16rem;        /* SIDEBAR_WIDTH */
+  --sidebar-width-mobile: 18rem; /* SIDEBAR_WIDTH_MOBILE */
+  --header-height: 3rem;         /* --header-height: spacing*12 */
+  --inset-gap: 0.5rem;           /* inset variant の p-2 相当の余白 */
 }
 
 /* ============================================================
@@ -55,226 +58,243 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; }
 body {
-  font-family: 'BIZ UDPGothic', 'Meiryo UI', 'Yu Gothic UI', sans-serif;
-  font-weight: 400; letter-spacing: 0.02em;
-  background: var(--bg-base); color: var(--text-primary);
-  transition: background 0.2s, color 0.2s;
+  font-family: var(--font-sans);
+  font-weight: 400;
+  background: var(--sidebar); color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
 }
 a { color: inherit; }
+button { font-family: inherit; }
 
-/* スクロールバー: 既定は透明にして目立たせず、ホバー中(スクロール可能な範囲内にカーソルがある間)だけ薄いつまみを表示 */
+/* スクロールバー: 既定は透明、ホバー中だけ薄いつまみを表示 */
 * { scrollbar-width: thin; scrollbar-color: transparent transparent; }
-*:hover { scrollbar-color: var(--border-color) transparent; }
+*:hover { scrollbar-color: var(--border) transparent; }
 *::-webkit-scrollbar { width: 6px; height: 6px; }
 *::-webkit-scrollbar-track { background: transparent; }
 *::-webkit-scrollbar-thumb { background: transparent; border-radius: 999px; }
-*:hover::-webkit-scrollbar-thumb { background: var(--border-color); }
+*:hover::-webkit-scrollbar-thumb { background: var(--border); }
 
 /* ============================================================
-   3. LAYOUT — 全画面 flex の2カラム
+   3. LAYOUT — inset シェル
+      wrapper(=app-window) を sidebar 色で塗り、メインを角丸・影付きの
+      カードとして浮かせる（SidebarInset の md:m-2 md:ml-0 md:rounded-xl 相当）
    ============================================================ */
-.app-window { height: 100vh; width: 100%; background: var(--bg-win); overflow: hidden; display: flex; }
-.main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.app-window {
+  height: 100vh; height: 100dvh; width: 100%;
+  background: var(--sidebar); overflow: hidden; display: flex;
+}
+.main {
+  flex: 1; display: flex; flex-direction: column; min-width: 0;
+  margin: var(--inset-gap) var(--inset-gap) var(--inset-gap) 0;
+  background: var(--background);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: margin-left 0.2s linear;
+}
 
 /* ============================================================
    4. SIDEBAR
    ============================================================ */
 .sidebar {
-  width: 264px; flex-shrink: 0; background: var(--bg-side);
-  border-right: 1px solid var(--border-subtle);
-  display: flex; flex-direction: column; padding: 18px 12px;
+  width: var(--sidebar-width); flex-shrink: 0;
+  display: flex; flex-direction: column; gap: 8px;
+  padding: 8px; padding-right: 4px;
+  color: var(--sidebar-foreground);
+  transition: margin-left 0.2s linear;
 }
-.brand { display: flex; align-items: center; gap: 11px; padding: 4px 8px 14px; }
-.brand-icon {
-  width: 36px; height: 36px; border-radius: 10px; background: var(--accent);
-  display: flex; align-items: center; justify-content: center; color: #fff; font-size: 19px; flex-shrink: 0;
-}
-.brand-name { font-size: 15px; font-weight: 700; color: var(--text-primary); line-height: 1.2; }
-.brand-sub { font-size: 10.5px; color: var(--text-muted); margin-top: 1px; }
 
-/* 検索ボックス */
-.search-wrap { position: relative; padding: 0 6px 8px; }
+/* ブランド: SidebarHeader 内の menu-button（アイコン + 名称）相当 */
+.brand { display: flex; align-items: center; gap: 10px; padding: 6px; border-radius: var(--radius-md); }
+.brand-icon {
+  width: 32px; height: 32px; border-radius: var(--radius-md);
+  background: var(--sidebar-primary); color: var(--sidebar-primary-foreground);
+  display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
+}
+.brand-name { font-size: 14px; font-weight: 600; color: var(--sidebar-foreground); line-height: 1.25; }
+.brand-sub { font-size: 11px; color: var(--muted-foreground); margin-top: 1px; }
+
+/* 検索ボックス: shadcn SidebarInput（h-8 / bg-background / rounded-md）相当 */
+.search-wrap { position: relative; padding: 0 2px; }
 .search-wrap i {
-  position: absolute; left: 18px; top: 50%; transform: translateY(-60%);
-  color: var(--text-muted); font-size: 17px; pointer-events: none;
+  position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+  color: var(--muted-foreground); font-size: 15px; pointer-events: none;
 }
 .search-input {
-  width: 100%; background: var(--bg-win); border: 1px solid var(--border-color);
-  border-radius: 10px; padding: 9px 12px 9px 36px; color: var(--text-primary);
-  font-family: inherit; font-size: 13px; outline: none; transition: border-color 0.15s;
+  width: 100%; height: 32px;
+  background: var(--background); border: 1px solid var(--input);
+  border-radius: var(--radius-md); padding: 0 10px 0 32px;
+  color: var(--foreground); font-family: inherit; font-size: 13px; outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
-.search-input:focus { border-color: var(--accent); }
-.search-input::placeholder { color: var(--text-muted); }
-
-/* サイドバー中央のスクロール領域: おすすめ一覧 + ジャンル別一覧をまとめて縦スクロール。
-   flex:1 で余った高さを占有し、min-height:0 で flex 子要素のはみ出しを許してスクロールを効かせる */
-.sidebar-scroll { flex: 1; min-height: 0; overflow-y: auto; }
-
-/* カテゴリ別ナビ（app.js が描画） */
-/* おすすめ一覧: 検索直下に配置。「おすすめ一覧 ＞」→ カテゴリ見出し ＞ → 各HTML の
-   折りたたみツリー。カテゴリ見出し/最内アイテムは nav-* のクラスを再利用して見た目を統一する */
-.recommend-section {
-  padding: 8px 0 6px;
-  margin-bottom: 2px;
+.search-input:focus {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 30%, transparent);
 }
-/* トップ「おすすめ一覧」の見出しのみ、入口として大きく・既定から濃くして読みやすくする。
-   中のカテゴリ見出し・各アイテムは通常一覧と同じ見た目のまま対象外。
-   .nav-group-head との詳細度を揃えるため複合セレクタにする（同じ要素が両クラスを持つため、
-   単クラスの .recommend-group-head だとスタイルシート内の記述順で .nav-group-head に負けうる） */
-.nav-group-head.recommend-group-head { font-size: 15px; font-weight: 800; color: var(--text-primary); }
-.recommend-group-head .nav-group-icon { color: var(--accent); }
-[data-theme="dark"] .recommend-group-head .nav-group-icon { color: var(--accent-mid); }
-/* 開いている(=選択中)ときは薄いアクセント背景を乗せて選択状態を分かりやすくする（トップ見出しのみ） */
-.recommend-group:not(.closed) > .recommend-group-head {
-  background: var(--accent-soft); border-radius: 10px; color: var(--accent);
-}
-[data-theme="dark"] .recommend-group:not(.closed) > .recommend-group-head { color: var(--accent-mid); }
+.search-input::placeholder { color: var(--muted-foreground); }
 
-/* おすすめ一覧の最内アイテム（個々のHTML）。＞は付けず「アイコン 文字」のみ */
-.recommend-item {
-  display: flex; align-items: center; gap: 10px; width: 100%;
-  padding: 8px 10px; border-radius: 10px; border: 1px solid transparent;
-  background: transparent; color: var(--text-secondary); cursor: pointer;
-  font-family: inherit; font-size: 12.5px; text-align: left;
+/* サイドバー中央のスクロール領域（SidebarContent 相当）。
+   flex:1 + min-height:0 で余った高さだけを縦スクロールさせる */
+.sidebar-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: 0 2px; }
+
+/* SidebarGroup相当。おすすめ一覧・ジャンル別ナビをそれぞれ包む */
+.sidebar-group { padding: 4px 0 2px; }
+
+/* グループ見出しラベル（SidebarGroupLabel: h-8 / text-xs / 70%色）相当 */
+.sidebar-group-label {
+  display: flex; align-items: center; height: 32px; padding: 0 8px;
+  color: color-mix(in oklab, var(--sidebar-foreground) 70%, transparent);
+  font-size: 12px; font-weight: 500;
+}
+
+.nav-scroll { padding-bottom: 8px; }
+
+/* --- ナビツリー（app.js が描画する動的DOM。SidebarMenu系コンポーネント相当） ---
+   .sidebar-menu(ul) > .sidebar-menu-item(li) > .sidebar-menu-button(開閉トリガー) + .sidebar-menu-sub(ul)
+     > .sidebar-menu-sub-item(li) > .sidebar-menu-sub-button(トリガー or 最内リーフ) + .sidebar-menu-sub(入れ子)
+   開閉は各 li の "closed" クラス、選択状態は最内 button の "active" クラスで切替（app.js） */
+.sidebar-menu { list-style: none; display: flex; flex-direction: column; gap: 2px; width: 100%; }
+.sidebar-menu-item { position: relative; }
+.sidebar-menu-sub-item { position: relative; }
+
+/* 見出し行（最上位カテゴリ / おすすめ一覧トップ） */
+.sidebar-menu-button {
+  display: flex; align-items: center; gap: 8px; width: 100%; text-align: left;
+  height: 32px; padding: 0 8px; border-radius: var(--radius-md); border: 0;
+  background: transparent; cursor: pointer; user-select: none;
+  color: var(--sidebar-foreground); font-family: inherit; font-size: 13px; font-weight: 500;
   transition: background 0.15s, color 0.15s;
 }
-.recommend-item i { font-size: 17px; width: 20px; text-align: center; flex-shrink: 0; }
-.recommend-item-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.recommend-item:hover { background: var(--bg-card); color: var(--text-primary); }
-.recommend-item.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
-[data-theme="dark"] .recommend-item.active { color: var(--accent-mid); }
-.recommend-empty { padding: 8px 12px; font-size: 11.5px; color: var(--text-muted); }
-
-.nav-section-label {
-  padding: 10px 12px 4px; border-top: 1px solid var(--border-subtle);
-  color: var(--text-muted); font-size: 11px; font-weight: 700;
+.sidebar-menu-button:hover { background: var(--sidebar-accent); color: var(--sidebar-accent-foreground); }
+.sidebar-menu-icon { font-size: 16px; width: 18px; text-align: center; flex-shrink: 0; }
+.sidebar-menu-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* 行末の ＞（開閉状態に関わらず右向き固定のまま、開くとdownアイコンに差し替え。回転はさせない） */
+.sidebar-menu-chevron { font-size: 14px; color: var(--muted-foreground); flex-shrink: 0; }
+/* SidebarMenuSub: mx-3.5 + border-l + px-2.5 相当のインデント付き縦線 */
+.sidebar-menu-sub {
+  list-style: none;
+  margin-left: 16px; padding: 2px 0 4px 8px;
+  border-left: 1px solid var(--sidebar-border);
 }
+.sidebar-menu-item.closed > .sidebar-menu-sub { display: none; }
 
-/* nav-list 自体はスクロールせず、親の .sidebar-scroll がまとめてスクロールする */
-.nav-scroll { padding: 4px 0 8px; }
+/* 小分類トリガー（親カテゴリ内の折りたたみ） / おすすめ一覧内カテゴリ */
+.sidebar-menu-sub-button {
+  display: flex; align-items: center; gap: 7px; width: 100%; text-align: left;
+  height: 28px; padding: 0 8px; border-radius: var(--radius-md); border: 0;
+  background: transparent; cursor: pointer; user-select: none;
+  color: var(--sidebar-foreground); font-family: inherit; font-size: 12px; font-weight: 500;
+  transition: background 0.15s, color 0.15s;
+}
+.sidebar-menu-sub-button:hover { background: var(--sidebar-accent); color: var(--sidebar-accent-foreground); }
+.sidebar-menu-sub-icon { font-size: 14px; width: 16px; text-align: center; flex-shrink: 0; }
+.sidebar-menu-sub-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* 件数バッジ（SidebarMenuBadge 相当。小分類のみ表示、おすすめ一覧カテゴリには付けない） */
+.sidebar-menu-badge {
+  min-width: 20px; height: 20px; padding: 0 6px; border-radius: var(--radius-sm);
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--sidebar-accent); color: var(--muted-foreground);
+  font-size: 10.5px; font-variant-numeric: tabular-nums;
+}
+/* 入れ子の下位一覧（小分類の中の個々のAPI 等） */
+.sidebar-menu-sub-nested { padding-left: 8px; }
+.sidebar-menu-sub-item.closed > .sidebar-menu-sub-nested { display: none; }
 
-/* カテゴリ折りたたみグループ */
-.nav-group { margin-bottom: 2px; }
-/* 見出し: カード化せず、各グループを薄い線で区切る。濃い太字で視認性を確保 */
-.nav-group-head {
-  display: flex; align-items: center; gap: 9px;
-  padding: 11px 12px 9px; cursor: pointer; user-select: none;
-  color: var(--text-muted); font-size: 13px; font-weight: 700; letter-spacing: 0.02em;
-  transition: color 0.15s;
+/* 最内リーフ（個々のAPI）。選択中はアクセント色（tokens.css の --primary）で示す。
+   トリガー用 .sidebar-menu-sub-trigger を持たないため子要素(chevron)は出ない */
+.sidebar-menu-sub-button:not(.sidebar-menu-sub-trigger) i:first-child {
+  font-size: 15px; width: 16px; text-align: center; flex-shrink: 0; color: var(--muted-foreground);
 }
-.nav-group:not(.closed) > .nav-group-head { color: var(--text-primary); }
-.nav-group:first-child .nav-group-head { border-top: 0; }   /* 先頭は検索欄直下なので線なし */
-.nav-group-head:hover { color: var(--accent); }
-[data-theme="dark"] .nav-group-head:hover { color: var(--accent-mid); }
-/* カテゴリ見出し先頭のアイコン（「アイコン 文字 ＞」の先頭） */
-.nav-group-icon { font-size: 17px; width: 20px; text-align: center; flex-shrink: 0; }
-/* カテゴリ行末の ＞。開閉状態に関わらず常に右向き固定（回転させない） */
-.nav-group-caret { font-size: 16px; color: var(--text-muted); flex-shrink: 0; }
-.nav-group-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.nav-group-body { padding: 2px 0 6px 6px; }
-.nav-group.closed .nav-group-body { display: none; }
+.sidebar-menu-sub-button.active {
+  background: color-mix(in oklab, var(--primary) 10%, transparent);
+  color: var(--primary); font-weight: 500;
+}
+.sidebar-menu-sub-button.active i { color: var(--primary); }
 
-/* 小分類: WebAPI数が増えても探しやすいように親カテゴリ内をさらに折りたたむ */
-.nav-subgroup { margin: 2px 0 4px; }
-.nav-subgroup-head {
-  display: flex; align-items: center; gap: 7px;
-  padding: 7px 10px 7px 6px; cursor: pointer; user-select: none;
-  color: var(--text-muted); font-size: 11.5px; font-weight: 700;
-  transition: color 0.15s;
-}
-.nav-subgroup:not(.closed) > .nav-subgroup-head { color: var(--text-primary); }
-.nav-subgroup-head:hover { color: var(--accent); }
-[data-theme="dark"] .nav-subgroup-head:hover { color: var(--accent-mid); }
-/* 小分類見出し先頭のアイコン */
-.nav-subgroup-icon { font-size: 15px; width: 18px; text-align: center; flex-shrink: 0; }
-/* 小分類行末の ＞ も常に右向き固定 */
-.nav-subgroup-caret { font-size: 13px; color: var(--text-muted); flex-shrink: 0; }
-.nav-subgroup-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.nav-subgroup-count {
-  min-width: 20px; padding: 1px 6px; border-radius: 999px;
-  background: var(--bg-card); color: var(--text-muted); text-align: center; font-size: 10px;
-}
-.nav-subgroup-body { padding-left: 10px; }
-.nav-subgroup.closed .nav-subgroup-body { display: none; }
+.nav-empty { padding: 12px 8px; font-size: 12.5px; color: var(--muted-foreground); }
 
-.nav-item {
-  display: flex; align-items: center; gap: 11px; padding: 9px 12px; border-radius: 10px;
-  color: var(--text-muted); font-size: 13px; cursor: pointer;
-  border: 1px solid transparent; transition: background 0.15s, color 0.15s;
+/* --- おすすめ一覧トップ見出しのみ強調（構造は上記 sidebar-menu-* を共用） --- */
+.sidebar-menu-button.recommend-trigger { font-size: 13.5px; font-weight: 600; }
+.recommend-trigger .sidebar-menu-icon { color: var(--primary); }
+/* 開いている間はアクセント背景で選択中であることを示す */
+.sidebar-menu-item:not(.closed) > .sidebar-menu-button.recommend-trigger {
+  background: color-mix(in oklab, var(--primary) 10%, transparent);
+  color: var(--primary);
 }
-.nav-item i { font-size: 18px; width: 20px; text-align: center; flex-shrink: 0; }
-.nav-item-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.nav-item:hover { background: var(--bg-card); color: var(--text-primary); }
-.nav-item.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
-[data-theme="dark"] .nav-item.active { color: var(--accent-mid); }
-.nav-empty { padding: 16px 14px; font-size: 12.5px; color: var(--text-muted); }
+.recommend-empty { padding: 8px; font-size: 11.5px; color: var(--muted-foreground); }
 
-/* サイドバー下部: アカウント / 設定ボタン */
-.sidebar-foot { padding-top: 8px; margin-top: 4px; border-top: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 2px; }
-.account-btn, .settings-btn-side {
-  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
-  padding: 9px 10px; border-radius: 10px; border: 1px solid transparent;
-  background: transparent; color: var(--text-secondary); cursor: pointer;
-  font-family: inherit; font-size: 13px; transition: background 0.15s, color 0.15s;
+/* --- サイドバー下部（SidebarFooter + NavUser 相当） --- */
+.sidebar-foot { display: flex; flex-direction: column; gap: 2px; padding: 0 2px; }
+/* アカウント行: NavUser の size-lg メニューボタン（h-12 / avatar + 名前 + 縦三点） */
+.account-btn {
+  display: flex; align-items: center; gap: 8px; width: 100%; text-align: left;
+  height: 48px; padding: 8px; border-radius: var(--radius-md); border: 0;
+  background: transparent; color: var(--sidebar-foreground); cursor: pointer;
+  font-size: 13px; transition: background 0.15s;
 }
-.account-btn:hover, .settings-btn-side:hover { background: var(--bg-card); color: var(--text-primary); }
-.settings-btn-side i { font-size: 18px; width: 20px; text-align: center; flex-shrink: 0; }
-.account-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; color: var(--text-primary); font-weight: 600; }
-.account-chevron { margin-left: auto; font-size: 16px; flex-shrink: 0; color: var(--text-muted); }
-/* 未ログイン時にアカウントボタンの上へ出す赤字の案内 */
+.account-btn:hover { background: var(--sidebar-accent); }
+.account-name {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;
+  color: var(--sidebar-foreground); font-size: 13.5px; font-weight: 500;
+}
+.account-chevron { margin-left: auto; font-size: 15px; flex-shrink: 0; color: var(--muted-foreground); }
+/* 未ログイン時にアカウントボタンの上へ出す案内（destructive トーン） */
 .login-hint {
   display: flex; align-items: center; gap: 6px;
-  margin: 0 0 4px; padding: 6px 10px;
-  font-size: 11.5px; font-weight: 600; line-height: 1.3;
-  color: #d64545; background: rgba(214, 69, 69, 0.08); border-radius: 8px;
+  margin: 0 0 2px; padding: 6px 8px;
+  font-size: 11.5px; font-weight: 500; line-height: 1.35;
+  color: var(--destructive);
+  background: color-mix(in oklab, var(--destructive) 10%, transparent);
+  border-radius: var(--radius-md);
 }
 .login-hint i { font-size: 14px; flex-shrink: 0; }
-[data-theme="dark"] .login-hint { color: #ff8686; background: rgba(255, 134, 134, 0.12); }
-/* 設定パネル内のログイン/ログアウト導線 */
-.account-actions { margin: 12px 0; }
-.account-actions .settings-btn-side { border: 1px solid var(--border-subtle); }
-/* アカウントのアバター（頭文字を表示する円） */
+/* アカウントのアバター（頭文字表示。NavUser の size-8 rounded-lg 相当） */
 .avatar {
   display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
-  width: 26px; height: 26px; border-radius: 50%;
-  background: var(--accent); color: #fff; font-size: 12px; font-weight: 700;
+  width: 32px; height: 32px; border-radius: var(--radius-md);
+  background: var(--sidebar-primary); color: var(--sidebar-primary-foreground);
+  font-size: 13px; font-weight: 600;
 }
-[data-theme="dark"] .avatar { color: var(--bg-base); }
-.avatar-lg { width: 52px; height: 52px; font-size: 22px; }
+.avatar-lg { width: 48px; height: 48px; font-size: 19px; }
+/* 設定パネル内のログイン/ログアウト導線（shadcn outline ボタン相当） */
+.settings-btn-side {
+  display: flex; align-items: center; gap: 8px; width: 100%; text-align: left;
+  height: 36px; padding: 0 12px; border-radius: var(--radius-md);
+  border: 1px solid var(--border); background: var(--background);
+  color: var(--foreground); cursor: pointer; font-size: 13px;
+  transition: background 0.15s;
+}
+.settings-btn-side:hover { background: var(--muted); }
+.settings-btn-side i { font-size: 16px; width: 18px; text-align: center; flex-shrink: 0; }
+.account-actions { margin: 12px 0; display: flex; flex-direction: column; gap: 8px; max-width: 260px; }
 
 /* ============================================================
-   5. HEADER — 最小限のツールバー（高さは従来の約半分）
+   5. HEADER — SiteHeader（h-12 / border-b / トリガー + 縦区切り線）相当
+      コイン・進捗バー自体のスタイルは game.css が持つ（変更しない）
    ============================================================ */
 .app-header {
-  background: var(--bg-header); border-bottom: 1px solid var(--border-subtle);
-  padding: 5px 14px; display: flex; align-items: center; justify-content: space-between;
-  position: relative; flex-shrink: 0; gap: 12px;
+  height: var(--header-height); flex-shrink: 0;
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 16px; border-bottom: 1px solid var(--border);
 }
-.app-header::before {
-  content: ''; position: absolute; inset: 0;
-  background: radial-gradient(ellipse at 90% 160%, var(--glow) 0%, transparent 70%); pointer-events: none;
-}
-.header-actions { display: flex; align-items: center; gap: 8px; position: relative; }
+/* トリガー直後の縦区切り線（SiteHeader の Separator 相当） */
+.hdr-sep { width: 1px; height: 16px; background: var(--border); flex-shrink: 0; margin: 0 4px; }
 
-/* ヘッダーのアイコンボタン（サイドバー切替 / 表示設定） */
+/* アイコンボタン（SidebarTrigger: ghost / size-8 / rounded-md 相当） */
 .icon-btn {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
-  background: transparent; border: 1px solid transparent; color: var(--text-secondary);
-  cursor: pointer; font-size: 20px; position: relative;
-  transition: color 0.15s, background 0.15s, border-color 0.15s;
+  width: 32px; height: 32px; border-radius: var(--radius-md); flex-shrink: 0;
+  background: transparent; border: 0; color: var(--foreground);
+  cursor: pointer; font-size: 18px;
+  transition: background 0.15s;
 }
-.icon-btn:hover { color: var(--accent); background: var(--bg-card); border-color: var(--border-color); }
-[data-theme="dark"] .icon-btn:hover { color: var(--accent-mid); }
+.icon-btn:hover { background: var(--muted); }
 
 /* ============================================================
    6. VIEWER — iframe プレビュー + ウェルカム空状態
    ============================================================ */
-.content { flex: 1; min-height: 0; position: relative; background: var(--bg-base); }
-.preview {
-  width: 100%; height: 100%; border: 0; display: block;
-  background: var(--bg-base);
-}
+.content { flex: 1; min-height: 0; position: relative; background: var(--background); }
+.preview { width: 100%; height: 100%; border: 0; display: block; background: var(--background); }
 .preview.hidden { display: none; }
 
 .welcome {
@@ -283,115 +303,132 @@ a { color: inherit; }
 }
 .welcome.hidden { display: none; }
 .welcome-icon {
-  width: 76px; height: 76px; border-radius: 20px; background: var(--accent-soft); color: var(--accent);
-  display: flex; align-items: center; justify-content: center; font-size: 38px; margin-bottom: 22px;
+  width: 72px; height: 72px; border-radius: var(--radius-xl);
+  background: color-mix(in oklab, var(--primary) 10%, transparent); color: var(--primary);
+  display: flex; align-items: center; justify-content: center; font-size: 36px; margin-bottom: 20px;
 }
-[data-theme="dark"] .welcome-icon { color: var(--accent-mid); }
-.welcome h1 { font-size: 22px; font-weight: 700; color: var(--text-primary); margin-bottom: 10px; }
-.welcome p { font-size: 13.5px; color: var(--text-secondary); line-height: 1.7; max-width: 440px; }
-.welcome .count { color: var(--accent); font-weight: 700; }
-[data-theme="dark"] .welcome .count { color: var(--accent-mid); }
+.welcome h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; color: var(--foreground); margin-bottom: 10px; }
+.welcome p { font-size: 13.5px; color: var(--muted-foreground); line-height: 1.7; max-width: 440px; }
+.welcome .count { color: var(--primary); font-weight: 600; }
 
 /* ============================================================
-   7. 設定モーダル（左ナビ + 右コンテンツ）
+   7. SETTINGS MODAL — shadcn Dialog（bg-black/50 + rounded-xl + shadow-lg）風
    ============================================================ */
 .settings-overlay {
   display: none; position: fixed; inset: 0; z-index: 1000;
-  background: rgba(0,0,0,0.45); align-items: center; justify-content: center; padding: 24px;
+  background: rgb(0 0 0 / 0.5); align-items: center; justify-content: center; padding: 24px;
 }
 .settings-overlay.open { display: flex; }
 .settings-modal {
   position: relative; display: flex; width: 720px; max-width: 100%; height: 540px; max-height: 88vh;
-  background: var(--bg-win); border: 1px solid var(--border-color); border-radius: 16px;
-  overflow: hidden; box-shadow: var(--shadow-pop);
+  background: var(--background); border: 1px solid var(--border);
+  border-radius: var(--radius-xl); overflow: hidden; box-shadow: var(--shadow-pop);
 }
 .settings-close {
   position: absolute; top: 12px; right: 12px; z-index: 2;
-  display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px;
-  border-radius: 8px; background: transparent; border: none; color: var(--text-muted);
-  cursor: pointer; font-size: 20px;
+  display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px;
+  border-radius: var(--radius-sm); background: transparent; border: 0; color: var(--muted-foreground);
+  cursor: pointer; font-size: 17px; transition: background 0.15s, color 0.15s;
 }
-.settings-close:hover { color: var(--text-primary); background: var(--bg-card); }
+.settings-close:hover { color: var(--foreground); background: var(--muted); }
 
-/* 左ナビ */
+/* 左ナビ（Dialog 内 aside: bg-muted/30 + border-r 相当） */
 .settings-nav {
-  width: 200px; flex-shrink: 0; background: var(--bg-side);
-  border-right: 1px solid var(--border-subtle); padding: 16px 12px; overflow-y: auto;
+  width: 200px; flex-shrink: 0;
+  background: color-mix(in oklab, var(--muted) 40%, transparent);
+  border-right: 1px solid var(--border); padding: 12px; overflow-y: auto;
 }
 .settings-search { position: relative; margin-bottom: 12px; }
-.settings-search i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 16px; pointer-events: none; }
+.settings-search i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--muted-foreground); font-size: 14px; pointer-events: none; }
 .settings-search input {
-  width: 100%; background: var(--bg-win); border: 1px solid var(--border-color); border-radius: 9px;
-  padding: 8px 10px 8px 32px; color: var(--text-primary); font-family: inherit; font-size: 13px; outline: none;
+  width: 100%; height: 32px; background: var(--background); border: 1px solid var(--input);
+  border-radius: var(--radius-md); padding: 0 10px 0 30px;
+  color: var(--foreground); font-family: inherit; font-size: 13px; outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
-.settings-search input:focus { border-color: var(--accent); }
-.settings-nav-label { font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; color: var(--text-muted); text-transform: uppercase; padding: 6px 10px; }
+.settings-search input:focus {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 30%, transparent);
+}
+.settings-nav-label { font-size: 13px; font-weight: 600; color: var(--foreground); padding: 4px 8px 8px; }
 .settings-nav-item {
-  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
-  padding: 9px 10px; border-radius: 9px; border: 1px solid transparent;
-  background: transparent; color: var(--text-secondary); cursor: pointer;
-  font-family: inherit; font-size: 13.5px; transition: background 0.15s, color 0.15s;
+  display: flex; align-items: center; gap: 8px; width: 100%; text-align: left;
+  height: 32px; padding: 0 8px; border-radius: var(--radius-md); border: 0;
+  background: transparent; color: var(--foreground); cursor: pointer;
+  font-size: 13px; transition: background 0.15s, color 0.15s;
 }
-.settings-nav-item i { font-size: 18px; width: 20px; text-align: center; flex-shrink: 0; }
-.settings-nav-item:hover { background: var(--bg-card); color: var(--text-primary); }
-.settings-nav-item.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
-[data-theme="dark"] .settings-nav-item.active { color: var(--accent-mid); }
-.settings-nav-empty { padding: 12px 10px; font-size: 12.5px; color: var(--text-muted); }
+.settings-nav-item i { font-size: 16px; width: 18px; text-align: center; flex-shrink: 0; }
+.settings-nav-item:hover { background: var(--muted); }
+.settings-nav-item.active {
+  background: color-mix(in oklab, var(--primary) 10%, transparent);
+  color: var(--primary); font-weight: 500;
+}
+.settings-nav-empty { padding: 12px 8px; font-size: 12.5px; color: var(--muted-foreground); }
 
 /* 右コンテンツ */
-.settings-content { flex: 1; min-width: 0; overflow-y: auto; padding: 28px 30px; background: var(--bg-win); }
+.settings-content { flex: 1; min-width: 0; overflow-y: auto; padding: 24px 28px; }
 .settings-panel { display: none; }
 .settings-panel.active { display: block; }
-.settings-title { font-size: 18px; font-weight: 700; color: var(--text-primary); margin-bottom: 20px; }
-.settings-note { font-size: 12px; color: var(--text-muted); line-height: 1.7; margin-top: 12px; }
-.settings-value { font-size: 13px; color: var(--text-secondary); }
+.settings-title { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; color: var(--foreground); margin-bottom: 20px; }
+.settings-note { font-size: 12px; color: var(--muted-foreground); line-height: 1.7; margin-top: 12px; }
+.settings-value { font-size: 13px; color: var(--muted-foreground); }
 /* アカウント見出し（大アバター + 名前） */
 .account-head { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
-.account-head-name { font-size: 15px; font-weight: 700; color: var(--text-primary); }
-.account-head-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.account-head-name { font-size: 15px; font-weight: 600; color: var(--foreground); }
+.account-head-sub { font-size: 12px; color: var(--muted-foreground); margin-top: 2px; }
 
-/* 設定行: ラベル左・選択肢右（外観パネル等で使用） */
+/* 設定行: ラベル左・選択肢右 */
 .setting-row {
   display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 2px;
 }
-.setting-row + .setting-row { border-top: 1px solid var(--border-subtle); } /* 薄い区切り線 */
-/* ラベル: 濃い太字で視認性を確保 */
-.setting-label { font-size: 13.5px; font-weight: 700; color: var(--text-primary); white-space: nowrap; }
-.setting-options { display: flex; gap: 6px; }
-/* 選択肢チップ（横並び） */
+.setting-row + .setting-row { border-top: 1px solid var(--border); }
+.setting-label { font-size: 13.5px; font-weight: 500; color: var(--foreground); white-space: nowrap; }
+.setting-options { display: flex; gap: 6px; flex-wrap: wrap; }
+/* 選択肢チップ: shadcn Button（未選択=outline / 選択中=default）相当 */
 .opt-chip {
   display: inline-flex; align-items: center; gap: 6px;
-  padding: 7px 14px; border-radius: 9px; cursor: pointer;
+  height: 32px; padding: 0 12px; border-radius: var(--radius-md); cursor: pointer;
   font-family: inherit; font-size: 12.5px; font-weight: 500;
-  color: var(--text-secondary); background: var(--bg-base); border: 1px solid var(--border-color);
+  color: var(--foreground); background: var(--background); border: 1px solid var(--border);
   transition: color 0.15s, background 0.15s, border-color 0.15s;
 }
-.opt-chip:hover { color: var(--text-primary); border-color: var(--text-muted); }
-.opt-chip.active { color: var(--accent); background: var(--accent-soft); border-color: var(--accent); font-weight: 700; }
-[data-theme="dark"] .opt-chip.active { color: var(--accent-mid); border-color: var(--accent-mid); }
+.opt-chip:hover { background: var(--muted); }
+.opt-chip.active {
+  color: var(--primary-foreground); background: var(--primary); border-color: var(--primary);
+}
 /* アクセント識別用の色ドット（色はインライン style で指定） */
-.opt-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; border: 1px solid rgba(125,125,125,0.35); }
+.opt-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; border: 1px solid rgb(125 125 125 / 0.35); }
 
 /* ============================================================
-   8. サイドバー表示切替 / レスポンシブ
-      ヘッダーの切替ボタンで .app-window に .sidebar-collapsed を付与する。
+   8. サイドバー開閉 / レスポンシブ
+      JS は .app-window に .sidebar-collapsed を付け外しするだけ（変更禁止）。
+      デスクトップ: offcanvas — サイドバーを左へスライドさせ、メインが全幅に
+      narrow 幅   : オーバーレイのドロワー + スクリム
    ============================================================ */
-/* デスクトップ: 折りたたみ時はサイドバーを隠してメインを全幅に */
-.app-window.sidebar-collapsed .sidebar { display: none; }
-
 .sidebar-scrim {
-  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 80;
+  display: none; position: fixed; inset: 0; background: rgb(0 0 0 / 0.5); z-index: 80;
 }
 
-/* narrow 幅: サイドバーをオーバーレイのドロワーにする */
+@media (min-width: 761px) {
+  /* margin-left をマイナスにして画面外へ（transition は .sidebar 本体に定義済み） */
+  .app-window.sidebar-collapsed .sidebar { margin-left: calc(var(--sidebar-width) * -1); }
+  .app-window.sidebar-collapsed .main { margin-left: var(--inset-gap); }
+}
+
 @media (max-width: 760px) {
+  /* メインは全幅・角丸なし（SidebarInset は md 未満だと通常表示） */
+  .main { margin: 0; border-radius: 0; box-shadow: none; }
+  /* サイドバーは固定ドロワー（Sheet 相当）。開閉は transform で行う */
   .sidebar {
     position: fixed; top: 0; left: 0; height: 100%; z-index: 90;
-    transition: transform 0.22s ease; box-shadow: var(--shadow-pop);
+    width: var(--sidebar-width-mobile);
+    background: var(--sidebar);
+    border-right: 1px solid var(--sidebar-border);
+    transition: transform 0.2s linear;
+    box-shadow: var(--shadow-pop);
   }
-  /* 開いている（collapsed でない）: スライドイン + スクリム表示 */
   .app-window:not(.sidebar-collapsed) .sidebar { transform: translateX(0); }
   .app-window:not(.sidebar-collapsed) .sidebar-scrim { display: block; }
-  /* 閉じている: display:none ではなく画面外へスライド */
-  .app-window.sidebar-collapsed .sidebar { display: flex; transform: translateX(-100%); }
+  /* display:none ではなく画面外へスライド（アニメーションを効かせる） */
+  .app-window.sidebar-collapsed .sidebar { transform: translateX(-100%); }
 }

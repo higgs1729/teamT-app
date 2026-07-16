@@ -406,20 +406,28 @@
   /* ============================================================
      表示設定 — テーマ(背景) と アクセント色 を独立して切替。
        - テーマ(data-theme): light / dark … 背景・文字
-       - アクセント(data-accent): orange / blue … アクセント色のみ
-     どちらも localStorage に保存。setTheme / setAccent / toggleThemeMenu
-     はインライン onclick から呼ぶため window に公開する。
+       - アクセント(data-accent): indigo/violet/cyan/emerald/amber（css/tokens.css の
+         [data-accent="..."] 定義。react-shadcn の studio-portfolio/settings-page.tsx
+         accents 配列を移植したもの）… アクセント色のみ、既定は indigo
+     どちらも localStorage に保存。setTheme / setAccent はインライン onclick から
+     呼ぶため window に公開する。
      ============================================================ */
+  const ACCENT_IDS    = ["indigo", "violet", "cyan", "emerald", "amber"];
+  const DEFAULT_ACCENT = "indigo";
+
   function applyTheme(name) {
     document.documentElement.setAttribute("data-theme", name);
     document.querySelectorAll("[data-theme-name]").forEach(i =>
       i.classList.toggle("active", i.dataset.themeName === name));
   }
 
+  // 旧バージョン（orange/blue の2択）を保存済みのユーザーがいるため、
+  // tokens.css に定義の無いアクセント名は既定(indigo)へフォールバックする
   function applyAccent(name) {
-    document.documentElement.setAttribute("data-accent", name);
+    const resolved = ACCENT_IDS.includes(name) ? name : DEFAULT_ACCENT;
+    document.documentElement.setAttribute("data-accent", resolved);
     document.querySelectorAll("[data-accent-name]").forEach(i =>
-      i.classList.toggle("active", i.dataset.accentName === name));
+      i.classList.toggle("active", i.dataset.accentName === resolved));
   }
 
   // 選択してもモーダルは閉じない（テーマとアクセントを続けて選べる）
@@ -430,8 +438,7 @@
   function initTheme() {
     const savedTheme = localStorage.getItem(THEME_KEY);
     if (savedTheme) applyTheme(savedTheme);
-    const savedAccent = localStorage.getItem(ACCENT_KEY);
-    if (savedAccent) applyAccent(savedAccent);
+    applyAccent(localStorage.getItem(ACCENT_KEY));
   }
 
   /* ============================================================
@@ -549,7 +556,7 @@
     localStorage.removeItem(LOGIN_KEY);
     localStorage.removeItem(EMAIL_KEY);
     applyTheme("light");
-    applyAccent("orange");
+    applyAccent(DEFAULT_ACCENT);
     setAccountName(DEFAULT_NAME);
     applyLoginState();
   };

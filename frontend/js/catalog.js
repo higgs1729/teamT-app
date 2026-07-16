@@ -9,6 +9,7 @@
      templates/data/   データ・検索系
      templates/tools/  為替・ツール系
      templates/fun/    エンタメ・おもしろ系
+     templates/other/  その他（既存4ジャンルに当てはまらない複数API紹介ページ）
 
    各要素のフィールド:
      id          … URLハッシュ・選択識別子に使う一意キー（ファイル名ベース）
@@ -21,6 +22,10 @@
      apiName     … 利用している外部API名
      apiUrl      … 関連する公式ページ（参考リンク）
      icon        … Tabler Icons のクラス名（例 "ti-dog"）
+     apiCount    … （省略可・既定1）1ページが複数の外部APIをまとめて紹介する場合の
+                    内訳API数。ウェルカム画面・設定＞その他の「収録API数」はこの値の
+                    合計で数える（例: itiran/itiran2 は複数APIをまとめて紹介するため
+                    それぞれ実際の内訳件数を設定）
    ============================================================ */
 
 window.CATALOG = [
@@ -389,9 +394,9 @@ window.CATALOG = [
 
   /* ---------- その他（既存4ジャンルに当てはまらない複数API紹介ページ） ---------- */
   { id: "itiran", file: "other/itiran.html", title: "API一覧", category: "その他", categoryPath: ["その他", "複数API紹介"],
-    description: "複数の外部APIを検索・選択し、説明とレスポンス(JSON)をまとめて表示", apiName: "MusicBrainz / Open Disease / Radio Browser / Lyrics.ovh", apiUrl: "", icon: "ti-search" },
+    description: "複数の外部APIを検索・選択し、説明とレスポンス(JSON)をまとめて表示", apiName: "MusicBrainz / Open Disease / Radio Browser / Lyrics.ovh", apiUrl: "", icon: "ti-search", apiCount: 3 },
   { id: "itiran2", file: "other/itiran2.html", title: "API Viewer", category: "その他", categoryPath: ["その他", "複数API紹介"],
-    description: "サイドバーから複数の外部APIを選び、レスポンス(JSON)と詳細を表示", apiName: "Fun Fact API / JokeAPI / Imgflip / Foodish / JSONPlaceholder", apiUrl: "", icon: "ti-browser" },
+    description: "サイドバーから複数の外部APIを選び、レスポンス(JSON)と詳細を表示", apiName: "Fun Fact API / JokeAPI / Imgflip / Foodish / JSONPlaceholder / Advice Slip API / CatFact Ninja", apiUrl: "", icon: "ti-browser", apiCount: 19 },
 ];
 
 

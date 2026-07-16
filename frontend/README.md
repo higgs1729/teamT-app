@@ -22,7 +22,7 @@ UI デザインは react-shadcn（`app/dashboard-01` の inset シェル + shadc
 ## 構成
 
 ```
-fronted-v2/
+frontend/
 ├── index.html        # サイドバー + ヘッダー + iframe ビューアの骨格
 ├── css/
 │   ├── tokens.css    # react-shadcn から移植したデザイントークン（テーマ/アクセント）

@@ -578,16 +578,22 @@
   /* ============================================================
      初期化
      ============================================================ */
+  // 収録API数 — 通常は1ページ=1件だが、複数の外部APIをまとめて紹介するページは
+  // apiCount（省略時1）の内訳件数で数える（itiran/itiran2 等）
+  function totalApiCount() {
+    return CATALOG.reduce((sum, t) => sum + (t.apiCount || 1), 0);
+  }
+
   function init() {
     // ウェルカムの件数表示
     const countEl = document.getElementById("welcome-count");
-    if (countEl) countEl.textContent = CATALOG.length;
+    if (countEl) countEl.textContent = totalApiCount();
 
     initTheme();
     initAccount();
     initSettingsSearch();
     const apiCount = document.getElementById("settings-api-count");
-    if (apiCount) apiCount.textContent = CATALOG.length;
+    if (apiCount) apiCount.textContent = totalApiCount();
     loadRecommendations();
     renderList("");
 

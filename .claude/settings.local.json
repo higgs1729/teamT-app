@@ -33,7 +33,8 @@
       "Bash(node \"C:/Users/253207/AppData/Local/Temp/claude/C--Users-253207-Desktop-teamT-app/9dce1570-e5e1-42c3-ac49-0770dc3ff3e3/scratchpad/del.js\")",
       "Bash(node \"C:/Users/253207/AppData/Local/Temp/claude/C--Users-253207-Desktop-teamT-app/9dce1570-e5e1-42c3-ac49-0770dc3ff3e3/scratchpad/spec.js\")",
       "Bash(node -e \"global.window={}; require\\('./fronted-v2/js/catalog.js'\\); const c=window.CATALOG; console.log\\('entries:',c.length\\); const dead=['axolotl','coincap','kroki','qr','beeceptor','open-skills','nasa','zipcode'].filter\\(id=>c.some\\(e=>e.id===id\\)\\); console.log\\('still-present\\(should be empty\\):',dead\\); const ids=c.map\\(e=>e.id\\); console.log\\('dup ids:', ids.filter\\(\\(v,i\\)=>ids.indexOf\\(v\\)!==i\\)\\);\")",
-      "Bash(node -e \"global.window={}; require\\('./fronted-v2/js/catalog.js'\\); const c=window.CATALOG; console.log\\('entries:',c.length\\); console.log\\('present:', ['oto','yugio'].filter\\(id=>c.some\\(e=>e.id===id\\)\\)\\);\")"
+      "Bash(node -e \"global.window={}; require\\('./fronted-v2/js/catalog.js'\\); const c=window.CATALOG; console.log\\('entries:',c.length\\); console.log\\('present:', ['oto','yugio'].filter\\(id=>c.some\\(e=>e.id===id\\)\\)\\);\")",
+      "Bash(git mv *)"
     ]
   }
 }

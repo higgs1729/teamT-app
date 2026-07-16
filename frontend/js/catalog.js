@@ -380,6 +380,12 @@ window.CATALOG = [
     description: "入力テキストを大文字化するAPI候補", apiName: "SHOUTCLOUD", apiUrl: "http://shoutcloud.io/", icon: "ti-quote" },
   { id: "florida-man", file: "fun/florida-man.html", title: "Florida Man 見出しジェネレーター", category: "エンタメ・おもしろ系", categoryPath: ["エンタメ・おもしろ系", "ジョーク・雑学"],
     description: "月日を選んでその日の実在Florida Man見出しを表示", apiName: "Florida Man API", apiUrl: "https://github.com/juliayxhuang/florida-man-api", icon: "ti-mood-crazy-happy" },
+
+  /* ---------- その他（既存4ジャンルに当てはまらない複数API紹介ページ） ---------- */
+  { id: "itiran", file: "other/itiran.html", title: "API一覧", category: "その他", categoryPath: ["その他", "複数API紹介"],
+    description: "複数の外部APIを検索・選択し、説明とレスポンス(JSON)をまとめて表示", apiName: "MusicBrainz / Open Disease / Radio Browser / Lyrics.ovh", apiUrl: "", icon: "ti-search" },
+  { id: "itiran2", file: "other/itiran2.html", title: "API Viewer", category: "その他", categoryPath: ["その他", "複数API紹介"],
+    description: "サイドバーから複数の外部APIを選び、レスポンス(JSON)と詳細を表示", apiName: "Fun Fact API / JokeAPI / Imgflip / Foodish / JSONPlaceholder", apiUrl: "", icon: "ti-browser" },
 ];
 
 

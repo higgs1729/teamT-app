@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>Undertale風 回避ゲーム - 四隅安置完全対策版</title>
+<title>Undertale風 回避ゲーム - 綺麗ハート修正版</title>
 
 <style>
 body{
@@ -44,6 +44,7 @@ body{
     overflow:hidden;
 }
 
+/* 💖 プレイヤー（ハート）修正版 */
 #player{
     position:absolute;
     width:24px;
@@ -51,7 +52,6 @@ body{
     transition: filter 0.1s;
 }
 
-/* ハート本体 */
 #player::before,
 #player::after{
     content:"";
@@ -63,15 +63,15 @@ body{
 }
 
 #player::before{
-    left:10px;
+    left:11px;
     transform:rotate(-45deg);
-    transform-origin:0 100%;
+    transform-origin: 0% 100%;
 }
 
 #player::after{
-    left:0;
+    left:-1px;
     transform:rotate(45deg);
-    transform-origin:100% 100%;
+    transform-origin: 100% 100%;
 }
 
 /* 重力警告テキスト */
@@ -149,8 +149,8 @@ body{
     margin-left:-2px;
 }
 
-/* 🏆 シンプルなリザルト画面 */
-#result-screen {
+/* 🏁 スタート画面 & 🏆 リザルト画面の共通ベース */
+.overlay-screen {
     position: absolute;
     top: 0;
     left: 0;
@@ -167,26 +167,40 @@ body{
     transition: opacity 0.4s ease;
 }
 
-#result-screen.active {
+.overlay-screen.active {
     opacity: 1;
     pointer-events: auto;
 }
 
-#result-title {
+.screen-title {
     font-size: 38px;
     font-weight: bold;
-    margin-bottom: 15px;
+    margin-bottom: 25px;
     letter-spacing: 2px;
+    text-align: center;
 }
 
-#result-title.gameover {
+.screen-title.start {
+    color: #ffffff;
+    text-shadow: 0 0 10px #ffffff;
+}
+
+.screen-title.gameover {
     color: #ff3333;
     text-shadow: 0 0 15px #ff0000;
 }
 
-#result-title.clear {
+.screen-title.clear {
     color: #ffff33;
     text-shadow: 0 0 15px #ffff00;
+}
+
+.screen-subtitle {
+    font-size: 16px;
+    color: #aaa;
+    margin-bottom: 30px;
+    text-align: center;
+    line-height: 1.5;
 }
 
 #result-details {
@@ -195,7 +209,7 @@ body{
     color: #eee;
 }
 
-.retry-btn {
+.menu-btn {
     padding: 12px 30px;
     font-size: 18px;
     font-weight: bold;
@@ -206,14 +220,14 @@ body{
     transition: all 0.2s;
 }
 
-.retry-btn:hover {
+.menu-btn:hover {
     background: black;
     color: white;
     border-color: white;
     box-shadow: 0 0 10px white;
 }
 
-/* 通常・斜めブラスター（顔を共通規格化して崩れを防ぐ） */
+/* 通常・斜めブラスター */
 .blaster{
     position:absolute;
     width:80px;
@@ -252,7 +266,7 @@ body{
     box-shadow: 0 0 15px #00ffff;
 }
 
-/* 通常のビーム (幅を55pxから半分の「28px」に調整) */
+/* 通常のビーム (幅28px) */
 .beam{
     position:absolute;
     background:#00ffff;
@@ -334,11 +348,18 @@ body{
 <div id="countdown-overlay"></div>
 <div id="player"></div>
 
-<!-- 🏆 シンプルなリザルト画面 -->
-<div id="result-screen">
-    <div id="result-title">GAME OVER</div>
+<!-- 🏁 スタート画面 -->
+<div id="start-screen" class="overlay-screen active">
+    <div class="screen-title start">EVADE GAME</div>
+    <div class="screen-subtitle">矢印キー or WASDで移動して攻撃を避けろ！</div>
+    <button class="menu-btn" onclick="pressStartButton()">GAME START</button>
+</div>
+
+<!-- 🏆 リザルト画面 -->
+<div id="result-screen" class="overlay-screen">
+    <div id="result-title" class="screen-title">GAME OVER</div>
     <div id="result-details">0秒生存</div>
-    <button class="retry-btn" onclick="triggerRestart()">もう一度挑戦する</button>
+    <button class="menu-btn" onclick="triggerRestart()">もう一度挑戦する</button>
 </div>
 </div>
 
@@ -349,7 +370,7 @@ body{
 const NORMAL_HP = 5;       
 const NORMAL_SPEED = 4;    
 
-const URA_HP = 15;          
+const URA_HP = 3;          
 const URA_SPEED = 5;       
 // ========================================================
 
@@ -357,6 +378,7 @@ const game=document.getElementById("game");
 const player=document.getElementById("player");
 const gravityWarning=document.getElementById("gravity-warning");
 const countdownOverlay=document.getElementById("countdown-overlay");
+const startScreen=document.getElementById("start-screen");
 const resultScreen=document.getElementById("result-screen");
 const resultTitle=document.getElementById("result-title");
 const resultDetails=document.getElementById("result-details");
@@ -383,6 +405,7 @@ let blasterStarted = false;
 let beamInterval = null;
 let colorLineInterval = null;
 let madnessInterval = null; 
+let progressInterval = null;
 
 // 重力ギミック用変数
 let hasGravity = false;
@@ -749,6 +772,7 @@ function gameOver(){
     clearInterval(beamInterval);
     clearInterval(colorLineInterval);
     clearInterval(madnessInterval);
+    clearInterval(progressInterval);
     if(uraTimer) clearInterval(uraTimer);
     if(gravitySpawnInterval) clearInterval(gravitySpawnInterval);
     
@@ -765,6 +789,7 @@ function gameClear(isPerfect = false){
     clearInterval(beamInterval);
     clearInterval(colorLineInterval);
     clearInterval(madnessInterval);
+    clearInterval(progressInterval);
     if(uraTimer) clearInterval(uraTimer);
     if(gravitySpawnInterval) clearInterval(gravitySpawnInterval);
     
@@ -794,39 +819,42 @@ setInterval(()=>{
     spawnBone();
 },600);
 
-// 通常ステージ用進行管理
-let stageTimer = setInterval(()=>{
-    if(!playing || isUraStage || isCountingDown) return; 
+// 通常ステージ用進行管理タイマーの起動関数
+function startNormalStageTimeline() {
+    if(progressInterval) clearInterval(progressInterval);
+    progressInterval = setInterval(()=>{
+        if(!playing || isUraStage || isCountingDown) return; 
 
-    time++;
-    document.getElementById("time").textContent=time;
+        time++;
+        document.getElementById("time").textContent=time;
 
-    if(time === 10) {
-        colorLineInterval = setInterval(()=>{
-            if(playing && !isUraStage && !isCountingDown) spawnColorLine();
-        }, 1500);
-    }
-
-    if(time === 20){
-        clearInterval(colorLineInterval);
-        if(!blasterStarted){
-            blasterStarted = true;
-            beamInterval = setInterval(()=>{
-                if(playing && !isUraStage && !isCountingDown) startBlasterAttack();
-            }, 1200);
+        if(time === 10) {
+            colorLineInterval = setInterval(()=>{
+                if(playing && !isUraStage && !isCountingDown) spawnColorLine();
+            }, 1500);
         }
-    }
 
-    if(time === 25){
-        clearInterval(beamInterval); 
-        startMadnessCircleAttack(); 
-    }
+        if(time === 20){
+            clearInterval(colorLineInterval);
+            if(!blasterStarted){
+                blasterStarted = true;
+                beamInterval = setInterval(()=>{
+                    if(playing && !isUraStage && !isCountingDown) startBlasterAttack();
+                }, 1200);
+            }
+        }
 
-    if(time >= 30){
-        clearNormal = true; 
-        gameClear(false);
-    }
-},1000);
+        if(time === 25){
+            clearInterval(beamInterval); 
+            startMadnessCircleAttack(); 
+        }
+
+        if(time >= 30){
+            clearNormal = true; 
+            gameClear(false);
+        }
+    },1000);
+}
 
 
 /* =======================================================
@@ -864,8 +892,27 @@ function runCountdown(callback) {
 
 
 /* =======================================================
-   🔥 裏ステージ進行ロジック
+   🕹 スタートボタン・リスタート・裏突入制御
 ======================================================= */
+function pressStartButton() {
+    startScreen.classList.remove("active");
+    runCountdown(() => {
+        playing = true;
+        startNormalStageTimeline();
+    });
+}
+
+function triggerRestart() {
+    resultScreen.classList.remove("active");
+    clearAllEntities();
+    resetStateOnly();
+
+    runCountdown(() => {
+        playing = true;
+        startNormalStageTimeline();
+    });
+}
+
 let uraTimer = null;
 let gravitySpawnInterval = null;
 
@@ -948,20 +995,11 @@ function clearAllEntities() {
     document.querySelectorAll(".color-line").forEach(l=>l.remove());
 }
 
-function triggerRestart() {
-    resultScreen.classList.remove("active");
-    clearAllEntities();
-    resetStateOnly();
-
-    runCountdown(() => {
-        playing = true;
-    });
-}
-
 function resetStateOnly(){
     if(beamInterval) clearInterval(beamInterval);
     if(colorLineInterval) clearInterval(colorLineInterval);
     if(madnessInterval) clearInterval(madnessInterval);
+    if(progressInterval) clearInterval(progressInterval);
     if(uraTimer) clearInterval(uraTimer);
     if(gravitySpawnInterval) clearInterval(gravitySpawnInterval);
 
@@ -985,17 +1023,16 @@ function resetStateOnly(){
     keys = {}; 
 }
 
+// ⚠️ ロード時点では停止状態にしておく (playing=false)
 resetStateOnly();
-playing = true; 
+playing = false; 
 
 // 💥 ブラスター攻撃（縦横ブラスター2門 ＆ 常時、斜めブラスター1〜2門を同時に生成）
 function startBlasterAttack(){
-    // 1. 通常の縦横ブラスターを2つ生成
     const sides = ["top", "bottom", "left", "right"];
     const chosenSides = sides.sort(() => 0.5 - Math.random()).slice(0, 2);
     chosenSides.forEach(side => createBlaster(side));
 
-    // 2. 斜めブラスターを常時1〜2個、セットで確定出現させる
     const diagCount = Math.random() > 0.5 ? 2 : 1; 
     for(let i = 0; i < diagCount; i++) {
         spawnDiagonalCornerBlaster(i);
@@ -1029,13 +1066,12 @@ function createBlaster(side){
     }, 1000);
 }
 
-// 💥 ビームを射出 (幅を28pxに抑えて避けやすく調整)
+// 💥 ビームを射出 (幅28px)
 function fireBeam(side, blasterLeft, blasterTop){
     const beam = document.createElement("div");
     beam.className = "beam " + side;
     beam.hasHit = false;
 
-    // ビーム（28px）のセンタリング調整（中心のズレを防ぐ）
     switch(side){
         case "top": beam.style.left = (blasterLeft + 26) + "px"; beam.style.top = "0px"; break;
         case "bottom": beam.style.left = (blasterLeft + 26) + "px"; beam.style.top = "0px"; break;
@@ -1046,7 +1082,7 @@ function fireBeam(side, blasterLeft, blasterTop){
     setTimeout(()=>{ beam.remove(); }, 400);
 }
 
-// 🔮 四隅狙い撃ち用の斜めブラスター (バグを修正し、顔パーツのHTMLを100%正しくレンダリング)
+// 🔮 四隅狙い撃ち用の斜めブラスター (顔完全反映版)
 function spawnDiagonalCornerBlaster(offsetIndex = 0) {
     const corners = [
         { x: 40, y: 40, bx: -10, by: -10, angle: 45 },
@@ -1054,24 +1090,19 @@ function spawnDiagonalCornerBlaster(offsetIndex = 0) {
         { x: 40, y: 460, bx: -10, by: 440, angle: -45 },
         { x: 460, y: 460, bx: 430, by: 440, angle: -135 }
     ];
-    // 常時出るようにするため、インデックスが被らないように工夫
     const targetCorner = corners[(Math.floor(Math.random() * corners.length) + offsetIndex) % corners.length];
 
     const skull = document.createElement("div");
-    // 通常の.blasterクラスと同じサイズと仕様に統一して「顔」が完璧に反映されるように修正！
     skull.className = "blaster";
     skull.innerHTML = `<div class="eye left"></div><div class="eye right"></div><div class="nose"></div><div class="mouth"></div>`;
     
-    // 回転の起点（中心）を整える
     skull.style.transformOrigin = "center center";
 
-    // 最初は画面外
     skull.style.left = (targetCorner.bx - Math.cos((targetCorner.angle * Math.PI)/180)*150) + "px";
     skull.style.top = (targetCorner.by - Math.sin((targetCorner.angle * Math.PI)/180)*150) + "px";
-    skull.style.transform = `rotate(${targetCorner.angle - 90}deg)`; // 向きの調整
+    skull.style.transform = `rotate(${targetCorner.angle - 90}deg)`; 
     game.appendChild(skull);
 
-    // 狙う角のラインへスライド移動
     setTimeout(() => {
         skull.style.transition = "all 0.3s ease";
         skull.style.left = targetCorner.bx + "px";
@@ -1082,7 +1113,6 @@ function spawnDiagonalCornerBlaster(offsetIndex = 0) {
         if (!playing || isCountingDown) { skull.remove(); return; }
         skull.querySelectorAll(".eye").forEach(e => e.style.backgroundColor = "cyan");
         
-        // 四隅から中央へ突き抜ける斜めビームを射出 (少し太めの24px)
         fireMadnessBeam(targetCorner.bx + 40, targetCorner.by + 35, targetCorner.angle);
         
         setTimeout(() => { skull.remove(); }, 600);
@@ -1151,7 +1181,7 @@ function fireMadnessBeam(fromX, fromY, angleDegree){
     beam.angle = angleDegree; 
 
     beam.style.width = "700px"; 
-    beam.style.height = "24px"; // 斜めビーム
+    beam.style.height = "24px"; 
     beam.style.left = fromX + "px";
     beam.style.top = (fromY - 12) + "px"; 
     beam.style.transform = `rotate(${angleDegree}deg)`;
@@ -1163,6 +1193,8 @@ function fireMadnessBeam(fromX, fromY, angleDegree){
     }, 300);
 }
 </script>
+
+
 
 </body>
 </html>

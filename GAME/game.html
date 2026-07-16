@@ -2,759 +2,731 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>簡易RPG</title>
+<title>3Dダンジョン・ファンタジーRPG</title>
 
 <style>
-
-body{
-    background:#222;
-    color:white;
-    font-family:"Meiryo";
+body {
+    background: radial-gradient(circle, #1a1515 0%, #0a0808 100%);
+    color: #f0e6d2;
+    font-family: "Georgia", "Meiryo", serif;
+    margin: 0;
+    padding: 15px;
 }
 
-h1{
-    text-align:center;
+h1 {
+    text-align: center;
+    text-shadow: 0 0 10px rgba(255, 68, 68, 0.6);
+    font-size: 28px;
+    letter-spacing: 3px;
+    margin-bottom: 15px;
 }
 
-#game{
-    width:850px;
-    margin:auto;
+#game {
+    width: 900px;
+    margin: auto;
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #5a4a3a;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.9);
+    transition: transform 0.1s ease;
 }
 
-.statusArea{
-    display:flex;
-    justify-content:space-between;
-    gap:20px;
+/* 3D表示エリア */
+#viewContainer {
+    width: 100%;
+    height: 300px;
+    background: #000;
+    border: 2px solid #8c7255;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    position: relative;
+    overflow: hidden;
 }
 
-.card{
-    flex:1;
-    background:#333;
-    border:2px solid white;
-    border-radius:10px;
-    padding:15px;
+#threeDCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
 }
 
-.bar{
-    width:100%;
-    height:24px;
-    background:#555;
-    border-radius:20px;
-    overflow:hidden;
-    margin:8px 0;
+/* 画面上のエンカウント警告や状態テキスト表示 */
+#overlayText {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0,0,0,0.7);
+    padding: 5px 10px;
+    border-radius: 4px;
+    border: 1px solid #8c7255;
+    font-size: 14px;
+    pointer-events: none;
 }
 
-.fill{
-    height:100%;
-    width:100%;
-    transition:.4s;
+.statusArea {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
 }
 
-.hp{
-    background:#28c840;
+.card {
+    flex: 1;
+    background: linear-gradient(135deg, #221c18, #14100e);
+    border: 2px solid #705b44;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-size: 14px;
 }
 
-.exp{
-    background:#00aaff;
+.bar {
+    width: 100%;
+    height: 16px;
+    background: #1a1310;
+    border: 1px solid #5a4a3a;
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 5px 0;
 }
 
-button{
-    padding:12px 25px;
-    margin:10px;
-    font-size:18px;
-    cursor:pointer;
-    border:none;
-    border-radius:8px;
+.fill {
+    height: 100%;
+    width: 100%;
+    transition: width 0.3s ease-out;
 }
 
-button:hover{
-    transform:scale(1.05);
+.hp { background: #3fb950; }
+.exp { background: #388bfd; }
+
+button {
+    padding: 10px 20px;
+    margin: 5px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    background: linear-gradient(180deg, #8c7255, #5a4a3a);
+    color: #fff;
+    border: 1px solid #a89278;
+    border-radius: 6px;
+    box-shadow: 0 3px 5px rgba(0,0,0,0.4);
+    transition: all 0.2s ease;
 }
 
-button:disabled{
-    opacity:.5;
-    cursor:not-allowed;
-    transform:none;
+button:hover {
+    background: linear-gradient(180deg, #a89278, #6e5b47);
+    transform: translateY(-1px);
 }
 
-#buttons{
-    text-align:center;
+button:disabled {
+    opacity: .3;
+    cursor: not-allowed;
+    transform: none;
 }
 
-#log{
-    margin-top:20px;
-    height:220px;
-    overflow-y:auto;
-    background:black;
-    color:white;
-    border:2px solid white;
-    padding:10px;
-    font-size:18px;
-    line-height:1.8;
+#controlPanel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    background: #1a1411;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #5a4a3a;
 }
 
-.screenOverlay{
-    position:fixed;
-    inset:0;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    background:rgba(0,0,0,.82);
-    z-index:1000;
-    padding:20px;
+.controlGroup {
+    display: flex;
+    gap: 5px;
 }
 
-.screenOverlay.isVisible{
-    display:flex;
+#log {
+    margin-top: 15px;
+    height: 150px;
+    overflow-y: auto;
+    background: #080605;
+    color: #e6dfd5;
+    border: 2px solid #5a4a3a;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 14px;
+    line-height: 1.6;
+    scroll-behavior: smooth;
 }
 
-.screenPanel{
-    width:min(640px,100%);
-    background:linear-gradient(180deg,#3a2a00,#191919);
-    border:3px solid #ffd24a;
-    border-radius:18px;
-    padding:34px 28px;
-    text-align:center;
-    box-shadow:0 0 40px rgba(255,210,74,.35);
+@keyframes shake {
+    0%, 100% { transform: translate(0, 0); }
+    20% { transform: translate(-5px, 5px); }
+    40% { transform: translate(5px, -5px); }
+    60% { transform: translate(-5px, -5px); }
+    80% { transform: translate(5px, 5px); }
 }
 
-.screenPanel h2{
-    margin:0 0 12px;
-    font-size:44px;
+.shake-effect {
+    animation: shake 0.25s ease-in-out;
 }
 
-.screenPanel p{
-    margin:0 0 22px;
-    font-size:20px;
-    line-height:1.7;
+.screenOverlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, .9);
+    z-index: 1000;
 }
 
-.screenPanel .screenActions{
-    display:flex;
-    justify-content:center;
-    gap:12px;
-    flex-wrap:wrap;
+.screenOverlay.isVisible { display: flex; }
+
+.screenPanel {
+    width: 500px;
+    background: linear-gradient(180deg, #2c1a04, #110d0d);
+    border: 3px solid #c9a054;
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
 }
 
-.screenPanel .screenActions button{
-    margin:0;
+.logAttack { color: #5dade2; font-weight: bold; }
+.logEnemy { color: #ec7063; font-weight: bold; }
+.logHeal { color: #52be80; }
+.logLevel { color: #f4d03f; font-weight: bold; }
+.logSystem { color: #bdc3c7; font-style: italic; }
+
+.inventoryArea {
+    margin-top: 15px;
+    background: #17120f;
+    border: 2px solid #5a4a3a;
+    border-radius: 8px;
+    padding: 12px;
 }
 
-.logAttack{
-    color:skyblue;
+.inventoryList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
-.logEnemy{
-    color:#ff6666;
+.itemCard {
+    background: #241b16;
+    border: 1px solid #5a4a3a;
+    border-radius: 5px;
+    padding: 8px;
+    min-width: 150px;
 }
-
-.logHeal{
-    color:lime;
-}
-
-.logLevel{
-    color:gold;
-    font-weight:bold;
-}
-
-.inventoryArea{
-    margin-top:20px;
-    background:#333;
-    border:2px solid white;
-    border-radius:10px;
-    padding:15px;
-}
-
-.inventoryTitle{
-    margin:0 0 10px;
-}
-
-.inventoryList{
-    display:flex;
-    flex-wrap:wrap;
-    gap:10px;
-}
-
-.itemCard{
-    min-width:220px;
-    flex:1;
-    background:#444;
-    border:1px solid #777;
-    border-radius:8px;
-    padding:10px;
-}
-
-.itemName{
-    font-weight:bold;
-    margin-bottom:6px;
-}
-
-.itemEffect{
-    font-size:16px;
-    line-height:1.5;
-    margin-bottom:8px;
-}
-
-.itemButton{
-    width:100%;
-    margin:0;
-    font-size:16px;
-    padding:10px 12px;
-}
-
-.emptyInventory{
-    color:#bbb;
-    font-size:16px;
-}
-
 </style>
 </head>
 <body>
 
 <div id="game">
+    <h1>🧭 3Dダンジョン探索RPG 🧭</h1>
 
-<h1>⚔ 簡易RPG ⚔</h1>
+    <!-- 3D表示ビューポート -->
+    <div id="viewContainer">
+        <canvas id="threeDCanvas" width="800" height="300"></canvas>
+        <div id="overlayText">🧭 探索中... 周囲を警戒せよ</div>
+    </div>
 
-<div class="statusArea">
+    <div class="statusArea">
+        <!-- プレイヤー情報 -->
+        <div class="card">
+            <h3>🧙 勇者ステータス</h3>
+            <div>
+                HP <div class="bar"><div id="playerHPBar" class="fill hp"></div></div>
+                <div id="playerHPText" style="text-align:right; font-weight:bold; font-size:12px;"></div>
+            </div>
+            <div>
+                EXP <div class="bar"><div id="playerEXPBar" class="fill exp"></div></div>
+            </div>
+            <div id="playerInfo" style="margin-top:5px; font-size:13px; line-height:1.4;"></div>
+        </div>
 
-<div class="card">+
+        <!-- エネミー情報（非戦闘時は隠す、または待機表示） -->
+        <div class="card" id="enemyCard">
+            <h3 id="enemyName">探索中...</h3>
+            <div>
+                敵 HP <div class="bar"><div id="enemyHPBar" class="fill hp"></div></div>
+            </div>
+            <div id="enemyInfo" style="margin-top:5px; font-size:13px; line-height:1.4;">-</div>
+        </div>
+    </div>
 
-<h2>🧙 勇者</h2>
+    <!-- コントロールパネル（移動と戦闘を統合） -->
+    <div id="controlPanel">
+        <!-- 3D探索移動用 -->
+        <div>
+            <span style="font-size:12px; color:#a89278; display:block; margin-bottom:3px;">🚶 3D移動</span>
+            <div class="controlGroup">
+                <button id="btnTurnL" onclick="turnLeft()">↺ 左向</button>
+                <button id="btnMoveF" onclick="moveForward()">▲ 前進</button>
+                <button id="btnTurnR" onclick="turnRight()">右向 ↻</button>
+            </div>
+        </div>
 
-HP
+        <!-- 戦闘コマンド用 -->
+        <div>
+            <span style="font-size:12px; color:#e74c3c; display:block; margin-bottom:3px;">⚔ 戦闘コマンド</span>
+            <div class="controlGroup">
+                <button id="btnAttack" onclick="attack()" disabled>⚔ 攻撃</button>
+                <button id="btnHeal" onclick="heal()" disabled>💚 回復</button>
+                <button onclick="restart()">🔄 リセット</button>
+            </div>
+        </div>
+    </div>
 
-<div class="bar">
-<div id="playerHPBar" class="fill hp"></div>
-</div>
+    <div class="inventoryArea">
+        <h4 style="margin:0 0 8px 0; color:#ffd24a;">🎒 冒険者のバッグ</h4>
+        <div id="inventoryList" class="inventoryList"><div class="emptyInventory">空っぽです。</div></div>
+    </div>
 
-<div id="playerHPText"></div>
-
-EXP
-
-<div class="bar">
-<div id="playerEXPBar" class="fill exp"></div>
-</div>
-
-<div id="playerInfo"></div>
-
-</div>
-
-<div class="card">
-
-<h2 id="enemyName"></h2>
-
-HP
-
-<div class="bar">
-<div id="enemyHPBar" class="fill hp"></div>
-</div>
-
-<div id="enemyInfo"></div>
-
-</div>
-
-</div>
-
-<div id="buttons">
-<button onclick="attack()">⚔ 攻撃</button>
-<button onclick="heal()">💚 回復</button>
-<button onclick="restart()">🔄 最初から</button>
-</div>
-
-<div class="inventoryArea">
-<h2 class="inventoryTitle">🎒 持ち物</h2>
-<div id="inventoryList" class="inventoryList"></div>
-</div>
-
-<div id="log"></div>
-
+    <div id="log"></div>
 </div>
 
 <div id="clearOverlay" class="screenOverlay" aria-hidden="true">
-<div class="screenPanel">
-<h2>🎉 ゲームクリア</h2>
-<p>魔王を倒した！<br>勇者の冒険はここで完結だ。</p>
-<div class="screenActions">
-<button onclick="restart()">もう一度遊ぶ</button>
-</div>
-</div>
+    <div class="screenPanel">
+        <h2>🎉 伝説達成</h2>
+        <p>3D迷宮の最深部に君臨せよ魔王を撃破した！<br>世界は光を取り戻した。</p>
+        <button onclick="restart()">新天地へ旅立つ</button>
+    </div>
 </div>
 
 <script>
-
-/* ===== コイン連携（fronted-v2 のゲーム画面から起動される想定） =====
-   開始処理: 消費コインは COIN_COST（消費処理は親側 game.js が行う）
-   終了処理: 魔王撃破(クリア)/勇者死亡(ゲームオーバー)時に親へ game:ended を通知
-             coin 0 = ゲームオーバー / 1以上 = クリア報酬
-   (本番ビルド時は '*' を具体的なURLに差し替える) */
-const COIN_COST = 1;    // 1プレイの消費コイン
-const COIN_REWARD = 3;  // クリア報酬（難易度: 難）
+const COIN_REWARD = 3;
 
 function notifyGameEnded(coin){
-window.parent.postMessage({ type: 'game:ended', coin: coin }, '*');
+    try { window.parent.postMessage({ type: 'game:ended', coin: coin }, '*'); } catch(e){}
 }
 
-let player={
-    hp:180,
-    maxHp:180,
-    baseAtk:35,
-    atk:50,
-    level:1,
-    exp:0,
-    inventory:[],
-    activeBuffs:[]
-};
+// === 3Dダンジョンマップデータ (1 = 壁, 0 = 通路) ===
+const MAP_SIZE = 8;
+const dungeonMap = [
+    [1,1,1,1,1,1,1,1],
+    [1,0,0,0,1,0,0,1],
+    [1,0,1,0,1,0,1,1],
+    [1,0,1,0,0,0,0,1],
+    [1,0,1,1,1,1,0,1],
+    [1,0,0,0,0,1,0,1],
+    [1,1,1,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1]
+];
 
-let enemy={};
+// プレイヤー探索データ
+let posX = 1.5, posY = 1.5; // マップ座標
+let dirAngle = 0; // 向き（ラジアン）
+let isFighting = false;
 
-let gameCleared=false;
+let player = { hp: 180, maxHp: 180, baseAtk: 35, atk: 50, level: 1, exp: 0, inventory: [], activeBuffs: [] };
+let enemy = {};
+let gameCleared = false;
+let itemIdCount = 0;
+const ATTACK_BUFF_TURNS = 3;
 
 const enemyList = [
-    {name:"👹 スライム", hp:50, atk:10,enemy:"../GAME/img/suraimu.jpg"},
-    {name:"🐺 オオカミ", hp:70, atk:15,enemy:"../GAME/img/ookami.jpg"},
-    {name:"🧟 ゾンビ", hp:90, atk:18,enemy:"../GAME/img/zonbie.jpg"},
-    {name:"🦇 コウモリ", hp:40, atk:12,enemy:"../GAME/img/bat.jpg"},
-    {name:"🦂 サソリ", hp:80, atk:20,enemy:"../GAME/img-scorpion.jpg"},
-    {name:"🐍 大蛇", hp:100, atk:22,enemy:"../GAME/img/snake.jpg"},
-    {name:"🦁 ライオン", hp:120, atk:25,enemy:"../GAME/img/lion.jpg"},
-    {name:"👺 オーガ", hp:150, atk:30,enemy:"../GAME/img/hero.jpg"},
-    {name:"🐉 ドラゴン", hp:220, atk:40,enemy:"../GAME/img/doragon.jpg"},
-    {name:"👿 魔王", hp:350, atk:55,enemy:"../GAME/img/maou.jpg"}
+    {name:"👹 スライム", hp:50, atk:10, emoji:"👹"},
+    {name:"🐺 オオカミ", hp:70, atk:15, emoji:"🐺"},
+    {name:"🧟 ゾンビ", hp:90, atk:18, emoji:"🧟"},
+    {name:"🦇 コウモリ", hp:40, atk:12, emoji:"🦇"},
+    {name:"🦂 サソリ", hp:80, atk:20, emoji:"🦂"},
+    {name:"🐍 大蛇", hp:100, atk:22, emoji:"🐍"},
+    {name:"🦁 ライオン", hp:120, atk:25, emoji:"🦁"},
+    {name:"👺 オーガ", hp:150, atk:30, emoji:"👺"},
+    {name:"🐉 ドラゴン", hp:220, atk:40, emoji:"🐉"},
+    {name:"👿 魔王", hp:350, atk:55, emoji:"👿"}
 ];
 
-let itemIdCount=0;
+const itemPool = [
+    { name: "鉄の剣", effect: "attack", value: 5, description: "攻撃力 +5" },
+    { name: "回復ポーション", effect: "heal", value: 80, description: "HPを80回復" }
+];
 
-const ATTACK_BUFF_TURNS=3;
+// === 3Dグラフィックレンダリングエンジン ===
+const canvas = document.getElementById("threeDCanvas");
+const ctx = canvas.getContext("2d");
 
-const itemPool=[
-    {
-        name:"鉄の剣",
-        effect:"attack",
-        value:5,
-        description:"攻撃力 +5"
-    },
-    {
-        name:"鋭い短剣",
-        effect:"attack",
-        value:8,
-        description:"攻撃力 +8"
-    },
-    {
-        name:"英雄の剣",
-        effect:"attack",
-        value:12,
-        description:"攻撃力 +12"
-    },
-    {
-        name:"回復ポーション",
-        effect:"heal",
-        value:80,
-        description:"HPを80回復"
+function render3D() {
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    // 天井と床の描画（グラデーション）
+    let skyGrad = ctx.createLinearGradient(0,0,0,h/2);
+    skyGrad.addColorStop(0, '#050303');
+    skyGrad.addColorStop(1, '#1b1212');
+    ctx.fillStyle = skyGrad;
+    ctx.fillRect(0, 0, w, h/2);
+
+    let floorGrad = ctx.createLinearGradient(0,h/2,0,h);
+    floorGrad.addColorStop(0, '#120d0d');
+    floorGrad.addColorStop(1, '#050303');
+    ctx.fillStyle = floorGrad;
+    ctx.fillRect(0, h/2, w, h/2);
+
+    // レイキャスティングによる疑似3D壁の描画
+    const fov = Math.PI / 3; // 視野角60度
+    const numRays = 120; // 描画ライン数
+    const sliceWidth = w / numRays;
+
+    for (let i = 0; i < numRays; i++) {
+        let rayAngle = (dirAngle - fov/2) + (i / numRays) * fov;
+        let distance = 0;
+        let hitWall = false;
+
+        let cos = Math.cos(rayAngle);
+        let sin = Math.sin(rayAngle);
+
+        while (!hitWall && distance < 10) {
+            distance += 0.05;
+            let checkX = Math.floor(posX + cos * distance);
+            let checkY = Math.floor(posY + sin * distance);
+
+            if (checkX < 0 || checkX >= MAP_SIZE || checkY < 0 || checkY >= MAP_SIZE) {
+                hitWall = true;
+                distance = 10;
+            } else if (dungeonMap[checkY][checkX] > 0) {
+                hitWall = true;
+            }
+        }
+
+        // 魚眼レンズ効果の補正
+        let correctedDist = distance * Math.cos(rayAngle - dirAngle);
+        let wallHeight = Math.min(h, (h / correctedDist) * 0.8);
+
+        // 遠近による壁の色のグラデーション（奥に行くほど暗く）
+        let colorValue = Math.floor(Math.max(10, 140 - correctedDist * 18));
+        ctx.fillStyle = `rgb(${colorValue}, ${Math.floor(colorValue*0.8)}, ${Math.floor(colorValue*0.6)})`;
+        
+        // 壁の縦スライス線を描画
+        ctx.fillRect(i * sliceWidth, (h - wallHeight)/2, sliceWidth + 1, wallHeight);
+        
+        // 壁の縦枠線（立体感強調）
+        ctx.strokeStyle = `rgba(0,0,0,${Math.min(0.8, correctedDist*0.08)})`;
+        ctx.strokeRect(i * sliceWidth, (h - wallHeight)/2, sliceWidth + 1, wallHeight);
     }
-];
 
-function createEnemy(){
+    // 戦闘中なら敵の巨大3Dビルボード（絵）を中央に描画
+    if (isFighting && enemy) {
+        ctx.save();
+        ctx.font = "100px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        // 浮遊アニメーション
+        let bobbing = Math.sin(Date.now() * 0.005) * 10;
+        ctx.fillText(enemy.emoji || "👹", w/2, h/2 + bobbing);
+        ctx.restore();
+    }
+}
 
+// 探索・エンカウント処理
+function moveForward() {
+    if (isFighting || gameCleared) return;
+    let nextX = posX + Math.cos(dirAngle) * 0.4;
+    let nextY = posY + Math.sin(dirAngle) * 0.4;
+
+    // 壁判定
+    if (dungeonMap[Math.floor(nextY)][Math.floor(nextX)] === 0) {
+        posX = nextX;
+        posY = nextY;
+        render3D();
+        checkEncounter();
+    } else {
+        log("<span class='logSystem'>💥 壁にぶつかった！</span>");
+    }
+}
+
+function turnLeft() {
+    if (isFighting || gameCleared) return;
+    dirAngle -= Math.PI / 6;
+    render3D();
+}
+
+function turnRight() {
+    if (isFighting || gameCleared) return;
+    dirAngle += Math.PI / 6;
+    render3D();
+}
+
+function checkEncounter() {
+    if (Math.random() < 0.22) { // 22%でエンカウント
+        startBattle();
+    }
+}
+
+function startBattle() {
+    isFighting = true;
+    createEnemy();
+    log("<span class='logEnemy'>⚔ 警告！目の前に凶悪な魔物が出現！ ⚔</span>");
+    document.getElementById("overlayText").innerHTML = "⚠ 戦闘中！ 敵を殲滅せよ";
+    document.getElementById("overlayText").style.borderColor = "red";
+    
+    // コマンドボタンを切り替え
+    setBattleButtons(true);
+    setMoveButtons(false);
+    render3D();
+    draw();
+}
+
+function endBattle() {
+    isFighting = false;
+    document.getElementById("overlayText").innerHTML = "🧭 探索中... 周囲を警戒せよ";
+    document.getElementById("overlayText").style.borderColor = "#8c7255";
+    setBattleButtons(false);
+    setMoveButtons(true);
+    
+    document.getElementById("enemyName").innerHTML = "探索中...";
+    document.getElementById("enemyInfo").innerHTML = "-";
+    setBar("enemyHPBar", 0, 1);
+
+    render3D();
+    draw();
+}
+
+function setBattleButtons(active) {
+    document.getElementById("btnAttack").disabled = !active;
+    document.getElementById("btnHeal").disabled = !active;
+}
+
+function setMoveButtons(active) {
+    document.getElementById("btnMoveF").disabled = !active;
+    document.getElementById("btnTurnL").disabled = !active;
+    document.getElementById("btnTurnR").disabled = !active;
+}
+
+// 敵生成
+function createEnemy() {
     let e;
+    if(player.level <= 2) e = enemyList[Math.floor(Math.random()*3)];
+    else if(player.level <= 4) e = enemyList[Math.floor(Math.random()*6)];
+    else if(player.level <= 7) e = enemyList[Math.floor(Math.random()*8)];
+    else e = enemyList[Math.floor(Math.random()*10)];
 
-    // レベルによって出現する敵を増やす
-    if(player.level <= 2){
-        e = enemyList[Math.floor(Math.random()*3)];
-    }
-    else if(player.level <= 4){
-        e = enemyList[Math.floor(Math.random()*6)];
-    }
-    else if(player.level <= 7){
-        e = enemyList[Math.floor(Math.random()*8)];
-    }
-    else{
-        e = enemyList[Math.floor(Math.random()*10)];
-    }
-
-    enemy={
-        name:e.name+" Lv."+player.level,
-        hp:e.hp+player.level*10,
-        maxHp:e.hp+player.level*10,
-        atk:e.atk+player.level*3
+    enemy = {
+        name: e.name + " Lv." + player.level,
+        hp: e.hp + player.level * 10,
+        maxHp: e.hp + player.level * 10,
+        atk: e.atk + player.level * 3,
+        emoji: e.emoji
     };
-
 }
 
-createEnemy();
-
-function setBar(id,value,max){
-
-let per=value/max*100;
-
-let bar=document.getElementById(id);
-
-bar.style.width=per+"%";
-
-if(per>60){
-    bar.style.background="#28c840";
-}
-else if(per>30){
-    bar.style.background="orange";
-}
-else{
-    bar.style.background="red";
+function triggerDamageEffect() {
+    const gameArea = document.getElementById("game");
+    gameArea.classList.remove("shake-effect");
+    void gameArea.offsetWidth;
+    gameArea.classList.add("shake-effect");
 }
 
+function setBar(id, value, max) {
+    let per = (value / max) * 100;
+    if(per < 0) per = 0;
+    if(per > 100) per = 100;
+    let bar = document.getElementById(id);
+    bar.style.width = per + "%";
+    bar.style.background = per > 60 ? "#28c840" : per > 30 ? "#e67e22" : "#e74c3c";
 }
 
-function draw(){
+function draw() {
+    updateAttackPower();
+    setBar("playerHPBar", player.hp, player.maxHp);
+    
+    if (isFighting) {
+        setBar("enemyHPBar", enemy.hp, enemy.maxHp);
+        document.getElementById("enemyName").innerHTML = enemy.name;
+        document.getElementById("enemyInfo").innerHTML =
+            "❤️ <b>HP</b>: " + enemy.hp + " / " + enemy.maxHp + "<br>" +
+            "⚔ <b>攻撃力</b>: " + enemy.atk;
+    }
 
-if(gameCleared){
-    setBar("playerHPBar",player.hp,player.maxHp);
-    document.getElementById("playerEXPBar").style.width=(player.exp/30*100)+"%";
-    document.getElementById("playerHPText").innerHTML=
-    player.hp+" / "+player.maxHp;
-    document.getElementById("playerInfo").innerHTML=
-    "Lv : "+player.level+
-    "<br>攻撃 : "+player.atk+
-    "<br>EXP : "+player.exp+"/30"+
-    "<br>強化 : "+getAttackBuffText();
-    document.getElementById("enemyName").innerHTML=enemy.name;
-    document.getElementById("enemyInfo").innerHTML=
-    "HP : "+enemy.hp+" / "+enemy.maxHp+
-    "<br>攻撃 : "+enemy.atk;
+    document.getElementById("playerEXPBar").style.width = (player.exp / 30 * 100) + "%";
+    document.getElementById("playerHPText").innerHTML = player.hp + " / " + player.maxHp;
+
+    document.getElementById("playerInfo").innerHTML =
+        "👑 <b>レベル</b>: " + player.level + "<br>" +
+        "⚔ <b>総攻撃力</b>: " + player.atk + " (基本 " + player.baseAtk + ")<br>" +
+        "🛡 <b>強化状態</b>: " + getAttackBuffText();
+
     drawInventory();
-    return;
 }
 
-updateAttackPower();
-
-setBar("playerHPBar",player.hp,player.maxHp);
-setBar("enemyHPBar",enemy.hp,enemy.maxHp);
-
-document.getElementById("playerEXPBar").style.width=(player.exp/30*100)+"%";
-
-document.getElementById("playerHPText").innerHTML=
-player.hp+" / "+player.maxHp;
-
-document.getElementById("playerInfo").innerHTML=
-"Lv : "+player.level+
-"<br>攻撃 : "+player.atk+
-"<br>EXP : "+player.exp+"/30"+
-"<br>強化 : "+getAttackBuffText();
-
-document.getElementById("enemyName").innerHTML=enemy.name;
-
-document.getElementById("enemyInfo").innerHTML=
-"HP : "+enemy.hp+" / "+enemy.maxHp+
-"<br>攻撃 : "+enemy.atk;
-
-drawInventory();
-
-}
-
-function drawInventory(){
-
-let list=document.getElementById("inventoryList");
-
-if(player.inventory.length===0){
-    list.innerHTML="<div class='emptyInventory'>まだアイテムはありません。</div>";
-    return;
-}
-
-list.innerHTML=player.inventory.map(item=>
-    "<div class='itemCard'>"+
-    "<div class='itemName'>"+item.name+"</div>"+
-    "<div class='itemEffect'>"+item.description+"</div>"+
-    "<button class='itemButton'"+(gameCleared?" disabled":" onclick='useItem("+item.id+")'")+">使う</button>"+
-    "</div>"
-).join("");
-
-}
-
-function log(text){
-
-let area=document.getElementById("log");
-
-area.innerHTML+=text+"<br>";
-
-area.scrollTop=area.scrollHeight;
-
-}
-
-function showClearScreen(){
-
-gameCleared=true;
-
-document.getElementById("clearOverlay").classList.add("isVisible");
-document.getElementById("clearOverlay").setAttribute("aria-hidden","false");
-
-document.querySelectorAll("#buttons button, .itemButton").forEach(button=>{
-    button.disabled=true;
-});
-
-draw();
-
-notifyGameEnded(COIN_REWARD);
-
-}
-
-function hideClearScreen(){
-
-document.getElementById("clearOverlay").classList.remove("isVisible");
-document.getElementById("clearOverlay").setAttribute("aria-hidden","true");
-
-document.querySelectorAll("#buttons button, .itemButton").forEach(button=>{
-    button.disabled=false;
-});
-
-}
-
-function updateAttackPower(){
-
-player.atk=player.baseAtk+getActiveAttackBuffTotal();
-
-}
-
-function getActiveAttackBuffTotal(){
-
-return player.activeBuffs.reduce((sum,item)=>sum+item.value,0);
-
-}
-
-function getAttackBuffText(){
-
-let activeBuffs=player.activeBuffs;
-
-if(activeBuffs.length===0){
-    return "なし";
-}
-
-return activeBuffs.map(item=>item.name+" 残り"+item.turnsLeft+"T").join(", ");
-
-}
-
-function advanceTurns(){
-
-let changed=false;
-
-player.activeBuffs.forEach(item=>{
-
-    item.turnsLeft--;
-
-    if(item.turnsLeft<=0){
-        changed=true;
-        log("<span class='logLevel'>⏳ "+item.name+" の効果が切れた！</span>");
+function drawInventory() {
+    let list = document.getElementById("inventoryList");
+    if(player.inventory.length === 0){
+        list.innerHTML = "<div class='emptyInventory'>空っぽです。</div>";
+        return;
     }
-});
-
-if(changed){
-    player.activeBuffs=player.activeBuffs.filter(item=>item.turnsLeft>0);
+    list.innerHTML = player.inventory.map(item =>
+        `<div class='itemCard'>
+            <div style='font-weight:bold; color:#e5c158;'>📜 ${item.name}</div>
+            <div style='font-size:11px;'>${item.description}</div>
+            <button style='padding:4px; font-size:11px; width:100%; margin-top:5px;' onclick='useItem(${item.id})'>使用</button>
+         </div>`
+    ).join("");
 }
 
-updateAttackPower();
-
+function log(text) {
+    let area = document.getElementById("log");
+    area.innerHTML += text + "<br>";
+    area.scrollTop = area.scrollHeight;
 }
 
-function createItem(){
+function attack() {
+    if(!isFighting || gameCleared) return;
 
-let baseItem=itemPool[Math.floor(Math.random()*itemPool.length)];
+    let isCritical = Math.random() < 0.15;
+    let isMiss = Math.random() < 0.05;
 
-return {
-    id:++itemIdCount,
-    name:baseItem.name,
-    effect:baseItem.effect,
-    value:baseItem.value,
-    description:baseItem.description
-};
+    let damage = 0;
+    if (isMiss) {
+        log("<span class='logSystem'>💨 勇者の刃は空を切った！（ミス）</span>");
+    } else {
+        let baseDamage = Math.floor(Math.random() * 15) + player.atk;
+        damage = isCritical ? Math.floor(baseDamage * 1.5) : baseDamage;
+        enemy.hp -= damage;
+        if(enemy.hp < 0) enemy.hp = 0;
 
-}
-
-function obtainItem(){
-
-let item=createItem();
-
-player.inventory.push(item);
-
-log("<span class='logLevel'>🎁 アイテム入手！ "+item.name+"</span>");
-
-draw();
-
-}
-
-function useItem(itemId){
-
-let index=player.inventory.findIndex(item=>item.id===itemId);
-
-if(index===-1)return;
-
-let item=player.inventory[index];
-
-if(item.effect==="attack"){
-    player.activeBuffs.push({
-        id:item.id,
-        name:item.name,
-        effect:item.effect,
-        value:item.value,
-        description:item.description,
-        turnsLeft:ATTACK_BUFF_TURNS
-    });
-
-    log("<span class='logLevel'>✨ "+item.name+" を使った！ 攻撃力が "+item.value+" 上がった！</span>");
-}
-else if(item.effect==="heal"){
-    player.hp+=item.value;
-
-    if(player.hp>player.maxHp){
-        player.hp=player.maxHp;
+        if (isCritical) {
+            log("<span class='logAttack'>🔥 会心の一撃！ 敵に " + damage + " ダメージ！</span>");
+        } else {
+            log("<span class='logAttack'>⚔ 斬撃！ 敵に " + damage + " ダメージ！</span>");
+        }
     }
 
-    log("<span class='logHeal'>💊 "+item.name+" を使った！ HPが "+item.value+" 回復した！</span>");
+    draw();
+
+    if(enemy.hp <= 0){
+        log("<span class='logLevel'>🎉 敵を完全に消滅させた！</span>");
+        player.exp += 15;
+
+        if(Math.random() < 0.7) obtainItem();
+
+        if(player.exp >= 30){
+            player.exp = 0;
+            player.level++;
+            player.maxHp += 30;
+            player.hp = player.maxHp;
+            player.baseAtk += 8;
+            log("<span class='logLevel'>⭐ 勇者の魂が昇華！ Lv." + player.level + " にレベルアップ！</span>");
+        }
+
+        if(enemy.name.indexOf("魔王") !== -1){
+            showClearScreen();
+            return;
+        }
+
+        setTimeout(endBattle, 800);
+        return;
+    }
+
+    setBattleButtons(false);
+    setTimeout(enemyAttack, 600);
 }
 
-player.inventory.splice(index,1);
+function enemyAttack() {
+    if(!isFighting || gameCleared) return;
 
-advanceTurns();
+    let isMiss = Math.random() < 0.08;
+    if (isMiss) {
+        log("<span class='logSystem'>🛡 敵の攻撃を身軽にかわした。</span>");
+        setBattleButtons(true);
+        return;
+    }
 
-draw();
+    let damage = Math.floor(Math.random() * 5) + enemy.atk;
+    player.hp -= damage;
+    if(player.hp < 0) player.hp = 0;
 
+    triggerDamageEffect();
+    log("<span class='logEnemy'>👹 " + enemy.name + " の攻撃！ " + damage + " の痛打を受けた！</span>");
+    draw();
+
+    if(player.hp <= 0){
+        setTimeout(() => {
+            alert("迷宮で倒れました…");
+            notifyGameEnded(0);
+            restart();
+        }, 200);
+    } else {
+        setBattleButtons(true);
+    }
 }
 
-function attack(){
+function heal() {
+    if(!isFighting || gameCleared) return;
 
-if(gameCleared){
-    return;
+    let healVal = Math.floor(Math.random() * 30) + 35;
+    player.hp += healVal;
+    if(player.hp > player.maxHp) player.hp = player.maxHp;
+
+    log("<span class='logHeal'>💚 治癒の魔法！ HPが " + healVal + " 回復した。</span>");
+    draw();
+
+    setBattleButtons(false);
+    setTimeout(enemyAttack, 600);
 }
 
-let damage=Math.floor(Math.random()*15)+player.atk;
-
-enemy.hp-=damage;
-
-if(enemy.hp<0)enemy.hp=0;
-
-log("<span class='logAttack'>⚔ 勇者の攻撃！ "+damage+" ダメージ！</span>");
-
-draw();
-
-if(enemy.hp<=0){
-
-log("<span class='logLevel'>🎉 敵を倒した！</span>");
-
-player.exp+=10;
-
-if(Math.random()<0.7){
-    obtainItem();
+function updateAttackPower() {
+    player.atk = player.baseAtk + player.activeBuffs.reduce((sum, item) => sum + item.value, 0);
 }
 
-if(player.exp>=30){
-
-player.exp=0;
-player.level++;
-player.maxHp+=30;
-player.hp=player.maxHp;
-player.atk+=8;
-
-log("<span class='logLevel'>⭐ レベルアップ！ Lv."+player.level+"</span>");
-
+function getAttackBuffText() {
+    if(player.activeBuffs.length === 0) return "なし";
+    return player.activeBuffs.map(item => `<span style='color:#f1c40f;'>${item.name}(+${item.value}) ⏳${item.turnsLeft}T</span>`).join(", ");
 }
 
-if(enemy.name.indexOf("魔王")!==-1){
-
-log("<span class='logLevel'>👑 魔王を倒した！世界に平和が戻った！</span>");
-
-showClearScreen();
-
-return;
-
+function obtainItem() {
+    let baseItem = itemPool[Math.floor(Math.random() * itemPool.length)];
+    let item = { id: ++itemIdCount, ...baseItem };
+    player.inventory.push(item);
+    log("<span class='logLevel'>🎁 迷宮の暗がりで [" + item.name + "] を拾った！</span>");
+    draw();
 }
 
-createEnemy();
+function useItem(itemId) {
+    let index = player.inventory.findIndex(item => item.id === itemId);
+    if(index === -1) return;
+    let item = player.inventory[index];
 
-advanceTurns();
+    if(item.effect === "attack"){
+        player.activeBuffs.push({ ...item, turnsLeft: ATTACK_BUFF_TURNS });
+        log("<span class='logLevel'>✨ " + item.name + " を装備！一時的に攻撃が鋭くなった。</span>");
+    } else if(item.effect === "heal") {
+        player.hp += item.value;
+        if(player.hp > player.maxHp) player.hp = player.maxHp;
+        log("<span class='logHeal'>💊 " + item.name + " を使用。HP回復！</span>");
+    }
 
-draw();
-
-return;
-
+    player.inventory.splice(index, 1);
+    draw();
 }
 
-enemyAttack();
-
-advanceTurns();
-
+function showClearScreen() {
+    gameCleared = true;
+    document.getElementById("clearOverlay").classList.add("isVisible");
+    setBattleButtons(false);
+    setMoveButtons(false);
+    notifyGameEnded(COIN_REWARD);
 }
 
-function enemyAttack(){
-
-if(gameCleared){
-    return;
+function restart() {
+    player = { hp: 180, maxHp: 180, baseAtk: 35, atk: 50, level: 1, exp: 0, inventory: [], activeBuffs: [] };
+    posX = 1.5; posY = 1.5; dirAngle = 0;
+    itemIdCount = 0;
+    gameCleared = false;
+    document.getElementById("clearOverlay").classList.remove("isVisible");
+    document.getElementById("log").innerHTML = "<span class='logSystem'>3Dダンジョンの迷宮へ侵入した…</span><br>";
+    endBattle();
 }
 
-let damage=Math.floor(Math.random()*5)+enemy.atk;
-
-player.hp-=damage;
-
-if(player.hp<0)player.hp=0;
-
-log("<span class='logEnemy'>👹 "+enemy.name+" の攻撃！ "+damage+" ダメージ！</span>");
-
-draw();
-
-if(player.hp<=0){
-
-setTimeout(()=>{
-alert("ゲームオーバー");
-notifyGameEnded(0);
-},100);
-
+// 3Dアニメーション用ループ（浮遊エフェクト更新などのため）
+function animationLoop() {
+    render3D();
+    requestAnimationFrame(animationLoop);
 }
 
-}
-
-function heal(){
-
-if(gameCleared){
-    return;
-}
-
-let heal=Math.floor(Math.random()*30)+30;
-
-player.hp+=heal;
-
-if(player.hp>player.maxHp)
-player.hp=player.maxHp;
-
-log("<span class='logHeal'>💚 "+heal+" 回復した！</span>");
-
-draw();
-
-enemyAttack();
-
-}
-
-function restart(){
-
-player={
-hp:180,
-maxHp:180,
-baseAtk:20,
-atk:35,
-level:1,
-exp:0,
-inventory:[],
-activeBuffs:[]
-};
-
-itemIdCount=0;
-gameCleared=false;
-
-hideClearScreen();
-
-createEnemy();
-
-document.getElementById("log").innerHTML="";
-
-draw();
-
-}
-
-draw();
-
+// 開始
+restart();
+animationLoop();
 </script>
 
 </body>

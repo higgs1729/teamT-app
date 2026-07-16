@@ -100,7 +100,7 @@ C:\Users\253207\Desktop\react-shadcn\components\studio-portfolio\settings-page.t
 
 ### templates/ 各ページが利用する外部API（fronted-v2で紹介）
 
-`templates/` はジャンル別フォルダ（`image/` 画像・ビジュアル系、`data/` データ・検索系、`tools/` 為替・ツール系、`fun/` エンタメ・おもしろ系）に整理。
+`templates/` はジャンル別フォルダ（`image/` 画像・ビジュアル系、`data/` データ・検索系、`tools/` 為替・ツール系、`fun/` エンタメ・おもしろ系、`other/` その他）に整理。
 
 | ジャンル | ページ | 外部API | 用途 |
 |----------|--------|---------|------|
@@ -277,6 +277,11 @@ C:\Users\253207\Desktop\react-shadcn\components\studio-portfolio\settings-page.t
 | fun | florida-man | Florida Man API | 月日を指定して実在のFlorida Man見出しを表示 |
 | fun | meigenn | ローカルデータ(サンプル) | 名言をランダム表示 |
 | fun | Useless | Useless Facts / MyMemory Translation API / Unsplash Source | ランダム雑学を翻訳付きで表示 |
+| other | itiran | MusicBrainz / Open Disease / Radio Browser / Lyrics.ovh | 複数の外部APIを検索・選択してレスポンス(JSON)を一括表示 |
+| other | itiran2 | Fun Fact API / JokeAPI / Imgflip / Foodish / JSONPlaceholder | サイドバーから複数の外部APIを選んでレスポンス(JSON)を表示 |
+| data | Dictionary | Free Dictionary API | 英単語を検索し発音・品詞・意味を日本語訳付きで表示 |
+| fun | omikuzi | ローカルデータ(サンプル) | おみくじで運勢・ラッキーカラー等を表示 |
+| fun | quiz | ローカルデータ(サンプル) | カテゴリ付き4択クイズをランダム出題 |
 
 ※ 翻訳に MyMemory Translation API を併用するページあり（joke / ohuzake / Jikan / OpenTrivia / Yugio）。Cars は Argos Translate を併用。Useless は MyMemory Translation API と Unsplash Source を併用。`zyouku` は Google Translate を利用する。NASA系・RAWG(game)はAPIキーが必要。wakusei / meigenn / genngohonnyaku / sindan は外部APIを使わないローカルデータのサンプル。`minecraft-server-status` はブラウザの User-Agent 制約で live fetch が失敗する場合があるため、icon endpoint とサンプル fallback を併用する。`autochess-vng` は公開リポジトリ由来のサンプル図鑑として扱い、ライブ API が使えない場合はサンプル表示を行う。
 

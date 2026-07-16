@@ -252,6 +252,8 @@ window.CATALOG = [
     description: "インドネシア語辞書API候補の検索例を表示", apiName: "Indonesia Dictionary", apiUrl: "https://new-kbbi-api.herokuapp.com/", icon: "ti-book" },
   { id: "wiktionary", file: "data/wiktionary.html", title: "Wiktionary Search", category: "データ・検索系", categoryPath: ["データ・検索系", "辞書・言語"],
     description: "WiktionaryのMediaWiki APIから辞書ページを検索", apiName: "Wiktionary", apiUrl: "https://en.wiktionary.org/w/api.php", icon: "ti-book" },
+  { id: "dictionary-ja", file: "data/Dictionary.html", title: "日本語 Dictionary API", category: "データ・検索系", categoryPath: ["データ・検索系", "辞書・言語"],
+    description: "英単語を検索し、発音・品詞・意味を日本語訳付きで表示", apiName: "Free Dictionary API", apiUrl: "https://dictionaryapi.dev/", icon: "ti-book" },
 
   /* ---------- 為替・ツール系（実用ツール） ---------- */
   { id: "calendar", file: "tools/calendar.html", title: "カレンダー（祝日API付き）", category: "為替・ツール系", categoryPath: ["為替・ツール系", "日付・時刻"],
@@ -380,6 +382,16 @@ window.CATALOG = [
     description: "入力テキストを大文字化するAPI候補", apiName: "SHOUTCLOUD", apiUrl: "http://shoutcloud.io/", icon: "ti-quote" },
   { id: "florida-man", file: "fun/florida-man.html", title: "Florida Man 見出しジェネレーター", category: "エンタメ・おもしろ系", categoryPath: ["エンタメ・おもしろ系", "ジョーク・雑学"],
     description: "月日を選んでその日の実在Florida Man見出しを表示", apiName: "Florida Man API", apiUrl: "https://github.com/juliayxhuang/florida-man-api", icon: "ti-mood-crazy-happy" },
+  { id: "omikuzi", file: "fun/omikuzi.html", title: "Fortune API Demo", category: "エンタメ・おもしろ系", categoryPath: ["エンタメ・おもしろ系", "意思決定・名言"],
+    description: "ボタンを押しておみくじを引き、運勢・ラッキーカラー等を表示（サンプル）", apiName: "ローカルデータ", apiUrl: "", icon: "ti-quote" },
+  { id: "quiz-demo", file: "fun/quiz.html", title: "Quiz API Demo", category: "エンタメ・おもしろ系", categoryPath: ["エンタメ・おもしろ系", "クイズ・ゲーム"],
+    description: "カテゴリ付きの4択クイズをランダム出題（サンプル）", apiName: "ローカルデータ", apiUrl: "", icon: "ti-help" },
+
+  /* ---------- その他（既存4ジャンルに当てはまらない複数API紹介ページ） ---------- */
+  { id: "itiran", file: "other/itiran.html", title: "API一覧", category: "その他", categoryPath: ["その他", "複数API紹介"],
+    description: "複数の外部APIを検索・選択し、説明とレスポンス(JSON)をまとめて表示", apiName: "MusicBrainz / Open Disease / Radio Browser / Lyrics.ovh", apiUrl: "", icon: "ti-search" },
+  { id: "itiran2", file: "other/itiran2.html", title: "API Viewer", category: "その他", categoryPath: ["その他", "複数API紹介"],
+    description: "サイドバーから複数の外部APIを選び、レスポンス(JSON)と詳細を表示", apiName: "Fun Fact API / JokeAPI / Imgflip / Foodish / JSONPlaceholder", apiUrl: "", icon: "ti-browser" },
 ];
 
 

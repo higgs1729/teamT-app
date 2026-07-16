@@ -4,7 +4,7 @@
     {
       "name": "static",
       "runtimeExecutable": "node",
-      "runtimeArgs": ["fronted-v2/serve.cjs"],
+      "runtimeArgs": ["frontend/serve.cjs"],
       "port": 5500
     },
     {

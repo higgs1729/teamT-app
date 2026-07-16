@@ -44,7 +44,8 @@ templates/                  # 各メンバー作成の外部WebAPI紹介ペー�
 ├── image/                  #   画像・ビジュアル系
 ├── data/                   #   データ・検索系
 ├── tools/                  #   為替・ツール系
-└── fun/                    #   エンタメ・おもしろ系
+├── fun/                    #   エンタメ・おもしろ系
+└── other/                  #   その他
 fronted-v2/                 # WebAPI紹介サイト(templatesを選択表示するギャラリー / 素のHTML/CSS/JS)
 ```
 - 追加でresources/application.propertiesを各自ローカルで作成し管理

@@ -9,6 +9,24 @@
 
 - WebAPI紹介　＋　ゲーム
 
+teamT-app/fronted-v2 の設定モーダルの「外観」パネルを、
+C:\Users\253207\Desktop\react-shadcn\components\studio-portfolio\settings-page.tsx の
+テーマ設定UIに合わせて作り直してください。vanilla HTML/CSS/JS で実装します。
+
+内容:
+1. settings-page.tsx を読み、テーマ（ライト/ダーク）選択と7アクセント選択の UI
+   （AccentPreview のようなプレビュー付き選択カード）を vanilla で再現する。
+2. アクセント適用は tokens.css に定義済みの [data-accent="<id>"] を <html> に付け替える方式。
+   選択は localStorage に保存し、既存の setTheme / setAccent / resetSettings（js/app.js）を
+   7アクセント + 新UIに対応するよう改修する（旧 orange/blue の2択チップは廃止）。
+3. アカウント/その他パネルも shadcn トーン（settings-section 風の行レイアウト）に整えるが、機能は変更しない。
+4. 旧 data-accent="orange|blue" を localStorage に保存済みのユーザーがいるため、
+   未知の値は既定アクセントへフォールバックさせる。
+
+制約: game.css は変更しない。CLAUDE.md 規約に従いコメント・docs/specification.md・README.md の
+テーマ仕様記述を更新。UI文言は「見れば分かることを書かない」規約に従うこと。
+検証:私が行うので不要
+
 ## 2. 使用技術
 
 | 区分 | 技術 |

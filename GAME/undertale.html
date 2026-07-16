@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>Undertale風 回避ゲーム - 裏ステージ搭載版</title>
+<title>Undertale風 回避ゲーム - 四隅安置完全対策版</title>
 
 <style>
 body{
@@ -213,7 +213,7 @@ body{
     box-shadow: 0 0 10px white;
 }
 
-/* 通常ブラスター */
+/* 通常・斜めブラスター（顔を共通規格化して崩れを防ぐ） */
 .blaster{
     position:absolute;
     width:80px;
@@ -243,7 +243,7 @@ body{
 .circle-blaster .mouth { width: 30px; height: 6px; left: 13px; bottom: 8px; }
 .circle-blaster .mouth::before { box-shadow: 4px 0 white, 8px 0 white, 12px 0 white, 16px 0 white, 20px 0 white; }
 
-/* 自由角度ビーム */
+/* 自由角度ビーム (斜め攻撃・発狂用) */
 .custom-beam {
     position: absolute;
     background: #00ffff;
@@ -252,13 +252,15 @@ body{
     box-shadow: 0 0 15px #00ffff;
 }
 
+/* 通常のビーム (幅を55pxから半分の「28px」に調整) */
 .beam{
     position:absolute;
     background:#00ffff;
     z-index: 5;
+    box-shadow: 0 0 15px #00ffff;
 }
-.beam.top, .beam.bottom{ width:20px; height:500px; }
-.beam.left, .beam.right{ width:500px; height:20px; }
+.beam.top, .beam.bottom{ width:28px; height:500px; }
+.beam.left, .beam.right{ width:500px; height:28px; }
 
 .eye{
     position:absolute;
@@ -342,15 +344,13 @@ body{
 
 <script>
 // ========================================================
-// 🔧 ゲーム設定エリア（通常と裏で個別にパラメータを設定可能）
+// 🔧 ゲーム設定エリア
 // ========================================================
-// 🟢 通常ステージ (NORMAL STAGE)
-const NORMAL_HP = 5;       // 初期HP
-const NORMAL_SPEED = 4;    // 移動速度
+const NORMAL_HP = 5;       
+const NORMAL_SPEED = 4;    
 
-// 🟣 裏ステージ (URA STAGE)
-const URA_HP = 15;          // 初期HP
-const URA_SPEED = 5;       // 移動速度
+const URA_HP = 15;          
+const URA_SPEED = 5;       
 // ========================================================
 
 const game=document.getElementById("game");
@@ -364,7 +364,7 @@ const resultDetails=document.getElementById("result-details");
 // プレイヤー位置と速度管理
 let px=240;
 let py=430;
-let currentSpeed = NORMAL_SPEED; // 現在のモードに応じた動的スピード
+let currentSpeed = NORMAL_SPEED; 
 
 let hp=NORMAL_HP;
 let time=0;
@@ -384,7 +384,7 @@ let beamInterval = null;
 let colorLineInterval = null;
 let madnessInterval = null; 
 
-// 🚀 重力ギミック用変数
+// 重力ギミック用変数
 let hasGravity = false;
 let vy = 0;              
 const GRAVITY = 0.45;     
@@ -525,6 +525,7 @@ function updateBonesAndLines(){
         }
     }
 
+    // 💥 通常ビーム(幅28px)の当たり判定
     document.querySelectorAll(".beam").forEach(beam=>{
         if(beam.hasHit) return;
 
@@ -544,6 +545,7 @@ function updateBonesAndLines(){
         }
     });
 
+    // 斜め/カスタムビーム用の当たり判定
     document.querySelectorAll(".custom-beam").forEach(beam => {
         if (beam.hasHit) return;
 
@@ -580,7 +582,8 @@ function updateBonesAndLines(){
         const dy = pcy - closestY;
         const distSq = dx * dx + dy * dy;
 
-        if (distSq < 18 * 18) {
+        // 当たり判定の広さ
+        if (distSq < 20 * 20) {
             hp -= 1;
             beam.hasHit = true;
             if(hp < 0) hp = 0;
@@ -632,7 +635,7 @@ function spawnGravityBone(){
     const gapHeight = 85; 
     const gapY = 320 + Math.random() * 80; 
 
-    // 1. 上側の骨（天井からぶら下がる）
+    // 1. 上側の骨
     const topBoneLength = gapY;
     const topBone = document.createElement("div");
     topBone.className = "bone";
@@ -654,7 +657,7 @@ function spawnGravityBone(){
     game.appendChild(topBone);
     bones.push(topBone);
 
-    // 2. 下側の骨（床から生える）
+    // 2. 下側の骨
     const bottomBoneLength = 500 - (gapY + gapHeight);
     const bottomBone = document.createElement("div");
     bottomBone.className = "bone";
@@ -881,7 +884,6 @@ function startUraStage() {
     playing = true;
     time = 0;
     
-    // 裏ステージ用のステータス適用
     hp = URA_HP; 
     currentSpeed = URA_SPEED;
 
@@ -963,7 +965,6 @@ function resetStateOnly(){
     if(uraTimer) clearInterval(uraTimer);
     if(gravitySpawnInterval) clearInterval(gravitySpawnInterval);
 
-    // 通常ステージ用の初期値でリセット
     hp=NORMAL_HP; 
     currentSpeed=NORMAL_SPEED;
     
@@ -987,10 +988,18 @@ function resetStateOnly(){
 resetStateOnly();
 playing = true; 
 
+// 💥 ブラスター攻撃（縦横ブラスター2門 ＆ 常時、斜めブラスター1〜2門を同時に生成）
 function startBlasterAttack(){
+    // 1. 通常の縦横ブラスターを2つ生成
     const sides = ["top", "bottom", "left", "right"];
     const chosenSides = sides.sort(() => 0.5 - Math.random()).slice(0, 2);
     chosenSides.forEach(side => createBlaster(side));
+
+    // 2. 斜めブラスターを常時1〜2個、セットで確定出現させる
+    const diagCount = Math.random() > 0.5 ? 2 : 1; 
+    for(let i = 0; i < diagCount; i++) {
+        spawnDiagonalCornerBlaster(i);
+    }
 }
 
 function createBlaster(side){
@@ -1000,10 +1009,10 @@ function createBlaster(side){
 
     let targetLeft = 0; let targetTop = 0;
     switch(side){
-        case "top": targetLeft = Math.random()*420; targetTop = 0; skull.style.left = targetLeft + "px"; skull.style.top = "-70px"; break;
-        case "bottom": targetLeft = Math.random()*420; targetTop = 430; skull.style.left = targetLeft + "px"; skull.style.top = "500px"; break;
-        case "left": targetLeft = 0; targetTop = Math.random()*420; skull.style.left = "-80px"; skull.style.top = targetTop + "px"; break;
-        case "right": targetLeft = 420; targetTop = Math.random()*420; skull.style.left = "500px"; skull.style.top = targetTop + "px"; break;
+        case "top": targetLeft = Math.random()*400; targetTop = 0; skull.style.left = targetLeft + "px"; skull.style.top = "-70px"; break;
+        case "bottom": targetLeft = Math.random()*400; targetTop = 430; skull.style.left = targetLeft + "px"; skull.style.top = "500px"; break;
+        case "left": targetLeft = 0; targetTop = Math.random()*400; skull.style.left = "-80px"; skull.style.top = targetTop + "px"; break;
+        case "right": targetLeft = 420; targetTop = Math.random()*400; skull.style.left = "500px"; skull.style.top = targetTop + "px"; break;
     }
     game.appendChild(skull);
 
@@ -1020,19 +1029,64 @@ function createBlaster(side){
     }, 1000);
 }
 
+// 💥 ビームを射出 (幅を28pxに抑えて避けやすく調整)
 function fireBeam(side, blasterLeft, blasterTop){
     const beam = document.createElement("div");
     beam.className = "beam " + side;
     beam.hasHit = false;
 
+    // ビーム（28px）のセンタリング調整（中心のズレを防ぐ）
     switch(side){
-        case "top": beam.style.left = (blasterLeft + 30) + "px"; beam.style.top = "0px"; break;
-        case "bottom": beam.style.left = (blasterLeft + 30) + "px"; beam.style.top = "0px"; break;
-        case "left": beam.style.left = "0px"; beam.style.top = (blasterTop + 25) + "px"; break;
-        case "right": beam.style.left = "0px"; beam.style.top = (blasterTop + 25) + "px"; break;
+        case "top": beam.style.left = (blasterLeft + 26) + "px"; beam.style.top = "0px"; break;
+        case "bottom": beam.style.left = (blasterLeft + 26) + "px"; beam.style.top = "0px"; break;
+        case "left": beam.style.left = "0px"; beam.style.top = (blasterTop + 21) + "px"; break;
+        case "right": beam.style.left = "0px"; beam.style.top = (blasterTop + 21) + "px"; break;
     }
     game.appendChild(beam);
     setTimeout(()=>{ beam.remove(); }, 400);
+}
+
+// 🔮 四隅狙い撃ち用の斜めブラスター (バグを修正し、顔パーツのHTMLを100%正しくレンダリング)
+function spawnDiagonalCornerBlaster(offsetIndex = 0) {
+    const corners = [
+        { x: 40, y: 40, bx: -10, by: -10, angle: 45 },
+        { x: 460, y: 40, bx: 430, by: -10, angle: 135 },
+        { x: 40, y: 460, bx: -10, by: 440, angle: -45 },
+        { x: 460, y: 460, bx: 430, by: 440, angle: -135 }
+    ];
+    // 常時出るようにするため、インデックスが被らないように工夫
+    const targetCorner = corners[(Math.floor(Math.random() * corners.length) + offsetIndex) % corners.length];
+
+    const skull = document.createElement("div");
+    // 通常の.blasterクラスと同じサイズと仕様に統一して「顔」が完璧に反映されるように修正！
+    skull.className = "blaster";
+    skull.innerHTML = `<div class="eye left"></div><div class="eye right"></div><div class="nose"></div><div class="mouth"></div>`;
+    
+    // 回転の起点（中心）を整える
+    skull.style.transformOrigin = "center center";
+
+    // 最初は画面外
+    skull.style.left = (targetCorner.bx - Math.cos((targetCorner.angle * Math.PI)/180)*150) + "px";
+    skull.style.top = (targetCorner.by - Math.sin((targetCorner.angle * Math.PI)/180)*150) + "px";
+    skull.style.transform = `rotate(${targetCorner.angle - 90}deg)`; // 向きの調整
+    game.appendChild(skull);
+
+    // 狙う角のラインへスライド移動
+    setTimeout(() => {
+        skull.style.transition = "all 0.3s ease";
+        skull.style.left = targetCorner.bx + "px";
+        skull.style.top = targetCorner.by + "px";
+    }, 50);
+
+    setTimeout(() => {
+        if (!playing || isCountingDown) { skull.remove(); return; }
+        skull.querySelectorAll(".eye").forEach(e => e.style.backgroundColor = "cyan");
+        
+        // 四隅から中央へ突き抜ける斜めビームを射出 (少し太めの24px)
+        fireMadnessBeam(targetCorner.bx + 40, targetCorner.by + 35, targetCorner.angle);
+        
+        setTimeout(() => { skull.remove(); }, 600);
+    }, 1000);
 }
 
 let currentMadnessAngle = 0;
@@ -1097,9 +1151,9 @@ function fireMadnessBeam(fromX, fromY, angleDegree){
     beam.angle = angleDegree; 
 
     beam.style.width = "700px"; 
-    beam.style.height = "16px";
+    beam.style.height = "24px"; // 斜めビーム
     beam.style.left = fromX + "px";
-    beam.style.top = (fromY - 8) + "px"; 
+    beam.style.top = (fromY - 12) + "px"; 
     beam.style.transform = `rotate(${angleDegree}deg)`;
 
     game.appendChild(beam);

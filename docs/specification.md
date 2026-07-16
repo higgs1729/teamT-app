@@ -46,6 +46,8 @@ C:\Users\253207\Desktop\react-shadcn\components\studio-portfolio\settings-page.t
   - 設定モーダル: 左ナビ（検索 + アカウント / 外観 / その他）＋ 右コンテンツ。サイドバー下部の「設定」「アカウント」から開く
     - アカウント: 表示名（localStorageに保存、サーバー認証なしのデモ）
     - 外観: テーマ(ライト/ダーク)とアクセント色(indigo/violet/cyan/emerald/amberの5色、既定indigo)を独立して切替（アクセント変更で背景は不変）。デザイントークンは react-shadcn(globals.css / studio-portfolio/settings-page.tsx) から移植し、`css/tokens.css` に `:root` / `[data-theme="dark"]` / `[data-accent="..."]` として定義
+      - UIは react-shadcn の `studio-portfolio/settings-page.tsx`（ThemePreview/AccentPreview）相当をvanillaで再現。テーマは背景のミニプレビュー付きカード（`.theme-preview-card`）2枚（ライト/ダーク。同コンポーネントの「システム」選択肢はOS連動の実装が無いため対象外）、アクセントは色ドット付きの選択チップ列（`.accent-chip`）5個＋選択色が反映されるプレビューカード（`.accent-preview-card`。色は `--primary` 経由で自動追従しJS側での個別更新は不要）
+      - 旧仕様（`orange`/`blue` の2択チップ）は廃止。旧バージョンで `localStorage` に `orange`/`blue` を保存済みのユーザー向けに、`js/app.js` の `applyAccent` は `css/tokens.css` に定義の無いアクセント名を検知すると既定値(indigo)へフォールバックする（`ACCENT_IDS` 一覧との照合）
     - その他: 収録API数・サイト情報・設定リセット
   - 一覧クリックで該当HTMLをiframe表示。検索・URLハッシュ復元に対応
   - おすすめ一覧: 検索欄の直下に配置。「おすすめ一覧 ＞」（先頭に星アイコン）を開くと最上位カテゴリ見出しが並び、各カテゴリを開くと個々のHTML（推薦API）が出る折りたたみツリー。トップ・各カテゴリとも既定は閉じた状態で、検索中は一致項目を見せるため自動展開する。表示対象は `../おすすめ一覧.txt`（各メンバーが推薦するテンプレートのファイル名を1行ずつ記載）を起動時に読み込み、`.html`で終わる行だけを`CATALOG`の`file`（ディレクトリを除いたbasename・大小無視）と突き合わせて抽出し、最上位カテゴリ(categoryPath[0])単位でまとめる。名前欄やコメント行、一致しないファイル名は無視される。

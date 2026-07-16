@@ -39,22 +39,22 @@
   const CONFIG = {
     storageKey: "fronted-v2-game",
     initialCoins: 5,           // 初回付与コイン
-    playCost: 1,               // 1プレイの消費コイン
     progressStep: 20,          // 進捗バーの1クリック上昇量（%）
     progressCoins: 1,          // 進捗100%到達で得るコイン
     // クリア報酬の目安（難易度→枚数）。実際の獲得枚数は各ゲームが
     // game:ended の coin で通知する（ゲーム内で難易度選択できるものがあるため）
     rewardByDifficulty: { easy: 1, normal: 2, hard: 3 },
-    // GAME/ 内のプレイ可能ゲーム一覧。reward は一覧表示用のラベル
+    // GAME/ 内のプレイ可能ゲーム一覧。reward は一覧表示用のラベル。
+    // playCost はゲームごとの1プレイ消費コイン（個別に設定可能）
     games: [
-      { file: "Tilegame.html",   title: "Triple Tile",       icon: "ti-cat",             difficulty: "易", reward: "1" },
-      { file: "target.html",     title: "的あてゲーム",      icon: "ti-target-arrow",    difficulty: "選択式", reward: "1〜3" },
-      { file: "pazuru.html",     title: "スライドパズル",    icon: "ti-puzzle",          difficulty: "普", reward: "2" },
-      { file: "picross.html",    title: "ピクロス",          icon: "ti-grid-dots",       difficulty: "普", reward: "2" },
-      { file: "undertale.html",  title: "骨よけサバイバル",  icon: "ti-bone",            difficulty: "普", reward: "2" },
-      { file: "burroku.html",    title: "ブロック崩し",      icon: "ti-wall",            difficulty: "選択式", reward: "1〜3" },
-      { file: "game.html",       title: "勇者RPG",           icon: "ti-sword",           difficulty: "難", reward: "3" },
-      { file: "syuuthingu.html", title: "ゾンビシューター",  icon: "ti-crosshair",       difficulty: "難", reward: "3" },
+      { file: "Tilegame.html",   title: "Triple Tile",       icon: "ti-cat",             difficulty: "易", reward: "1", playCost: 1 },
+      { file: "target.html",     title: "的あてゲーム",      icon: "ti-target-arrow",    difficulty: "選択式", reward: "1〜3", playCost: 1 },
+      { file: "pazuru.html",     title: "スライドパズル",    icon: "ti-puzzle",          difficulty: "普", reward: "2", playCost: 1 },
+      { file: "picross.html",    title: "ピクロス",          icon: "ti-grid-dots",       difficulty: "普", reward: "2", playCost: 1 },
+      { file: "undertale.html",  title: "骨よけサバイバル",  icon: "ti-bone",            difficulty: "普", reward: "2", playCost: 2 },
+      { file: "burroku.html",    title: "ブロック崩し",      icon: "ti-wall",            difficulty: "選択式", reward: "1〜3", playCost: 2 },
+      { file: "game.html",       title: "勇者RPG",           icon: "ti-sword",           difficulty: "難", reward: "3", playCost: 3 },
+      { file: "syuuthingu.html", title: "ゾンビシューター",  icon: "ti-crosshair",       difficulty: "難", reward: "3", playCost: 3 },
     ],
   };
 
@@ -176,7 +176,7 @@
   function renderGameList() {
     const grid = document.getElementById("game-list-grid");
     if (!grid) return;
-    const short = state.coins < CONFIG.playCost;
+    const short = state.coins < Math.min(...CONFIG.games.map(g => g.playCost));
     grid.innerHTML = CONFIG.games.map((g, i) => `
       <div class="game-card">
         <div class="game-card-icon"><i class="ti ${g.icon}"></i></div>
@@ -184,8 +184,8 @@
           <div class="game-card-title">${g.title}</div>
           <div class="game-card-meta">難易度: ${g.difficulty} ／ 報酬: ${g.reward}枚</div>
         </div>
-        <button class="game-btn game-play-btn" data-game="${i}" ${short ? "disabled" : ""}>
-          <i class="ti ti-coins"></i> ${CONFIG.playCost}枚
+        <button class="game-btn game-play-btn" data-game="${i}" ${state.coins < g.playCost ? "disabled" : ""}>
+          <i class="ti ti-coins"></i> ${g.playCost}枚
         </button>
       </div>`).join("");
     const note = document.getElementById("game-coin-short");
@@ -221,7 +221,7 @@
 
   // 開始処理: コインを消費してゲームを iframe で起動（残高不足なら起動しない）
   function startGame(game) {
-    if (!spendCoins(CONFIG.playCost)) return;
+    if (!spendCoins(game.playCost)) return;
     const ov = ensurePlayOverlay();
     document.getElementById("game-preview-iframe").src = "../GAME/" + game.file;
     closeOverlay("game-screen-overlay");

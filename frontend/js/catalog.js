@@ -83,8 +83,6 @@ window.CATALOG = [
     description: "猫の豆知識を取得", apiName: "MeowFacts", apiUrl: "https://github.com/wh-iterabb-it/meowfacts", icon: "ti-cat" },
   { id: "anime", file: "data/anime.html", title: "アニメ図鑑", category: "データ・検索系", categoryPath: ["データ・検索系", "アニメ・カード"],
     description: "アニメをキーワード検索・ランキング表示", apiName: "Jikan API", apiUrl: "https://jikan.moe/", icon: "ti-movie" },
-  { id: "jikan", file: "data/Jikan.html", title: "アニメ掲示板", category: "データ・検索系", categoryPath: ["データ・検索系", "アニメ・カード"],
-    description: "アニメ情報を掲示板風に一覧表示", apiName: "Jikan API", apiUrl: "https://jikan.moe/", icon: "ti-message-circle" },
   { id: "anime-news-network", file: "data/anime-news-network.html", title: "Anime News Network", category: "データ・検索系", categoryPath: ["データ・検索系", "アニメ・カード"],
     description: "ANN のアニメ記事・レポート見出しを一覧表示", apiName: "Anime News Network Encyclopedia API", apiUrl: "https://www.animenewsnetwork.com/encyclopedia/api.php", icon: "ti-article" },
   { id: "ghibli", file: "data/ghibli.html", title: "Studio Ghibli", category: "データ・検索系", categoryPath: ["データ・検索系", "アニメ・カード"],

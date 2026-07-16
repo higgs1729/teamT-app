@@ -46,11 +46,10 @@ templates/                  # 各メンバー作成の外部WebAPI紹介ペー�
 ├── tools/                  #   為替・ツール系
 ├── fun/                    #   エンタメ・おもしろ系
 └── other/                  #   その他
-fronted-v2/                 # WebAPI紹介サイト(templatesを選択表示するギャラリー / 素のHTML/CSS/JS)
+frontend/                 # WebAPI紹介サイト(templatesを選択表示するギャラー / 素のHTML/CSS/JS)
 ```
-- 追加でresources/application.propertiesを各自ローカルで作成し管理
 
-### fronted-v2（WebAPI紹介サイト）
+### frontend（WebAPI紹介サイト）
 
 `templates/`内の各WebAPI紹介ページを階層カテゴリ別の一覧から選択して表示できるギャラリーサイト。ビルド不要。
 リポジトリルートで`node fronted-v2/serve.cjs`を実行し、`http://localhost:5500/fronted-v2/index.html`を開く（停止は Ctrl+C）。
@@ -62,14 +61,3 @@ fronted-v2/                 # WebAPI紹介サイト(templatesを選択表示す�
 feature/機能名     # 新機能（例：feature/weather-api）
 fix/バグ名         # バグ修正（例：fix/null-pointer-error）
 ```
-# 更新メモ
-
-- fronted-v2 の UI を react-shadcn（`app/dashboard-01` の inset シェル + shadcn/ui デザイントークン）準拠に刷新しました（素の HTML/CSS/JS のまま。詳細は `docs/specification.md`）。
-- fronted-v2 のサイドバーは、検索欄の下におすすめAPI一覧、その下にジャンルごとのAPI一覧、最後に footer を配置します。
-- GAME/game.html に魔王撃破時のゲームクリア画面を追加しました。
-- ゲーム要素をコイン制に変更しました（GAME/README.md の仕様変更に対応）。
-  - 体力・攻撃力・防御力などのRPG要素を撤廃し、コインを消費して GAME/ 内のミニゲームをプレイ、クリアで難易度に応じたコインを獲得します。
-  - ゲーム画面は1つに統合され、コイン枚数はゲーム画面とヘッダー左で確認できます。進捗バーは100%到達でコイン1枚獲得に変更。
-  - GAME/ 内の全8ゲームに開始処理（消費コイン定義）と終了処理（`game:ended` の postMessage、coin 0=ゲームオーバー / 1以上=クリア）を追加しました。詳細は `docs/specification.md` を参照。
-
-

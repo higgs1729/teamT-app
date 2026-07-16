@@ -278,7 +278,7 @@ C:\Users\253207\Desktop\react-shadcn\components\studio-portfolio\settings-page.t
 | fun | meigenn | ローカルデータ(サンプル) | 名言をランダム表示 |
 | fun | Useless | Useless Facts / MyMemory Translation API / Unsplash Source | ランダム雑学を翻訳付きで表示 |
 | other | itiran | MusicBrainz / Open Disease / Radio Browser / Lyrics.ovh | 複数の外部APIを検索・選択してレスポンス(JSON)を一括表示 |
-| other | itiran2 | Fun Fact API / JokeAPI / Imgflip / Foodish / JSONPlaceholder / Advice Slip API / CatFact Ninja | サイドバーから複数の外部APIを選んでレスポンス(JSON)を表示 |
+| other | itiran2 | Fun Fact API / JokeAPI / Imgflip / Foodish / JSONPlaceholder / Advice Slip API / CatFact Ninja / Bible-api / PoetryDB / Quran Cloud / Quran-api / Wizard World API / Currency-api / Frankfurter / chucknorris.io | サイドバーから複数の外部APIを選んでレスポンス(JSON)を表示 |
 | data | Dictionary | Free Dictionary API | 英単語を検索し発音・品詞・意味を日本語訳付きで表示 |
 | fun | omikuzi | ローカルデータ(サンプル) | おみくじで運勢・ラッキーカラー等を表示 |
 | fun | quiz | ローカルデータ(サンプル) | カテゴリ付き4択クイズをランダム出題 |

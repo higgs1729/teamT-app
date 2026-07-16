@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<!--
+  teamT-app.html — 提出用報告書
+  チームTによる最終課題アプリケーション「WebAPI Gallery — teamT」の報告書。
+  自己完結型HTML（外部依存なし）。各セクションは今後内容を追記していく骨格段階。
+
+  index:
+    1. 表紙（タイトル・チーム情報）
+    2. アプリ概要
+    3. 主要機能
+    4. システム構成・技術スタック
+    5. ゲーム要素（コイン制）
+    6. 開発の進め方（チーム開発・AI活用）
+    7. 工夫した点・苦労した点
+    8. 今後の課題・展望
+    9. まとめ
+-->
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>teamT-app 報告書 — WebAPI Gallery</title>
+<style>
+  /* ===== 全体レイアウト ===== */
+  :root {
+    --accent: #c96a39;
+    --ink: #2b2620;
+    --sub: #6b6257;
+    --line: #e5ddd2;
+    --bg: #faf7f2;
+    --card: #ffffff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.8;
+  }
+  .page { max-width: 860px; margin: 0 auto; padding: 48px 24px 96px; }
+
+  /* ===== 表紙 ===== */
+  .cover {
+    text-align: center;
+    padding: 64px 24px;
+    border-bottom: 3px solid var(--accent);
+    margin-bottom: 48px;
+  }
+  .cover .doc-type { color: var(--sub); letter-spacing: .3em; font-size: 14px; }
+  .cover h1 { font-size: 34px; margin: 12px 0 4px; }
+  .cover .app-name { color: var(--accent); font-size: 20px; margin: 0 0 24px; }
+  .cover .meta { color: var(--sub); font-size: 14px; }
+
+  /* ===== 目次 ===== */
+  nav.toc {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 20px 28px;
+    margin-bottom: 48px;
+  }
+  nav.toc h2 { font-size: 16px; margin: 0 0 8px; color: var(--sub); }
+  nav.toc ol { margin: 0; padding-left: 1.4em; }
+  nav.toc a { color: var(--ink); text-decoration: none; }
+  nav.toc a:hover { color: var(--accent); }
+
+  /* ===== セクション共通 ===== */
+  section { margin-bottom: 56px; }
+  section h2 {
+    font-size: 22px;
+    border-left: 6px solid var(--accent);
+    padding-left: 12px;
+    margin: 0 0 16px;
+  }
+  section h3 { font-size: 17px; margin: 24px 0 8px; }
+  .placeholder {
+    color: var(--sub);
+    background: var(--card);
+    border: 1px dashed var(--line);
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+  table { border-collapse: collapse; width: 100%; background: var(--card); }
+  th, td { border: 1px solid var(--line); padding: 8px 12px; text-align: left; font-size: 14px; }
+  th { background: var(--bg); }
+
+  footer { text-align: center; color: var(--sub); font-size: 13px; border-top: 1px solid var(--line); padding-top: 24px; }
+
+  @media print {
+    body { background: #fff; }
+    .page { padding: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ===== 1. 表紙 ===== -->
+  <header class="cover">
+    <div class="doc-type">最終課題 報告書</div>
+    <h1>teamT-app</h1>
+    <p class="app-name">WebAPI Gallery — ゲーム要素を取り入れた WebAPI 紹介サイト</p>
+    <div class="meta">
+      チームT<br>
+      提出日: <!-- TODO: 提出日を記入 -->
+    </div>
+  </header>
+
+  <!-- ===== 目次 ===== -->
+  <nav class="toc">
+    <h2>目次</h2>
+    <ol>
+      <li><a href="#overview">アプリ概要</a></li>
+      <li><a href="#features">主要機能</a></li>
+      <li><a href="#architecture">システム構成・技術スタック</a></li>
+      <li><a href="#game">ゲーム要素（コイン制）</a></li>
+      <li><a href="#process">開発の進め方</a></li>
+      <li><a href="#devnotes">工夫した点・苦労した点</a></li>
+      <li><a href="#future">今後の課題・展望</a></li>
+      <li><a href="#conclusion">まとめ</a></li>
+    </ol>
+  </nav>
+
+  <!-- ===== 2. アプリ概要 ===== -->
+  <section id="overview">
+    <h2>1. アプリ概要</h2>
+    <p class="placeholder">
+      TODO: アプリの目的・コンセプトを記述。
+      （ゲーム要素を取り入れた WebAPI 紹介サイト。templates/ 内の各メンバー作成の
+      紹介ページをギャラリー形式で閲覧でき、閲覧やミニゲームでコインを獲得できる）
+    </p>
+  </section>
+
+  <!-- ===== 3. 主要機能 ===== -->
+  <section id="features">
+    <h2>2. 主要機能</h2>
+    <h3>2.1 WebAPI 紹介ギャラリー（fronted-v2）</h3>
+    <p class="placeholder">TODO: カテゴリ別ナビ・検索・おすすめ一覧・iframe プレビューの説明</p>
+    <h3>2.2 WebAPI 紹介ページ（templates/）</h3>
+    <p class="placeholder">TODO: 収録ジャンル（image / data / tools / fun）と代表的なページの紹介</p>
+    <h3>2.3 アカウント・設定</h3>
+    <p class="placeholder">TODO: ログイン、テーマ・アクセント切替、設定モーダルの説明</p>
+  </section>
+
+  <!-- ===== 4. システム構成 ===== -->
+  <section id="architecture">
+    <h2>3. システム構成・技術スタック</h2>
+    <h3>3.1 構成図</h3>
+    <p class="placeholder">TODO: 構成図（フロント: 素の HTML/CSS/JS、バックエンド: Spring Boot）</p>
+    <h3>3.2 技術スタック</h3>
+    <table>
+      <tr><th>区分</th><th>技術</th><th>備考</th></tr>
+      <tr><td>フロントエンド</td><td>HTML / CSS / JavaScript（ビルド不要）</td><td>fronted-v2</td></tr>
+      <tr><td>バックエンド</td><td>Java / Spring Boot</td><td>src/</td></tr>
+      <tr><td>外部API</td><td><!-- TODO: 使用した外部 WebAPI 一覧 --></td><td>templates/</td></tr>
+    </table>
+    <h3>3.3 ディレクトリ構成</h3>
+    <p class="placeholder">TODO: README のディレクトリ構成をもとに記述</p>
+  </section>
+
+  <!-- ===== 5. ゲーム要素 ===== -->
+  <section id="game">
+    <h2>4. ゲーム要素（コイン制）</h2>
+    <h3>4.1 コインシステム</h3>
+    <p class="placeholder">
+      TODO: コインの獲得（API紹介ページの閲覧進捗100%で+1、ゲームクリア報酬）と
+      消費（ゲームプレイ時にゲームごとの消費枚数）の仕組みを記述
+    </p>
+    <h3>4.2 ミニゲーム一覧</h3>
+    <p class="placeholder">TODO: GAME/ 内の各ゲーム（難易度・報酬・消費コイン）の一覧表</p>
+    <h3>4.3 ゲームとの連携方式</h3>
+    <p class="placeholder">TODO: postMessage({type:"game:ended", coin}) による親子連携の説明</p>
+  </section>
+
+  <!-- ===== 6. 開発の進め方 ===== -->
+  <section id="process">
+    <h2>5. 開発の進め方</h2>
+    <h3>5.1 チーム開発体制</h3>
+    <p class="placeholder">TODO: メンバー構成・役割分担・ブランチ運用（feature/ fix/）</p>
+    <h3>5.2 AI（Claude 等）の活用</h3>
+    <p class="placeholder">TODO: CLAUDE.md による共有設定、スキル（スラッシュコマンド）の活用など</p>
+  </section>
+
+  <!-- ===== 7. 工夫した点・苦労した点 ===== -->
+  <section id="devnotes">
+    <h2>6. 工夫した点・苦労した点</h2>
+    <p class="placeholder">TODO: 各メンバーの工夫・苦労を記述</p>
+  </section>
+
+  <!-- ===== 8. 今後の課題 ===== -->
+  <section id="future">
+    <h2>7. 今後の課題・展望</h2>
+    <p class="placeholder">TODO: 未実装の WebAPI 候補、機能拡張の展望などを記述</p>
+  </section>
+
+  <!-- ===== 9. まとめ ===== -->
+  <section id="conclusion">
+    <h2>8. まとめ</h2>
+    <p class="placeholder">TODO: 総括を記述</p>
+  </section>
+
+  <footer>
+    teamT-app 報告書 — チームT
+  </footer>
+
+</div>
+</body>
+</html>

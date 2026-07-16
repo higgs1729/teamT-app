@@ -396,7 +396,7 @@ window.CATALOG = [
   { id: "itiran", file: "other/itiran.html", title: "API一覧", category: "その他", categoryPath: ["その他", "複数API紹介"],
     description: "複数の外部APIを検索・選択し、説明とレスポンス(JSON)をまとめて表示", apiName: "MusicBrainz / Open Disease / Radio Browser / Lyrics.ovh", apiUrl: "", icon: "ti-search", apiCount: 3 },
   { id: "itiran2", file: "other/itiran2.html", title: "API Viewer", category: "その他", categoryPath: ["その他", "複数API紹介"],
-    description: "サイドバーから複数の外部APIを選び、レスポンス(JSON)と詳細を表示", apiName: "Fun Fact API / JokeAPI / Imgflip / Foodish / JSONPlaceholder / Advice Slip API / CatFact Ninja", apiUrl: "", icon: "ti-browser", apiCount: 19 },
+    description: "サイドバーから複数の外部APIを選び、レスポンス(JSON)と詳細を表示", apiName: "Fun Fact API / JokeAPI / Imgflip / Foodish / JSONPlaceholder / Advice Slip API / CatFact Ninja / Bible-api / PoetryDB / Quran Cloud / Quran-api / Wizard World API / Currency-api / Frankfurter / chucknorris.io", apiUrl: "", icon: "ti-browser", apiCount: 19 },
 ];
 
 

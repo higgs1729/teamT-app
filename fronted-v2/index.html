@@ -168,32 +168,91 @@
           </div>
         </section>
 
-        <!-- 外観（テーマ / アクセント） -->
+        <!-- 外観（テーマ / アクセント）: react-shadcn studio-portfolio/settings-page.tsx の
+             ThemePreview / AccentPreview 相当をvanillaで再現 -->
         <section class="settings-panel" data-panel="appearance">
-          <h2 class="settings-title">外観</h2>
-          <div class="setting-row">
-            <span class="setting-label">背景テーマ</span>
-            <div class="setting-options">
-              <button class="opt-chip active" data-theme-name="light" onclick="setTheme('light','ライト',this)">ライト</button>
-              <button class="opt-chip" data-theme-name="dark" onclick="setTheme('dark','ダーク',this)">ダーク</button>
+          <div class="settings-section-head">
+            <h2 class="settings-title">外観</h2>
+            <p class="settings-desc">アプリ全体の明るさと、操作を示す色を調整します。</p>
+          </div>
+
+          <div class="appearance-block">
+            <h3 class="appearance-block-title">テーマ</h3>
+            <div class="theme-preview-grid" role="group" aria-label="テーマ">
+              <button type="button" class="theme-preview-card active" data-theme-name="light" onclick="setTheme('light')">
+                <span class="theme-preview-swatch theme-preview-swatch-light">
+                  <span class="theme-preview-bar"></span>
+                  <span class="theme-preview-window"></span>
+                  <span class="theme-preview-line theme-preview-line-1"></span>
+                  <span class="theme-preview-line theme-preview-line-2"></span>
+                </span>
+                <span class="theme-preview-label">ライト</span>
+              </button>
+              <button type="button" class="theme-preview-card" data-theme-name="dark" onclick="setTheme('dark')">
+                <span class="theme-preview-swatch theme-preview-swatch-dark">
+                  <span class="theme-preview-bar"></span>
+                  <span class="theme-preview-window"></span>
+                  <span class="theme-preview-line theme-preview-line-1"></span>
+                  <span class="theme-preview-line theme-preview-line-2"></span>
+                </span>
+                <span class="theme-preview-label">ダーク</span>
+              </button>
             </div>
           </div>
-          <div class="setting-row">
-            <span class="setting-label">アクセント</span>
-            <div class="setting-options">
-              <button class="opt-chip active" data-accent-name="orange" onclick="setAccent('orange','オレンジ',this)">
-                <span class="opt-dot" style="background:#c96a39;"></span>オレンジ
+
+          <div class="appearance-block">
+            <h3 class="appearance-block-title">アクセント</h3>
+            <div class="accent-chip-row" role="group" aria-label="アクセント">
+              <button type="button" class="accent-chip active" data-accent-name="indigo" onclick="setAccent('indigo')">
+                <span class="accent-chip-dot" style="background:oklch(0.457 0.24 277.023);"></span>インディゴ
               </button>
-              <button class="opt-chip" data-accent-name="blue" onclick="setAccent('blue','青',this)">
-                <span class="opt-dot" style="background:#2f6ef0;"></span>青
+              <button type="button" class="accent-chip" data-accent-name="violet" onclick="setAccent('violet')">
+                <span class="accent-chip-dot" style="background:oklch(0.49 0.23 303);"></span>バイオレット
               </button>
+              <button type="button" class="accent-chip" data-accent-name="cyan" onclick="setAccent('cyan')">
+                <span class="accent-chip-dot" style="background:oklch(0.5 0.15 220);"></span>シアン
+              </button>
+              <button type="button" class="accent-chip" data-accent-name="emerald" onclick="setAccent('emerald')">
+                <span class="accent-chip-dot" style="background:oklch(0.49 0.14 155);"></span>エメラルド
+              </button>
+              <button type="button" class="accent-chip" data-accent-name="amber" onclick="setAccent('amber')">
+                <span class="accent-chip-dot" style="background:oklch(0.58 0.15 80);"></span>アンバー
+              </button>
+            </div>
+            <!-- 選択中アクセントの反映先プレビュー（色は --primary 経由で自動追従） -->
+            <div class="accent-preview-card">
+              <div class="accent-preview-head">
+                <span class="accent-preview-dot"></span>
+                <span class="accent-preview-bar"></span>
+                <span class="accent-preview-bar accent-preview-bar-sm"></span>
+              </div>
+              <div class="accent-preview-body">
+                <div class="accent-preview-side">
+                  <span class="accent-preview-line"></span>
+                  <span class="accent-preview-line accent-preview-line-active"></span>
+                  <span class="accent-preview-line"></span>
+                </div>
+                <div class="accent-preview-main">
+                  <div class="accent-preview-row">
+                    <div class="accent-preview-col">
+                      <span class="accent-preview-title-bar"></span>
+                      <span class="accent-preview-sub-bar"></span>
+                    </div>
+                    <span class="accent-preview-button"></span>
+                  </div>
+                  <span class="accent-preview-input"></span>
+                </div>
+              </div>
+              <p class="accent-preview-caption">選択中のメニュー、主要ボタン、入力フォーカスに反映されます。</p>
             </div>
           </div>
         </section>
 
         <!-- その他 -->
         <section class="settings-panel" data-panel="other">
-          <h2 class="settings-title">その他</h2>
+          <div class="settings-section-head">
+            <h2 class="settings-title">その他</h2>
+          </div>
           <div class="setting-row">
             <span class="setting-label">収録API数</span>
             <span class="settings-value" id="settings-api-count">0</span>

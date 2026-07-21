@@ -4,204 +4,389 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>雑学ジェネレーター</title>
+<!-- Google Fonts & FontAwesome -->
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;800&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- Canvas Confetti (紙吹雪ライブラリ) -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <style>
-body{
-    margin:0;
-    font-family:"Yu Gothic",sans-serif;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-
-    background-size:cover;
-    background-position:center;
-    background-repeat:no-repeat;
-    background-attachment:fixed;
-
-    transition:1s;
+* {
+    box-sizing: border-box;
+    font-family: 'Zen Maru Gothic', sans-serif;
 }
 
-.container{
-    width:720px;
-    max-width:90%;
-
-    background:rgba(255,255,255,.82);
-
-    backdrop-filter:blur(12px);
-
-    border-radius:20px;
-
-    padding:35px;
-
-    text-align:center;
-
-    box-shadow:0 10px 30px rgba(0,0,0,.4);
+body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #0f172a url("https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1920") no-repeat center center/cover fixed;
+    transition: background-image 1s ease-in-out;
+    position: relative;
+    overflow-x: hidden;
 }
 
-h1{
-    color:#2196F3;
-    margin-bottom:25px;
+/* 1. Glassmorphism: 背景文字を見やすくする暗めオーバーレイ */
+body::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(5px);
+    z-index: 0;
 }
 
-#fact{
-    font-size:20px;
-    color:#333;
-    line-height:1.8;
-    min-height:130px;
-    background:#F7FBFF;
-    padding:20px;
-    border-radius:15px;
-    border:2px solid #B3E5FC;
+.container {
+    position: relative;
+    z-index: 1;
+    width: 680px;
+    max-width: 92%;
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-radius: 28px;
+    padding: 35px 25px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+    color: #fff;
 }
 
-button{
-    margin-top:25px;
-    background:#2196F3;
-    color:white;
-    border:none;
-    padding:14px 28px;
-    font-size:18px;
-    border-radius:10px;
-    cursor:pointer;
-    transition:.3s;
+h1 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.4);
 }
 
-button:hover{
-    background:#1976D2;
-    transform:scale(1.05);
+.fact-box {
+    background: rgba(255, 255, 255, 0.92);
+    color: #1e293b;
+    border-radius: 20px;
+    padding: 25px;
+    min-height: 170px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-align: left;
+    position: relative;
 }
 
-#fact{
-    margin-top:30px;
-    line-height:1.8;
-    font-size:20px;
-    min-height:100px;
+.fact-box:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+}
+
+.fact-content {
+    width: 100%;
+    font-size: 18px;
+    line-height: 1.8;
+    font-weight: 700;
+}
+
+.fact-content h3 {
+    margin-top: 0;
+    color: #0284c7;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* タグ表示 */
+.tag-badge {
+    display: inline-block;
+    background: #e0f2fe;
+    color: #0369a1;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+details {
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px dashed #cbd5e1;
+    font-size: 14px;
+    color: #64748b;
+}
+
+summary {
+    cursor: pointer;
+    font-weight: bold;
+    user-select: none;
+}
+
+/* アクションボタン群 */
+.actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 25px;
+    flex-wrap: wrap;
+}
+
+/* 3. Neo-pop 3D風ボタン */
+.btn {
+    border: none;
+    padding: 12px 20px;
+    font-size: 15px;
+    font-weight: 900;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+}
+
+.btn-primary {
+    background: #3b82f6;
+    color: white;
+    box-shadow: 0 5px 0 #1d4ed8;
+}
+
+.btn-primary:active {
+    transform: translateY(5px);
+    box-shadow: 0 0 0 #1d4ed8;
+}
+
+.btn-action {
+    background: rgba(255, 255, 255, 0.25);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
+}
+
+.btn-action:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 transparent;
+}
+
+/* お気に入りリスト用 */
+.fav-section {
+    margin-top: 25px;
+    text-align: left;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 15px 20px;
+    border-radius: 16px;
+}
+
+.fav-section h4 {
+    margin: 0 0 10px 0;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #fde047;
+}
+
+.fav-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 120px;
+    overflow-y: auto;
+    font-size: 13px;
+}
+
+.fav-list li {
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* スピナー */
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border-left-color: #0284c7;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 </style>
-
 </head>
 <body>
 
 <div class="container">
+    <h1><i class="fa-solid fa-dice-five"></i> 雑学ジェネレーター</h1>
 
-<h1>🎲 ランダム雑学</h1>
+    <div class="fact-box">
+        <div class="fact-content" id="factText">
+            <div style="text-align: center;">
+                ボタンを押すと、ワクワクする雑学がとび出します！ ✨
+            </div>
+        </div>
+    </div>
 
-<div id="fact">
-ボタンを押してください。
-</div>
+    <div class="actions">
+        <button class="btn btn-primary" onclick="loadFact()">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> 雑学をひく
+        </button>
+        <button class="btn btn-action" onclick="copyFact()">
+            <i class="fa-regular fa-copy"></i> コピー
+        </button>
+        <button class="btn btn-action" onclick="shareTwitter()">
+            <i class="fa-brands fa-x-twitter"></i> シェア
+        </button>
+        <button class="btn btn-action" onclick="saveFavorite()">
+            <i class="fa-regular fa-star"></i> 保存
+        </button>
+    </div>
 
-<button onclick="loadFact()">
-新しい雑学を見る
-</button>
-
+    <!-- お気に入り保存エリア -->
+    <div class="fav-section">
+        <h4><i class="fa-solid fa-star"></i> お気に入りした雑学</h4>
+        <ul class="fav-list" id="favList">
+            <li style="color: #94a3b8;">まだ保存された雑学はありません</li>
+        </ul>
+    </div>
 </div>
 
 <script>
+let currentJaText = "";
+let currentKeyword = "nature";
 
-    function setBackground(text){
+// 画面読み込み時にお気に入りを復元
+window.onload = () => {
+    updateFavListUI();
+};
 
+function setBackground(text) {
     let keyword = "nature";
-
     const words = {
-
-        cat:"cat",
-        dog:"dog",
-        bird:"bird",
-        fish:"ocean",
-        lion:"lion",
-        tiger:"tiger",
-        elephant:"elephant",
-        snake:"snake",
-        spider:"spider",
-        shark:"shark",
-
-        space:"space",
-        moon:"moon",
-        sun:"sun",
-        earth:"earth",
-
-        tree:"forest",
-        flower:"flower",
-        ocean:"ocean",
-        sea:"sea",
-        mountain:"mountain",
-
-        food:"food",
-        pizza:"pizza",
-        coffee:"coffee",
-
-        car:"car",
-        train:"train",
-        plane:"airplane"
-
+        cat:"cat", dog:"dog", bird:"bird", fish:"ocean", lion:"lion",
+        tiger:"tiger", elephant:"elephant", snake:"snake", spider:"spider", shark:"shark",
+        space:"space", moon:"moon", sun:"sun", earth:"earth",
+        tree:"forest", flower:"flower", ocean:"ocean", sea:"sea", mountain:"mountain",
+        food:"food", pizza:"pizza", coffee:"coffee",
+        car:"car", train:"train", plane:"airplane"
     };
 
     text = text.toLowerCase();
-
-    for(const key in words){
-
-        if(text.includes(key)){
-
+    for (const key in words) {
+        if (text.includes(key)) {
             keyword = words[key];
-
             break;
-
         }
-
     }
-
-    document.body.style.backgroundImage =
-        `url("https://source.unsplash.com/1920x1080/?${keyword}")`;
-
+    currentKeyword = keyword;
+    document.body.style.backgroundImage = `url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1920&${keyword}")`;
 }
 
-async function loadFact(){
+async function loadFact() {
+    const factText = document.getElementById("factText");
+    
+    // スピナー表示
+    factText.innerHTML = `
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+            <div class="spinner"></div>
+            <span style="font-size: 15px; color: #64748b;">面白データを探して翻訳中...</span>
+        </div>
+    `;
 
-    const fact = document.getElementById("fact");
-
-    fact.innerHTML = "📡 雑学を取得中...";
-
-    try{
-
-        // 雑学取得
-        const response = await fetch(
-            "https://uselessfacts.jsph.pl/api/v2/facts/random?language=en"
-        );
-
+    try {
+        const response = await fetch("https://uselessfacts.jsph.pl/api/v2/facts/random?language=en");
         const data = await response.json();
 
         setBackground(data.text);
 
-        fact.innerHTML = "🌏 日本語へ翻訳中...";
-
-        // 翻訳
         const translate = await fetch(
             `https://api.mymemory.translated.net/get?q=${encodeURIComponent(data.text)}&langpair=en|ja`
         );
-
         const result = await translate.json();
+        
+        currentJaText = result.responseData.translatedText;
 
-        fact.innerHTML = `
-        <h3>🇯🇵 日本語</h3>
-        ${result.responseData.translatedText}
+        // 3. ゲーミフィケーション: 紙吹雪エフェクトを発生！
+        confetti({
+            particleCount: 50,
+            spread: 60,
+            origin: { y: 0.7 }
+        });
 
-        <hr>
-
-        <details>
-            <summary>原文を見る</summary>
-            <p>${data.text}</p>
-        </details>
+        factText.innerHTML = `
+            <span class="tag-badge"><i class="fa-solid fa-tag"></i> #${currentKeyword}</span>
+            <p style="margin: 0 0 10px 0; font-size: 1.05em;">${currentJaText}</p>
+            <details>
+                <summary>原文（英語）を見る</summary>
+                <p style="margin-top: 8px; font-style: italic; font-size: 13px;">${data.text}</p>
+            </details>
         `;
 
-    }catch(e){
-
-        fact.innerHTML="❌ データの取得に失敗しました。";
-
+    } catch (e) {
+        factText.innerHTML = `<span style="color: #ef4444;"><i class="fa-solid fa-circle-exclamation"></i> データの取得に失敗しました。もう一度お試しください。</span>`;
     }
-    document.body.style.backgroundImage =
-    'url("https://source.unsplash.com/1920x1080/?nature")';
+}
 
+// 2. インタラクティブ機能: コピー
+function copyFact() {
+    if (!currentJaText) return;
+    navigator.clipboard.writeText(currentJaText).then(() => {
+        alert("📋 雑学をコピーしました！");
+    });
+}
+
+// 2. インタラクティブ機能: X(Twitter)共有
+function shareTwitter() {
+    if (!currentJaText) return;
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent('💡雑学: ' + currentJaText)}`;
+    window.open(url, '_blank');
+}
+
+// 2 & 3. お気に入り保存 (LocalStorage)
+function saveFavorite() {
+    if (!currentJaText) return;
+    let favorites = JSON.parse(localStorage.getItem("favFacts") || "[]");
+    
+    if (!favorites.includes(currentJaText)) {
+        favorites.push(currentJaText);
+        localStorage.setItem("favFacts", JSON.stringify(favorites));
+        updateFavListUI();
+        alert("⭐ お気に入りに保存しました！");
+    }
+}
+
+function updateFavListUI() {
+    const favList = document.getElementById("favList");
+    let favorites = JSON.parse(localStorage.getItem("favFacts") || "[]");
+
+    if (favorites.length === 0) {
+        favList.innerHTML = `<li style="color: #94a3b8;">まだ保存された雑学はありません</li>`;
+        return;
+    }
+
+    favList.innerHTML = favorites.map((item, index) => `
+        <li>
+            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 85%;">${item}</span>
+            <i class="fa-solid fa-trash-can" style="cursor: pointer; color: #f87171;" onclick="removeFavorite(${index})"></i>
+        </li>
+    `).join("");
+}
+
+function removeFavorite(index) {
+    let favorites = JSON.parse(localStorage.getItem("favFacts") || "[]");
+    favorites.splice(index, 1);
+    localStorage.setItem("favFacts", JSON.stringify(favorites));
+    updateFavListUI();
 }
 </script>
 

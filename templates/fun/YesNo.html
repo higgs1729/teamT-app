@@ -2,155 +2,757 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yes / No ディサイダー（意思決定器）</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ULTIMATE YES / NO DECIDER PRO</title>
+    <meta name="theme-color" content="#030712">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    
     <style>
+        :root {
+            --bg-color: #030712;
+            --card-bg: rgba(15, 23, 42, 0.65);
+            --card-border: rgba(255, 255, 255, 0.12);
+            
+            --accent-cyan: #06b6d4;
+            --accent-purple: #a855f7;
+            --accent-pink: #ec4899;
+            
+            --yes-color: #10b981;
+            --yes-glow: rgba(16, 185, 129, 0.6);
+            --no-color: #f43f5e;
+            --no-glow: rgba(244, 63, 94, 0.6);
+            
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            background-color: #0f172a; /* ダークでかっこいい背景色 */
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 15% 15%, rgba(168, 85, 247, 0.25) 0px, transparent 55%),
+                radial-gradient(at 85% 85%, rgba(6, 182, 212, 0.25) 0px, transparent 55%),
+                radial-gradient(at 50% 50%, rgba(236, 72, 153, 0.1) 0px, transparent 70%);
+            background-attachment: fixed;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
-            color: #ffffff;
+            padding: 20px;
+            color: var(--text-main);
+            overflow-x: hidden;
         }
-        .container {
-            background-color: #1e293b;
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+
+        /* 画面全体のシェイク演出 */
+        .shake {
+            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        .app-card {
+            background: var(--card-bg);
+            padding: 28px;
+            border-radius: 32px;
+            border: 1px solid var(--card-border);
+            box-shadow: 
+                0 30px 60px -12px rgba(0, 0, 0, 0.9),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15),
+                0 0 40px rgba(168, 85, 247, 0.15);
             text-align: center;
-            width: 400px;
-            box-sizing: border-box;
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            transition: transform 0.3s ease;
         }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
         h1 {
-            font-size: 20px;
-            color: #94a3b8;
-            margin-bottom: 20px;
-            letter-spacing: 1px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 15px;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+            letter-spacing: 2.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            filter: drop-shadow(0 0 10px rgba(6, 182, 212, 0.4));
         }
-        /* 答え（YES/NO）の文字スタイル */
+
+        .header-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .header-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            font-size: 15px;
+            cursor: pointer;
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .header-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .header-btn:active {
+            transform: scale(0.92);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 16px 20px;
+            border-radius: 16px;
+            border: 1px solid var(--card-border);
+            background-color: rgba(3, 7, 18, 0.6);
+            color: var(--text-main);
+            font-size: 14px;
+            font-weight: 600;
+            outline: none;
+            transition: all 0.3s ease;
+            user-select: text;
+        }
+
+        .input-group input::placeholder {
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .input-group input:focus {
+            border-color: var(--accent-purple);
+            background-color: rgba(3, 7, 18, 0.8);
+            box-shadow: 
+                0 0 0 4px rgba(168, 85, 247, 0.15),
+                0 0 20px rgba(168, 85, 247, 0.3);
+        }
+
+        .answer-container {
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
         .answer-text {
-            font-size: 54px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 52px;
             font-weight: 900;
             text-transform: uppercase;
-            margin-bottom: 15px;
-            letter-spacing: 2px;
-            min-height: 65px;
+            letter-spacing: 4px;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        /* YESの時は緑、NOの時は赤、読み込み時はグレーにするためのクラス */
-        .yes { color: #4ade80; text-shadow: 0 0 10px rgba(74, 222, 128, 0.5); }
-        .no { color: #f87171; text-shadow: 0 0 10px rgba(248, 113, 113, 0.5); }
-        .loading { color: #64748b; font-size: 24px; }
 
-        /* GIF画像を表示するエリア */
+        .answer-text.pop {
+            transform: scale(1.15);
+        }
+
+        .yes { 
+            color: var(--yes-color); 
+            text-shadow: 
+                0 0 20px var(--yes-glow),
+                0 0 40px var(--yes-glow); 
+        }
+        .no { 
+            color: var(--no-color); 
+            text-shadow: 
+                0 0 20px var(--no-glow),
+                0 0 40px var(--no-glow); 
+        }
+        .loading { 
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple), var(--accent-pink));
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 1.5s linear infinite;
+            font-size: 20px; 
+            letter-spacing: 3px;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
         .image-box {
-            background-color: #0f172a;
-            border-radius: 8px;
-            margin-bottom: 25px;
-            height: 250px;
+            background-color: rgba(3, 7, 18, 0.7);
+            border-radius: 20px;
+            margin-bottom: 24px;
+            height: 230px;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: hidden;
-            border: 2px solid #334155;
+            border: 1px solid var(--card-border);
+            position: relative;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
         }
+
         .image-box img {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* 枠に合わせてきれいに収める */
+            object-fit: cover;
             display: none;
+            animation: imagePopIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        button {
+        @keyframes imagePopIn {
+            from { opacity: 0; transform: scale(1.08); filter: blur(8px); }
+            to { opacity: 1; transform: scale(1); filter: blur(0); }
+        }
+
+        .placeholder {
+            color: var(--text-muted);
+            font-size: 13px;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .btn-primary {
             width: 100%;
-            padding: 14px;
-            background-color: #3b82f6;
+            padding: 18px;
+            background: linear-gradient(135deg, #06b6d4 0%, #a855f7 50%, #ec4899 100%);
+            background-size: 200% auto;
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 16px;
+            border-radius: 18px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 15px;
             cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.2s, transform 0.1s;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            font-weight: 800;
+            letter-spacing: 2px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 30px -5px rgba(168, 85, 247, 0.5);
+            position: relative;
+            overflow: hidden;
         }
-        button:hover {
-            background-color: #2563eb;
+
+        .btn-primary:hover:not(:disabled) {
+            background-position: right center;
+            box-shadow: 0 15px 35px -5px rgba(236, 72, 153, 0.6);
+            transform: translateY(-2px);
         }
-        button:active {
-            transform: scale(0.98);
+
+        .btn-primary:active:not(:disabled) {
+            transform: translateY(1px);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .sub-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .btn-secondary {
+            flex: 1;
+            padding: 12px;
+            background-color: rgba(255, 255, 255, 0.04);
+            color: var(--text-muted);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+            color: var(--text-main);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .panel {
+            display: none;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--card-border);
+            text-align: left;
+            font-size: 13px;
+            animation: panelFade 0.3s ease-out forwards;
+        }
+
+        @keyframes panelFade {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        .panel-header {
+            color: var(--text-muted);
+            margin-bottom: 14px;
+            display: flex;
+            justify-content: space-between;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-size: 11px;
+        }
+
+        .history-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .history-list::-webkit-scrollbar {
+            width: 4px;
+        }
+        .history-list::-webkit-scrollbar-thumb {
+            background: var(--card-border);
+            border-radius: 4px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 4px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .history-item .q {
+            color: #cbd5e1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 220px;
+            font-weight: 500;
+        }
+
+        .history-item .a {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+        }
+
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            color: #cbd5e1;
+        }
+
+        .setting-row select {
+            background: #030712;
+            color: var(--text-main);
+            border: 1px solid var(--card-border);
+            padding: 8px 12px;
+            border-radius: 10px;
+            outline: none;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .toast {
+            position: absolute;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid var(--accent-purple);
+            color: var(--text-main);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+            white-space: nowrap;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-10px);
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>あなたの運命を決める 🔮</h1>
-    
-    <div id="answer-display" class="answer-text loading">運命の選択中...</div>
-    
-    <div class="image-box">
-        <img id="result-image" src="" alt="結果の画像">
-        <div id="image-placeholder" style="color: #475569;">GIFを読み込み中...</div>
+<div class="app-card" id="app-card">
+    <div class="header">
+        <h1><span>✦</span> DECIDER PRO</h1>
+        <div class="header-controls">
+            <button class="header-btn" id="sound-btn" onclick="toggleSound()" title="効果音切替">🔊</button>
+            <button class="header-btn" onclick="togglePanel('settings-panel')" title="設定">⚙️</button>
+        </div>
     </div>
     
-    <button onclick="askTheOracle()">決断を委ねる！</button>
+    <div class="input-group">
+        <input type="text" id="question-input" placeholder="運命の問いを入力（Enterで実行）" maxlength="50" onkeydown="if(event.key==='Enter') askTheOracle()">
+    </div>
+
+    <div class="answer-container">
+        <div id="answer-display" class="answer-text loading">READY</div>
+    </div>
+    
+    <div class="image-box">
+        <img id="result-image" alt="Decision GIF">
+        <div id="image-placeholder" class="placeholder">ボタンを押して神託を授かる</div>
+    </div>
+    
+    <button id="decide-btn" class="btn-primary" onclick="askTheOracle()">決断を委ねる</button>
+
+    <div class="sub-actions">
+        <button class="btn-secondary" onclick="shareResult()">共有 📤</button>
+        <button class="btn-secondary" onclick="togglePanel('history-panel')">履歴 📜</button>
+    </div>
+
+    <div id="history-panel" class="panel">
+        <div class="panel-header">
+            <span>過去の決断ログ</span>
+            <span style="cursor:pointer; color: var(--no-color);" onclick="clearHistory()">クリア</span>
+        </div>
+        <ul id="history-list" class="history-list"></ul>
+    </div>
+
+    <div id="settings-panel" class="panel">
+        <div class="panel-header">
+            <span>システム設定</span>
+        </div>
+        <div class="setting-row">
+            <span>判定の偏り（カスタム）:</span>
+            <select id="bias-select">
+                <option value="normal">通常 (API通り)</option>
+                <option value="force_yes">絶対 YES 🟢</option>
+                <option value="force_no">絶対 NO 🔴</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">メッセージ</div>
 </div>
 
 <script>
-    // 🌐 yesno.wtf APIからデータを取得する関数
-    async function askTheOracle() {
-        const answerDisplay = document.getElementById('answer-display');
-        const resultImage = document.getElementById('result-image');
-        const placeholder = document.getElementById('image-placeholder');
+    const STORAGE_KEY = 'decider_history_v2';
+    let soundEnabled = true;
+    let audioCtx = null;
+    let bgmInterval = null;
 
-        // 読み込み中の表示リセット
-        answerDisplay.className = 'answer-text loading';
-        answerDisplay.textContent = '思考中...';
-        resultImage.style.display = 'none';
-        placeholder.style.display = 'block';
-        placeholder.textContent = 'GIFを読み込み中...';
-
-        // 🟢 実在する yesno.wtf のAPIエンドポイント
-        const apiUrl = 'https://yesno.wtf/api';
-
-        try {
-            const response = await fetch(apiUrl);
-            
-            if (!response.ok) {
-                throw new Error(`HTTPエラー! ステータス: ${response.status}`);
-            }
-
-            const data = await response.json();
-            
-            // 🟢 返ってきたJSONデータの「answer」と「image」を使用
-            if (data && data.answer && data.image) {
-                // 文字の表示と色を変更 (yesなら緑、noなら赤)
-                answerDisplay.className = `answer-text ${data.answer}`;
-                answerDisplay.textContent = data.answer;
-                
-                // 画像の切り替え設定
-                resultImage.src = data.image;
-                
-                // 画像の読み込みが完了したらプレースホルダーを消して画像を表示
-                resultImage.onload = () => {
-                    placeholder.style.display = 'none';
-                    resultImage.style.display = 'block';
-                };
-            }
-
-        } catch (error) {
-            console.error('エラーが発生しました:', error);
-            answerDisplay.className = 'answer-text no';
-            answerDisplay.textContent = 'ERROR';
-            placeholder.textContent = 'エラーが発生しました。';
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
     }
 
-    // 最初にページを開いたときにも自動で1回占う
-    window.onload = askTheOracle;
+    // --- BGM（思考中のアルペジオ） ---
+    function startBgm() {
+        if (!soundEnabled) return;
+        initAudio();
+        stopBgm();
+
+        const notes = [220, 261.63, 329.63, 392.00, 440, 523.25];
+        let step = 0;
+
+        bgmInterval = setInterval(() => {
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(notes[step % notes.length], now);
+
+            gain.gain.setValueAtTime(0.04, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start(now);
+            osc.stop(now + 0.18);
+
+            step++;
+        }, 120);
+    }
+
+    function stopBgm() {
+        if (bgmInterval) {
+            clearInterval(bgmInterval);
+            bgmInterval = null;
+        }
+    }
+
+    // --- 効果音 ---
+    function playSound(type) {
+        if (!soundEnabled) return;
+        initAudio();
+        const now = audioCtx.currentTime;
+
+        if (type === 'yes') {
+            const freqs = [523.25, 659.25, 783.99, 1046.50];
+            
+            const subOsc = audioCtx.createOscillator();
+            const subGain = audioCtx.createGain();
+            subOsc.type = 'triangle';
+            subOsc.frequency.setValueAtTime(130.81, now);
+            subGain.gain.setValueAtTime(0.3, now);
+            subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+            subOsc.connect(subGain);
+            subGain.connect(audioCtx.destination);
+            subOsc.start(now);
+            subOsc.stop(now + 0.5);
+
+            freqs.forEach((f, idx) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                const startTime = now + (idx * 0.05);
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(f, startTime);
+
+                gain.gain.setValueAtTime(0.15, startTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.4);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(startTime);
+                osc.stop(startTime + 0.4);
+            });
+
+        } else if (type === 'no') {
+            const freqs = [220.00, 207.65];
+            
+            freqs.forEach((f, idx) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                const startTime = now + (idx * 0.12);
+
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(f, startTime);
+
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(600, startTime);
+
+                gain.gain.setValueAtTime(0.2, startTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.35);
+
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(startTime);
+                osc.stop(startTime + 0.35);
+            });
+        }
+    }
+
+    function toggleSound() {
+        soundEnabled = !soundEnabled;
+        if (!soundEnabled) stopBgm();
+        document.getElementById('sound-btn').textContent = soundEnabled ? '🔊' : '🔇';
+        showToast(soundEnabled ? '効果音: ON' : '効果音: OFF');
+    }
+
+    // --- メイン判定処理 ---
+    async function askTheOracle() {
+        const card = document.getElementById('app-card');
+        const btn = document.getElementById('decide-btn');
+        const answerDisplay = document.getElementById('answer-display');
+        const resultImage = document.getElementById('result-image');
+        const placeholder = document.getElementById('image-placeholder');
+        const questionInput = document.getElementById('question-input');
+        const bias = document.getElementById('bias-select').value;
+
+        btn.disabled = true;
+
+        startBgm();
+
+        answerDisplay.className = 'answer-text loading';
+        answerDisplay.textContent = 'THINKING...';
+        resultImage.style.display = 'none';
+        placeholder.style.display = 'block';
+        placeholder.textContent = '神託を受信中...';
+
+        try {
+            let apiUrl = 'https://yesno.wtf/api';
+            if (bias === 'force_yes') apiUrl += '?force=yes';
+            if (bias === 'force_no') apiUrl += '?force=no';
+
+            const response = await fetch(apiUrl);
+            if (!response.ok) throw new Error('通信エラー');
+
+            const data = await response.json();
+
+            if (data && data.answer && data.image) {
+                const img = new Image();
+                img.src = data.image;
+
+                img.onload = () => {
+                    stopBgm();
+
+                    // 画面シェイクのトリガー
+                    card.classList.remove('shake');
+                    void card.offsetWidth; // リフロー発生でアニメーションリセット
+                    card.classList.add('shake');
+
+                    answerDisplay.className = `answer-text ${data.answer} pop`;
+                    answerDisplay.textContent = data.answer;
+                    
+                    resultImage.src = data.image;
+                    placeholder.style.display = 'none';
+                    resultImage.style.display = 'block';
+
+                    playSound(data.answer === 'yes' ? 'yes' : 'no');
+
+                    saveHistory(questionInput.value.trim(), data.answer);
+                    btn.disabled = false;
+                };
+            }
+        } catch (error) {
+            console.error(error);
+            stopBgm();
+            answerDisplay.className = 'answer-text no';
+            answerDisplay.textContent = 'ERROR';
+            placeholder.textContent = '通信に失敗しました';
+            playSound('no');
+            btn.disabled = false;
+        }
+    }
+
+    function togglePanel(panelId) {
+        const panels = ['history-panel', 'settings-panel'];
+        panels.forEach(id => {
+            const el = document.getElementById(id);
+            if (id === panelId) {
+                el.classList.toggle('active');
+                if (id === 'history-panel' && el.classList.contains('active')) renderHistory();
+            } else {
+                el.classList.remove('active');
+            }
+        });
+    }
+
+    function saveHistory(question, answer) {
+        const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        history.unshift({
+            question: question || '（無題の問い）',
+            answer: answer,
+            date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        });
+        if (history.length > 10) history.pop();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+    }
+
+    function renderHistory() {
+        const list = document.getElementById('history-list');
+        const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        if (history.length === 0) {
+            list.innerHTML = '<li style="color:var(--text-muted); text-align:center; padding:10px 0;">履歴はありません</li>';
+            return;
+        }
+        list.innerHTML = history.map(item => `
+            <li class="history-item">
+                <span class="q">${escapeHtml(item.question)}</span>
+                <span class="a ${item.answer}" style="font-weight:bold;">${item.answer.toUpperCase()}</span>
+            </li>
+        `).join('');
+    }
+
+    function clearHistory() {
+        localStorage.removeItem(STORAGE_KEY);
+        renderHistory();
+        showToast('履歴を消去しました');
+    }
+
+    async function shareResult() {
+        const answer = document.getElementById('answer-display').textContent;
+        const question = document.getElementById('question-input').value.trim();
+
+        if (['READY', 'THINKING...', 'ERROR'].includes(answer)) {
+            showToast('まずは決断を出してください！');
+            return;
+        }
+
+        const shareData = {
+            title: 'DECIDER PRO',
+            text: question 
+                ? `【決断結果】\n問い：「${question}」\n答え：${answer.toUpperCase()}\n`
+                : `【決断結果】：${answer.toUpperCase()}\n`
+        };
+
+        if (navigator.share) {
+            try {
+                await navigator.share(shareData);
+            } catch (err) {
+            }
+        } else {
+            navigator.clipboard.writeText(shareData.text).then(() => {
+                showToast('結果をクリップボードにコピーしました！');
+            });
+        }
+    }
+
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+    }
 </script>
 
 </body>

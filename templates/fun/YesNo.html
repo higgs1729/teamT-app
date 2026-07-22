@@ -54,7 +54,6 @@
             overflow-x: hidden;
         }
 
-        /* 画面全体のシェイク演出 */
         .shake {
             animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
         }
@@ -134,6 +133,11 @@
 
         .header-btn:active {
             transform: scale(0.92);
+        }
+
+        .header-btn.off {
+            opacity: 0.4;
+            filter: grayscale(100%);
         }
 
         .input-group {
@@ -434,6 +438,7 @@
     <div class="header">
         <h1><span>✦</span> DECIDER PRO</h1>
         <div class="header-controls">
+            <button class="header-btn" id="bgm-btn" onclick="toggleBgm()" title="BGM切替">🎵</button>
             <button class="header-btn" id="sound-btn" onclick="toggleSound()" title="効果音切替">🔊</button>
             <button class="header-btn" onclick="togglePanel('settings-panel')" title="設定">⚙️</button>
         </div>
@@ -486,26 +491,116 @@
 
 <script>
     const STORAGE_KEY = 'decider_history_v2';
-    let soundEnabled = true;
+    let soundEnabled = true; 
+    let bgmEnabled = true;   
     let audioCtx = null;
-    let bgmInterval = null;
+    let masterGain = null;   
+    let thinkingBgmInterval = null;
+    let ambientInterval = null;
 
-    function initAudio() {
+    // --- AudioContext & マスター音量の初期化 ---
+    async function ensureAudioReady() {
         if (!audioCtx) {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            masterGain = audioCtx.createGain();
+            masterGain.gain.setValueAtTime(1.5, audioCtx.currentTime);
+            masterGain.connect(audioCtx.destination);
+        }
+        if (audioCtx.state === 'suspended') {
+            await audioCtx.resume();
         }
     }
 
-    // --- BGM（思考中のアルペジオ） ---
-    function startBgm() {
+    // 初回ユーザーアクションでポップBGMを開始
+    const initAmbientOnInteraction = async () => {
+        await ensureAudioReady();
+        if (bgmEnabled && soundEnabled && !ambientInterval) {
+            startAmbientBgm();
+        }
+    };
+    window.addEventListener('click', initAmbientOnInteraction, { once: true });
+    window.addEventListener('touchstart', initAmbientOnInteraction, { once: true });
+
+    // --- 1. ポップ＆コミカルなBGM (ピコピコフレーズ) ---
+    function startAmbientBgm() {
+        if (ambientInterval) return;
+        
+        // Cメジャーの明るく弾むフレーズ
+        const melodyNotes = [
+            523.25, 659.25, 783.99, 659.25, 
+            523.25, 587.33, 659.25, 523.25,
+            659.25, 783.99, 880.00, 783.99,
+            659.25, 587.33, 523.25, 392.00
+        ];
+        
+        let step = 0;
+
+        async function playStep() {
+            if (!soundEnabled || !bgmEnabled) return;
+            await ensureAudioReady();
+
+            const now = audioCtx.currentTime;
+
+            // 主旋律（ポップなクアドラ波/ピコピコ音）
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'square'; // 8bit風の音色
+            osc.frequency.setValueAtTime(melodyNotes[step % melodyNotes.length], now);
+
+            // 跳ねるようなアタックとリリース
+            gain.gain.setValueAtTime(0.04, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+
+            osc.connect(gain);
+            gain.connect(masterGain);
+
+            osc.start(now);
+            osc.stop(now + 0.18);
+
+            // 4歩ごとにポンと入る可愛いベース音
+            if (step % 4 === 0) {
+                const bassOsc = audioCtx.createOscillator();
+                const bassGain = audioCtx.createGain();
+                const bassNotes = [261.63, 220.00, 174.61, 196.00];
+
+                bassOsc.type = 'triangle';
+                bassOsc.frequency.setValueAtTime(bassNotes[(step / 4) % bassNotes.length], now);
+
+                bassGain.gain.setValueAtTime(0.1, now);
+                bassGain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+
+                bassOsc.connect(bassGain);
+                bassGain.connect(masterGain);
+
+                bassOsc.start(now);
+                bassOsc.stop(now + 0.25);
+            }
+
+            step++;
+        }
+
+        playStep();
+        ambientInterval = setInterval(playStep, 220); // ポップでテンポの良い速度
+    }
+
+    function stopAmbientBgm() {
+        if (ambientInterval) {
+            clearInterval(ambientInterval);
+            ambientInterval = null;
+        }
+    }
+
+    // --- 2. 思考中アルペジオ (THINKING...) ---
+    async function startThinkingBgm() {
         if (!soundEnabled) return;
-        initAudio();
-        stopBgm();
+        await ensureAudioReady();
+        stopThinkingBgm();
 
         const notes = [220, 261.63, 329.63, 392.00, 440, 523.25];
         let step = 0;
 
-        bgmInterval = setInterval(() => {
+        thinkingBgmInterval = setInterval(() => {
             const now = audioCtx.currentTime;
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
@@ -513,11 +608,11 @@
             osc.type = 'sine';
             osc.frequency.setValueAtTime(notes[step % notes.length], now);
 
-            gain.gain.setValueAtTime(0.04, now);
+            gain.gain.setValueAtTime(0.08, now);
             gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
 
             osc.connect(gain);
-            gain.connect(audioCtx.destination);
+            gain.connect(masterGain);
 
             osc.start(now);
             osc.stop(now + 0.18);
@@ -526,33 +621,32 @@
         }, 120);
     }
 
-    function stopBgm() {
-        if (bgmInterval) {
-            clearInterval(bgmInterval);
-            bgmInterval = null;
+    function stopThinkingBgm() {
+        if (thinkingBgmInterval) {
+            clearInterval(thinkingBgmInterval);
+            thinkingBgmInterval = null;
         }
     }
 
-    // --- 効果音 ---
-    function playSound(type) {
+    // --- 3. 判定効果音 (YES / NO) ---
+    async function playSound(type) {
         if (!soundEnabled) return;
-        initAudio();
+        await ensureAudioReady();
         const now = audioCtx.currentTime;
 
         if (type === 'yes') {
-            const freqs = [523.25, 659.25, 783.99, 1046.50];
-            
             const subOsc = audioCtx.createOscillator();
             const subGain = audioCtx.createGain();
             subOsc.type = 'triangle';
             subOsc.frequency.setValueAtTime(130.81, now);
-            subGain.gain.setValueAtTime(0.3, now);
-            subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+            subGain.gain.setValueAtTime(0.45, now);
+            subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
             subOsc.connect(subGain);
-            subGain.connect(audioCtx.destination);
+            subGain.connect(masterGain);
             subOsc.start(now);
-            subOsc.stop(now + 0.5);
+            subOsc.stop(now + 0.8);
 
+            const freqs = [523.25, 659.25, 783.99, 1046.50];
             freqs.forEach((f, idx) => {
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
@@ -561,22 +655,39 @@
                 osc.type = 'sine';
                 osc.frequency.setValueAtTime(f, startTime);
 
-                gain.gain.setValueAtTime(0.15, startTime);
+                gain.gain.setValueAtTime(0.25, startTime);
                 gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.4);
 
                 osc.connect(gain);
-                gain.connect(audioCtx.destination);
+                gain.connect(masterGain);
                 osc.start(startTime);
                 osc.stop(startTime + 0.4);
             });
 
+            const chordFreqs = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+            const chordStart = now + 0.22;
+            chordFreqs.forEach(f => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(f, chordStart);
+
+                gain.gain.setValueAtTime(0.18, chordStart);
+                gain.gain.exponentialRampToValueAtTime(0.0001, chordStart + 1.2);
+
+                osc.connect(gain);
+                gain.connect(masterGain);
+                osc.start(chordStart);
+                osc.stop(chordStart + 1.2);
+            });
+
         } else if (type === 'no') {
-            const freqs = [220.00, 207.65];
-            
+            const freqs = [220.00, 207.65, 196.00];
             freqs.forEach((f, idx) => {
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
-                const startTime = now + (idx * 0.12);
+                const startTime = now + (idx * 0.1);
 
                 osc.type = 'sawtooth';
                 osc.frequency.setValueAtTime(f, startTime);
@@ -585,27 +696,72 @@
                 filter.type = 'lowpass';
                 filter.frequency.setValueAtTime(600, startTime);
 
-                gain.gain.setValueAtTime(0.2, startTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.35);
+                gain.gain.setValueAtTime(0.35, startTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.4);
 
                 osc.connect(filter);
                 filter.connect(gain);
-                gain.connect(audioCtx.destination);
+                gain.connect(masterGain);
                 osc.start(startTime);
-                osc.stop(startTime + 0.35);
+                osc.stop(startTime + 0.4);
             });
+
+            const lowDissonance = [65.41, 69.30];
+            lowDissonance.forEach(f => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(f, now);
+
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 1.0);
+
+                osc.connect(gain);
+                gain.connect(masterGain);
+                osc.start(now);
+                osc.stop(now + 1.0);
+            });
+        }
+    }
+
+    // --- 音量＆機能切り替えコントロール ---
+    function toggleBgm() {
+        bgmEnabled = !bgmEnabled;
+        const bgmBtn = document.getElementById('bgm-btn');
+        if (bgmEnabled) {
+            bgmBtn.classList.remove('off');
+            if (soundEnabled) startAmbientBgm();
+            showToast('BGM: ON');
+        } else {
+            bgmBtn.classList.add('off');
+            stopAmbientBgm();
+            showToast('BGM: OFF');
         }
     }
 
     function toggleSound() {
         soundEnabled = !soundEnabled;
-        if (!soundEnabled) stopBgm();
-        document.getElementById('sound-btn').textContent = soundEnabled ? '🔊' : '🔇';
-        showToast(soundEnabled ? '効果音: ON' : '効果音: OFF');
+        const soundBtn = document.getElementById('sound-btn');
+        if (!soundEnabled) {
+            stopThinkingBgm();
+            stopAmbientBgm();
+            soundBtn.classList.add('off');
+            showToast('効果音・BGM: MUTE');
+        } else {
+            soundBtn.classList.remove('off');
+            if (bgmEnabled) startAmbientBgm();
+            showToast('効果音: ON');
+        }
     }
 
     // --- メイン判定処理 ---
     async function askTheOracle() {
+        await ensureAudioReady();
+        if (soundEnabled && bgmEnabled && !ambientInterval) {
+            startAmbientBgm();
+        }
+
         const card = document.getElementById('app-card');
         const btn = document.getElementById('decide-btn');
         const answerDisplay = document.getElementById('answer-display');
@@ -616,7 +772,7 @@
 
         btn.disabled = true;
 
-        startBgm();
+        startThinkingBgm();
 
         answerDisplay.className = 'answer-text loading';
         answerDisplay.textContent = 'THINKING...';
@@ -639,11 +795,10 @@
                 img.src = data.image;
 
                 img.onload = () => {
-                    stopBgm();
+                    stopThinkingBgm();
 
-                    // 画面シェイクのトリガー
                     card.classList.remove('shake');
-                    void card.offsetWidth; // リフロー発生でアニメーションリセット
+                    void card.offsetWidth;
                     card.classList.add('shake');
 
                     answerDisplay.className = `answer-text ${data.answer} pop`;
@@ -661,7 +816,7 @@
             }
         } catch (error) {
             console.error(error);
-            stopBgm();
+            stopThinkingBgm();
             answerDisplay.className = 'answer-text no';
             answerDisplay.textContent = 'ERROR';
             placeholder.textContent = '通信に失敗しました';

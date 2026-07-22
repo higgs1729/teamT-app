@@ -2,732 +2,911 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>3Dダンジョン・ファンタジーRPG</title>
-
+<title>DRAGON QUEST 3D - Battle Arena Transition</title>
 <style>
-body {
-    background: radial-gradient(circle, #1a1515 0%, #0a0808 100%);
-    color: #f0e6d2;
-    font-family: "Georgia", "Meiryo", serif;
-    margin: 0;
-    padding: 15px;
-}
+@import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
 
-h1 {
-    text-align: center;
-    text-shadow: 0 0 10px rgba(255, 68, 68, 0.6);
-    font-size: 28px;
-    letter-spacing: 3px;
-    margin-bottom: 15px;
+* { box-sizing: border-box; }
+
+body {
+    background: #020204;
+    color: #fff;
+    font-family: 'DotGothic16', monospace;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
 }
 
 #game {
-    width: 900px;
-    margin: auto;
-    background: rgba(0, 0, 0, 0.8);
-    border: 2px solid #5a4a3a;
-    border-radius: 15px;
-    padding: 20px;
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.9);
-    transition: transform 0.1s ease;
-}
-
-/* 3D表示エリア */
-#viewContainer {
-    width: 100%;
-    height: 300px;
+    width: 980px;
     background: #000;
-    border: 2px solid #8c7255;
+    border: 5px solid #d4af37;
+    outline: 3px solid #000;
     border-radius: 8px;
-    margin-bottom: 15px;
+    padding: 16px;
+    box-shadow: 0 0 60px rgba(0,0,0,0.9), 0 0 25px rgba(212, 175, 55, 0.2);
     position: relative;
-    overflow: hidden;
 }
 
-#threeDCanvas {
-    width: 100%;
-    height: 100%;
-    display: block;
-}
-
-/* 画面上のエンカウント警告や状態テキスト表示 */
-#overlayText {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background: rgba(0,0,0,0.7);
-    padding: 5px 10px;
+/* ドラクエ標準ウィンドウ */
+.dq-box {
+    background: rgba(5, 5, 10, 0.92);
+    border: 4px solid #fff;
+    outline: 2px solid #000;
     border-radius: 4px;
-    border: 1px solid #8c7255;
-    font-size: 14px;
-    pointer-events: none;
-}
-
-.statusArea {
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
-}
-
-.card {
-    flex: 1;
-    background: linear-gradient(135deg, #221c18, #14100e);
-    border: 2px solid #705b44;
-    border-radius: 10px;
-    padding: 15px;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    font-size: 14px;
-}
-
-.bar {
-    width: 100%;
-    height: 16px;
-    background: #1a1310;
-    border: 1px solid #5a4a3a;
-    border-radius: 8px;
-    overflow: hidden;
-    margin: 5px 0;
-}
-
-.fill {
-    height: 100%;
-    width: 100%;
-    transition: width 0.3s ease-out;
-}
-
-.hp { background: #3fb950; }
-.exp { background: #388bfd; }
-
-button {
-    padding: 10px 20px;
-    margin: 5px;
-    font-size: 15px;
-    font-weight: bold;
-    cursor: pointer;
-    background: linear-gradient(180deg, #8c7255, #5a4a3a);
-    color: #fff;
-    border: 1px solid #a89278;
-    border-radius: 6px;
-    box-shadow: 0 3px 5px rgba(0,0,0,0.4);
-    transition: all 0.2s ease;
-}
-
-button:hover {
-    background: linear-gradient(180deg, #a89278, #6e5b47);
-    transform: translateY(-1px);
-}
-
-button:disabled {
-    opacity: .3;
-    cursor: not-allowed;
-    transform: none;
-}
-
-#controlPanel {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 15px;
-    background: #1a1411;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #5a4a3a;
-}
-
-.controlGroup {
-    display: flex;
-    gap: 5px;
-}
-
-#log {
-    margin-top: 15px;
-    height: 150px;
-    overflow-y: auto;
-    background: #080605;
-    color: #e6dfd5;
-    border: 2px solid #5a4a3a;
-    border-radius: 8px;
     padding: 12px;
-    font-size: 14px;
-    line-height: 1.6;
-    scroll-behavior: smooth;
+    box-shadow: inset 0 0 0 2px #000;
 }
 
-@keyframes shake {
-    0%, 100% { transform: translate(0, 0); }
-    20% { transform: translate(-5px, 5px); }
-    40% { transform: translate(5px, -5px); }
-    60% { transform: translate(-5px, -5px); }
-    80% { transform: translate(5px, 5px); }
-}
-
-.shake-effect {
-    animation: shake 0.25s ease-in-out;
-}
-
-.screenOverlay {
-    position: fixed;
-    inset: 0;
-    display: none;
+/* ステータスエリア */
+.status-bar {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, .9);
-    z-index: 1000;
+    margin-bottom: 12px;
+    font-size: 18px;
 }
 
-.screenOverlay.isVisible { display: flex; }
+.stat-val { color: #ffeb3b; font-size: 22px; font-weight: bold; }
 
-.screenPanel {
-    width: 500px;
-    background: linear-gradient(180deg, #2c1a04, #110d0d);
-    border: 3px solid #c9a054;
-    border-radius: 15px;
-    padding: 30px;
+.bar-bg {
+    width: 90px; height: 12px; background: #222;
+    border: 1px solid #fff; border-radius: 2px;
+    overflow: hidden; display: inline-block; vertical-align: middle;
+}
+.bar-fill-hp { height: 100%; background: #4caf50; width: 100%; transition: width 0.3s; }
+.bar-fill-mp { height: 100%; background: #2196f3; width: 100%; transition: width 0.3s; }
+
+/* 3Dキャンバス領域 */
+#viewport {
+    width: 100%;
+    height: 440px;
+    position: relative;
+    border: 4px solid #fff;
+    margin-bottom: 12px;
+    overflow: hidden;
+}
+
+#canvas3d { width: 100%; height: 100%; display: block; }
+
+/* 転換用オーバーレイ (暗転フェード) */
+#fadeOverlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: #000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 50;
+}
+
+/* 敵のHPバー（画面上部中央） */
+#enemyHpContainer {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 320px;
+    background: rgba(0, 0, 0, 0.85);
+    border: 3px solid #fff;
+    padding: 8px 16px;
+    border-radius: 6px;
+    z-index: 20;
+    display: none;
     text-align: center;
 }
 
-.logAttack { color: #5dade2; font-weight: bold; }
-.logEnemy { color: #ec7063; font-weight: bold; }
-.logHeal { color: #52be80; }
-.logLevel { color: #f4d03f; font-weight: bold; }
-.logSystem { color: #bdc3c7; font-style: italic; }
-
-.inventoryArea {
-    margin-top: 15px;
-    background: #17120f;
-    border: 2px solid #5a4a3a;
-    border-radius: 8px;
-    padding: 12px;
+#enemyName {
+    font-size: 18px;
+    color: #ffeb3b;
+    margin-bottom: 4px;
 }
 
-.inventoryList {
+.enemy-bar-bg {
+    width: 100%; height: 14px; background: #333;
+    border: 1px solid #fff; border-radius: 3px;
+    overflow: hidden; margin-top: 4px;
+}
+
+#enemyBarFill {
+    height: 100%; background: #e53935; width: 100%; transition: width 0.25s ease-out;
+}
+
+/* BGMボタン */
+#bgmBtn {
+    position: absolute;
+    top: 12px; left: 12px;
+    background: rgba(0,0,0,0.85);
+    color: #ffeb3b;
+    border: 2px solid #fff;
+    font-family: 'DotGothic16', monospace;
+    padding: 6px 12px;
+    cursor: pointer;
+    z-index: 10;
+    font-size: 16px;
+}
+#bgmBtn:hover { background: #fff; color: #000; }
+
+/* ミニマップ */
+#minimap {
+    position: absolute;
+    top: 12px; right: 12px;
+    width: 140px; height: 140px;
+    background: rgba(0,0,0,0.85);
+    border: 2px solid #fff;
+    z-index: 10;
+}
+
+/* コマンド＆メッセージ */
+.bottom-area {
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+    gap: 12px;
+    height: 150px;
 }
 
-.itemCard {
-    background: #241b16;
-    border: 1px solid #5a4a3a;
-    border-radius: 5px;
-    padding: 8px;
-    min-width: 150px;
+#commandMenu {
+    width: 280px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    align-content: start;
+}
+
+.cmd-btn {
+    background: #000;
+    color: #fff;
+    border: 2px solid #fff;
+    font-family: 'DotGothic16', monospace;
+    font-size: 18px;
+    padding: 10px 8px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.1s;
+}
+
+.cmd-btn:hover:not(:disabled) { background: #fff; color: #000; }
+.cmd-btn:disabled { opacity: 0.3; cursor: not-allowed; border-color: #555; }
+
+#msgBox {
+    flex: 1;
+    font-size: 20px;
+    line-height: 1.6;
+    letter-spacing: 1px;
+}
+
+/* サブメニュー */
+.sub-menu {
+    position: absolute;
+    bottom: 175px; left: 20px;
+    width: 320px; z-index: 100;
+    display: none; flex-direction: column; gap: 6px;
+}
+.sub-menu.active { display: flex; }
+.sub-btn {
+    background: #000; color: #fff; border: 2px solid #fff;
+    font-family: 'DotGothic16', monospace; font-size: 18px;
+    padding: 10px 12px; cursor: pointer; text-align: left;
+}
+.sub-btn:hover { background: #fff; color: #000; }
+
+/* ダメージ時の画面シェイク */
+.shake { animation: shake 0.35s ease-out; }
+@keyframes shake {
+    0% { transform: translate(0, 0); }
+    20% { transform: translate(-14px, 14px); }
+    40% { transform: translate(14px, -12px); }
+    60% { transform: translate(-10px, 8px); }
+    100% { transform: translate(0, 0); }
 }
 </style>
+
+<!-- Three.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
 
 <div id="game">
-    <h1>🧭 3Dダンジョン探索RPG 🧭</h1>
+    <!-- ステータスバー -->
+    <div class="dq-box status-bar">
+        <div>LV: <span class="stat-val" id="stLv">1</span></div>
+        <div>HP: <span class="stat-val" id="stHp">100</span>/<span id="stMaxHp">100</span> <div class="bar-bg"><div class="bar-fill-hp" id="barHp"></div></div></div>
+        <div>MP: <span class="stat-val" id="stMp">50</span>/<span id="stMaxMp">50</span> <div class="bar-bg"><div class="bar-fill-mp" id="barMp"></div></div></div>
+        <div>EXP: <span class="stat-val" id="stExp">0</span></div>
+    </div>
 
     <!-- 3D表示ビューポート -->
-    <div id="viewContainer">
-        <canvas id="threeDCanvas" width="800" height="300"></canvas>
-        <div id="overlayText">🧭 探索中... 周囲を警戒せよ</div>
+    <div id="viewport">
+        <div id="fadeOverlay"></div>
+        <button id="bgmBtn" onclick="toggleBGM()">🎵 BGM: OFF</button>
+        
+        <!-- 敵のHPゲージ表示 -->
+        <div id="enemyHpContainer">
+            <div id="enemyName">りゅうおう</div>
+            <div>HP: <span id="enemyHpVal">450</span> / <span id="enemyMaxHpVal">450</span></div>
+            <div class="enemy-bar-bg"><div id="enemyBarFill"></div></div>
+        </div>
+
+        <canvas id="canvas3d"></canvas>
+        <canvas id="minimap" width="140" height="140"></canvas>
     </div>
 
-    <div class="statusArea">
-        <!-- プレイヤー情報 -->
-        <div class="card">
-            <h3>🧙 勇者ステータス</h3>
-            <div>
-                HP <div class="bar"><div id="playerHPBar" class="fill hp"></div></div>
-                <div id="playerHPText" style="text-align:right; font-weight:bold; font-size:12px;"></div>
-            </div>
-            <div>
-                EXP <div class="bar"><div id="playerEXPBar" class="fill exp"></div></div>
-            </div>
-            <div id="playerInfo" style="margin-top:5px; font-size:13px; line-height:1.4;"></div>
+    <!-- 操作コマンド & メッセージ -->
+    <div class="bottom-area">
+        <div class="dq-box" id="commandMenu">
+            <button class="cmd-btn" id="btnAtk" onclick="cmdAttack()">たたかう</button>
+            <button class="cmd-btn" id="btnMagic" onclick="toggleSub('menuMagic')">じゅもん</button>
+            <button class="cmd-btn" id="btnSkill" onclick="toggleSub('menuSkill')">とくぎ</button>
+            <button class="cmd-btn" id="btnItem" onclick="toggleSub('menuItem')">どうぐ</button>
+            <button class="cmd-btn" id="btnRun" onclick="cmdRun()">にげる</button>
+            <button class="cmd-btn" onclick="resetGame()">リセット</button>
         </div>
 
-        <!-- エネミー情報（非戦闘時は隠す、または待機表示） -->
-        <div class="card" id="enemyCard">
-            <h3 id="enemyName">探索中...</h3>
-            <div>
-                敵 HP <div class="bar"><div id="enemyHPBar" class="fill hp"></div></div>
-            </div>
-            <div id="enemyInfo" style="margin-top:5px; font-size:13px; line-height:1.4;">-</div>
-        </div>
-    </div>
-
-    <!-- コントロールパネル（移動と戦闘を統合） -->
-    <div id="controlPanel">
-        <!-- 3D探索移動用 -->
-        <div>
-            <span style="font-size:12px; color:#a89278; display:block; margin-bottom:3px;">🚶 3D移動</span>
-            <div class="controlGroup">
-                <button id="btnTurnL" onclick="turnLeft()">↺ 左向</button>
-                <button id="btnMoveF" onclick="moveForward()">▲ 前進</button>
-                <button id="btnTurnR" onclick="turnRight()">右向 ↻</button>
-            </div>
-        </div>
-
-        <!-- 戦闘コマンド用 -->
-        <div>
-            <span style="font-size:12px; color:#e74c3c; display:block; margin-bottom:3px;">⚔ 戦闘コマンド</span>
-            <div class="controlGroup">
-                <button id="btnAttack" onclick="attack()" disabled>⚔ 攻撃</button>
-                <button id="btnHeal" onclick="heal()" disabled>💚 回復</button>
-                <button onclick="restart()">🔄 リセット</button>
-            </div>
+        <div class="dq-box" id="msgBox">
+            <div id="msgText"></div>
         </div>
     </div>
 
-    <div class="inventoryArea">
-        <h4 style="margin:0 0 8px 0; color:#ffd24a;">🎒 冒険者のバッグ</h4>
-        <div id="inventoryList" class="inventoryList"><div class="emptyInventory">空っぽです。</div></div>
+    <!-- じゅもんサブメニュー -->
+    <div class="dq-box sub-menu" id="menuMagic">
+        <button class="sub-btn" onclick="useSpell('メラゾーマ', 12, 95)">🔥 メラゾーマ (MP 12)</button>
+        <button class="sub-btn" onclick="useSpell('ギガデイン', 20, 160)">⚡ ギガデイン (MP 20)</button>
+        <button class="sub-btn" onclick="useHeal('ベホマ', 12, 100)">✨ ベホマ (MP 12)</button>
     </div>
 
-    <div id="log"></div>
-</div>
+    <!-- とくぎサブメニュー -->
+    <div class="dq-box sub-menu" id="menuSkill">
+        <button class="sub-btn" onclick="useSkill('はやぶさぎり', 8, 1.8)">⚔ はやぶさぎり (MP 8)</button>
+    </div>
 
-<div id="clearOverlay" class="screenOverlay" aria-hidden="true">
-    <div class="screenPanel">
-        <h2>🎉 伝説達成</h2>
-        <p>3D迷宮の最深部に君臨せよ魔王を撃破した！<br>世界は光を取り戻した。</p>
-        <button onclick="restart()">新天地へ旅立つ</button>
+    <!-- どうぐサブメニュー -->
+    <div class="dq-box sub-menu" id="menuItem">
+        <button class="sub-btn" onclick="useItem('やくそう', 'hp', 50)">🧪 やくそう (HP+50)</button>
+        <button class="sub-btn" onclick="useItem('まほうのせいすい', 'mp', 30)">💧 まほうのせいすい (MP+30)</button>
     </div>
 </div>
 
 <script>
-const COIN_REWARD = 3;
+// --- ダンジョン構造 ---
+const map = [
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,2,1],
+    [1,0,1,0,1,0,1,1,1,1,1,0,1,0,1,1,1,1,0,1],
+    [1,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,1,0,1],
+    [1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,0,1,1,0,1],
+    [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
+    [1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,0,1,1],
+    [1,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,1],
+    [1,0,1,1,1,0,1,1,1,0,1,0,1,0,1,1,1,1,0,1],
+    [1,0,1,0,0,0,0,0,1,0,0,0,1,0,0,0,0,1,0,1],
+    [1,0,1,0,1,1,1,0,1,1,1,1,1,1,1,1,0,1,0,1],
+    [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1],
+    [1,1,1,0,1,0,1,1,1,1,1,1,1,0,1,1,1,1,0,1],
+    [1,0,0,0,1,0,1,0,0,0,0,0,1,0,0,0,0,1,0,1],
+    [1,0,1,1,1,0,1,0,1,1,1,0,1,1,1,1,0,1,0,1],
+    [1,0,0,0,0,0,1,0,1,0,0,0,0,0,0,1,0,0,0,1],
+    [1,1,1,1,1,0,1,0,1,0,1,1,1,1,0,1,1,1,0,1],
+    [1,0,0,0,1,0,0,0,1,0,0,0,0,1,0,0,0,1,0,1],
+    [1,0,1,0,0,0,1,0,0,0,1,1,0,0,0,1,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+];
 
-function notifyGameEnded(coin){
-    try { window.parent.postMessage({ type: 'game:ended', coin: coin }, '*'); } catch(e){}
+// ステータス
+let hero = {
+    gridX: 1, gridZ: 1, dir: 0,
+    posX: 3, posZ: 3, rotY: -Math.PI / 2,
+    hp: 100, maxHp: 100, mp: 50, maxMp: 50,
+    atk: 30, baseAtk: 30, lv: 1, exp: 0
+};
+
+// モンスター定義
+const monstersData = [
+    { name: "スライム", hp: 45, atk: 16, exp: 20, scale: 0.7 },
+    { name: "ゴーレム", hp: 120, atk: 35, exp: 60, scale: 0.85 },
+    { name: "ドラゴン", hp: 200, atk: 52, exp: 140, scale: 0.9 },
+    { name: "りゅうおう", hp: 450, atk: 75, exp: 700, scale: 1.0, isBoss: true }
+];
+
+let currentEnemy = null;
+let activeMonsterMesh = null;
+let isBattle = false;
+
+// 戦闘場所（アリーナ座標）
+const BATTLE_ARENA_POS = new THREE.Vector3(500, 1.25, 500);
+
+// --- BGM & SE ---
+let audioCtx = null;
+let bgmInterval = null;
+let isBgmPlaying = false;
+
+function initAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 }
 
-// === 3Dダンジョンマップデータ (1 = 壁, 0 = 通路) ===
-const MAP_SIZE = 8;
-const dungeonMap = [
-    [1,1,1,1,1,1,1,1],
-    [1,0,0,0,1,0,0,1],
-    [1,0,1,0,1,0,1,1],
-    [1,0,1,0,0,0,0,1],
-    [1,0,1,1,1,1,0,1],
-    [1,0,0,0,0,1,0,1],
-    [1,1,1,0,0,0,0,1],
-    [1,1,1,1,1,1,1,1]
-];
+const melodyNotes = [220, 233, 261, 246, 220, 196, 220, 174, 220, 233, 261, 293, 261, 233, 220, 196];
+let noteIdx = 0;
 
-// プレイヤー探索データ
-let posX = 1.5, posY = 1.5; // マップ座標
-let dirAngle = 0; // 向き（ラジアン）
-let isFighting = false;
+function playSound(freq, duration, type='square', vol=0.08) {
+    if (!audioCtx || audioCtx.state === 'suspended') return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+}
 
-let player = { hp: 180, maxHp: 180, baseAtk: 35, atk: 50, level: 1, exp: 0, inventory: [], activeBuffs: [] };
-let enemy = {};
-let gameCleared = false;
-let itemIdCount = 0;
-const ATTACK_BUFF_TURNS = 3;
+function startBGM() {
+    initAudio();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    isBgmPlaying = true;
+    document.getElementById("bgmBtn").innerText = "🎵 BGM: ON";
+    
+    if (bgmInterval) clearInterval(bgmInterval);
+    bgmInterval = setInterval(() => {
+        let f = melodyNotes[noteIdx % melodyNotes.length];
+        playSound(f, 0.22, 'square', 0.04);
+        playSound(f / 2, 0.4, 'sawtooth', 0.06);
+        noteIdx++;
+    }, 240);
+}
 
-const enemyList = [
-    {name:"👹 スライム", hp:50, atk:10, emoji:"👹"},
-    {name:"🐺 オオカミ", hp:70, atk:15, emoji:"🐺"},
-    {name:"🧟 ゾンビ", hp:90, atk:18, emoji:"🧟"},
-    {name:"🦇 コウモリ", hp:40, atk:12, emoji:"🦇"},
-    {name:"🦂 サソリ", hp:80, atk:20, emoji:"🦂"},
-    {name:"🐍 大蛇", hp:100, atk:22, emoji:"🐍"},
-    {name:"🦁 ライオン", hp:120, atk:25, emoji:"🦁"},
-    {name:"👺 オーガ", hp:150, atk:30, emoji:"👺"},
-    {name:"🐉 ドラゴン", hp:220, atk:40, emoji:"🐉"},
-    {name:"👿 魔王", hp:350, atk:55, emoji:"👿"}
-];
+function stopBGM() {
+    isBgmPlaying = false;
+    if (bgmInterval) clearInterval(bgmInterval);
+    document.getElementById("bgmBtn").innerText = "🎵 BGM: OFF";
+}
 
-const itemPool = [
-    { name: "鉄の剣", effect: "attack", value: 5, description: "攻撃力 +5" },
-    { name: "回復ポーション", effect: "heal", value: 80, description: "HPを80回復" }
-];
+function toggleBGM() {
+    if (isBgmPlaying) stopBGM(); else startBGM();
+}
 
-// === 3Dグラフィックレンダリングエンジン ===
-const canvas = document.getElementById("threeDCanvas");
-const ctx = canvas.getContext("2d");
+// --- Three.js 3Dエンジン ---
+const viewport = document.getElementById("viewport");
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x040408, 0.1);
 
-function render3D() {
-    const w = canvas.width;
-    const h = canvas.height;
-    ctx.clearRect(0, 0, w, h);
+const camera = new THREE.PerspectiveCamera(65, viewport.clientWidth / viewport.clientHeight, 0.1, 100);
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById("canvas3d"), antialias: true });
+renderer.setSize(viewport.clientWidth, viewport.clientHeight);
 
-    // 天井と床の描画（グラデーション）
-    let skyGrad = ctx.createLinearGradient(0,0,0,h/2);
-    skyGrad.addColorStop(0, '#050303');
-    skyGrad.addColorStop(1, '#1b1212');
-    ctx.fillStyle = skyGrad;
-    ctx.fillRect(0, 0, w, h/2);
+// ライト設定
+const playerLight = new THREE.PointLight(0xffaa44, 2.5, 15);
+scene.add(playerLight);
 
-    let floorGrad = ctx.createLinearGradient(0,h/2,0,h);
-    floorGrad.addColorStop(0, '#120d0d');
-    floorGrad.addColorStop(1, '#050303');
-    ctx.fillStyle = floorGrad;
-    ctx.fillRect(0, h/2, w, h/2);
+const ambientLight = new THREE.AmbientLight(0x222233, 1.2);
+scene.add(ambientLight);
 
-    // レイキャスティングによる疑似3D壁の描画
-    const fov = Math.PI / 3; // 視野角60度
-    const numRays = 120; // 描画ライン数
-    const sliceWidth = w / numRays;
-
-    for (let i = 0; i < numRays; i++) {
-        let rayAngle = (dirAngle - fov/2) + (i / numRays) * fov;
-        let distance = 0;
-        let hitWall = false;
-
-        let cos = Math.cos(rayAngle);
-        let sin = Math.sin(rayAngle);
-
-        while (!hitWall && distance < 10) {
-            distance += 0.05;
-            let checkX = Math.floor(posX + cos * distance);
-            let checkY = Math.floor(posY + sin * distance);
-
-            if (checkX < 0 || checkX >= MAP_SIZE || checkY < 0 || checkY >= MAP_SIZE) {
-                hitWall = true;
-                distance = 10;
-            } else if (dungeonMap[checkY][checkX] > 0) {
-                hitWall = true;
-            }
+// テクスチャ
+function createTexture(type) {
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = 256;
+    const ctx = canvas.getContext("2d");
+    if (type === "wall") {
+        ctx.fillStyle = "#1e1e24"; ctx.fillRect(0,0,256,256);
+        ctx.strokeStyle = "#0a0a0f"; ctx.lineWidth = 4;
+        for(let y=0; y<=256; y+=32) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(256, y); ctx.stroke(); }
+        for(let y=0; y<256; y+=32) {
+            let offset = (y/32 % 2) * 32;
+            for(let x=offset; x<=256; x+=64) { ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y+32); ctx.stroke(); }
         }
-
-        // 魚眼レンズ効果の補正
-        let correctedDist = distance * Math.cos(rayAngle - dirAngle);
-        let wallHeight = Math.min(h, (h / correctedDist) * 0.8);
-
-        // 遠近による壁の色のグラデーション（奥に行くほど暗く）
-        let colorValue = Math.floor(Math.max(10, 140 - correctedDist * 18));
-        ctx.fillStyle = `rgb(${colorValue}, ${Math.floor(colorValue*0.8)}, ${Math.floor(colorValue*0.6)})`;
-        
-        // 壁の縦スライス線を描画
-        ctx.fillRect(i * sliceWidth, (h - wallHeight)/2, sliceWidth + 1, wallHeight);
-        
-        // 壁の縦枠線（立体感強調）
-        ctx.strokeStyle = `rgba(0,0,0,${Math.min(0.8, correctedDist*0.08)})`;
-        ctx.strokeRect(i * sliceWidth, (h - wallHeight)/2, sliceWidth + 1, wallHeight);
-    }
-
-    // 戦闘中なら敵の巨大3Dビルボード（絵）を中央に描画
-    if (isFighting && enemy) {
-        ctx.save();
-        ctx.font = "100px sans-serif";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        // 浮遊アニメーション
-        let bobbing = Math.sin(Date.now() * 0.005) * 10;
-        ctx.fillText(enemy.emoji || "👹", w/2, h/2 + bobbing);
-        ctx.restore();
-    }
-}
-
-// 探索・エンカウント処理
-function moveForward() {
-    if (isFighting || gameCleared) return;
-    let nextX = posX + Math.cos(dirAngle) * 0.4;
-    let nextY = posY + Math.sin(dirAngle) * 0.4;
-
-    // 壁判定
-    if (dungeonMap[Math.floor(nextY)][Math.floor(nextX)] === 0) {
-        posX = nextX;
-        posY = nextY;
-        render3D();
-        checkEncounter();
     } else {
-        log("<span class='logSystem'>💥 壁にぶつかった！</span>");
+        ctx.fillStyle = "#111116"; ctx.fillRect(0,0,256,256);
+        ctx.strokeStyle = "#050508"; ctx.lineWidth = 6;
+        for(let i=0; i<=256; i+=64) { ctx.strokeRect(i, 0, 64, 256); ctx.strokeRect(0, i, 256, 64); }
+    }
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    return tex;
+}
+
+const wallMat = new THREE.MeshStandardMaterial({ map: createTexture("wall"), roughness: 0.85 });
+const floorMat = new THREE.MeshStandardMaterial({ map: createTexture("floor"), roughness: 0.6 });
+
+const tileSize = 3;
+const wallGeo = new THREE.BoxGeometry(tileSize, tileSize, tileSize);
+const floorGeo = new THREE.PlaneGeometry(tileSize, tileSize);
+
+// ダンジョン生成
+for (let r = 0; r < map.length; r++) {
+    for (let c = 0; c < map[r].length; c++) {
+        let x = c * tileSize;
+        let z = r * tileSize;
+        if (map[r][c] === 1) {
+            let wall = new THREE.Mesh(wallGeo, wallMat);
+            wall.position.set(x, tileSize / 2, z);
+            scene.add(wall);
+        } else {
+            let floor = new THREE.Mesh(floorGeo, floorMat);
+            floor.rotation.x = -Math.PI / 2;
+            floor.position.set(x, 0, z);
+            scene.add(floor);
+        }
     }
 }
 
-function turnLeft() {
-    if (isFighting || gameCleared) return;
-    dirAngle -= Math.PI / 6;
-    render3D();
+// ★ 戦闘専用アリーナ（離れた特別空間） ★
+function createBattleArena() {
+    const arenaGroup = new THREE.Group();
+    arenaGroup.position.copy(BATTLE_ARENA_POS);
+    arenaGroup.position.y = 0;
+
+    // 魔法陣床
+    const arenaFloorGeo = new THREE.CircleGeometry(8, 32);
+    const arenaFloorMat = new THREE.MeshStandardMaterial({ color: 0x110822, roughness: 0.3 });
+    const arenaFloor = new THREE.Mesh(arenaFloorGeo, arenaFloorMat);
+    arenaFloor.rotation.x = -Math.PI / 2;
+    arenaGroup.add(arenaFloor);
+
+    // 魔法陣リング（発光）
+    const ringGeo = new THREE.RingGeometry(5.5, 6, 32);
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0x8844ff, side: THREE.DoubleSide });
+    const ring = new THREE.Mesh(ringGeo, ringMat);
+    ring.rotation.x = -Math.PI / 2;
+    ring.position.y = 0.02;
+    arenaGroup.add(ring);
+
+    // バトルライト
+    const arenaLight = new THREE.PointLight(0xaa55ff, 3, 20);
+    arenaLight.position.set(0, 4, 0);
+    arenaGroup.add(arenaLight);
+
+    scene.add(arenaGroup);
+}
+createBattleArena();
+
+
+// --- 敵3Dモデル構築 ---
+function createMonsterMesh(name) {
+    const group = new THREE.Group();
+
+    if (name === "スライム") {
+        const bodyMat = new THREE.MeshPhysicalMaterial({
+            color: 0x0099ff, transmission: 0.8, opacity: 0.95, transparent: true, roughness: 0.1
+        });
+        const body = new THREE.Mesh(new THREE.SphereGeometry(0.85, 32, 32), bodyMat);
+        body.scale.set(1.1, 0.8, 1.1);
+        
+        const tip = new THREE.Mesh(new THREE.ConeGeometry(0.3, 0.6, 16), bodyMat);
+        tip.position.y = 0.7;
+
+        const eyeMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const pupilMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+        const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.15, 16, 16), eyeMat);
+        eyeL.position.set(-0.25, 0.15, 0.75);
+        const pupilL = new THREE.Mesh(new THREE.SphereGeometry(0.08, 16, 16), pupilMat);
+        pupilL.position.set(-0.25, 0.15, 0.88);
+
+        const eyeR = eyeL.clone(); eyeR.position.x = 0.25;
+        const pupilR = pupilL.clone(); pupilR.position.x = 0.25;
+
+        group.add(body, tip, eyeL, eyeR, pupilL, pupilR);
+
+    } else if (name === "ゴーレム") {
+        const rockMat = new THREE.MeshStandardMaterial({ color: 0xb06830, roughness: 0.95 });
+        const chest = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.2, 1.0), rockMat);
+        chest.position.y = 1.3;
+        const head = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.6, 0.7), rockMat);
+        head.position.y = 2.2;
+
+        [-1, 1].forEach(s => {
+            const shoulder = new THREE.Mesh(new THREE.SphereGeometry(0.35, 8, 8), rockMat);
+            shoulder.position.set(s * 1.0, 1.7, 0);
+            const arm = new THREE.Mesh(new THREE.BoxGeometry(0.45, 1.1, 0.45), rockMat);
+            arm.position.set(s * 1.1, 1.0, 0);
+            const fist = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.55, 0.55), rockMat);
+            fist.position.set(s * 1.1, 0.35, 0);
+            const leg = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.8, 0.5), rockMat);
+            leg.position.set(s * 0.45, 0.4, 0);
+            group.add(shoulder, arm, fist, leg);
+        });
+
+        group.add(chest, head);
+
+    } else if (name === "ドラゴン") {
+        const greenMat = new THREE.MeshStandardMaterial({ color: 0x1e7b34, roughness: 0.5 });
+        const bellyMat = new THREE.MeshStandardMaterial({ color: 0xd8b878, roughness: 0.6 });
+
+        const body = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.95, 1.8, 16), greenMat);
+        body.position.y = 1.0;
+        const belly = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.7, 1.5, 16), bellyMat);
+        belly.position.set(0, 0.9, 0.25);
+
+        const head = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.5, 1.1), greenMat);
+        head.position.set(0, 2.1, 0.5);
+
+        [-1, 1].forEach(s => {
+            const wing = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.8, 0.05), greenMat);
+            wing.position.set(s * 1.0, 1.4, -0.3);
+            wing.rotation.y = s * 0.4;
+            group.add(wing);
+        });
+
+        group.add(body, belly, head);
+
+    } else if (name === "りゅうおう") {
+        const purpleMat = new THREE.MeshStandardMaterial({ color: 0x4a154b, roughness: 0.4 });
+        const orangeMat = new THREE.MeshStandardMaterial({ color: 0xd9531e, roughness: 0.5 });
+        const goldMat = new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.8, roughness: 0.2 });
+        const eyeMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+
+        const body = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 1.1, 2.2, 16), purpleMat);
+        body.position.y = 1.2;
+        const belly = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.8, 1.9, 16), orangeMat);
+        belly.position.set(0, 1.1, 0.3);
+
+        const head = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.65, 1.2), purpleMat);
+        head.position.set(0, 2.5, 0.5);
+
+        [-1, 1].forEach(s => {
+            const horn = new THREE.Mesh(new THREE.ConeGeometry(0.12, 1.1, 16), goldMat);
+            horn.rotation.set(-0.4, 0, s * 0.6);
+            horn.position.set(s * 0.45, 3.0, 0.2);
+
+            const eye = new THREE.Mesh(new THREE.SphereGeometry(0.1, 12, 12), eyeMat);
+            eye.position.set(s * 0.28, 2.6, 1.0);
+
+            const wingGeo = new THREE.BoxGeometry(1.6, 1.2, 0.08);
+            const wing = new THREE.Mesh(wingGeo, purpleMat);
+            wing.position.set(s * 1.4, 1.6, -0.4);
+            wing.rotation.y = s * 0.5;
+
+            group.add(horn, eye, wing);
+        });
+
+        const tail = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.5, 1.8, 12), purpleMat);
+        tail.rotation.x = Math.PI / 3;
+        tail.position.set(0, 0.5, -1.0);
+
+        group.add(body, belly, head, tail);
+    }
+
+    return group;
 }
 
-function turnRight() {
-    if (isFighting || gameCleared) return;
-    dirAngle += Math.PI / 6;
-    render3D();
+function spawn3DMonsterInArena(data) {
+    if (activeMonsterMesh) scene.remove(activeMonsterMesh);
+
+    const group = createMonsterMesh(data.name);
+    group.scale.set(data.scale, data.scale, data.scale);
+    
+    // アリーナの中央（プレイヤー正面）に配置
+    group.position.set(BATTLE_ARENA_POS.x, 0.2, BATTLE_ARENA_POS.z - 3.5);
+    group.rotation.y = 0; // プレイヤーの方（+Z方向）を向く
+
+    scene.add(group);
+    activeMonsterMesh = group;
 }
 
-function checkEncounter() {
-    if (Math.random() < 0.22) { // 22%でエンカウント
+// --- カメラ移動補間 ---
+let targetPosX = hero.gridX * tileSize;
+let targetPosZ = hero.gridZ * tileSize;
+let targetRotY = -Math.PI / 2;
+let walkBob = 0;
+
+function updateCameraSmooth() {
+    if (isBattle) {
+        // ★ 戦闘中：戦闘アリーナ視点へ
+        camera.position.lerp(BATTLE_ARENA_POS, 0.1);
+        camera.rotation.y = 0; // アリーナ奥を向く
+    } else {
+        // ★ 移動中：ダンジョン内視点へ
+        hero.posX += (targetPosX - hero.posX) * 0.15;
+        hero.posZ += (targetPosZ - hero.posZ) * 0.15;
+
+        let rotDiff = targetRotY - hero.rotY;
+        while (rotDiff < -Math.PI) rotDiff += Math.PI * 2;
+        while (rotDiff > Math.PI) rotDiff -= Math.PI * 2;
+        hero.rotY += rotDiff * 0.15;
+
+        camera.position.set(hero.posX, 1.25 + Math.sin(walkBob) * 0.04, hero.posZ);
+        camera.rotation.y = hero.rotY;
+    }
+
+    playerLight.position.copy(camera.position);
+}
+
+// キー操作
+window.addEventListener("keydown", (e) => {
+    if (!isBgmPlaying) startBGM();
+    if (isBattle) return;
+
+    let moved = false;
+    const dirs = [ {x: 1, z: 0}, {x: 0, z: 1}, {x: -1, z: 0}, {x: 0, z: -1} ];
+
+    switch(e.key.toLowerCase()) {
+        case "arrowup": case "w":
+            let fv = dirs[hero.dir];
+            let nx = hero.gridX + fv.x;
+            let nz = hero.gridZ + fv.z;
+            if (map[nz][nx] !== 1) {
+                hero.gridX = nx; hero.gridZ = nz;
+                targetPosX = hero.gridX * tileSize;
+                targetPosZ = hero.gridZ * tileSize;
+                moved = true;
+                checkTile();
+            } else {
+                typeMessage("壁に ぶつかった！");
+            }
+            break;
+        case "arrowleft": case "a":
+            hero.dir = (hero.dir + 3) % 4;
+            targetRotY += Math.PI / 2;
+            break;
+        case "arrowright": case "d":
+            hero.dir = (hero.dir + 1) % 4;
+            targetRotY -= Math.PI / 2;
+            break;
+        case "arrowdown": case "s":
+            hero.dir = (hero.dir + 2) % 4;
+            targetRotY += Math.PI;
+            break;
+    }
+    if (moved) walkBob += 0.8;
+    renderMinimap();
+});
+
+function checkTile() {
+    let tile = map[hero.gridZ][hero.gridX];
+    if (tile === 2) {
+        startBattle(monstersData[3]); // 竜王戦
+    } else if (Math.random() < 0.20) {
         startBattle();
     }
 }
 
-function startBattle() {
-    isFighting = true;
-    createEnemy();
-    log("<span class='logEnemy'>⚔ 警告！目の前に凶悪な魔物が出現！ ⚔</span>");
-    document.getElementById("overlayText").innerHTML = "⚠ 戦闘中！ 敵を殲滅せよ";
-    document.getElementById("overlayText").style.borderColor = "red";
-    
-    // コマンドボタンを切り替え
-    setBattleButtons(true);
-    setMoveButtons(false);
-    render3D();
-    draw();
-}
-
-function endBattle() {
-    isFighting = false;
-    document.getElementById("overlayText").innerHTML = "🧭 探索中... 周囲を警戒せよ";
-    document.getElementById("overlayText").style.borderColor = "#8c7255";
-    setBattleButtons(false);
-    setMoveButtons(true);
-    
-    document.getElementById("enemyName").innerHTML = "探索中...";
-    document.getElementById("enemyInfo").innerHTML = "-";
-    setBar("enemyHPBar", 0, 1);
-
-    render3D();
-    draw();
-}
-
-function setBattleButtons(active) {
-    document.getElementById("btnAttack").disabled = !active;
-    document.getElementById("btnHeal").disabled = !active;
-}
-
-function setMoveButtons(active) {
-    document.getElementById("btnMoveF").disabled = !active;
-    document.getElementById("btnTurnL").disabled = !active;
-    document.getElementById("btnTurnR").disabled = !active;
-}
-
-// 敵生成
-function createEnemy() {
-    let e;
-    if(player.level <= 2) e = enemyList[Math.floor(Math.random()*3)];
-    else if(player.level <= 4) e = enemyList[Math.floor(Math.random()*6)];
-    else if(player.level <= 7) e = enemyList[Math.floor(Math.random()*8)];
-    else e = enemyList[Math.floor(Math.random()*10)];
-
-    enemy = {
-        name: e.name + " Lv." + player.level,
-        hp: e.hp + player.level * 10,
-        maxHp: e.hp + player.level * 10,
-        atk: e.atk + player.level * 3,
-        emoji: e.emoji
-    };
-}
-
-function triggerDamageEffect() {
-    const gameArea = document.getElementById("game");
-    gameArea.classList.remove("shake-effect");
-    void gameArea.offsetWidth;
-    gameArea.classList.add("shake-effect");
-}
-
-function setBar(id, value, max) {
-    let per = (value / max) * 100;
-    if(per < 0) per = 0;
-    if(per > 100) per = 100;
-    let bar = document.getElementById(id);
-    bar.style.width = per + "%";
-    bar.style.background = per > 60 ? "#28c840" : per > 30 ? "#e67e22" : "#e74c3c";
-}
-
-function draw() {
-    updateAttackPower();
-    setBar("playerHPBar", player.hp, player.maxHp);
-    
-    if (isFighting) {
-        setBar("enemyHPBar", enemy.hp, enemy.maxHp);
-        document.getElementById("enemyName").innerHTML = enemy.name;
-        document.getElementById("enemyInfo").innerHTML =
-            "❤️ <b>HP</b>: " + enemy.hp + " / " + enemy.maxHp + "<br>" +
-            "⚔ <b>攻撃力</b>: " + enemy.atk;
-    }
-
-    document.getElementById("playerEXPBar").style.width = (player.exp / 30 * 100) + "%";
-    document.getElementById("playerHPText").innerHTML = player.hp + " / " + player.maxHp;
-
-    document.getElementById("playerInfo").innerHTML =
-        "👑 <b>レベル</b>: " + player.level + "<br>" +
-        "⚔ <b>総攻撃力</b>: " + player.atk + " (基本 " + player.baseAtk + ")<br>" +
-        "🛡 <b>強化状態</b>: " + getAttackBuffText();
-
-    drawInventory();
-}
-
-function drawInventory() {
-    let list = document.getElementById("inventoryList");
-    if(player.inventory.length === 0){
-        list.innerHTML = "<div class='emptyInventory'>空っぽです。</div>";
-        return;
-    }
-    list.innerHTML = player.inventory.map(item =>
-        `<div class='itemCard'>
-            <div style='font-weight:bold; color:#e5c158;'>📜 ${item.name}</div>
-            <div style='font-size:11px;'>${item.description}</div>
-            <button style='padding:4px; font-size:11px; width:100%; margin-top:5px;' onclick='useItem(${item.id})'>使用</button>
-         </div>`
-    ).join("");
-}
-
-function log(text) {
-    let area = document.getElementById("log");
-    area.innerHTML += text + "<br>";
-    area.scrollTop = area.scrollHeight;
-}
-
-function attack() {
-    if(!isFighting || gameCleared) return;
-
-    let isCritical = Math.random() < 0.15;
-    let isMiss = Math.random() < 0.05;
-
-    let damage = 0;
-    if (isMiss) {
-        log("<span class='logSystem'>💨 勇者の刃は空を切った！（ミス）</span>");
-    } else {
-        let baseDamage = Math.floor(Math.random() * 15) + player.atk;
-        damage = isCritical ? Math.floor(baseDamage * 1.5) : baseDamage;
-        enemy.hp -= damage;
-        if(enemy.hp < 0) enemy.hp = 0;
-
-        if (isCritical) {
-            log("<span class='logAttack'>🔥 会心の一撃！ 敵に " + damage + " ダメージ！</span>");
-        } else {
-            log("<span class='logAttack'>⚔ 斬撃！ 敵に " + damage + " ダメージ！</span>");
-        }
-    }
-
-    draw();
-
-    if(enemy.hp <= 0){
-        log("<span class='logLevel'>🎉 敵を完全に消滅させた！</span>");
-        player.exp += 15;
-
-        if(Math.random() < 0.7) obtainItem();
-
-        if(player.exp >= 30){
-            player.exp = 0;
-            player.level++;
-            player.maxHp += 30;
-            player.hp = player.maxHp;
-            player.baseAtk += 8;
-            log("<span class='logLevel'>⭐ 勇者の魂が昇華！ Lv." + player.level + " にレベルアップ！</span>");
-        }
-
-        if(enemy.name.indexOf("魔王") !== -1){
-            showClearScreen();
-            return;
-        }
-
-        setTimeout(endBattle, 800);
-        return;
-    }
-
-    setBattleButtons(false);
-    setTimeout(enemyAttack, 600);
-}
-
-function enemyAttack() {
-    if(!isFighting || gameCleared) return;
-
-    let isMiss = Math.random() < 0.08;
-    if (isMiss) {
-        log("<span class='logSystem'>🛡 敵の攻撃を身軽にかわした。</span>");
-        setBattleButtons(true);
-        return;
-    }
-
-    let damage = Math.floor(Math.random() * 5) + enemy.atk;
-    player.hp -= damage;
-    if(player.hp < 0) player.hp = 0;
-
-    triggerDamageEffect();
-    log("<span class='logEnemy'>👹 " + enemy.name + " の攻撃！ " + damage + " の痛打を受けた！</span>");
-    draw();
-
-    if(player.hp <= 0){
+// --- 暗転演出付き画面切り替え ---
+function triggerFade(callback) {
+    const overlay = document.getElementById("fadeOverlay");
+    overlay.style.opacity = "1";
+    setTimeout(() => {
+        callback();
         setTimeout(() => {
-            alert("迷宮で倒れました…");
-            notifyGameEnded(0);
-            restart();
-        }, 200);
+            overlay.style.opacity = "0";
+        }, 150);
+    }, 300);
+}
+
+// --- バトル処理 & 戦闘場移動 ---
+function startBattle(bossData = null) {
+    triggerFade(() => {
+        isBattle = true;
+        let data = bossData || monstersData[Math.min(2, Math.floor(Math.random() * (hero.lv + 1)))];
+        currentEnemy = { ...data, maxHp: data.hp };
+        
+        spawn3DMonsterInArena(data);
+        
+        // 敵HPゲージ表示
+        document.getElementById("enemyHpContainer").style.display = "block";
+        document.getElementById("enemyName").innerText = currentEnemy.name;
+        updateEnemyHpUI();
+
+        typeMessage(`${currentEnemy.name} が あらわれた！`);
+        updateUI();
+    });
+}
+
+function updateEnemyHpUI() {
+    if (!currentEnemy) return;
+    document.getElementById("enemyHpVal").innerText = Math.max(0, currentEnemy.hp);
+    document.getElementById("enemyMaxHpVal").innerText = currentEnemy.maxHp;
+    const fillPercent = Math.max(0, (currentEnemy.hp / currentEnemy.maxHp) * 100);
+    document.getElementById("enemyBarFill").style.width = `${fillPercent}%`;
+}
+
+function typeMessage(text) {
+    document.getElementById("msgText").innerHTML = text.replace("\n", "<br>");
+}
+
+function updateUI() {
+    document.getElementById("stLv").innerText = hero.lv;
+    document.getElementById("stHp").innerText = hero.hp;
+    document.getElementById("stMaxHp").innerText = hero.maxHp;
+    document.getElementById("stMp").innerText = hero.mp;
+    document.getElementById("stMaxMp").innerText = hero.maxMp;
+    document.getElementById("stExp").innerText = hero.exp;
+
+    document.getElementById("barHp").style.width = `${(hero.hp / hero.maxHp) * 100}%`;
+    document.getElementById("barMp").style.width = `${(hero.mp / hero.maxMp) * 100}%`;
+
+    const btns = ["btnAtk", "btnMagic", "btnSkill", "btnItem", "btnRun"];
+    btns.forEach(id => document.getElementById(id).disabled = !isBattle);
+}
+
+function cmdAttack() {
+    if (!isBattle) return;
+    closeSub();
+    playSound(420, 0.12, 'sawtooth');
+
+    let dmg = Math.floor(hero.atk + (Math.random() * 8 - 4));
+    currentEnemy.hp -= dmg;
+    updateEnemyHpUI();
+
+    if (activeMonsterMesh) {
+        activeMonsterMesh.position.z += 0.3;
+        setTimeout(() => activeMonsterMesh.position.z -= 0.3, 120);
+    }
+
+    typeMessage(`ゆうしゃの こうげき！\n${currentEnemy.name} に ${dmg} のダメージ！`);
+    checkDefeat();
+}
+
+function useSpell(name, cost, power) {
+    closeSub();
+    if (hero.mp < cost) { typeMessage("MPが たりない！"); return; }
+    hero.mp -= cost;
+    playSound(650, 0.3, 'sine');
+    currentEnemy.hp -= power;
+    updateEnemyHpUI();
+    typeMessage(`ゆうしゃは ${name} を となえた！\n${currentEnemy.name} に ${power} のダメージ！`);
+    checkDefeat();
+}
+
+function useHeal(name, cost, val) {
+    closeSub();
+    if (hero.mp < cost) { typeMessage("MPが たりない！"); return; }
+    hero.mp -= cost;
+    hero.hp = Math.min(hero.maxHp, hero.hp + val);
+    playSound(850, 0.4, 'sine');
+    typeMessage(`ゆうしゃは ${name} を となえた！\nHPが かいふくした！`);
+    updateUI();
+    setTimeout(enemyTurn, 1000);
+}
+
+function useSkill(name, cost, ratio) {
+    closeSub();
+    if (hero.mp < cost) { typeMessage("MPが たりない！"); return; }
+    hero.mp -= cost;
+    playSound(520, 0.2, 'square');
+    let dmg = Math.floor(hero.atk * ratio);
+    currentEnemy.hp -= dmg;
+    updateEnemyHpUI();
+    typeMessage(`ゆうしゃの ${name}！\n${currentEnemy.name} に ${dmg} のダメージ！`);
+    checkDefeat();
+}
+
+function useItem(name, type, val) {
+    closeSub();
+    if (type === 'hp') hero.hp = Math.min(hero.maxHp, hero.hp + val);
+    if (type === 'mp') hero.mp = Math.min(hero.maxMp, hero.mp + val);
+    typeMessage(`ゆうしゃは ${name} を つかった！`);
+    updateUI();
+    setTimeout(enemyTurn, 1000);
+}
+
+function cmdRun() {
+    closeSub();
+    if (Math.random() < 0.6) {
+        typeMessage("ゆうしゃは にげだした！");
+        setTimeout(endBattle, 1000);
     } else {
-        setBattleButtons(true);
+        typeMessage("しかし にげまわされた！");
+        setTimeout(enemyTurn, 1000);
     }
 }
 
-function heal() {
-    if(!isFighting || gameCleared) return;
+function checkDefeat() {
+    updateUI();
+    if (currentEnemy.hp <= 0) {
+        playSound(880, 0.5, 'triangle');
+        typeMessage(`${currentEnemy.name} を たおした！\n${currentEnemy.exp} のけいけんちを かくとく！`);
+        hero.exp += currentEnemy.exp;
 
-    let healVal = Math.floor(Math.random() * 30) + 35;
-    player.hp += healVal;
-    if(player.hp > player.maxHp) player.hp = player.maxHp;
+        if (hero.exp >= hero.lv * 35) {
+            hero.lv++;
+            hero.maxHp += 20; hero.hp = hero.maxHp;
+            hero.maxMp += 10; hero.mp = hero.maxMp;
+            hero.baseAtk += 8; hero.atk = hero.baseAtk;
+            setTimeout(() => typeMessage(`★ レベルが あがった！ LV.${hero.lv} になった！`), 1000);
+        }
 
-    log("<span class='logHeal'>💚 治癒の魔法！ HPが " + healVal + " 回復した。</span>");
-    draw();
-
-    setBattleButtons(false);
-    setTimeout(enemyAttack, 600);
+        if (currentEnemy.isBoss) {
+            setTimeout(() => alert("🎉 りゅうおうを たおし、世界に 平和が おとずれた！"), 1500);
+        } else {
+            setTimeout(endBattle, 1200);
+        }
+    } else {
+        setTimeout(enemyTurn, 1000);
+    }
 }
 
-function updateAttackPower() {
-    player.atk = player.baseAtk + player.activeBuffs.reduce((sum, item) => sum + item.value, 0);
-}
+function enemyTurn() {
+    if (!isBattle || currentEnemy.hp <= 0) return;
+    let dmg = Math.floor(currentEnemy.atk + (Math.random() * 6 - 3));
+    hero.hp = Math.max(0, hero.hp - dmg);
 
-function getAttackBuffText() {
-    if(player.activeBuffs.length === 0) return "なし";
-    return player.activeBuffs.map(item => `<span style='color:#f1c40f;'>${item.name}(+${item.value}) ⏳${item.turnsLeft}T</span>`).join(", ");
-}
-
-function obtainItem() {
-    let baseItem = itemPool[Math.floor(Math.random() * itemPool.length)];
-    let item = { id: ++itemIdCount, ...baseItem };
-    player.inventory.push(item);
-    log("<span class='logLevel'>🎁 迷宮の暗がりで [" + item.name + "] を拾った！</span>");
-    draw();
-}
-
-function useItem(itemId) {
-    let index = player.inventory.findIndex(item => item.id === itemId);
-    if(index === -1) return;
-    let item = player.inventory[index];
-
-    if(item.effect === "attack"){
-        player.activeBuffs.push({ ...item, turnsLeft: ATTACK_BUFF_TURNS });
-        log("<span class='logLevel'>✨ " + item.name + " を装備！一時的に攻撃が鋭くなった。</span>");
-    } else if(item.effect === "heal") {
-        player.hp += item.value;
-        if(player.hp > player.maxHp) player.hp = player.maxHp;
-        log("<span class='logHeal'>💊 " + item.name + " を使用。HP回復！</span>");
+    if (activeMonsterMesh) {
+        activeMonsterMesh.position.y += 0.3;
+        setTimeout(() => activeMonsterMesh.position.y -= 0.3, 150);
     }
 
-    player.inventory.splice(index, 1);
-    draw();
+    document.getElementById("game").classList.add("shake");
+    setTimeout(() => document.getElementById("game").classList.remove("shake"), 300);
+    playSound(140, 0.25, 'sawtooth');
+
+    typeMessage(`${currentEnemy.name} の こうげき！\nゆうしゃは ${dmg} のダメージを うけた！`);
+    updateUI();
+
+    if (hero.hp <= 0) {
+        setTimeout(() => { alert("あなたは しにました…"); resetGame(); }, 1000);
+    }
 }
 
-function showClearScreen() {
-    gameCleared = true;
-    document.getElementById("clearOverlay").classList.add("isVisible");
-    setBattleButtons(false);
-    setMoveButtons(false);
-    notifyGameEnded(COIN_REWARD);
+// ★ 戦闘終了後、ダンジョンへ戻る ★
+function endBattle() {
+    triggerFade(() => {
+        isBattle = false;
+        currentEnemy = null;
+        document.getElementById("enemyHpContainer").style.display = "none";
+        if (activeMonsterMesh) { scene.remove(activeMonsterMesh); activeMonsterMesh = null; }
+        typeMessage("広大な迷宮を 探索中... (移動: W/A/S/D または 矢印キー)");
+        updateUI();
+    });
 }
 
-function restart() {
-    player = { hp: 180, maxHp: 180, baseAtk: 35, atk: 50, level: 1, exp: 0, inventory: [], activeBuffs: [] };
-    posX = 1.5; posY = 1.5; dirAngle = 0;
-    itemIdCount = 0;
-    gameCleared = false;
-    document.getElementById("clearOverlay").classList.remove("isVisible");
-    document.getElementById("log").innerHTML = "<span class='logSystem'>3Dダンジョンの迷宮へ侵入した…</span><br>";
+function toggleSub(id) {
+    if (!isBattle) return;
+    const el = document.getElementById(id);
+    const isOpen = el.classList.contains("active");
+    closeSub();
+    if (!isOpen) el.classList.add("active");
+}
+function closeSub() {
+    document.querySelectorAll(".sub-menu").forEach(m => m.classList.remove("active"));
+}
+
+// ミニマップ
+const miniCanvas = document.getElementById("minimap");
+const miniCtx = miniCanvas.getContext("2d");
+function renderMinimap() {
+    miniCtx.clearRect(0, 0, 140, 140);
+    let size = 6.5;
+    for (let r = 0; r < map.length; r++) {
+        for (let c = 0; c < map[r].length; c++) {
+            if (map[r][c] === 1) miniCtx.fillStyle = "#555";
+            else if (map[r][c] === 2) miniCtx.fillStyle = "#f00";
+            else miniCtx.fillStyle = "#111";
+            miniCtx.fillRect(c * size + 5, r * size + 5, size - 0.5, size - 0.5);
+        }
+    }
+    miniCtx.fillStyle = "#ff0";
+    miniCtx.beginPath();
+    miniCtx.arc(hero.gridX * size + 8, hero.gridZ * size + 8, 2.5, 0, Math.PI * 2);
+    miniCtx.fill();
+}
+
+function resetGame() {
+    hero = { gridX: 1, gridZ: 1, dir: 0, posX: 3, posZ: 3, rotY: -Math.PI / 2, hp: 100, maxHp: 100, mp: 50, maxMp: 50, atk: 30, baseAtk: 30, lv: 1, exp: 0 };
+    targetPosX = 3; targetPosZ = 3; targetRotY = -Math.PI / 2;
     endBattle();
+    renderMinimap();
 }
 
-// 3Dアニメーション用ループ（浮遊エフェクト更新などのため）
-function animationLoop() {
-    render3D();
-    requestAnimationFrame(animationLoop);
+// アニメーションループ
+function animate() {
+    requestAnimationFrame(animate);
+    updateCameraSmooth();
+
+    if (activeMonsterMesh && isBattle) {
+        activeMonsterMesh.position.y = 0.2 + Math.sin(Date.now() * 0.005) * 0.06;
+        activeMonsterMesh.rotation.y = Math.sin(Date.now() * 0.002) * 0.1;
+    }
+
+    renderer.render(scene, camera);
 }
 
-// 開始
-restart();
-animationLoop();
+typeMessage("広大なリアル3D迷宮へ ようこそ！ 移動開始でBGMが流れます。");
+renderMinimap();
+updateUI();
+animate();
 </script>
-
 </body>
 </html>
